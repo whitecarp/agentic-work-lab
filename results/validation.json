@@ -1,10 +1,34 @@
 {
   "checked_date": "2026-10-28",
   "node_version": "26.11.1",
-  "workflow_tests": {"total": 10, "passed": 10, "failed": 0},
-  "merchant_demo": {"synthetic_records": 3, "completed": true, "outreach_sent": false},
-  "channel_report": {"source_records": 52, "completed": true, "causal_comparison": false},
-  "local_video_hash_checks": {"files": 16, "verified": 16, "mismatches": 0},
-  "note_zh_hant": "影片雜湊結果是本地交付檔的核驗；GitHub 上傳狀態另見媒體清單。",
-  "note_en": "Video hash results verify local deliverables; GitHub upload status is tracked separately in the media manifest."
+  "workflow_tests": {
+    "total": 10,
+    "passed": 10,
+    "failed": 0
+  },
+  "merchant_demo": {
+    "synthetic_records": 3,
+    "completed": true,
+    "outreach_sent": false
+  },
+  "channel_report": {
+    "source_records": 52,
+    "completed": true,
+    "causal_comparison": false
+  },
+  "local_video_hash_checks": {
+    "files": 16,
+    "verified": 16,
+    "mismatches": 0
+  },
+  "note_zh_hant": "本地交付檔已核驗；GitHub API 回傳的 16 個影片大小與 SHA-256 均相符，下載連結見媒體清單。",
+  "note_en": "Local deliverables are verified; all 16 GitHub API-reported video sizes and SHA-256 digests match. Download links are in the media manifest.",
+  "github_release_checks": {
+    "verified_at": "2026-10-28T08:58:11.374Z",
+    "release_url": "https://github.com/whitecarp/ai-video-lab/releases/tag/archive-2026-10-28",
+    "files": 16,
+    "published": 16,
+    "size_and_sha256_matches": 16,
+    "mismatches": 0
+  }
 }

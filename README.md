@@ -8,7 +8,7 @@
 繁體中文 / English · 首次整理 First edition: **2026-10-28**
 
 🎬 **Bilibili：[穿睡衣的小白白 · UID 10706217](https://space.bilibili.com/10706217)**  
-📦 **[影片下載 / Video downloads](https://github.com/whitecarp/ai-video-lab/releases)** · **[影片目錄 / Video catalogue](media/README.md)**  
+📦 **[影片下載 / Video downloads](https://github.com/whitecarp/ai-video-lab/releases/tag/archive-2026-10-28)** · **[影片目錄 / Video catalogue](media/README.md)**  
 📊 **[帳號與營運資料 / Channel and operations data](data/README.md)**
 
 ## 給面試官的快速導覽 / A quick guide for interviewers
@@ -22,9 +22,9 @@
 | 如何讀取與比較數據 / Reading and comparing data | [數據對比 / Data comparison](docs/data-comparison.md) |
 | 如何讓同事接手 / Enabling teammates | [商戶簡報範本 / Merchant brief](templates/merchant-brief.md) · [營運檢查表 / Checklist](templates/operations-checklist.md) |
 
-**目前可核驗：** 52 筆稿件資料、69 筆去識別營運事件、16 個本地影片交付檔、4 個可執行腳本，以及 10 項通過的流程測試。商戶示例使用虛構資料；沒有把模擬結果寫成真實簽約或團隊提效業績。
+**目前可核驗：** 52 筆稿件資料、69 筆去識別營運事件、16 個已公開影片檔、4 個腳本／模組，以及 10 項通過的流程測試。商戶示例使用虛構資料；沒有把模擬結果寫成真實簽約或團隊提效業績。
 
-**Currently verifiable:** 52 upload records, 69 de-identified operations events, 16 local video deliverables, four runnable scripts/modules, and ten passing workflow tests. The merchant example uses fictional data; simulated results are not presented as real partnerships or measured team-efficiency gains.
+**Currently verifiable:** 52 upload records, 69 de-identified operations events, 16 publicly downloadable video deliverables, four runnable scripts/modules, and ten passing workflow tests. The merchant example uses fictional data; simulated results are not presented as real partnerships or measured team-efficiency gains.
 
 我以需求提出、選題方向、回饋與審片推進專案，AI 協助研究、編寫程式及製作。這份作品集展示的是把工具落到實際流程、發現錯誤並改善交付的能力；程式與文件也明確標示 AI 協助。
 
