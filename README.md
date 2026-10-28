@@ -1,9 +1,9 @@
-# AI 應用實作作品集 / Applied AI Portfolio
+# AI 工作實驗室 / AI at Work Lab
 
-### Business Development · 研究、執行與團隊效率 / Research, execution & team enablement
+### 從日常任務到可複用的工作流程 / From everyday tasks to reusable workflows
 
-**把 AI 融入日常工作：用真實帳號驗證流程，再將方法整理成商戶拓展可複用的工具。**  
-**Apply AI to everyday work: validate workflows on a real channel, then turn the lessons into reusable merchant-development tools.**
+**探索 AI 如何協助資料研究、內容製作與營運，把實作經驗整理成可重跑、可檢查、可交接的方法。**  
+**Explore how AI supports research, content production, and operations, then turn practical lessons into repeatable, verifiable workflows that others can use.**
 
 繁體中文 / English · 首次整理 First edition: **2026-10-28**
 
@@ -15,24 +15,28 @@
 
 **最新更新 / Latest update:** [2026-10-28 晚間：新增三個影片版本、首日數據與逐幀修復 / Three video versions, day-one analytics and frame-level repair](docs/updates/2026-10-28-evening.md)
 
-## 給面試官的快速導覽 / A quick guide for interviewers
+## AI 如何協助實際工作 / How AI supports everyday work
 
-| 想了解 / To assess | 看這裡 / Start here |
+從具體任務出發，記錄 AI 能協助的步驟、人類需要判斷的地方，以及實際留下的成果。商戶拓展示例是延伸應用演示；影片製作與帳號營運則保留真實實作紀錄。
+
+Start with concrete tasks: document where AI can help, where human judgment is needed, and what the work produces. Merchant-development examples are application demos; video production and channel operations include records from actual use.
+
+| 工作中的用途 / Use in practice | 方法與成果 / Methods and outputs |
 |---|---|
-| 如何把 AI 用於商戶拓展 / Applying AI to merchant expansion | [BD 工作流與團隊試點 / BD workflow and team pilot](docs/business-development.md) |
-| 用了什麼工具、為什麼 / Tools used and why | [工具與插件選型 / Toolchain](docs/toolchain.md) |
-| GPT 與 DeepSeek 如何協作 / GPT and DeepSeek collaboration | [分工、真實驗證與測試邊界 / Roles, evidence, and evaluation limits](docs/model-workflow.md) |
-| 實際寫了哪些程式 / What was implemented | [程式導覽 / Code map](docs/code-map.md) · [可執行示例 / Scripts](scripts) |
-| 如何讀取與比較數據 / Reading and comparing data | [數據對比 / Data comparison](docs/data-comparison.md) |
-| 如何讓同事接手 / Enabling teammates | [商戶簡報範本 / Merchant brief](templates/merchant-brief.md) · [營運檢查表 / Checklist](templates/operations-checklist.md) |
+| 整理商戶資料、排列線索與準備溝通 / Organise merchant research, prioritise leads, and prepare outreach | [商戶拓展應用示例 / Merchant-development demo](docs/business-development.md) |
+| 選擇合適的 AI 工具與插件 / Choose AI tools and plugins for the task | [工具選型與使用方式 / Tool selection and usage](docs/toolchain.md) |
+| 分配研究、製作與檢查工作 / Coordinate research, production, and review | [GPT／DeepSeek 協作紀錄 / GPT/DeepSeek workflow evidence](docs/model-workflow.md) |
+| 將重複步驟整理成程式 / Turn repeated steps into reusable code | [程式導覽 / Code map](docs/code-map.md) · [可執行示例 / Scripts](scripts) |
+| 比較營運數據並檢查結論 / Compare operations data and check conclusions | [數據對比與限制 / Data comparison and limits](docs/data-comparison.md) |
+| 保存工作脈絡，方便團隊接手 / Preserve context for team handoffs | [商戶簡報範本 / Merchant brief](templates/merchant-brief.md) · [營運檢查表 / Checklist](templates/operations-checklist.md) |
 
 **目前可核驗：** 55 筆稿件資料、69 筆去識別營運事件、19 個已公開影片版本、4 個腳本／模組，以及 10 項通過的流程測試。商戶示例使用虛構資料；沒有把模擬結果寫成真實簽約或團隊提效業績。
 
 **Currently verifiable:** 55 upload records, 69 de-identified operations events, 19 publicly downloadable video versions, four runnable scripts/modules, and ten passing workflow tests. The merchant example uses fictional data; simulated results are not presented as real partnerships or measured team-efficiency gains.
 
-我以需求提出、選題方向、回饋與審片推進專案，AI 協助研究、編寫程式及製作。這份作品集展示的是把工具落到實際流程、發現錯誤並改善交付的能力；程式與文件也明確標示 AI 協助。
+我以需求提出、選題方向、回饋與審片推進專案，AI 協助研究、編寫程式及製作。這個實驗室記錄工具如何進入實際流程、遇到哪些錯誤，以及如何改善交付；程式與文件也明確標示 AI 協助。
 
-I drove requirements, editorial direction, feedback, and review, with AI assisting research, implementation, and production. The portfolio demonstrates putting tools into a working process, identifying failures, and improving delivery. Code and documentation are explicitly AI-assisted.
+I drove requirements, editorial direction, feedback, and review, with AI assisting research, implementation, and production. This lab records how tools fit into working processes, where they fail, and how delivery improves. Code and documentation are explicitly AI-assisted.
 
 ### 三個可重跑的入口 / Three reproducible entry points
 
