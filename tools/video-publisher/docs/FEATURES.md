@@ -10,7 +10,8 @@ The reference is [bili-cli](https://github.com/kukemc/bili-cli): content underst
 | 跨平台方案與去重 / Plan and dedup | Implemented | Implemented | Implemented | Implemented | Implemented |
 | 內置瀏覽器發布交接 / Native upload handoff | Implemented | Implemented | Implemented | Implemented | Implemented |
 | 獨立發布後端 / Standalone uploader | bili-cli | Optional API | Experimental browser | Not implemented | Not implemented |
-| 真實發片驗收 / Live upload acceptance | Pending | Pending | Pending | Pending | Pending |
+| 真實發片驗收 / Live upload acceptance | Pending | One private native upload verified | Pending | Pending | Pending |
+| YouTube 卡片／可點擊片尾 / Cards and clickable end screens | Not applicable | Not implemented | Not applicable | Not applicable | Not applicable |
 | 搜尋／推薦 / Discovery | Existing bili | Planned | Planned | Planned | Planned |
 | 作品／字幕／內容理解 / Content understanding | Existing bili | Planned, platform permitting | Planned, platform permitting | Planned, platform permitting | Planned, platform permitting |
 | 評論／收件箱／訊息 / Comments and inbox | Existing bili | Platform-specific adaptation planned | Planned | Planned | Planned |

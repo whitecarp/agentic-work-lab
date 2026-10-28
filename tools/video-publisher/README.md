@@ -8,7 +8,9 @@ Choose Bilibili, Douyin, YouTube, Instagram, X (Twitter), or any subset. Sign in
 
 **這不是五站全功能、自動實發均已驗證的產品。** 已實作統一方案、檔案快照、SHA-256 去重、持久回執、內置瀏覽器交接及可選後端。五站實發尚未驗收；X／Instagram API 與跨平台查詢／互動命令尚未實作。
 
-**This is not a fully verified five-platform autopublisher.** Implemented: a common plan, media snapshots, SHA-256 deduplication, durable receipts, in-app-browser handoff and optional backends. Live publication remains unverified. X/Instagram API clients and unified cross-platform query/interaction commands are not implemented.
+**This is not a fully verified five-platform autopublisher.** Implemented: a common plan, media snapshots, SHA-256 deduplication, durable receipts, in-app-browser handoff and optional backends. Full live-publication coverage remains incomplete. X/Instagram API clients and unified cross-platform query/interaction commands are not implemented.
+
+**已完成一項真實驗收 / One live workflow accepted:** YouTube 第一集原創影片已經由內置瀏覽器成功保存為私享，讀回文案、標籤、AI／兒童聲明與可見範圍。僅代表這次私密流程；卡片與可點擊片尾畫面尚未適配。 / One original episode was saved privately through YouTube Studio, with text, tags, AI/kids declarations and visibility checked. This covers that private workflow only; cards and clickable end screens are not implemented.
 
 **TikTok 已暫停 / TikTok suspended:** 本次香港（+852）手機登入未成功，已移除 TikTok 選項；歡迎其他地區可登入的帳號持有人透過 [B站](https://space.bilibili.com/10706217) 協助測試。[限制與招募說明 / Limitation and testing invitation](docs/TIKTOK_STATUS.md)。 / Our Hong Kong phone-number login test was unsuccessful. TikTok is disabled; volunteers with working accounts in other regions can contact us on Bilibili.
 

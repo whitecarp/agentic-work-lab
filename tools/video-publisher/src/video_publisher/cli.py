@@ -341,12 +341,13 @@ def capabilities():
     return {"platforms": {p: {"native_login": True,
              "publish_backend": {"bilibili": "bili-cli or native", "douyin": "experimental browser or native", "youtube": "native (default) or optional API"}.get(p, "native host-agent workflow"),
              "standalone_cli_publish": p in {"bilibili", "youtube", "douyin"},
-             "live_upload_verified": False} for p in PLATFORMS},
+             "live_upload_verified": p == "youtube"} for p in PLATFORMS},
+            "live_verification_scope": "2026-10-29: one original video saved privately through YouTube Studio, checked by host UI. Not API validation or public playback; other platforms remain pending.",
             "native_execution": "The host agent performs real UI actions. A CLI handoff alone is not an executed action or confirmed login.",
             "bili_cli": "Use installed bili directly for its existing search, video, inbox, comment and creator-data commands.",
             "planned_common_commands": ["account", "search", "video", "works", "analytics", "comments", "inbox"],
             "suspended_platforms": {"tiktok": "Login test with a Hong Kong number was unsuccessful; see docs/TIKTOK_STATUS.md."},
-            "not_implemented": "Unified non-Bilibili read/interaction commands and X/Instagram official API clients.",
+            "not_implemented": "Unified non-Bilibili read/interaction commands, X/Instagram official API clients, and YouTube cards/clickable end screens.",
             "interaction_rule": "Login/setup does not authorize comments, messages, likes or publication."}
 
 
