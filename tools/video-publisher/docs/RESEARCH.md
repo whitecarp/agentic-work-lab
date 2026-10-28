@@ -14,11 +14,11 @@ YouTube reused an existing in-app session. Instagram reached an authenticated ho
 
 Sources: [Desktop OAuth](https://developers.google.com/youtube/data/guides/auth/installed-apps), [resumable upload](https://developers.google.com/youtube/data/guides/using_resumable_upload_protocol), [videos.insert](https://developers.google.com/youtube/data/reference/rest/v3/videos/insert).
 
-## TikTok
+## TikTok（已暫停 / Suspended）
 
-Direct Post 需要應用與使用者授權，未通過審查的 API client 有私密可見限制；使用者要能預覽、選擇當前允許的受眾並同意上傳。因此，不能把「個人有帳號」說成「公共 API 發布已可用」。本版不實作 TikTok API，先驗證官方網頁流程。
+Direct Post 需要應用與使用者授權，未通過審查的 API client 有私密可見限制；使用者要能預覽、選擇當前允許的受眾並同意上傳。因此，不能把「個人有帳號」說成「公共 API 發布已可用」。本次香港手機登入未成功，現已暫停全部 TikTok 適配，詳見 [狀態說明](TIKTOK_STATUS.md)。
 
-Direct Post needs app/user authorization; unaudited API clients face private-viewing restrictions. Its UX requires preview, allowed audience choices and consent. Having an account does not establish public API publishing access. This version validates the official web workflow first and does not implement a TikTok API client.
+Direct Post needs app/user authorization; unaudited API clients face private-viewing restrictions. Its UX requires preview, allowed audience choices and consent. Having an account does not establish public API publishing access. After an unsuccessful Hong Kong phone-number login test, all TikTok integration is suspended; see [status](TIKTOK_STATUS.md).
 
 Sources: [Direct Post prerequisites](https://developers.tiktok.com/docs/en/content-posting-api-get-started), [content sharing guidelines](https://developers.tiktok.com/docs/en/content-sharing-guidelines).
 
@@ -37,3 +37,11 @@ B站復用 bili-cli；抖音官方開放平台有應用能力和授權要求，�
 Bilibili reuses bili-cli. Douyin's open platform has app-capability/authorization requirements, while its official website offers an account workflow. Optional pinned SAU helpers fill forms; this tool controls single submission and receipts.
 
 Sources: [bili-cli](https://github.com/kukemc/bili-cli), [Douyin video-create documentation](https://open.douyin.com/platform/resource/docs/openapi/video-management/douyin/create/create-video), [social-auto-upload pinned source](https://github.com/dreammis/social-auto-upload/tree/3847fff01f5434a8a32829833163cd6723cabc59).
+
+## X（Twitter）
+
+先提供官方網頁交接，不要求觀眾申請 API 金鑰。X 的單一帖文需要將標題、說明、hashtag 與 AI 聲明合併；實際文案計數和媒體規格由帳號頁面核對。回執使用 handle 與數字 status ID，驗證作者及網址一致。完整查詢／互動命令尚未實作。
+
+The initial route hands off to the official website without requiring viewer API keys. It combines title, description, hashtags and AI disclosure into one post; verify the actual site's character counter and media constraints. Receipts bind the handle and numeric status ID to the matching author URL. Unified query/interaction commands are not implemented.
+
+Source: [X web video upload](https://help.x.com/en/using-x/x-videos). Implementation: [X guide](X_GUIDE.md).

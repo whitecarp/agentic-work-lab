@@ -8,13 +8,14 @@ from pathlib import Path
 import subprocess
 import sys
 
-from .core import VpubError, atomic_json, config, home, read_json
+from .core import VpubError, atomic_json, config, home, read_json, stop_check, platform_check
 
 SCOPES = ["https://www.googleapis.com/auth/youtube.upload",
           "https://www.googleapis.com/auth/youtube.readonly"]
 
 
 def bili(args, timeout=180):
+    stop_check("bilibili")
     env = dict(os.environ, PYTHONIOENCODING="utf-8")
     # The existing local wrapper applies this HTTPX compatibility fix too.
     for key in ("NO_PROXY", "no_proxy"):
@@ -88,11 +89,13 @@ def dy_worker(action, account, plan=None, timeout=180):
 
 
 def auth_status(platform, account, method=None):
+    platform_check(platform)
+    stop_check(platform)
     method = method or {"bilibili": "cli", "douyin": "browser"}.get(platform, "native")
     if method == "native":
         from .native_browser import login
         return login(platform)
-    supported = {"bilibili": {"cli"}, "douyin": {"browser"}, "youtube": {"api"}, "tiktok": set(), "instagram": set()}
+    supported = {"bilibili": {"cli"}, "douyin": {"browser"}, "youtube": {"api"}, "x": set(), "instagram": set()}
     if method not in supported[platform]:
         raise VpubError("invalid_method", "This backend is unavailable on the selected platform.")
     if platform == "bilibili":
@@ -110,11 +113,13 @@ def auth_status(platform, account, method=None):
 
 
 def auth_login(platform, account, client_json=None, method=None):
+    platform_check(platform)
+    stop_check(platform)
     method = method or ("api" if client_json else "native")
     if method == "native":
         from .native_browser import login
         return login(platform)
-    supported = {"bilibili": {"cli"}, "douyin": {"browser"}, "youtube": {"api"}, "tiktok": set(), "instagram": set()}
+    supported = {"bilibili": {"cli"}, "douyin": {"browser"}, "youtube": {"api"}, "x": set(), "instagram": set()}
     if method not in supported[platform]:
         raise VpubError("invalid_method", "This login method is unavailable on the selected platform.")
     if platform == "bilibili":

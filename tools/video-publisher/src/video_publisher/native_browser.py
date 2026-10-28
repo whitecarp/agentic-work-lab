@@ -10,24 +10,26 @@ import re
 from urllib.parse import urlsplit, parse_qs
 
 from .core import (Ledger, VpubError, atomic_json, file_sha, home, now,
-                   publication_lock, read_json, stop_check)
+                   publication_lock, read_json, stop_check, platform_check)
 
 URLS = {
     "bilibili": "https://member.bilibili.com/",
     "youtube": "https://studio.youtube.com/",
     "douyin": "https://creator.douyin.com/creator-micro/home",
-    "tiktok": "https://www.tiktok.com/",
+    "x": "https://x.com/",
     "instagram": "https://www.instagram.com/",
 }
 
 
 def login(platform):
+    platform_check(platform)
     return {"state": "NATIVE_BROWSER_REQUIRED", "platform": platform,
             "method": "native", "logged_in": None, "login_url": URLS[platform],
             "hint": "Open this official URL directly in the host's built-in browser. Reuse the existing tab/session; let the user complete login. Inspect the actual creator dashboard. CLI cannot read that session."}
 
 
 def queue(platform, plan, options):
+    platform_check(platform)
     key = Ledger.key(platform, options["account"], plan["video_sha256"])
     path = home() / "browser-jobs" / (key + ".json")
     atomic_json(path, {"key": key, "platform": platform, "created_at": now(),
@@ -38,12 +40,13 @@ def queue(platform, plan, options):
 
 
 def request(key):
-    stop_check()
     ledger = Ledger()
     try:
         old = ledger.get(key)
         if not old or old["data"].get("options", {}).get("method") != "native":
             raise VpubError("not_found", "Native browser request not found.")
+        platform_check(old["platform"])
+        stop_check(old["platform"])
         job = read_json(home() / "browser-jobs" / (key + ".json"))
         if job["plan"]["confirmation"] != old["data"]["plan_hash"]:
             raise VpubError("request_changed", "Browser request differs from its recorded plan.")
@@ -71,8 +74,11 @@ def begin(key, identity):
             raise VpubError("identity_required", "Read the actual account identity in the creator dashboard first.")
         if job["platform"] == "youtube" and not re.fullmatch(r"UC[\w-]{22}", identity):
             raise VpubError("invalid_identity", "Use the channel ID observed in the actual YouTube Studio URL.")
+        if job["platform"] == "x" and not re.fullmatch(r"[A-Za-z0-9_]{1,15}", identity):
+            raise VpubError("invalid_identity", "Use the signed-in X handle without @.")
         expected = job["options"].get("expected_channel_id") or job["options"].get("expected_identity") or job["options"].get("expected_uid")
-        if expected and expected != identity:
+        matches = expected.lower() == identity.lower() if expected and job["platform"] == "x" else expected == identity
+        if expected and not matches:
             raise VpubError("wrong_account", "Visible channel differs from the manifest.")
         ledger = Ledger()
         try:
@@ -89,7 +95,7 @@ def begin(key, identity):
 def record(key, evidence_path):
     evidence = read_json(evidence_path)
     allowed = {"id", "page_url", "identity", "title", "description", "tags", "visibility", "made_for_kids",
-               "ai_generated", "observation", "outcome"}
+               "ai_generated", "observation", "outcome", "post_text"}
     if not isinstance(evidence, dict) or set(evidence) - allowed:
         raise VpubError("invalid_evidence", "Use only documented browser-evidence fields; never include cookies or raw page dumps.")
     outcome = evidence.get("outcome")
@@ -121,7 +127,13 @@ def record(key, evidence_path):
                 elif old["platform"] == "bilibili":
                     valid = isinstance(video_id, str) and re.fullmatch(r"BV[\w]{10}", video_id) and u.netloc == "www.bilibili.com" and u.path.rstrip("/") == f"/video/{video_id}" and not u.query
                 elif old["platform"] == "tiktok":
+                    # Legacy receipts remain recordable; new requests are disabled.
                     valid = isinstance(video_id, str) and video_id.isdigit() and u.netloc == "www.tiktok.com" and re.fullmatch(r"/@[\w.-]+/video/" + re.escape(video_id), u.path) and not u.query
+                elif old["platform"] == "x":
+                    handle = old["data"]["browser_identity"]
+                    valid = (isinstance(video_id, str) and re.fullmatch(r"[0-9]+", video_id)
+                             and u.netloc in {"x.com", "www.x.com", "twitter.com", "www.twitter.com"}
+                             and u.path.lower() == f"/{handle}/status/{video_id}".lower() and not u.query)
                 else:
                     valid = isinstance(video_id, str) and re.fullmatch(r"[\w-]+", video_id) and u.netloc == "www.instagram.com" and u.path.rstrip("/") in {f"/reel/{video_id}", f"/p/{video_id}"} and not u.query
                 if not valid:
@@ -132,6 +144,8 @@ def record(key, evidence_path):
                 fields = ["title", "description", "tags", "visibility", "ai_generated"]
                 if old["platform"] == "youtube":
                     fields.append("made_for_kids")
+                if old["platform"] == "x":
+                    fields.append("post_text")
                 if any(type(evidence.get(f)) is not type(opts[f]) or evidence[f] != opts[f] for f in fields):
                     raise VpubError("metadata_mismatch", "Read-back must match every approved metadata/declaration field.")
             previous = old["data"].get("receipt", {}).get("id")

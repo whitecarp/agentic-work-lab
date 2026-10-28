@@ -11,7 +11,7 @@ import sqlite3
 import tempfile
 from datetime import datetime, timezone
 
-PLATFORMS = ("bilibili", "youtube", "douyin", "tiktok", "instagram")
+PLATFORMS = ("bilibili", "youtube", "douyin", "instagram", "x")
 SAU_COMMIT = "3847fff01f5434a8a32829833163cd6723cabc59"
 
 
@@ -77,14 +77,39 @@ def config():
     return read_json(p) if p.exists() else {}
 
 
-def stop_check():
+def platform_check(platform):
+    if platform == "tiktok":
+        raise VpubError("platform_suspended", "TikTok support is suspended after an unsuccessful Hong Kong phone-number login test.",
+                        "See docs/TIKTOK_STATUS.md. Existing receipts are retained; no new login or upload is allowed.")
+    if platform not in PLATFORMS:
+        raise VpubError("invalid_platform", "Choose " + ", ".join(PLATFORMS))
+
+
+def x_post_text(title, description, tags, ai_generated):
+    # X has one post body, not separate title/description/tag fields.
+    parts = [title, description, " ".join("#" + t.lstrip("#") for t in tags)]
+    if ai_generated:
+        parts.append("AI 生成內容 / AI-generated")
+    return "\n\n".join(p for p in parts if p)
+
+
+def stop_check(platform=None):
     candidates = [home() / "STOP.json"]
     external = config().get("external_stop_file")
     if external:
         candidates.append(Path(external))
-    for path in candidates:
+    for index, path in enumerate(candidates):
         # Presence stops publication; malformed stop files also stop it.
         if path.exists():
+            if index == 1 and platform and platform != "bilibili":
+                try:
+                    signal = read_json(path)
+                except (OSError, ValueError):
+                    signal = None
+                # Recognize only this exact, explicit scope. Unknown/malformed
+                # signals and this tool's own STOP remain global and fail closed.
+                if isinstance(signal, dict) and signal.get("state") == "STOP_ALL_BILIBILI_READ_WRITE":
+                    continue
             raise VpubError("stopped", f"Publication stop file exists: {path}",
                             "Inspect the stop reason. Only the operator may clear it.")
 
@@ -104,8 +129,10 @@ def load_plan(path, selected=None):
     if cover and (not cover.is_file() or cover.suffix.lower() not in {".jpg", ".jpeg", ".png"}):
         raise VpubError("invalid_cover", "Cover must be an existing JPG or PNG.")
     entries = m.get("platforms")
+    if isinstance(entries, dict) and "tiktok" in entries:
+        platform_check("tiktok")
     if not isinstance(entries, dict) or not entries or set(entries) - set(PLATFORMS):
-        raise VpubError("invalid_platform", "Choose bilibili, youtube, douyin, tiktok and/or instagram.")
+        raise VpubError("invalid_platform", "Choose bilibili, youtube, douyin, instagram and/or x.")
     chosen = selected or list(entries)
     if not chosen or set(chosen) - set(entries) or len(chosen) != len(set(chosen)):
         raise VpubError("invalid_platform", "Selected platforms must exist in the manifest and be unique.")
@@ -118,7 +145,7 @@ def load_plan(path, selected=None):
         permitted |= {"tid", "expected_uid", "method"} if platform == "bilibili" else set()
         permitted |= {"category_id", "made_for_kids", "expected_channel_id", "method"} if platform == "youtube" else set()
         permitted |= {"method"} if platform == "douyin" else set()
-        permitted |= {"method", "expected_identity"} if platform in {"tiktok", "instagram"} else set()
+        permitted |= {"method", "expected_identity"} if platform in {"x", "instagram"} else set()
         if set(v) - permitted:
             raise VpubError("invalid_manifest", f"Unsupported {platform} options: {sorted(set(v) - permitted)}")
         if v.get("account", "default") != "default":
@@ -129,14 +156,18 @@ def load_plan(path, selected=None):
             raise VpubError("invalid_method", "Douyin method must be native or browser.")
         if platform == "bilibili" and v.get("method", "cli") not in {"native", "cli"}:
             raise VpubError("invalid_method", "Bilibili method must be native or cli.")
-        if platform in {"tiktok", "instagram"} and v.get("method", "native") != "native":
-            raise VpubError("invalid_method", "TikTok/Instagram currently require the host's native browser; official API integration is not implemented.")
+        if platform in {"x", "instagram"} and v.get("method", "native") != "native":
+            raise VpubError("invalid_method", "X/Instagram currently require the host's native browser; official API integration is not implemented.")
+        if platform == "x" and v.get("expected_identity") is not None and not re.fullmatch(r"[A-Za-z0-9_]{1,15}", str(v["expected_identity"])):
+            raise VpubError("invalid_identity", "Use the X handle without @, as observed in the signed-in profile.")
+        if platform == "x" and cover:
+            raise VpubError("unsupported_cover", "X native alpha uses the video's default thumbnail; shared covers are not implemented.")
         if platform == "douyin" and cover:
             raise VpubError("unsupported_cover", "Douyin v0.1 uses the platform's automatic cover. Remove the shared cover or publish Bilibili/YouTube separately with it.")
         title = v.get("title", m.get("title", ""))
         desc = v.get("description", m.get("description", ""))
         tags = v.get("tags", m.get("tags", []))
-        limit = {"bilibili": 80, "youtube": 100, "douyin": 30, "tiktok": 100, "instagram": 100}[platform]
+        limit = {"bilibili": 80, "youtube": 100, "douyin": 30, "x": 100, "instagram": 100}[platform]
         if not isinstance(title, str) or not title.strip() or len(title) > limit or any(c in title for c in "\r\n\x00"):
             raise VpubError("invalid_title", f"{platform} title must contain 1–{limit} characters, one line.")
         if not isinstance(desc, str) or "\x00" in desc or len(desc) > (2000 if platform != "youtube" else 5000):
@@ -151,7 +182,7 @@ def load_plan(path, selected=None):
             raise VpubError("invalid_tags", "YouTube tags exceed the 500-character budget.")
         visibility = v.get("visibility")
         supported = {"bilibili": {"public", "private"}, "youtube": {"public", "private", "unlisted"}, "douyin": {"public"},
-                     "tiktok": {"public", "friends", "private"}, "instagram": {"account"}}
+                     "x": {"account"}, "instagram": {"account"}}
         if visibility not in supported[platform]:
             raise VpubError("invalid_visibility", f"Explicit {platform} visibility required: {sorted(supported[platform])}")
         if type(v.get("ai_generated")) is not bool:
@@ -163,7 +194,7 @@ def load_plan(path, selected=None):
             raise VpubError("invalid_audience", "YouTube made_for_kids must be explicitly true/false.")
         schedule = v.get("schedule")
         if schedule:
-            if platform in {"douyin", "tiktok", "instagram"} or v.get("method") == "native":
+            if platform in {"douyin", "x", "instagram"} or v.get("method") == "native":
                 raise VpubError("unsupported_schedule", "This route supports immediate publication only.")
             if platform == "youtube" and v.get("method", "native") != "api":
                 raise VpubError("unsupported_schedule", "YouTube browser v0.1 supports immediate publication; scheduled API mode is optional.")
@@ -182,8 +213,14 @@ def load_plan(path, selected=None):
             plans[platform]["method"] = v.get("method", "native")
         if platform == "douyin":
             plans[platform]["method"] = v.get("method", "browser")
-        if platform in {"tiktok", "instagram"}:
+        if platform in {"x", "instagram"}:
             plans[platform]["method"] = "native"
+        if platform == "x":
+            if any(not re.fullmatch(r"#?\w+", t) for t in tags):
+                raise VpubError("invalid_tags", "X hashtags must contain only letters, digits or underscores, without spaces.")
+            plans[platform]["post_text"] = x_post_text(title, desc, tags, v["ai_generated"])
+            # The actual website counter (URL/emoji/CJK weights, account plan)
+            # is authoritative. Never silently truncate or assume Premium.
         if platform == "bilibili":
             plans[platform]["method"] = v.get("method", "cli")
     payload = {"schema_version": 1, "video": str(vp), "video_sha256": file_sha(vp),

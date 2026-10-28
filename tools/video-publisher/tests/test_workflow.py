@@ -100,6 +100,27 @@ class WorkflowTests(unittest.TestCase):
         atomic_json(home() / "config.json", {"external_stop_file": str(external)})
         self.code("stopped", stop_check)
 
+    def test_explicit_bilibili_stop_preserved_while_youtube_allowed(self):
+        external = self.root / "bilibili-stop.json"
+        atomic_json(external, {"state": "STOP_ALL_BILIBILI_READ_WRITE", "reason": "rate_limited"})
+        atomic_json(home() / "config.json", {"external_stop_file": str(external)})
+        self.code("stopped", stop_check, "bilibili")
+        self.code("stopped", adapters.auth_status, "bilibili", "default")
+        stop_check("youtube")
+        self.native_job("youtube")
+        self.assertTrue(external.exists())
+
+    def test_unknown_or_local_stop_cannot_be_narrowed(self):
+        external = self.root / "external-stop.json"
+        atomic_json(external, {"state": "NEW_UNKNOWN_STOP"})
+        atomic_json(home() / "config.json", {"external_stop_file": str(external)})
+        self.code("stopped", stop_check, "youtube")
+        atomic_json(external, {"state": "STOP_ALL_BILIBILI_READ_WRITE"})
+        atomic_json(home() / "STOP.json", {"state": "STOP_ALL_BILIBILI_READ_WRITE"})
+        self.code("stopped", stop_check, "youtube")
+        atomic_json(home() / "config.json", {"external_stop_file": str(home() / "STOP.json")})
+        self.code("stopped", stop_check, "youtube")
+
     def test_concurrent_lock_refused(self):
         with publication_lock():
             self.code("busy", lambda: publication_lock().__enter__())
@@ -245,6 +266,74 @@ class WorkflowTests(unittest.TestCase):
             self.assertEqual(0, r["platform_writes"])
             publish.assert_not_called()
             status.assert_not_called()
+
+    def test_tiktok_is_suspended_in_selection_and_old_manifests(self):
+        self.assertNotIn("tiktok", cli.PLATFORMS)
+        self.assertIn("x", cli.PLATFORMS)
+        self.assertIn("tiktok", cli.capabilities()["suspended_platforms"])
+        self.code("platform_suspended", native_browser.login, "tiktok")
+        self.code("platform_suspended", adapters.auth_login, "tiktok", "default")
+        self.value["platforms"] = {"tiktok": {"method": "native"}}
+        self.save()
+        self.code("platform_suspended", self.plan)
+        # Previously prepared plans may not bypass suspension either.
+        old = {"platforms": {"tiktok": {}}, "confirmation": "old"}
+        self.code("platform_suspended", cli.publish_plan, old, "old")
+
+    def test_suspended_tiktok_pending_job_cannot_begin(self):
+        ledger = Ledger()
+        key = ledger.claim("tiktok", "default", "old-video", {"options": {"method": "native"}})
+        ledger.save(key, "WAITING_FOR_BROWSER", {"options": {"method": "native"}})
+        ledger.close()
+        self.code("platform_suspended", native_browser.begin, key, "tester")
+        ledger = Ledger()
+        self.assertEqual("WAITING_FOR_BROWSER", ledger.get(key)["state"])
+        ledger.close()
+
+    def x_manifest(self):
+        self.value.update(title="原創短片", description="Original short", tags=["AI"])
+        self.value["platforms"] = {"x": {"method": "native", "visibility": "account",
+                                             "ai_generated": True, "expected_identity": "tester"}}
+        self.save()
+
+    def test_x_caption_visibility_and_methods(self):
+        self.x_manifest()
+        p = self.plan()
+        self.assertEqual("原創短片\n\nOriginal short\n\n#AI\n\nAI 生成內容 / AI-generated", p["platforms"]["x"]["post_text"])
+        self.value["platforms"]["x"]["visibility"] = "private"
+        self.save()
+        self.code("invalid_visibility", self.plan)
+        self.value["platforms"]["x"]["visibility"] = "account"
+        self.value["tags"] = ["two words"]
+        self.save()
+        self.code("invalid_tags", self.plan)
+        self.value["tags"] = ["AI"]
+        self.value["platforms"]["x"]["method"] = "api"
+        self.save()
+        self.code("invalid_method", self.plan)
+
+    def test_x_receipt_binds_author_id_and_exact_caption(self):
+        self.x_manifest()
+        key = self.native_job("x")
+        self.code("wrong_account", native_browser.begin, key, "other")
+        native_browser.begin(key, "tester")
+        opts = self.plan()["platforms"]["x"]
+        e = {k: opts[k] for k in ("title", "description", "tags", "visibility", "ai_generated", "post_text")}
+        e.update(outcome="verified", id="123456789", identity="tester",
+                 page_url="https://x.com/other/status/123456789", observation="Synthetic X fixture only.")
+        path = self.root / "x-evidence.json"
+        atomic_json(path, e)
+        self.code("invalid_evidence", native_browser.record, key, path)
+        e["page_url"] = "https://x.com/tester/status/123456789"
+        e["post_text"] = "missing AI disclosure"
+        atomic_json(path, e)
+        self.code("metadata_mismatch", native_browser.record, key, path)
+        e["post_text"] = opts["post_text"]
+        atomic_json(path, e)
+        r = native_browser.record(key, path)
+        self.assertEqual("AGENT_REPORTED_VERIFIED", r["state"])
+        p = self.plan()
+        self.assertEqual("SKIPPED_EXISTING", cli.publish_plan(p, p["confirmation"])["results"]["x"]["state"])
 
 
 if __name__ == "__main__":

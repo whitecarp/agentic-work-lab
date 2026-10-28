@@ -33,9 +33,9 @@ Use the host's supported in-app browser. This workflow does not override user in
 }
 ```
 
-這是格式示例，不是觀察證據。`made_for_kids` 僅 YouTube；Instagram 用作品 shortcode 及 `visibility: account`；TikTok 用數字 ID 和 `/@name/video/ID` 官方網址。使用 caption 的平台，要核對組合後的標題、說明、標籤；不能省略欄位卻聲稱完整。
+這是格式示例，不是觀察證據。`made_for_kids` 僅 YouTube；Instagram 用作品 shortcode 及 `visibility: account`；X 用數字 status ID 和 `https://x.com/HANDLE/status/ID`；另須讀回完整 `post_text`，包括 AI 聲明。TikTok 已暫停，不得登入或發布。使用 caption 的平台，要核對組合後的標題、說明、標籤；不能省略欄位卻聲稱完整。
 
-This is a format example, not evidence. `made_for_kids` is YouTube-only; Instagram uses a shortcode and `visibility: account`; TikTok uses a numeric ID and official `/@name/video/ID` URL. For captions, verify the combined title, description and tags instead of claiming omitted fields were applied.
+This is a format example, not evidence. `made_for_kids` is YouTube-only; Instagram uses a shortcode and `visibility: account`; X uses a numeric status ID and `https://x.com/HANDLE/status/ID`, and additionally requires the exact `post_text` read-back including AI disclosure. TikTok is suspended; do not log in or publish. For captions, verify the combined title, description and tags instead of claiming omitted fields were applied.
 
 `AGENT_REPORTED_VERIFIED` 是宿主 UI 證據，不是 CLI 獨立查詢。`verify` 不重發。宿主缺少瀏覽器工具時，明確報告缺少能力。
 
@@ -44,3 +44,5 @@ This is a format example, not evidence. `made_for_kids` is YouTube-only; Instagr
 安裝與測試不建立排程、不恢復舊營運、不自動留言／私訊／按讚。維持原單一營運歸屬。不要將 Cookie、私訊、驗證碼、原始瀏覽器頁面或私人回執上傳 GitHub。
 
 Installation/testing creates no schedules, restarts no old operators and automatically sends no comments/messages/likes. Preserve the single existing operator. Do not publish cookies, private messages, verification codes, raw browser pages or private receipts to GitHub.
+
+X 操作與欄位見 [X_GUIDE](docs/X_GUIDE.md)；取消 TikTok 的原因及招募見 [TIKTOK_STATUS](docs/TIKTOK_STATUS.md)。 / See the linked X guide and TikTok status before proceeding.

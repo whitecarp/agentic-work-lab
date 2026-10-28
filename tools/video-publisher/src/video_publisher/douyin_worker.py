@@ -142,7 +142,7 @@ async def run(payload):
                         "note": "No matching visible work link on this page. Inspect creator center; never re-upload automatically."}
             before = set(await work_links(page))
             await page.goto(UPLOAD, wait_until="domcontentloaded", timeout=60000)
-            stop_check()
+            stop_check("douyin")
             await page.locator('input[type="file"]').first.set_input_files(plan["video"])
             # There is one bounded wait, not upstream's unbounded re-upload loop.
             await page.wait_for_url(re.compile(r"/content/(publish|post/video)"), timeout=120000)
@@ -166,7 +166,7 @@ async def run(payload):
             if await public.count() != 1 or not await public.is_checked():
                 raise VpubError("visibility_unverified", "The public visibility setting could not be confirmed. Finish through the native browser after inspecting the existing draft; do not re-upload.")
             await risk_check(page)
-            stop_check()
+            stop_check("douyin")
             button = page.get_by_role("button", name="发布", exact=True)
             receipt_path = home() / "browser-receipts" / (plan["confirmation"] + "-douyin.json")
             atomic_json(receipt_path, {"state": "UNKNOWN", "title": opts["title"], "review_url": MANAGE})

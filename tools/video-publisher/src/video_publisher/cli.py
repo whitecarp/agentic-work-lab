@@ -10,7 +10,7 @@ import sys
 
 from . import __version__, adapters
 from .core import (Ledger, PLATFORMS, SAU_COMMIT, VpubError, account_name, atomic_json,
-                   config, file_sha, home, load_plan, now, publication_lock, read_json, stop_check)
+                   config, file_sha, home, load_plan, now, publication_lock, read_json, stop_check, platform_check)
 
 RISK_CODES = {"risk_control", "captcha_required", "rate_limited"}
 
@@ -18,13 +18,15 @@ RISK_CODES = {"risk_control", "captcha_required", "rate_limited"}
 def publish_plan(plan, confirm):
     if confirm != plan["confirmation"]:
         raise VpubError("confirmation_required", "The confirmation hash must match the current plan.", "Run vpub plan MANIFEST and review the exact platforms, accounts and visibility.")
-    stop_check()
+    for platform in plan["platforms"]:
+        platform_check(platform)
+        stop_check(platform)
     results = {}
     with publication_lock():
         ledger = Ledger()
         try:
             for platform, opts in plan["platforms"].items():
-                stop_check()
+                stop_check(platform)
                 account = opts["account"]
                 key = ledger.key(platform, account, plan["video_sha256"])
                 old = ledger.get(key)
@@ -225,7 +227,7 @@ def execute(args):
     if args.command == "onboard":
         selected = list(PLATFORMS) if args.platforms == "all" else args.platforms.split(",")
         if not selected or set(selected) - set(PLATFORMS):
-            raise VpubError("invalid_platform", "Choose bilibili,youtube,douyin,tiktok,instagram or all.")
+            raise VpubError("invalid_platform", "Choose bilibili,youtube,douyin,instagram,x or all. TikTok is suspended.")
         return login_selected(selected, "native")
     if args.command == "auth":
         if args.platform == "all":
@@ -256,7 +258,7 @@ def execute(args):
             raise VpubError("invalid_platform", "Choose a unique subset of supported platforms.")
         value = template(args.video)
         options = value["platforms"]
-        options.update(tiktok={"account": "default", "method": "native", "visibility": "private", "ai_generated": True},
+        options.update(x={"account": "default", "method": "native", "visibility": "account", "ai_generated": True},
                        instagram={"account": "default", "method": "native", "visibility": "account", "ai_generated": True})
         value["platforms"] = {p: options[p] for p in chosen}
         atomic_json(out, value)
@@ -343,7 +345,8 @@ def capabilities():
             "native_execution": "The host agent performs real UI actions. A CLI handoff alone is not an executed action or confirmed login.",
             "bili_cli": "Use installed bili directly for its existing search, video, inbox, comment and creator-data commands.",
             "planned_common_commands": ["account", "search", "video", "works", "analytics", "comments", "inbox"],
-            "not_implemented": "Unified non-Bilibili read/interaction commands and TikTok/Instagram official API clients.",
+            "suspended_platforms": {"tiktok": "Login test with a Hong Kong number was unsuccessful; see docs/TIKTOK_STATUS.md."},
+            "not_implemented": "Unified non-Bilibili read/interaction commands and X/Instagram official API clients.",
             "interaction_rule": "Login/setup does not authorize comments, messages, likes or publication."}
 
 

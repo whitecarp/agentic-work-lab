@@ -4,7 +4,7 @@
 
 The reference is [bili-cli](https://github.com/kukemc/bili-cli): content understanding, work management, operational messages and authorized interaction. Plans below are not completed features.
 
-| 能力 / Capability | Bilibili | YouTube | Douyin | TikTok | Instagram |
+| 能力 / Capability | Bilibili | YouTube | Douyin | X (Twitter) | Instagram |
 |---|---|---|---|---|---|
 | 官方頁登入 / Official-page login | Native handoff | Native handoff | Native handoff | Native handoff | Native handoff |
 | 跨平台方案與去重 / Plan and dedup | Implemented | Implemented | Implemented | Implemented | Implemented |
@@ -21,10 +21,12 @@ The reference is [bili-cli](https://github.com/kukemc/bili-cli): content underst
 
 **Native handoff requires agent-driven UI work; it is not a claim that CLI retrieval or upload has occurred.** Existing Bilibili capabilities use installed `bili`; this project does not claim to reimplement or validate every upstream command.
 
-平台適配原則：B站投幣／三連／彈幕不硬套其他平台；Instagram 使用 caption 與帳號受眾；YouTube 使用影片可見範圍、兒童與合成內容聲明；TikTok 與抖音分開處理帳號、地區能力與創作者介面。跨平台數據保留平台、採樣時間與各自定義，不把不同播放口徑當成同一指標。
+平台適配原則：B站投幣／三連／彈幕不硬套其他平台；Instagram 使用 caption 與帳號受眾；YouTube 使用影片可見範圍、兒童與合成內容聲明；X 使用單一帖文、帳號受眾與 status ID；TikTok 已暫停。跨平台數據保留平台、採樣時間與各自定義，不把不同播放口徑當成同一指標。
 
-Adapt platform concepts rather than copying Bilibili coins/triples/danmaku everywhere. Instagram uses captions and account audience; YouTube has visibility, kids and synthetic-content controls; TikTok and Douyin have separate account/regional/creator capabilities. Analytics must retain platform, sampling time and metric definitions rather than treating differently defined views as equivalent.
+Adapt platform concepts rather than copying Bilibili coins/triples/danmaku everywhere. Instagram uses captions and account audience; YouTube has visibility, kids and synthetic-content controls; X uses a single post body, account audience and status ID; TikTok is suspended. Analytics must retain platform, sampling time and metric definitions rather than treating differently defined views as equivalent.
 
 下一步依序：完成已登入帳號的原創影片驗收、整合作品與數據讀取、再增加經使用者授權的評論／回覆。每項都需真實回讀、錯誤碼、去重及平台對應測試。
 
 Next: accept original-video publication on signed-in accounts, integrate works/analytics reads, then add explicitly authorized comments/replies. Each needs real read-back, error handling, deduplication and platform-specific tests.
+
+[X 操作說明 / X guide](X_GUIDE.md) · [TikTok 暫停及協助測試 / TikTok suspension and volunteer testing](TIKTOK_STATUS.md)
