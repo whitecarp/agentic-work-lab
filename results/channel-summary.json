@@ -9,7 +9,7 @@
       "records": 45,
       "published": 45,
       "not_yet_public": 0,
-      "published_views_sum": 1839368,
+      "published_views_sum": 1839794,
       "published_views_median": 15407,
       "views_available": 45,
       "views_missing": 0,
@@ -18,15 +18,15 @@
     },
     {
       "cohort": "current_ai_series",
-      "records": 7,
-      "published": 4,
-      "not_yet_public": 3,
-      "published_views_sum": 507,
-      "published_views_median": 146,
-      "views_available": 4,
+      "records": 10,
+      "published": 5,
+      "not_yet_public": 5,
+      "published_views_sum": 666,
+      "published_views_median": 183,
+      "views_available": 5,
       "views_missing": 0,
       "earliest_publication": "2026-10-25T19:30:00+08:00",
-      "latest_publication": "2026-10-28T12:00:00+08:00"
+      "latest_publication": "2026-10-28T19:30:00+08:00"
     }
   ]
 }

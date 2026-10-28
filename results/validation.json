@@ -12,23 +12,29 @@
     "outreach_sent": false
   },
   "channel_report": {
-    "source_records": 52,
+    "source_records": 55,
     "completed": true,
-    "causal_comparison": false
+    "causal_comparison": false,
+    "checked_at": "2026-10-28T13:18:44.206Z"
   },
   "local_video_hash_checks": {
-    "files": 16,
-    "verified": 16,
-    "mismatches": 0
+    "files": 19,
+    "verified": 19,
+    "mismatches": 0,
+    "previous_16_checked_on": "2026-10-28",
+    "new_3_checked_at": "2026-10-28T13:18:44.185Z"
   },
-  "note_zh_hant": "本地交付檔已核驗；GitHub API 回傳的 16 個影片大小與 SHA-256 均相符，下載連結見媒體清單。",
-  "note_en": "Local deliverables are verified; all 16 GitHub API-reported video sizes and SHA-256 digests match. Download links are in the media manifest.",
+  "note_zh_hant": "原有 10 項流程測試結果保留；本次重算 55 筆資料，核對 3 個新增本地影片及全部 19 個遠端影片。",
+  "note_en": "The existing ten workflow-test results are retained. This update recalculated 55 records and verified three new local videos and all 19 remote videos.",
   "github_release_checks": {
-    "verified_at": "2026-10-28T08:58:11.374Z",
-    "release_url": "https://github.com/whitecarp/ai-video-lab/releases/tag/archive-2026-10-28",
-    "files": 16,
-    "published": 16,
-    "size_and_sha256_matches": 16,
+    "verified_at": "2026-10-28T13:18:44.185Z",
+    "release_urls": [
+      "https://github.com/whitecarp/ai-video-lab/releases/tag/update-2026-10-28-evening",
+      "https://github.com/whitecarp/ai-video-lab/releases/tag/archive-2026-10-28"
+    ],
+    "files": 19,
+    "published": 19,
+    "size_and_sha256_matches": 19,
     "mismatches": 0
   }
 }

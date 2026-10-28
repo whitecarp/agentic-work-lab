@@ -4,9 +4,9 @@
 
 ## 覆蓋範圍 / Coverage
 
-本次取得公開投稿列表 **45** 筆、創作中心稿件 **52** 筆（兩頁），其中歷史人類主導作品 **45** 筆、目前 AI 系列 **7** 筆。兩個列表的可見範圍不同，分別保存，不為湊齊數字而合併或刪除。
+本次取得公開投稿列表 **46** 筆、創作中心稿件 **55** 筆（兩頁），其中歷史人類主導作品 **45** 筆、目前 AI 系列 **10** 筆。兩個列表的可見範圍不同，分別保存，不為湊齊數字而合併或刪除。
 
-The snapshot contains **45** public-list entries and **52** creator-centre entries across two pages: **45** historical human-led works and **7** current AI-series works. These endpoints expose different sets, so their records remain separate.
+The snapshot contains **46** public-list entries and **55** creator-centre entries across two pages: **45** historical human-led works and **10** current AI-series works. These endpoints expose different sets, so their records remain separate.
 
 | 資料 / Dataset | 內容 / Contents |
 |---|---|
@@ -18,6 +18,10 @@ The snapshot contains **45** public-list entries and **52** creator-centre entri
 | [過往 AI 數據快照 / Earlier AI snapshots](historical-ai-analytics.json) | 可取得的完播率、平均觀看與互動 / Available completion, average watch, and interaction metrics |
 | [營運事件 / Operations events](operations-events.json) | 69 筆去識別事件欄位 / 69 de-identified event records |
 | [排程驗證 / Scheduled-run evidence](scheduled-run-evidence.json) | 真正自動觸發與完成的時間 / Actual automatic trigger and completion times |
+
+新增資料：[第三期首日觀察](episode03-24h-2026-10-28.json)、[晚間製作與發布狀態](production-update-2026-10-28-evening.json)。下午快照保存在 [snapshot archive](snapshots/2026-10-28-afternoon/creator-video-snapshot.json)。
+
+New data: [episode 03 day-one observation](episode03-24h-2026-10-28.json) and [evening production/publication summary](production-update-2026-10-28-evening.json). The afternoon data remains in the [snapshot archive](snapshots/2026-10-28-afternoon/creator-video-snapshot.json).
 
 ## 解讀方式 / Interpretation
 

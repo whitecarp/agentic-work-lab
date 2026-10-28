@@ -1,0 +1,41 @@
+{
+  "date": "2026-10-28",
+  "videos": [
+    {
+      "bvid": "BV1C4xE6oEjS",
+      "title_zh_hant": "鯨魚娘代班日誌 04：幫個小忙",
+      "title_en": "Whale Girl Shift Log 04: small favours",
+      "state": "scheduled_on_bilibili",
+      "scheduled_time": "2026-11-01T12:00:00+08:00",
+      "source_video_sha256": "c23c171149bc47900a3b574b15fb01c873059ccc5e9a166c834d870bcbc86bb3",
+      "duration_seconds": 132
+    },
+    {
+      "bvid": "BV1Pkx76ZEsh",
+      "title_zh_hant": "鯨魚娘代班日誌 05：帳單",
+      "title_en": "Whale Girl Shift Log 05: the bill",
+      "state": "scheduled_on_bilibili",
+      "scheduled_time": "2026-11-01T19:30:00+08:00",
+      "source_video_sha256": "f735aca1bb770a16cbcfbabc7ecaaac37e19b14498f9279d717047e57e223901",
+      "duration_seconds": 148.2
+    },
+    {
+      "bvid": "BV1Mvx76YEty",
+      "title_zh_hant": "GPT 值班日記 05：Seedance 入門（閃圖修正版）",
+      "title_en": "GPT Duty Log 05: Seedance tutorial (flash correction)",
+      "state": "scheduled_on_bilibili",
+      "scheduled_time": "2026-10-30T19:30:00+08:00",
+      "source_video_sha256": "5dc121e833dcfc5a52ea0c3077b6b4e19e80815b45ba53ba6a3133ed3f5bda6b",
+      "duration_seconds": 434.466666667
+    }
+  ],
+  "whale02": {
+    "bvid": "BV1Wfx56JEih",
+    "published_at": "2026-10-28T19:30:00+08:00",
+    "confirmed_by": "Post-publication receipt and current creator-list readback"
+  },
+  "excluded_work_in_progress": {
+    "label": "GPT episode 06",
+    "reason": "RENDER_OR_QA_PENDING at the daily check; no final delivery published here"
+  }
+}

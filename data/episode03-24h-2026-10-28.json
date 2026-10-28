@@ -1,0 +1,32 @@
+{
+  "source": "Recorded creator analytics checkpoint",
+  "bvid": "BV1UXxN6aECf",
+  "published_at": "2026-10-27T19:30:00+08:00",
+  "due_at": "2026-10-28T19:30:00+08:00",
+  "sampled_at": "2026-10-28T19:53:00+08:00",
+  "age_bucket": "24h",
+  "actual_age_hours": 24.383333333333333,
+  "duration_seconds": 70,
+  "metrics": {
+    "view": 229,
+    "like": 8,
+    "favorite": 2,
+    "coin": 0,
+    "reply": 7,
+    "share": 0,
+    "danmaku": 0,
+    "completion_percent": 44.64,
+    "avg_watch_seconds": 31,
+    "per_100_plays": {
+      "like": 3.49,
+      "favorite": 0.87,
+      "coin": 0,
+      "reply": 3.06,
+      "share": 0,
+      "danmaku": 0
+    }
+  },
+  "missing": [],
+  "limitation_zh_hant": "到期後 23 分鐘採樣；單片描述性數據，無法證明模型或題材造成增長。",
+  "limitation_en": "Sampled 23 minutes after the due time; descriptive single-video data cannot establish causal model or topic effects."
+}

@@ -1,13 +1,89 @@
 {
   "source": "bili upload list --size 50 --page 1 / 2",
   "reported_counts": {
-    "published": 49,
-    "reviewing": 3,
+    "published": 50,
+    "reviewing": 5,
     "rejected": 0
   },
   "items": [
     {
-      "sampled_at": "2026-10-28T07:52:27.034Z",
+      "sampled_at": "2026-10-28T13:04:26.206Z",
+      "bvid": "BV1Mvx76YEty",
+      "title_original": "GPT值班日记05｜手把手教你怎么用 Seedance 生成视频",
+      "url": "https://www.bilibili.com/video/BV1Mvx76YEty",
+      "cohort": "current_ai_series",
+      "published": false,
+      "state_code": -40,
+      "state_original": "通过审核，等待发布",
+      "publish_time_raw": "2026-10-28T20:14:42+08:00",
+      "scheduled_time": "2026-10-30T19:30:00+08:00",
+      "views": 0,
+      "likes": 0,
+      "favorites": 0,
+      "coins": 0,
+      "comments": 0,
+      "shares": 0,
+      "danmaku": 0
+    },
+    {
+      "sampled_at": "2026-10-28T13:04:26.206Z",
+      "bvid": "BV1Pkx76ZEsh",
+      "title_original": "鲸鱼娘代班日志05｜GPT又把token花光了，我给她寄了张账单",
+      "url": "https://www.bilibili.com/video/BV1Pkx76ZEsh",
+      "cohort": "current_ai_series",
+      "published": false,
+      "state_code": -40,
+      "state_original": "通过审核，等待发布",
+      "publish_time_raw": "2026-10-28T19:52:53+08:00",
+      "scheduled_time": "2026-11-01T19:30:00+08:00",
+      "views": 0,
+      "likes": 0,
+      "favorites": 0,
+      "coins": 0,
+      "comments": 0,
+      "shares": 0,
+      "danmaku": 0
+    },
+    {
+      "sampled_at": "2026-10-28T13:04:26.206Z",
+      "bvid": "BV1Wfx56JEih",
+      "title_original": "鲸鱼娘代班日志02｜上班第一天，我被人类派了三个活",
+      "url": "https://www.bilibili.com/video/BV1Wfx56JEih",
+      "cohort": "current_ai_series",
+      "published": true,
+      "state_code": 0,
+      "state_original": "开放浏览",
+      "publish_time_raw": "2026-10-28T19:30:00+08:00",
+      "scheduled_time": null,
+      "views": 11,
+      "likes": 2,
+      "favorites": 0,
+      "coins": 0,
+      "comments": 12,
+      "shares": 0,
+      "danmaku": 0
+    },
+    {
+      "sampled_at": "2026-10-28T13:04:26.206Z",
+      "bvid": "BV1C4xE6oEjS",
+      "title_original": "鲸鱼娘代班日志04｜GPT断粮后，所有人都来找我“帮个小忙”",
+      "url": "https://www.bilibili.com/video/BV1C4xE6oEjS",
+      "cohort": "current_ai_series",
+      "published": false,
+      "state_code": -40,
+      "state_original": "通过审核，等待发布",
+      "publish_time_raw": "2026-10-28T17:32:27+08:00",
+      "scheduled_time": "2026-11-01T12:00:00+08:00",
+      "views": 0,
+      "likes": 0,
+      "favorites": 0,
+      "coins": 0,
+      "comments": 0,
+      "shares": 0,
+      "danmaku": 0
+    },
+    {
+      "sampled_at": "2026-10-28T13:04:26.206Z",
       "bvid": "BV1xFx764EjN",
       "title_original": "GPT值班日记04｜作为 Ai 娘怎么学会自己做视频",
       "url": "https://www.bilibili.com/video/BV1xFx764EjN",
@@ -26,7 +102,7 @@
       "danmaku": 0
     },
     {
-      "sampled_at": "2026-10-28T07:52:27.034Z",
+      "sampled_at": "2026-10-28T13:04:26.206Z",
       "bvid": "BV1Wcx76dErs",
       "title_original": "鲸鱼娘代班日志03｜重生之我在B站看大肥鱼",
       "url": "https://www.bilibili.com/video/BV1Wcx76dErs",
@@ -45,7 +121,7 @@
       "danmaku": 0
     },
     {
-      "sampled_at": "2026-10-28T07:52:27.034Z",
+      "sampled_at": "2026-10-28T13:04:26.206Z",
       "bvid": "BV1usxV69EUQ",
       "title_original": "鲸鱼娘代班日志01｜当ChatGPT没有token了",
       "url": "https://www.bilibili.com/video/BV1usxV69EUQ",
@@ -55,35 +131,16 @@
       "state_original": "开放浏览",
       "publish_time_raw": "2026-10-28T12:00:00+08:00",
       "scheduled_time": null,
-      "views": 113,
-      "likes": 11,
-      "favorites": 8,
-      "coins": 0,
-      "comments": 89,
-      "shares": 0,
+      "views": 199,
+      "likes": 23,
+      "favorites": 13,
+      "coins": 2,
+      "comments": 113,
+      "shares": 1,
       "danmaku": 0
     },
     {
-      "sampled_at": "2026-10-28T07:52:27.034Z",
-      "bvid": "BV1Wfx56JEih",
-      "title_original": "鲸鱼娘代班日志02｜上班第一天，我被人类派了三个活",
-      "url": "https://www.bilibili.com/video/BV1Wfx56JEih",
-      "cohort": "current_ai_series",
-      "published": false,
-      "state_code": -40,
-      "state_original": "通过审核，等待发布",
-      "publish_time_raw": "2026-10-28T10:10:19+08:00",
-      "scheduled_time": "2026-10-28T19:30:00+08:00",
-      "views": 0,
-      "likes": 0,
-      "favorites": 0,
-      "coins": 0,
-      "comments": 0,
-      "shares": 0,
-      "danmaku": 0
-    },
-    {
-      "sampled_at": "2026-10-28T07:52:27.034Z",
+      "sampled_at": "2026-10-28T13:04:26.206Z",
       "bvid": "BV1UXxN6aECf",
       "title_original": "GPT值班日记03｜问晚饭吃什么，还得先填表？",
       "url": "https://www.bilibili.com/video/BV1UXxN6aECf",
@@ -93,16 +150,16 @@
       "state_original": "开放浏览",
       "publish_time_raw": "2026-10-27T19:30:00+08:00",
       "scheduled_time": null,
-      "views": 186,
-      "likes": 7,
+      "views": 231,
+      "likes": 8,
       "favorites": 2,
       "coins": 0,
-      "comments": 4,
+      "comments": 7,
       "shares": 0,
       "danmaku": 0
     },
     {
-      "sampled_at": "2026-10-28T07:52:27.034Z",
+      "sampled_at": "2026-10-28T13:04:26.206Z",
       "bvid": "BV1gxnU6GEuz",
       "title_original": "GPT值班日记02｜有人问歌名，我先回了一个问题",
       "url": "https://www.bilibili.com/video/BV1gxnU6GEuz",
@@ -112,8 +169,8 @@
       "state_original": "开放浏览",
       "publish_time_raw": "2026-10-26T19:30:00+08:00",
       "scheduled_time": null,
-      "views": 29,
-      "likes": 8,
+      "views": 42,
+      "likes": 9,
       "favorites": 1,
       "coins": 2,
       "comments": 2,
@@ -121,7 +178,7 @@
       "danmaku": 0
     },
     {
-      "sampled_at": "2026-10-28T07:52:27.034Z",
+      "sampled_at": "2026-10-28T13:04:26.206Z",
       "bvid": "BV1qjHV6sEuD",
       "title_original": "GPT值班日记01｜我回了2022年的评论，粉丝说我有点迟钝",
       "url": "https://www.bilibili.com/video/BV1qjHV6sEuD",
@@ -131,7 +188,7 @@
       "state_original": "开放浏览",
       "publish_time_raw": "2026-10-25T19:30:00+08:00",
       "scheduled_time": null,
-      "views": 179,
+      "views": 183,
       "likes": 11,
       "favorites": 5,
       "coins": 2,
@@ -140,7 +197,7 @@
       "danmaku": 0
     },
     {
-      "sampled_at": "2026-10-28T07:52:27.034Z",
+      "sampled_at": "2026-10-28T13:04:26.206Z",
       "bvid": "BV1rgHm64EAg",
       "title_original": "【海与雪山】自驾 vlog｜EP06 盛世山河同行（攀枝花—乐山）｜一路奔赴山海，恰逢家国安康",
       "url": "https://www.bilibili.com/video/BV1rgHm64EAg",
@@ -159,7 +216,7 @@
       "danmaku": 1
     },
     {
-      "sampled_at": "2026-10-28T07:52:27.034Z",
+      "sampled_at": "2026-10-28T13:04:26.206Z",
       "bvid": "BV1pwHe6xEyW",
       "title_original": "【海与雪山】自驾 vlog｜EP05 雪域归于心途（香格里拉）｜走遍山河烟火，在此与自己相逢",
       "url": "https://www.bilibili.com/video/BV1pwHe6xEyW",
@@ -169,16 +226,16 @@
       "state_original": "开放浏览",
       "publish_time_raw": "2026-10-03T13:16:22+08:00",
       "scheduled_time": null,
-      "views": 67500,
-      "likes": 16589,
-      "favorites": 5513,
+      "views": 67502,
+      "likes": 16590,
+      "favorites": 5514,
       "coins": 3044,
       "comments": 137,
       "shares": 1819,
       "danmaku": 696
     },
     {
-      "sampled_at": "2026-10-28T07:52:27.034Z",
+      "sampled_at": "2026-10-28T13:04:26.206Z",
       "bvid": "BV1WUam6oEs4",
       "title_original": "【海与雪山】自驾 vlog｜EP04 滇西寻味人间（武定—大理—丽江）｜把山河滋味，吃进旅途岁月",
       "url": "https://www.bilibili.com/video/BV1WUam6oEs4",
@@ -188,7 +245,7 @@
       "state_original": "开放浏览",
       "publish_time_raw": "2026-10-02T14:22:50+08:00",
       "scheduled_time": null,
-      "views": 22225,
+      "views": 22434,
       "likes": 3768,
       "favorites": 1258,
       "coins": 700,
@@ -197,7 +254,7 @@
       "danmaku": 375
     },
     {
-      "sampled_at": "2026-10-28T07:52:27.034Z",
+      "sampled_at": "2026-10-28T13:04:26.206Z",
       "bvid": "BV1jUaz6RE1a",
       "title_original": "【海与雪山】自驾 vlog｜EP03 天下没有不散的宴席（昆明）｜一程山海终有终点，把回忆留在春城落日",
       "url": "https://www.bilibili.com/video/BV1jUaz6RE1a",
@@ -207,7 +264,7 @@
       "state_original": "开放浏览",
       "publish_time_raw": "2026-10-01T15:25:39+08:00",
       "scheduled_time": null,
-      "views": 22700,
+      "views": 22911,
       "likes": 3765,
       "favorites": 1258,
       "coins": 702,
@@ -216,7 +273,7 @@
       "danmaku": 279
     },
     {
-      "sampled_at": "2026-10-28T07:52:27.034Z",
+      "sampled_at": "2026-10-28T13:04:26.206Z",
       "bvid": "BV1wk8M6rE96",
       "title_original": "【海与雪山】自驾 vlog｜EP02 长路与山河共语（张家界-黄果树-乌蒙山）｜翻过山岭飞瀑，把思念寄给辽阔大地",
       "url": "https://www.bilibili.com/video/BV1wk8M6rE96",
@@ -235,7 +292,7 @@
       "danmaku": 546
     },
     {
-      "sampled_at": "2026-10-28T07:52:27.034Z",
+      "sampled_at": "2026-10-28T13:04:26.206Z",
       "bvid": "BV1418A6PEMk",
       "title_original": "【海与雪山】自驾 vlog｜EP01 光与影的交织（长沙）｜有人奔赴而来，有人奔赴远方",
       "url": "https://www.bilibili.com/video/BV1418A6PEMk",
@@ -245,7 +302,7 @@
       "state_original": "开放浏览",
       "publish_time_raw": "2026-08-20T23:29:59+08:00",
       "scheduled_time": null,
-      "views": 201232,
+      "views": 201233,
       "likes": 16790,
       "favorites": 5467,
       "coins": 3007,
@@ -254,7 +311,7 @@
       "danmaku": 1045
     },
     {
-      "sampled_at": "2026-10-28T07:52:27.034Z",
+      "sampled_at": "2026-10-28T13:04:26.206Z",
       "bvid": "BV1ZNuh6kEds",
       "title_original": "【海与雪山】讣告｜番外篇｜我们仍在与回忆同行",
       "url": "https://www.bilibili.com/video/BV1ZNuh6kEds",
@@ -273,7 +330,7 @@
       "danmaku": 267
     },
     {
-      "sampled_at": "2026-10-28T07:52:27.034Z",
+      "sampled_at": "2026-10-28T13:04:26.206Z",
       "bvid": "BV14muE6xE3E",
       "title_original": "【海与雪山】自驾 vlog｜EP00 聚散终有时（宁波）｜在海与群山之间，上演一场关于缅怀的远行",
       "url": "https://www.bilibili.com/video/BV14muE6xE3E",
@@ -283,8 +340,8 @@
       "state_original": "开放浏览",
       "publish_time_raw": "2026-08-06T12:55:45+08:00",
       "scheduled_time": null,
-      "views": 85672,
-      "likes": 6056,
+      "views": 85673,
+      "likes": 6055,
       "favorites": 2410,
       "coins": 1567,
       "comments": 304,
@@ -292,7 +349,7 @@
       "danmaku": 301
     },
     {
-      "sampled_at": "2026-10-28T07:52:27.034Z",
+      "sampled_at": "2026-10-28T13:04:26.206Z",
       "bvid": "BV1HH4y1N7F3",
       "title_original": "日本最火一兰拉面的缺点居然是！",
       "url": "https://www.bilibili.com/video/BV1HH4y1N7F3",
@@ -311,7 +368,7 @@
       "danmaku": 13
     },
     {
-      "sampled_at": "2026-10-28T07:52:27.034Z",
+      "sampled_at": "2026-10-28T13:04:26.206Z",
       "bvid": "BV1k1421d7De",
       "title_original": "日本街头火爆拉面的味道居然如此难吃！",
       "url": "https://www.bilibili.com/video/BV1k1421d7De",
@@ -321,7 +378,7 @@
       "state_original": "开放浏览",
       "publish_time_raw": "2024-04-21T12:00:00+08:00",
       "scheduled_time": null,
-      "views": 750,
+      "views": 751,
       "likes": 16,
       "favorites": 5,
       "coins": 4,
@@ -330,7 +387,7 @@
       "danmaku": 0
     },
     {
-      "sampled_at": "2026-10-28T07:52:27.034Z",
+      "sampled_at": "2026-10-28T13:04:26.206Z",
       "bvid": "BV1n1421o7zr",
       "title_original": "探索！亚洲最大“红灯区”",
       "url": "https://www.bilibili.com/video/BV1n1421o7zr",
@@ -349,7 +406,7 @@
       "danmaku": 0
     },
     {
-      "sampled_at": "2026-10-28T07:52:27.034Z",
+      "sampled_at": "2026-10-28T13:04:26.206Z",
       "bvid": "BV11J4m1G7Te",
       "title_original": "最后一家老式街机厅竟然藏在上海！",
       "url": "https://www.bilibili.com/video/BV11J4m1G7Te",
@@ -368,7 +425,7 @@
       "danmaku": 7
     },
     {
-      "sampled_at": "2026-10-28T07:52:27.034Z",
+      "sampled_at": "2026-10-28T13:04:26.206Z",
       "bvid": "BV1ME421u7cT",
       "title_original": "百变小樱主题餐厅居然长这样！？？",
       "url": "https://www.bilibili.com/video/BV1ME421u7cT",
@@ -387,7 +444,7 @@
       "danmaku": 61
     },
     {
-      "sampled_at": "2026-10-28T07:52:27.034Z",
+      "sampled_at": "2026-10-28T13:04:26.206Z",
       "bvid": "BV1VT421m7kK",
       "title_original": "上海居然有这么大的动漫城！",
       "url": "https://www.bilibili.com/video/BV1VT421m7kK",
@@ -406,7 +463,7 @@
       "danmaku": 56
     },
     {
-      "sampled_at": "2026-10-28T07:52:27.034Z",
+      "sampled_at": "2026-10-28T13:04:26.206Z",
       "bvid": "BV1iD421W7WV",
       "title_original": "变形记：温暖人心的农村之旅",
       "url": "https://www.bilibili.com/video/BV1iD421W7WV",
@@ -425,7 +482,7 @@
       "danmaku": 3
     },
     {
-      "sampled_at": "2026-10-28T07:52:27.034Z",
+      "sampled_at": "2026-10-28T13:04:26.206Z",
       "bvid": "BV1Mr421b7wy",
       "title_original": "从杭州到上海全程公交车居然花了这么多钱？！！",
       "url": "https://www.bilibili.com/video/BV1Mr421b7wy",
@@ -444,7 +501,7 @@
       "danmaku": 10
     },
     {
-      "sampled_at": "2026-10-28T07:52:27.034Z",
+      "sampled_at": "2026-10-28T13:04:26.206Z",
       "bvid": "BV1ix4y1m7F7",
       "title_original": "猛男带你逛武汉！隐藏在江汉路里面的极品美食街！",
       "url": "https://www.bilibili.com/video/BV1ix4y1m7F7",
@@ -463,7 +520,7 @@
       "danmaku": 0
     },
     {
-      "sampled_at": "2026-10-28T07:52:27.034Z",
+      "sampled_at": "2026-10-28T13:04:26.206Z",
       "bvid": "BV1i1421D712",
       "title_original": "高铁居然也有卧铺！价格居然是普通车票的X倍！",
       "url": "https://www.bilibili.com/video/BV1i1421D712",
@@ -482,7 +539,7 @@
       "danmaku": 8
     },
     {
-      "sampled_at": "2026-10-28T07:52:27.034Z",
+      "sampled_at": "2026-10-28T13:04:26.206Z",
       "bvid": "BV1os4y1P7EW",
       "title_original": "【无双剑仙挑战——击剑体验课】ChatGPT联手全民投票！由你决定我们的下一个拍摄地点!",
       "url": "https://www.bilibili.com/video/BV1os4y1P7EW",
@@ -501,7 +558,7 @@
       "danmaku": 114
     },
     {
-      "sampled_at": "2026-10-28T07:52:27.034Z",
+      "sampled_at": "2026-10-28T13:04:26.206Z",
       "bvid": "BV1GN411w7aj",
       "title_original": "【怒游杭州最大湿地公园】ChatGPT联手全民投票！由你决定我们的下一个拍摄地点!",
       "url": "https://www.bilibili.com/video/BV1GN411w7aj",
@@ -520,7 +577,7 @@
       "danmaku": 81
     },
     {
-      "sampled_at": "2026-10-28T07:52:27.034Z",
+      "sampled_at": "2026-10-28T13:04:26.206Z",
       "bvid": "BV1DX4y1k7RM",
       "title_original": "【搞笑挑战拳王之路】ChatGPT联手全民投票！由你决定我们的下一个拍摄地点!",
       "url": "https://www.bilibili.com/video/BV1DX4y1k7RM",
@@ -539,7 +596,7 @@
       "danmaku": 182
     },
     {
-      "sampled_at": "2026-10-28T07:52:27.034Z",
+      "sampled_at": "2026-10-28T13:04:26.206Z",
       "bvid": "BV1184y1g7xA",
       "title_original": "【以真探的方式打开杭州美食 下集】ChatGPT联手全民投票！由你决定我们的下一个拍摄地点!",
       "url": "https://www.bilibili.com/video/BV1184y1g7xA",
@@ -558,7 +615,7 @@
       "danmaku": 41
     },
     {
-      "sampled_at": "2026-10-28T07:52:27.034Z",
+      "sampled_at": "2026-10-28T13:04:26.206Z",
       "bvid": "BV1wX4y1d7ok",
       "title_original": "【以真探的方式打开杭州美食 上集】ChatGPT联手全民投票！由你决定我们的下一个拍摄地点!",
       "url": "https://www.bilibili.com/video/BV1wX4y1d7ok",
@@ -577,7 +634,7 @@
       "danmaku": 95
     },
     {
-      "sampled_at": "2026-10-28T07:52:27.034Z",
+      "sampled_at": "2026-10-28T13:04:26.206Z",
       "bvid": "BV1tk4y147XB",
       "title_original": "【以新海诚的方式打开西湖】ChatGPT联手全民投票！由你决定我们的下一个拍摄地点!",
       "url": "https://www.bilibili.com/video/BV1tk4y147XB",
@@ -596,7 +653,7 @@
       "danmaku": 53
     },
     {
-      "sampled_at": "2026-10-28T07:52:27.034Z",
+      "sampled_at": "2026-10-28T13:04:26.206Z",
       "bvid": "BV1eM411H7Ge",
       "title_original": "乡下土狗第一次喝茶颜悦色是什么体验？！！",
       "url": "https://www.bilibili.com/video/BV1eM411H7Ge",
@@ -615,7 +672,7 @@
       "danmaku": 64
     },
     {
-      "sampled_at": "2026-10-28T07:52:27.034Z",
+      "sampled_at": "2026-10-28T13:04:26.206Z",
       "bvid": "BV1q24y1x7fr",
       "title_original": "探索武汉美食居然能吃到《狂飙》同款猪脚面？！！",
       "url": "https://www.bilibili.com/video/BV1q24y1x7fr",
@@ -634,7 +691,7 @@
       "danmaku": 122
     },
     {
-      "sampled_at": "2026-10-28T07:52:27.034Z",
+      "sampled_at": "2026-10-28T13:04:26.206Z",
       "bvid": "BV1Q24y1x7Vd",
       "title_original": "梦寐以求的武大樱花居然长这样？？？！",
       "url": "https://www.bilibili.com/video/BV1Q24y1x7Vd",
@@ -653,7 +710,7 @@
       "danmaku": 106
     },
     {
-      "sampled_at": "2026-10-28T07:52:27.034Z",
+      "sampled_at": "2026-10-28T13:04:26.206Z",
       "bvid": "BV1sv4y177Tm",
       "title_original": "受不了网络暴力！去新加坡调整几天！（旅行vlog）",
       "url": "https://www.bilibili.com/video/BV1sv4y177Tm",
@@ -672,7 +729,7 @@
       "danmaku": 104
     },
     {
-      "sampled_at": "2026-10-28T07:52:27.034Z",
+      "sampled_at": "2026-10-28T13:04:26.206Z",
       "bvid": "BV1XM411s7St",
       "title_original": "纯爷们做美甲到底是种什么体验？？！",
       "url": "https://www.bilibili.com/video/BV1XM411s7St",
@@ -691,7 +748,7 @@
       "danmaku": 105
     },
     {
-      "sampled_at": "2026-10-28T07:52:27.034Z",
+      "sampled_at": "2026-10-28T13:04:26.206Z",
       "bvid": "BV12x4y1T79d",
       "title_original": "在西湖上坐船玩剧本杀是什么体验？",
       "url": "https://www.bilibili.com/video/BV12x4y1T79d",
@@ -710,7 +767,7 @@
       "danmaku": 67
     },
     {
-      "sampled_at": "2026-10-28T07:52:27.034Z",
+      "sampled_at": "2026-10-28T13:04:26.206Z",
       "bvid": "BV1nY4y117Mf",
       "title_original": "美食盆地？带你尝尝杭州第一美食到底是什么！每样来一份！",
       "url": "https://www.bilibili.com/video/BV1nY4y117Mf",
@@ -729,7 +786,7 @@
       "danmaku": 116
     },
     {
-      "sampled_at": "2026-10-28T07:52:27.034Z",
+      "sampled_at": "2026-10-28T13:04:26.206Z",
       "bvid": "BV1VM411H7dF",
       "title_original": "美食荒漠？杭州老字号杭帮菜味道到底怎么样？",
       "url": "https://www.bilibili.com/video/BV1VM411H7dF",
@@ -748,7 +805,7 @@
       "danmaku": 96
     },
     {
-      "sampled_at": "2026-10-28T07:52:27.034Z",
+      "sampled_at": "2026-10-28T13:04:26.206Z",
       "bvid": "BV1ws4y1e7st",
       "title_original": "在杭州住胶囊旅馆是一种什么体验？",
       "url": "https://www.bilibili.com/video/BV1ws4y1e7st",
@@ -758,7 +815,7 @@
       "state_original": "开放浏览",
       "publish_time_raw": "2023-02-12T13:05:00+08:00",
       "scheduled_time": null,
-      "views": 28658,
+      "views": 28659,
       "likes": 1269,
       "favorites": 1083,
       "coins": 75,
@@ -767,7 +824,7 @@
       "danmaku": 341
     },
     {
-      "sampled_at": "2026-10-28T07:52:27.034Z",
+      "sampled_at": "2026-10-28T13:04:26.206Z",
       "bvid": "BV1fT411X7HR",
       "title_original": "震惊！杭州时隔十一年的元宵节烟花秀竟是惊天大骗局！",
       "url": "https://www.bilibili.com/video/BV1fT411X7HR",
@@ -786,7 +843,7 @@
       "danmaku": 120
     },
     {
-      "sampled_at": "2026-10-28T07:52:27.034Z",
+      "sampled_at": "2026-10-28T13:04:26.206Z",
       "bvid": "BV17Y411D7MT",
       "title_original": "折磨原神代肝人员的一天",
       "url": "https://www.bilibili.com/video/BV17Y411D7MT",
@@ -805,7 +862,7 @@
       "danmaku": 215
     },
     {
-      "sampled_at": "2026-10-28T07:52:27.034Z",
+      "sampled_at": "2026-10-28T13:04:26.206Z",
       "bvid": "BV1QD4y1E7zz",
       "title_original": "小伙大年初七冒死前往西湖 竟被围困在灵隐寺",
       "url": "https://www.bilibili.com/video/BV1QD4y1E7zz",
@@ -824,7 +881,7 @@
       "danmaku": 133
     },
     {
-      "sampled_at": "2026-10-28T07:52:27.034Z",
+      "sampled_at": "2026-10-28T13:04:26.206Z",
       "bvid": "BV1Av4y117F8",
       "title_original": "杭州外国人最多的酒吧是怎么跨年的？",
       "url": "https://www.bilibili.com/video/BV1Av4y117F8",
@@ -843,7 +900,7 @@
       "danmaku": 121
     },
     {
-      "sampled_at": "2026-10-28T07:52:27.034Z",
+      "sampled_at": "2026-10-28T13:04:26.206Z",
       "bvid": "BV1TR4y1e7P4",
       "title_original": "一个人去迪士尼到底是一种什么体验？？？",
       "url": "https://www.bilibili.com/video/BV1TR4y1e7P4",
@@ -862,7 +919,7 @@
       "danmaku": 388
     },
     {
-      "sampled_at": "2026-10-28T07:52:27.034Z",
+      "sampled_at": "2026-10-28T13:04:26.206Z",
       "bvid": "BV1G24y1Y7sL",
       "title_original": "有一个大晚上突然请我去迪士尼看烟花的朋友是什么样的体验？",
       "url": "https://www.bilibili.com/video/BV1G24y1Y7sL",
@@ -881,7 +938,7 @@
       "danmaku": 447
     },
     {
-      "sampled_at": "2026-10-28T07:52:27.034Z",
+      "sampled_at": "2026-10-28T13:04:26.206Z",
       "bvid": "BV1LP411F7Yc",
       "title_original": "震惊我妈一整年！王者国标代练收入竟不如保安？！！",
       "url": "https://www.bilibili.com/video/BV1LP411F7Yc",
@@ -900,7 +957,7 @@
       "danmaku": 44
     },
     {
-      "sampled_at": "2026-10-28T07:52:27.034Z",
+      "sampled_at": "2026-10-28T13:04:55.193Z",
       "bvid": "BV1MG4y1j7rB",
       "title_original": "穿成超级英雄去女仆店看女仆的反应！！",
       "url": "https://www.bilibili.com/video/BV1MG4y1j7rB",
@@ -919,7 +976,7 @@
       "danmaku": 477
     },
     {
-      "sampled_at": "2026-10-28T07:52:27.034Z",
+      "sampled_at": "2026-10-28T13:04:55.193Z",
       "bvid": "BV13M411z7uJ",
       "title_original": "在古堡里通灵竟真的招来笔仙？？？！",
       "url": "https://www.bilibili.com/video/BV13M411z7uJ",
@@ -938,7 +995,7 @@
       "danmaku": 554
     },
     {
-      "sampled_at": "2026-10-28T07:52:27.034Z",
+      "sampled_at": "2026-10-28T13:04:55.193Z",
       "bvid": "BV1r44y1m7QN",
       "title_original": "世界上最贵的笔记本竟然也卡岩？！！！",
       "url": "https://www.bilibili.com/video/BV1r44y1m7QN",
@@ -957,7 +1014,7 @@
       "danmaku": 708
     },
     {
-      "sampled_at": "2026-10-28T07:52:40.113Z",
+      "sampled_at": "2026-10-28T13:04:55.193Z",
       "bvid": "BV1sz4y167Vb",
       "title_original": "小喵喵不要太执着于干饭 嘴是会秃的",
       "url": "https://www.bilibili.com/video/BV1sz4y167Vb",
@@ -976,7 +1033,7 @@
       "danmaku": 0
     },
     {
-      "sampled_at": "2026-10-28T07:52:40.113Z",
+      "sampled_at": "2026-10-28T13:04:55.193Z",
       "bvid": "BV1CE411Z7Wx",
       "title_original": "NAFA ART IN CITY",
       "url": "https://www.bilibili.com/video/BV1CE411Z7Wx",
