@@ -1,0 +1,10 @@
+{
+  "demo": true,
+  "notice_zh_hant": "全部為虛構商戶與合成評分，沒有真實聯絡資料，也不會發送訊息。",
+  "notice_en": "All merchants and scores are synthetic. No real contact details or messages are involved.",
+  "merchants": [
+    {"id":"DEMO-001","name_zh_hant":"示例咖啡店 A","name_en":"Demo Cafe A","category_fit":0.9,"service_area_fit":1,"evidence_quality":0.8,"evidence":[{"source":"synthetic://demo/cafe-a","reviewed":true}],"discussion_angle_zh_hant":"先了解離峰時段需求，再討論可衡量的合作目標。","discussion_angle_en":"Understand off-peak demand before discussing measurable partnership goals."},
+    {"id":"DEMO-002","name_zh_hant":"示例餐廳 B","name_en":"Demo Restaurant B","category_fit":0.8,"service_area_fit":null,"evidence_quality":0.4,"evidence":[{"source":"synthetic://demo/restaurant-b","reviewed":false}],"discussion_angle_zh_hant":"服務範圍尚未確認，先補充資料。","discussion_angle_en":"Confirm the service area before preparing an approach."},
+    {"id":"DEMO-003","name_zh_hant":"示例烘焙店 C","name_en":"Demo Bakery C","category_fit":0.7,"service_area_fit":0.8,"evidence_quality":0.9,"evidence":[{"source":"synthetic://demo/bakery-c","reviewed":true}],"discussion_angle_zh_hant":"先了解商品供應與履約能力，再提出小規模試點。","discussion_angle_en":"Understand supply and fulfilment capacity before proposing a small pilot."}
+  ]
+}

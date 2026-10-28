@@ -1,0 +1,14 @@
+{
+  "name": "ai-video-lab-bd-portfolio",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Evidence-backed AI operations and Business Development workflow demos",
+  "engines": { "node": ">=20" },
+  "scripts": {
+    "demo": "node scripts/prioritize-merchants.mjs",
+    "report": "node scripts/summarize-channel.mjs",
+    "test": "node --test tests/*.test.mjs",
+    "verify:media": "node scripts/check-delivery.mjs"
+  }
+}

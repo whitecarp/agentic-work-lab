@@ -1,13 +1,44 @@
-# AI Video Lab · AI 影片實驗室
+# AI 應用實作作品集 / Applied AI Portfolio
 
-**從研究、製作到真實帳號營運，留下作品、資料與可驗證的紀錄。**  
-**From research and production to running a real channel—with videos, data, and verifiable records.**
+### Business Development · 研究、執行與團隊效率 / Research, execution & team enablement
+
+**把 AI 融入日常工作：用真實帳號驗證流程，再將方法整理成商戶拓展可複用的工具。**  
+**Apply AI to everyday work: validate workflows on a real channel, then turn the lessons into reusable merchant-development tools.**
 
 繁體中文 / English · 首次整理 First edition: **2026-10-28**
 
 🎬 **Bilibili：[穿睡衣的小白白 · UID 10706217](https://space.bilibili.com/10706217)**  
 📦 **[影片下載 / Video downloads](https://github.com/whitecarp/ai-video-lab/releases)** · **[影片目錄 / Video catalogue](media/README.md)**  
 📊 **[帳號與營運資料 / Channel and operations data](data/README.md)**
+
+## 給面試官的快速導覽 / A quick guide for interviewers
+
+| 想了解 / To assess | 看這裡 / Start here |
+|---|---|
+| 如何把 AI 用於商戶拓展 / Applying AI to merchant expansion | [BD 工作流與團隊試點 / BD workflow and team pilot](docs/business-development.md) |
+| 用了什麼工具、為什麼 / Tools used and why | [工具與插件選型 / Toolchain](docs/toolchain.md) |
+| GPT 與 DeepSeek 如何協作 / GPT and DeepSeek collaboration | [分工、真實驗證與測試邊界 / Roles, evidence, and evaluation limits](docs/model-workflow.md) |
+| 實際寫了哪些程式 / What was implemented | [程式導覽 / Code map](docs/code-map.md) · [可執行示例 / Scripts](scripts) |
+| 如何讀取與比較數據 / Reading and comparing data | [數據對比 / Data comparison](docs/data-comparison.md) |
+| 如何讓同事接手 / Enabling teammates | [商戶簡報範本 / Merchant brief](templates/merchant-brief.md) · [營運檢查表 / Checklist](templates/operations-checklist.md) |
+
+**目前可核驗：** 52 筆稿件資料、69 筆去識別營運事件、16 個本地影片交付檔、4 個可執行腳本，以及 10 項通過的流程測試。商戶示例使用虛構資料；沒有把模擬結果寫成真實簽約或團隊提效業績。
+
+**Currently verifiable:** 52 upload records, 69 de-identified operations events, 16 local video deliverables, four runnable scripts/modules, and ten passing workflow tests. The merchant example uses fictional data; simulated results are not presented as real partnerships or measured team-efficiency gains.
+
+我以需求提出、選題方向、回饋與審片推進專案，AI 協助研究、編寫程式及製作。這份作品集展示的是把工具落到實際流程、發現錯誤並改善交付的能力；程式與文件也明確標示 AI 協助。
+
+I drove requirements, editorial direction, feedback, and review, with AI assisting research, implementation, and production. The portfolio demonstrates putting tools into a working process, identifying failures, and improving delivery. Code and documentation are explicitly AI-assisted.
+
+### 三個可重跑的入口 / Three reproducible entry points
+
+```sh
+npm run demo     # 虛構商戶排序 / Synthetic merchant prioritisation
+npm run report   # 真實資料摘要 / Real-data summary
+npm test         # 流程檢查 / Workflow checks
+```
+
+不需額外 npm 套件；使用 Node.js 20+。測試與本地影片校驗結果見 [validation.json](results/validation.json)。 / No external npm packages are required; use Node.js 20+. See [validation.json](results/validation.json) for test and local-media verification results.
 
 ## 這個專案是什麼？ / What is this project?
 
@@ -59,4 +90,3 @@ Data is provided as CSV/JSON, with downloadable video files and SHA-256 checksum
 本倉庫公開研究說明、影片、帳號整體及單片數據、去識別的營運紀錄。登入憑證、私人訊息、觀眾個人資料及不相關的私人文件不屬於公開資料。作品中引用的第三方素材仍屬各自權利人；公開展示不代表授予第三方素材的再利用授權。
 
 The archive contains research notes, videos, aggregate and per-video channel data, and de-identified operations records. Credentials, private messages, viewer personal data, and unrelated private documents are excluded. Third-party material appearing in videos remains with its respective rights holders; public access does not grant reuse rights to that material.
-

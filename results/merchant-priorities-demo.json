@@ -1,0 +1,64 @@
+{
+  "demo": true,
+  "method": "transparent_weighted_rule_not_model_prediction",
+  "weights": {
+    "category_fit": 40,
+    "service_area_fit": 30,
+    "evidence_quality": 30
+  },
+  "merchants": [
+    {
+      "id": "DEMO-001",
+      "name_zh_hant": "示例咖啡店 A",
+      "name_en": "Demo Cafe A",
+      "score": 90,
+      "missing_fields": [],
+      "next_step": "human_review",
+      "outreach_sent": false,
+      "evidence": [
+        {
+          "source": "synthetic://demo/cafe-a",
+          "reviewed": true
+        }
+      ],
+      "discussion_angle_zh_hant": "先了解離峰時段需求，再討論可衡量的合作目標。",
+      "discussion_angle_en": "Understand off-peak demand before discussing measurable partnership goals."
+    },
+    {
+      "id": "DEMO-003",
+      "name_zh_hant": "示例烘焙店 C",
+      "name_en": "Demo Bakery C",
+      "score": 79,
+      "missing_fields": [],
+      "next_step": "human_review",
+      "outreach_sent": false,
+      "evidence": [
+        {
+          "source": "synthetic://demo/bakery-c",
+          "reviewed": true
+        }
+      ],
+      "discussion_angle_zh_hant": "先了解商品供應與履約能力，再提出小規模試點。",
+      "discussion_angle_en": "Understand supply and fulfilment capacity before proposing a small pilot."
+    },
+    {
+      "id": "DEMO-002",
+      "name_zh_hant": "示例餐廳 B",
+      "name_en": "Demo Restaurant B",
+      "score": 44,
+      "missing_fields": [
+        "service_area_fit"
+      ],
+      "next_step": "research_required",
+      "outreach_sent": false,
+      "evidence": [
+        {
+          "source": "synthetic://demo/restaurant-b",
+          "reviewed": false
+        }
+      ],
+      "discussion_angle_zh_hant": "服務範圍尚未確認，先補充資料。",
+      "discussion_angle_en": "Confirm the service area before preparing an approach."
+    }
+  ]
+}
