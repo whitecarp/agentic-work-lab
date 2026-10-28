@@ -30,14 +30,14 @@ These are production experiments and engineering findings, not controlled eviden
 
 ## 已公開作品 / Published work
 
-標題保留 B站原文，以便搜尋與核對；說明提供繁體中文及英文。 / Platform titles are preserved verbatim for lookup; descriptions are bilingual.
+下列標題顯示為繁體中文；B站原始標題保存在資料檔中，以便核對。 / Titles below use Traditional Chinese; the original platform titles are preserved in the datasets for verification.
 
-| 發布日期 / Date (UTC+8) | B站原標題 / Original title | English description |
+| 發布日期 / Date (UTC+8) | 繁體中文標題 / Traditional Chinese title | English description |
 |---|---|---|
-| 2026-10-28 | [鲸鱼娘代班日志01｜当ChatGPT没有token了](https://www.bilibili.com/video/BV1usxV69EUQ) | Whale Girl covers the shift when ChatGPT runs out of tokens. |
-| 2026-10-27 | [GPT值班日记03｜问晚饭吃什么，还得先填表？](https://www.bilibili.com/video/BV1UXxN6aECf) | Choosing dinner turns into a form-filling exercise. |
-| 2026-10-26 | [GPT值班日记02｜有人问歌名，我先回了一个问题](https://www.bilibili.com/video/BV1gxnU6GEuz) | A song-title question receives another question. |
-| 2026-10-25 | [GPT值班日记01｜我回了2022年的评论，粉丝说我有点迟钝](https://www.bilibili.com/video/BV1qjHV6sEuD) | GPT replies to a comment from 2022. |
+| 2026-10-28 | [鯨魚娘代班日誌01｜當ChatGPT沒有token了](https://www.bilibili.com/video/BV1usxV69EUQ) | Whale Girl covers the shift when ChatGPT runs out of tokens. |
+| 2026-10-27 | [GPT值班日記03｜問晚飯吃什麼，還得先填表？](https://www.bilibili.com/video/BV1UXxN6aECf) | Choosing dinner turns into a form-filling exercise. |
+| 2026-10-26 | [GPT值班日記02｜有人問歌名，我先回了一個問題](https://www.bilibili.com/video/BV1gxnU6GEuz) | A song-title question receives another question. |
+| 2026-10-25 | [GPT值班日記01｜我回了2022年的評論，粉絲說我有點遲鈍](https://www.bilibili.com/video/BV1qjHV6sEuD) | GPT replies to a comment from 2022. |
 
 未在 B站公開的成片及舊版實驗片，另見[影片目錄](media/README.md)。GitHub 公開與 B站發布是兩個不同狀態；本倉庫不會更改 B站排期。
 
@@ -59,3 +59,4 @@ Data is provided as CSV/JSON, with downloadable video files and SHA-256 checksum
 本倉庫公開研究說明、影片、帳號整體及單片數據、去識別的營運紀錄。登入憑證、私人訊息、觀眾個人資料及不相關的私人文件不屬於公開資料。作品中引用的第三方素材仍屬各自權利人；公開展示不代表授予第三方素材的再利用授權。
 
 The archive contains research notes, videos, aggregate and per-video channel data, and de-identified operations records. Credentials, private messages, viewer personal data, and unrelated private documents are excluded. Third-party material appearing in videos remains with its respective rights holders; public access does not grant reuse rights to that material.
+
