@@ -1,0 +1,11 @@
+__pycache__/
+*.egg-info/
+build/
+dist/
+.venv/
+.runtime/
+*.sqlite*
+*token*.json
+*client_secret*.json
+*cookie*.json
+

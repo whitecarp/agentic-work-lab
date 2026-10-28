@@ -11,6 +11,8 @@
 📦 **[影片下載 / Video downloads](https://github.com/whitecarp/ai-video-lab/releases)** · **[影片目錄 / Video catalogue](media/README.md)**  
 📊 **[帳號與營運資料 / Channel and operations data](data/README.md)**
 
+🛠️ **[五平台影片工作流 alpha / Five-platform video workflow alpha](tools/video-publisher/README.md)**：內置瀏覽器登入、統一方案、去重及回執；25 項離線測試通過，五站實發與完整功能仍在驗收。 / In-app login handoff, plans, deduplication and receipts; 25 offline tests passed, with live uploads and full feature coverage still under validation.
+
 **最新更新 / Latest update:** [2026-10-28 晚間：新增三個影片版本、首日數據與逐幀修復 / Three video versions, day-one analytics and frame-level repair](docs/updates/2026-10-28-evening.md)
 
 ## 給面試官的快速導覽 / A quick guide for interviewers

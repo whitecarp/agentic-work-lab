@@ -1,0 +1,28 @@
+[build-system]
+requires = ["setuptools>=69"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "whitecarp-video-publisher"
+version = "0.1.0"
+description = "Five-platform video workflow with native-browser handoff and durable receipts"
+readme = "README.md"
+requires-python = ">=3.10,<3.13"
+license = "MIT"
+dependencies = [
+  "bili-agent==0.7.0",
+  "google-api-python-client==2.201.0",
+  "google-auth-oauthlib==1.5.0",
+  "patchright==1.58.2",
+  "loguru==0.7.3",
+  "qrcode==8.2",
+  "segno==1.6.6",
+  "opencv-python==5.0.0.93",
+]
+
+[project.scripts]
+vpub = "video_publisher.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
