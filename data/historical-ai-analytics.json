@@ -1,0 +1,86 @@
+{
+  "records": [
+    {
+      "source_label": "monitoring-20261027-2100/ep02-24h-upload-stats.json",
+      "file_modified_at": "2026-10-27T13:27:16.581Z",
+      "time_note": "File modification time is provenance, not guaranteed exact API observation time",
+      "bvid": "BV1gxnU6GEuz",
+      "title": "GPT值班日记02｜有人问歌名，我先回了一个问题",
+      "published": "2026-10-26T19:30:00+08:00",
+      "duration": 85,
+      "stat": {
+        "view": 18,
+        "like": 5,
+        "favorite": 0,
+        "coin": 0,
+        "reply": 0,
+        "share": 0,
+        "danmaku": 0
+      },
+      "per_100_plays": {
+        "like": 27.78,
+        "favorite": 0,
+        "coin": 0,
+        "reply": 0,
+        "share": 0,
+        "danmaku": 0
+      },
+      "completion_percent": 42.11,
+      "avg_watch_seconds": 35
+    },
+    {
+      "source_label": "raw/ep01-stats.json",
+      "file_modified_at": "2026-10-26T23:38:21.814Z",
+      "time_note": "File modification time is provenance, not guaranteed exact API observation time",
+      "bvid": "BV1qjHV6sEuD",
+      "title": "GPT值班日记01｜我回了2022年的评论，粉丝说我有点迟钝",
+      "published": "2026-10-25T19:30:00+08:00",
+      "duration": 79,
+      "stat": {
+        "view": 147,
+        "like": 8,
+        "favorite": 3,
+        "coin": 2,
+        "reply": 12,
+        "share": 0,
+        "danmaku": 0
+      },
+      "per_100_plays": {
+        "like": 5.44,
+        "favorite": 2.04,
+        "coin": 1.36,
+        "reply": 8.16,
+        "share": 0,
+        "danmaku": 0
+      },
+      "completion_percent": 34.43,
+      "avg_watch_seconds": 27
+    },
+    {
+      "source_label": "raw/ep02-stats.json",
+      "file_modified_at": "2026-10-26T23:38:29.340Z",
+      "time_note": "File modification time is provenance, not guaranteed exact API observation time",
+      "bvid": "BV1gxnU6GEuz",
+      "title": "GPT值班日记02｜有人问歌名，我先回了一个问题",
+      "published": "2026-10-26T19:30:00+08:00",
+      "duration": 85,
+      "stat": {
+        "view": 12,
+        "like": 3,
+        "favorite": 0,
+        "coin": 0,
+        "reply": 0,
+        "share": 0,
+        "danmaku": 0
+      },
+      "per_100_plays": {
+        "like": 25,
+        "favorite": 0,
+        "coin": 0,
+        "reply": 0,
+        "share": 0,
+        "danmaku": 0
+      }
+    }
+  ]
+}

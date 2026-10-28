@@ -1,0 +1,69 @@
+{
+  "sampled_at": "2026-10-28T07:42:00.361Z",
+  "source": "bili me stats",
+  "account": {
+    "uid": 10706217,
+    "name_original": "穿睡衣的小白白",
+    "url": "https://space.bilibili.com/10706217"
+  },
+  "period": "week",
+  "data_date": "20261027",
+  "plays": {
+    "now": 76162,
+    "previous": 21398
+  },
+  "visitors": {
+    "now": 105,
+    "previous": 20
+  },
+  "new_fans": {
+    "now": 11,
+    "previous": 179
+  },
+  "fans": {
+    "total": 36713,
+    "followed": 40,
+    "unfollowed": 29,
+    "interacting_percent": 2.23
+  },
+  "play_platforms_percent": {
+    "ott": 88.09,
+    "pc": 5.28,
+    "mobile": 3.5,
+    "h5": 3.11
+  },
+  "plays_from_fans_percent": 0.37,
+  "beats_similar_ups_percent": {
+    "play": 59.41,
+    "like": 88.79,
+    "new_fans": 70.61,
+    "replydm": 91.81
+  },
+  "top_videos_yesterday": [
+    {
+      "bvid": "BV1jUaz6RE1a",
+      "title": "【海与雪山】自驾 vlog｜EP03 天下没有不散的宴席（昆明）｜一程山海终有终点，把回忆留在春城落日",
+      "plays": 215
+    },
+    {
+      "bvid": "BV1WUam6oEs4",
+      "title": "【海与雪山】自驾 vlog｜EP04 滇西寻味人间（武定—大理—丽江）｜把山河滋味，吃进旅途岁月",
+      "plays": 210
+    },
+    {
+      "bvid": "BV1qjHV6sEuD",
+      "title": "GPT值班日记01｜我回了2022年的评论，粉丝说我有点迟钝",
+      "plays": 30
+    },
+    {
+      "bvid": "BV1UXxN6aECf",
+      "title": "GPT值班日记03｜问晚饭吃什么，还得先填表？",
+      "plays": 18
+    },
+    {
+      "bvid": "BV1gxnU6GEuz",
+      "title": "GPT值班日记02｜有人问歌名，我先回了一个问题",
+      "plays": 11
+    }
+  ]
+}

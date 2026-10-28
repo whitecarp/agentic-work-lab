@@ -1,0 +1,334 @@
+{
+  "source": "Selected fields from local operational event journals",
+  "exported_at": "2026-10-28T07:55:26.609Z",
+  "records": [
+    {
+      "at": "2026-10-26T01:27:17.9162440+08:00",
+      "event": "MANUAL_TREND_REFRESH_COMPLETED",
+      "cli_calls": 7,
+      "platform_writes": 0,
+      "new_risk": false,
+      "queue_changed": false,
+      "next_comment_not_before": "2026-10-26T02:30:00+08:00",
+      "next_publication_and_analytics": "2026-10-26T19:30:00+08:00"
+    },
+    {
+      "at": "2026-10-26T01:52:57.6032319+08:00",
+      "event": "USER_AUTHORIZED_FLEXIBLE_TOPICS_AND_REVISION",
+      "platform_calls": 0,
+      "upload_attempts_replayed": 0
+    },
+    {
+      "at": "2026-10-26T02:11:18.5698073+08:00",
+      "event": "ADAPTIVE_EDITORIAL_SCRIPT_DELIVERED_AND_REVISIONS_DISPATCHED",
+      "platform_calls": 0,
+      "platform_writes": 0,
+      "spares_unchanged": 2,
+      "episode02_unchanged": true
+    },
+    {
+      "at": "2026-10-26T02:31:34.6076243+08:00",
+      "event": "BOUNDED_COMMENT_MAINTENANCE_COMPLETED",
+      "platform_writes": 0,
+      "platform_reads": 4
+    },
+    {
+      "at": "2026-10-26T02:34:14.7453527+08:00",
+      "event": "BOTH_EDITORIAL_REVISIONS_ACCEPTED_SELECTED",
+      "platform_writes": 0,
+      "platform_reads": 4,
+      "episode02_unchanged": true
+    },
+    {
+      "at": "2026-10-26T03:01:54.6983550+08:00",
+      "event": "USER_LOW_TRAFFIC_TOPIC_DIAGNOSIS_STARTED",
+      "cli_calls": 2,
+      "platform_writes": 0
+    },
+    {
+      "at": "2026-10-26T03:12:26.8185896+08:00",
+      "event": "USER_REQUESTED_BROADER_AI_HIGH_INTEREST_CONTENT",
+      "platform_calls": 0
+    },
+    {
+      "at": "2026-10-26T03:28:25.7271020+08:00",
+      "event": "TRIANGLE_PRODUCTION_AND_MANUAL_EP02_DEFERRAL_PENDING",
+      "platform_writes": 0,
+      "platform_reads": 0
+    },
+    {
+      "at": "2026-10-26T03:37:10.4939591+08:00",
+      "event": "USER_CONFIRMED_EP02_NATIVE_RESCHEDULE_UNAVAILABLE",
+      "platform_calls": 0
+    },
+    {
+      "at": "2026-10-26T03:37:58.1399043+08:00",
+      "event": "EP02_RETAIN_ORIGINAL_SCHEDULE_AFTER_ASTRA_REVIEW",
+      "platform_calls": 0
+    },
+    {
+      "at": "2026-10-26T03:43:10.3341377+08:00",
+      "event": "USER_REQUESTED_TWO_MINUTE_CLEAR_NARRATIVE",
+      "platform_calls": 0
+    },
+    {
+      "at": "2026-10-26T03:45:25.8468727+08:00",
+      "event": "USER_CLARIFIED_TOPIC_MOTIVATION_NOT_DURATION",
+      "platform_calls": 0
+    },
+    {
+      "at": "2026-10-26T03:49:20.4442065+08:00",
+      "event": "PURPOSE_FIRST_TOPIC_RETHINK_AUTHORIZED",
+      "platform_calls": 0
+    },
+    {
+      "at": "2026-10-26T04:02:04.7671934+08:00",
+      "event": "USER_REQUESTED_CURRENT_STATION_RESEARCH",
+      "cli_calls": 6,
+      "platform_writes": 0,
+      "new_risk": false
+    },
+    {
+      "at": "2026-10-26T04:05:07.2977762+08:00",
+      "event": "PURPOSE_LED_STATION_SAMPLING_COMPLETE",
+      "cli_calls": 11,
+      "platform_writes": 0,
+      "new_risk": false
+    },
+    {
+      "at": "2026-10-26T04:15:17.1478779+08:00",
+      "event": "CURRENT_STATION_RESEARCH_REPORT_RECEIVED"
+    },
+    {
+      "at": "2026-10-26T04:20:45.3039194+08:00",
+      "event": "EVIDENCE_BASED_PREMISE_PASS_RULE_DESIGN_DISPATCHED",
+      "platform_calls": 0
+    },
+    {
+      "event": "SHOPPING_SINGLE_RUN_COMPLETED",
+      "platform_calls": 0
+    },
+    {
+      "event": "NEW_TOPIC_PROPOSAL_ONLY_AND_EXISTING_PLATFORM_STOP_ACKNOWLEDGED",
+      "platform_calls": 0
+    },
+    {
+      "event": "TOPIC_PROPOSAL_PASS_DELIVERY",
+      "platform_calls": 0
+    },
+    {
+      "event": "SCRIPT_V1_DELIVERY",
+      "platform_calls": 0
+    },
+    {
+      "event": "USER_SELECTED_TITLE_SEQUENCE03_AUTH_SUCCESS",
+      "platform_calls": 1
+    },
+    {
+      "event": "EXPLICIT_DEPARTURE_PRODUCTION_PUBLICATION_AUTHORIZATION",
+      "platform_calls": 0
+    },
+    {
+      "event": "EPISODE03_PREVIEW_REQUEST_NO_PUBLICATION_REPLY_GATE",
+      "platform_calls": 0
+    },
+    {
+      "checked_at": "2026-10-26T05:33:04.9351589+08:00",
+      "trigger": "2026-10-26T05:32:37.348+08:00",
+      "state": "EXISTING_EPISODE03_PRODUCTION_ADVANCING_NO_PLATFORM_TASK_DUE",
+      "platform_writes": 0,
+      "platform_reads": 0,
+      "platform_stop_exists": false
+    },
+    {
+      "checked_at": "2026-10-26T05:48:09.7477731+08:00",
+      "trigger": "2026-10-26T05:47:37.393+08:00",
+      "state": "EXISTING_EPISODE03_WORKER_ACTIVE_PRE_RENDER_FIXES_CLOSED",
+      "platform_writes": 0,
+      "platform_reads": 0,
+      "platform_stop_exists": false
+    },
+    {
+      "event": "USER_FEEDBACK_REOPENS_EP03_CREATIVE_ACCEPTANCE",
+      "platform_calls": 0
+    },
+    {
+      "event": "USER_REQUIRES_ACTUAL3D_HOME_MOTION",
+      "platform_calls": 0
+    },
+    {
+      "checked_at": "2026-10-26T06:20:06.4326325+08:00",
+      "trigger": "2026-10-26T06:19:37.482+08:00",
+      "state": "EXISTING_ASTRA_3D_PROTOTYPE_BUILDING",
+      "platform_writes": 0,
+      "platform_reads": 0,
+      "platform_stop_exists": false
+    },
+    {
+      "event": "DUE_COMMENT_MAINTENANCE_ONE_NEW_SUPPORTIVE_COMMENT"
+    },
+    {
+      "event": "USER_REFERENCE_BV1R6pE6TE4j_ACQUIRED_AND_ASTRA_REASSESSMENT",
+      "platform_writes": 0
+    },
+    {
+      "platform_calls": 0
+    },
+    {
+      "platform_calls": 0
+    },
+    {
+      "platform_calls": 0
+    },
+    {
+      "platform_calls": 0
+    },
+    {
+      "platform_calls": 0
+    },
+    {
+      "platform_writes": 0
+    },
+    {
+      "platform_writes": 0,
+      "new_risk": false
+    },
+    {
+      "state": "DENSE_REFERENCE_SEEN_ORIGINAL_KEY_DRAWINGS_IN_PROGRESS",
+      "platform_calls": 0
+    },
+    {
+      "platform_calls": 0,
+      "next_comment_not_before": "2026-10-26T10:40:00+08:00"
+    },
+    {
+      "platform_writes": 0
+    },
+    {
+      "at": "2026-10-26T18:10:34.3677718+08:00"
+    },
+    {
+      "at": "2026-10-26T18:10:34.3677718+08:00"
+    },
+    {
+      "at": "2026-10-26T18:10:34.3677718+08:00"
+    },
+    {
+      "at": "2026-10-26T18:33:58.7489343+08:00",
+      "platform_calls": 0
+    },
+    {
+      "at": "2026-10-26T18:48:20.8674364+08:00",
+      "platform_calls": 0
+    },
+    {
+      "at": "2026-10-26T19:03:20.9543409+08:00",
+      "platform_calls": 0
+    },
+    {
+      "at": "2026-10-26T19:34:01.9112258+08:00",
+      "new_risk": false
+    },
+    {
+      "at": "2026-10-26T19:37:14.5711599+08:00",
+      "platform_calls": 0
+    },
+    {
+      "at": "2026-10-26T20:09:41.7435568+08:00",
+      "platform_calls": 0
+    },
+    {
+      "at": "2026-10-26T21:33:43.5219404+08:00",
+      "platform_writes": 0,
+      "platform_reads": 1,
+      "new_risk": false
+    },
+    {
+      "at": "2026-10-26T22:17:45.9823951+08:00",
+      "platform_writes": 1,
+      "platform_reads": 4,
+      "new_risk": false
+    },
+    {
+      "at": "2026-10-26T22:32:49.4014946+08:00"
+    },
+    {
+      "at": "2026-10-26T22:44:22.9312243+08:00",
+      "platform_calls": 0
+    },
+    {
+      "at": "2026-10-26T22:53:21.2380257+08:00",
+      "platform_calls": 0
+    },
+    {
+      "at": "2026-10-26T23:09:32.5083300+08:00",
+      "platform_calls": 0
+    },
+    {
+      "at": "2026-10-26T23:38:53.2700411+08:00",
+      "platform_calls": 0
+    },
+    {
+      "at": "2026-10-26T23:42:46.0229696+08:00",
+      "platform_calls": 0
+    },
+    {
+      "at": "2026-10-27T00:15:58.3993146+08:00",
+      "platform_calls": 0
+    },
+    {
+      "at": "2026-10-27T00:30:16.8876502+08:00",
+      "platform_calls": 0
+    },
+    {
+      "at": "2026-10-27T01:34:59.0091142+08:00"
+    },
+    {
+      "at": "2026-10-27T02:06:31.7454547+08:00",
+      "platform_calls": 0,
+      "full_film_approved": false
+    },
+    {
+      "event": "FIRST_LOCAL_TEMPORAL_PILOT_ACTUALLY_ENCODED_REVIEW_DISPATCHED",
+      "platform_calls": 0
+    },
+    {
+      "event": "LOCAL_TEMPORAL_PILOT_V1_VISUAL_REVISION_REQUIRED",
+      "platform_calls": 0
+    },
+    {
+      "at": "2026-10-27T02:31:10.7396097+08:00",
+      "platform_writes": 0,
+      "platform_reads": 4,
+      "new_risk": false
+    },
+    {
+      "at": "2026-10-27T02:45:39.4969765+08:00",
+      "event": "BOUNDED_LOCAL_TEMPORAL_TRIAL_CLOSED_AUTHOR_RETURNS_TO_COLORED_POSE_WORK",
+      "platform_calls": 0
+    },
+    {
+      "at": "2026-10-26T07:34:35.3009205+08:00",
+      "event": "CREATOR_TOOL_CREDITS_AND_SIX_COMIC_KEY_DRAWINGS_REVIEWED",
+      "platform_write_calls": 0,
+      "full_film_approved": false
+    },
+    {
+      "at": "2026-10-26T07:36:23.1156653+08:00",
+      "event": "COMIC_SHORT_ENCODED_REVIEW_DISPATCHED",
+      "read_calls": 0,
+      "write_calls": 0
+    },
+    {
+      "checked_at": "2026-10-26T18:17:39.6899150+08:00",
+      "trigger": "2026-10-26T18:16:57.330+08:00",
+      "state": "CONTINUITY_DRAWINGS_IN_PROGRESS",
+      "platform_writes": 0,
+      "platform_reads": 0,
+      "full_film_ready": false,
+      "new_revision_mp4_ready": false,
+      "platform_stop_exists": false,
+      "next_due": "2026-10-26T19:30:00+08:00"
+    }
+  ]
+}

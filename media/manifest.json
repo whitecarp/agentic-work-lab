@@ -1,0 +1,181 @@
+{
+  "snapshot_at": "2026-10-28T07:55:28.117Z",
+  "items": [
+    {
+      "file": "gpt-log-01.mp4",
+      "title_zh_hant": "GPT 值班日記 01",
+      "title_en": "GPT Duty Log 01",
+      "bilibili_state_at_snapshot": "published",
+      "bvid": "BV1qjHV6sEuD",
+      "bytes": 160441478,
+      "sha256": "13a9b82396e5daf862c627dc31a2c97205489dcf0310224a89be7f9988521222",
+      "github_asset_status": "staged_not_uploaded",
+      "github_asset_url": null
+    },
+    {
+      "file": "gpt-log-02.mp4",
+      "title_zh_hant": "GPT 值班日記 02",
+      "title_en": "GPT Duty Log 02",
+      "bilibili_state_at_snapshot": "published",
+      "bvid": "BV1gxnU6GEuz",
+      "bytes": 172545563,
+      "sha256": "decb95dbb5ebaac47aa41a9d578c55e17e027d565b2610652ca435277dd70991",
+      "github_asset_status": "staged_not_uploaded",
+      "github_asset_url": null
+    },
+    {
+      "file": "gpt-log-03.mp4",
+      "title_zh_hant": "GPT 值班日記 03",
+      "title_en": "GPT Duty Log 03",
+      "bilibili_state_at_snapshot": "published",
+      "bvid": "BV1UXxN6aECf",
+      "bytes": 44443753,
+      "sha256": "b6932ebc4f5821a87ad71be172ca0c402c345397b81d58e0f5df8993a0bce54b",
+      "github_asset_status": "staged_not_uploaded",
+      "github_asset_url": null
+    },
+    {
+      "file": "whale-log-01.mp4",
+      "title_zh_hant": "鯨魚娘代班日誌 01",
+      "title_en": "Whale Girl Shift Log 01",
+      "bilibili_state_at_snapshot": "published",
+      "bvid": "BV1usxV69EUQ",
+      "bytes": 42158416,
+      "sha256": "5fc2a8bc961a49adbb1e3e53955f5e215f96530cdd0f73936b3e8f530444def5",
+      "github_asset_status": "staged_not_uploaded",
+      "github_asset_url": null
+    },
+    {
+      "file": "whale-log-02.mp4",
+      "title_zh_hant": "鯨魚娘代班日誌 02",
+      "title_en": "Whale Girl Shift Log 02",
+      "bilibili_state_at_snapshot": "scheduled_on_bilibili",
+      "bvid": "BV1Wfx56JEih",
+      "bytes": 35336986,
+      "sha256": "6bd55d5a62026ffdc7c9453bfa7ee10a45e03abbf75f69ae8e9e84840e86de1a",
+      "github_asset_status": "staged_not_uploaded",
+      "github_asset_url": null
+    },
+    {
+      "file": "whale-log-03.mp4",
+      "title_zh_hant": "鯨魚娘代班日誌 03",
+      "title_en": "Whale Girl Shift Log 03",
+      "bilibili_state_at_snapshot": "scheduled_on_bilibili",
+      "bvid": "BV1Wcx76dErs",
+      "bytes": 24994028,
+      "sha256": "95a862fd0e9ed8bb3e1414b26d582084c45d6a1a171d1b64217ae47684c8f58d",
+      "github_asset_status": "staged_not_uploaded",
+      "github_asset_url": null
+    },
+    {
+      "file": "gpt-log-04.mp4",
+      "title_zh_hant": "GPT 值班日記 04：製作教學",
+      "title_en": "GPT Duty Log 04: production tutorial",
+      "bilibili_state_at_snapshot": "scheduled_on_bilibili",
+      "bvid": "BV1xFx764EjN",
+      "bytes": 165360386,
+      "sha256": "870fd0dd15459a652f98f69fb1cbcc65f487c9c06d6de1492bb2d33818c8da37",
+      "github_asset_status": "staged_not_uploaded",
+      "github_asset_url": null
+    },
+    {
+      "file": "gpt-log-05-review.mp4",
+      "title_zh_hant": "GPT 第五期：Seedance 入門（待審片）",
+      "title_en": "GPT Episode 05: Seedance beginner tutorial (review copy)",
+      "bilibili_state_at_snapshot": "ready_for_review",
+      "bvid": null,
+      "bytes": 110600280,
+      "sha256": "2e4a5da549b3414e2132e8c3ef0596aee7f14712feeee5f0a188eb6f0ae0bbd6",
+      "github_asset_status": "staged_not_uploaded",
+      "github_asset_url": null
+    },
+    {
+      "file": "archive-episode03-candidate.mp4",
+      "title_zh_hant": "舊本地第三期候選片（未編入正式系列）",
+      "title_en": "Earlier local episode 03 candidate (not the released episode)",
+      "bilibili_state_at_snapshot": "unpublished_experiment",
+      "bvid": null,
+      "bytes": 177747769,
+      "sha256": "3c2225790f5f17a5feac33d71c48f9ff311a4cf059cb540a6142f51c09358798",
+      "github_asset_status": "staged_not_uploaded",
+      "github_asset_url": null
+    },
+    {
+      "file": "archive-episode04-story-v4.mp4",
+      "title_zh_hant": "舊本地第四期故事版（未編入正式系列）",
+      "title_en": "Earlier local episode 04 story cut (not the released episode)",
+      "bilibili_state_at_snapshot": "unpublished_experiment",
+      "bvid": null,
+      "bytes": 70793338,
+      "sha256": "96da49a29f44ae972679e8d5bcf29e8f98c443a68cb4ae2097e41bda5be73d93",
+      "github_asset_status": "staged_not_uploaded",
+      "github_asset_url": null
+    },
+    {
+      "file": "archive-triangle-cats.mp4",
+      "title_zh_hant": "三角形貓挑戰候選片",
+      "title_en": "Triangle-cats challenge candidate",
+      "bilibili_state_at_snapshot": "unpublished_experiment",
+      "bvid": null,
+      "bytes": 75712985,
+      "sha256": "7c081526da7a24e9e7944ffbccb7f6b64f59bc24c1d0bee7107506ec7b8fc24c",
+      "github_asset_status": "staged_not_uploaded",
+      "github_asset_url": null
+    },
+    {
+      "file": "archive-dinner-full-film.mp4",
+      "title_zh_hant": "晚餐題材早期完整實驗片",
+      "title_en": "Earlier complete dinner-animation experiment",
+      "bilibili_state_at_snapshot": "unpublished_experiment",
+      "bvid": null,
+      "bytes": 136670959,
+      "sha256": "6b1927cc279e2eaae37beb9b0fea9898baeb67257727dff95408ca9af7d9b50c",
+      "github_asset_status": "staged_not_uploaded",
+      "github_asset_url": null
+    },
+    {
+      "file": "study-connected-motion-v6.mp4",
+      "title_zh_hant": "連續動作十秒實驗 v6",
+      "title_en": "Ten-second continuity experiment v6",
+      "bilibili_state_at_snapshot": "research_sample",
+      "bvid": null,
+      "bytes": 2562181,
+      "sha256": "41a2929321d5f3c805ba572ae6db7bd797bd7388bfcb2f35fbd7ba9b2ff098ae",
+      "github_asset_status": "staged_not_uploaded",
+      "github_asset_url": null
+    },
+    {
+      "file": "study-comic-v3-1.mp4",
+      "title_zh_hant": "漫畫式短片實驗 v3.1",
+      "title_en": "Comic-style short experiment v3.1",
+      "bilibili_state_at_snapshot": "research_sample",
+      "bvid": null,
+      "bytes": 14449925,
+      "sha256": "adef504edb059f0e0c08a4d954f45e1f3d274c26848b9cfbf199e892dd8ef39f",
+      "github_asset_status": "staged_not_uploaded",
+      "github_asset_url": null
+    },
+    {
+      "file": "study-3d-handover-v2.mp4",
+      "title_zh_hant": "3D 走位與交接原型 v2",
+      "title_en": "3D walk-and-handoff prototype v2",
+      "bilibili_state_at_snapshot": "research_sample",
+      "bvid": null,
+      "bytes": 24704815,
+      "sha256": "b409355012deff2bf90148dc1e3bd05a67256a7437ec3d220492590fd18de31e",
+      "github_asset_status": "staged_not_uploaded",
+      "github_asset_url": null
+    },
+    {
+      "file": "study-seedance-previs.mp4",
+      "title_zh_hant": "Seedance 製作預演",
+      "title_en": "Seedance production previs",
+      "bilibili_state_at_snapshot": "research_sample",
+      "bvid": null,
+      "bytes": 6500102,
+      "sha256": "33132eddbeb8a11951cf818b84b5be7b946ef58535ca3d8d50a01b82ef3e0704",
+      "github_asset_status": "staged_not_uploaded",
+      "github_asset_url": null
+    }
+  ]
+}

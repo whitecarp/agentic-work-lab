@@ -1,0 +1,12 @@
+.env
+.env.*
+*cookie*
+*credential*
+*secret*
+*.sqlite*
+*.db
+node_modules/
+private-staging/
+*.mp4
+*.mov
+*.zip
