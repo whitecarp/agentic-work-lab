@@ -1,57 +1,57 @@
-"""Default Instagram preparation: landscape gets a cover lead; portrait passes through."""
+"""Prepare Instagram handoff without editing video; reuse Douyin portrait artwork."""
 from copy import deepcopy
 from pathlib import Path
 from .core import VpubError, atomic_json, digest, file_sha, load_plan, read_json
-from .cover_video import _binary, _probe, prepend
 
 
-def prepare(manifest, output, ffmpeg="ffmpeg", ffprobe="ffprobe"):
+def prepare(manifest, output, mobile_cover=None):
     manifest, output = Path(manifest).resolve(), Path(output).resolve()
     if manifest == output:
         raise VpubError("invalid_output", "Choose a separate prepared manifest.")
     source = read_json(manifest)
     plan = load_plan(manifest, ["instagram"])
     video = Path(plan["video"])
-    streams = _probe(_binary(ffprobe), video).get("streams", [])
-    picture = next((s for s in streams if s.get("codec_type") == "video"), None)
-    if not picture:
-        raise VpubError("invalid_media", "Input has no video stream.")
-    rotation = next((s.get("rotation", 0) for s in picture.get("side_data_list", []) if "rotation" in s), 0)
-    rotation = float(picture.get("tags", {}).get("rotate", rotation))
-    width, height = picture["width"], picture["height"]
-    if abs(rotation) % 180 == 90:
-        width, height = height, width
-    cover = plan.get("cover") or plan.get("covers", {}).get("instagram", {}).get("landscape", {}).get("path")
+    variants = source.get("covers", {})
+    portrait = mobile_cover or variants.get("douyin", {}).get("portrait") or variants.get("instagram", {}).get("portrait")
+    if portrait:
+        portrait = Path(portrait) if mobile_cover else manifest.parent / portrait
+        portrait = portrait.resolve()
+        if not portrait.is_file() or portrait.suffix.lower() not in {".jpg", ".jpeg", ".png"} or not portrait.stat().st_size:
+            raise VpubError("invalid_cover", "Choose the complete shared production portrait JPG/PNG.")
+    web_cover = plan.get("cover") or plan.get("covers", {}).get("instagram", {}).get("landscape", {}).get("path")
+    if not web_cover:
+        web_cover = str(portrait) if portrait else None
     value = deepcopy(source)
     value["platforms"] = {"instagram": deepcopy(source["platforms"]["instagram"])}
+    value["video"] = str(video)
+    # The mobile image is a handoff asset, not evidence of a saved website setting.
     value.pop("covers", None)
-    if cover:
-        value["cover"] = str(Path(cover).resolve())
+    if web_cover:
+        value["cover"] = str(Path(web_cover).resolve())
     else:
         value.pop("cover", None)
-    previous_receipt = video.with_suffix(video.suffix + ".receipt.json")
-    prior = read_json(previous_receipt) if previous_receipt.is_file() else {}
-    already_prepared = prior.get("output_sha256") == plan["video_sha256"] and prior.get("recipe", {}).get("mode") == "prepend_contain_silent"
-    if already_prepared and cover and prior["recipe"].get("cover_sha256") != file_sha(cover):
-        raise VpubError("cover_changed", "Prepare the original source with the new cover; do not stack cover lead-ins.")
-    if width > height and not already_prepared:
-        if not cover:
-            raise VpubError("cover_required", "Landscape Instagram videos need the dedicated production cover.")
-        if source.get("chapters") or source["platforms"]["instagram"].get("chapters"):
-            raise VpubError("retime_required", "This manifest has chapters; retime them explicitly for the added cover second.")
-        recipe = digest({"video": plan["video_sha256"], "cover": file_sha(cover), "rule": "landscape-cover-lead-v1"})
-        rendered = output.parent / "instagram-media" / (recipe + ".mp4")
-        proof = prepend(video, cover, rendered, 1.0, ffmpeg, ffprobe)
-        value["video"] = str(rendered)
-        mode = "LANDSCAPE_COVER_PREPENDED"
-    else:
-        value["video"] = str(video)
-        mode = "ALREADY_PREPARED" if already_prepared else "ORIGINAL_PORTRAIT_OR_SQUARE"
+    assets = {str(video): plan["video_sha256"]}
+    if web_cover:
+        assets[str(web_cover)] = file_sha(web_cover)
+    if portrait:
+        assets[str(portrait)] = file_sha(portrait)
+    if output in {Path(p).resolve() for p in assets}:
+        raise VpubError("invalid_output", "Do not overwrite a source asset.")
     if output.exists():
         if digest(read_json(output)) != digest(value):
             raise VpubError("already_exists", "Prepared manifest differs; choose a new output path.")
+        state = "REUSED"
     else:
+        state = "PREPARED"
+    if any(file_sha(path) != sha for path, sha in assets.items()):
+        raise VpubError("source_changed", "A source asset changed during preparation.")
+    if state == "PREPARED":
         atomic_json(output, value)
-    return {"state": "PREPARED", "mode": mode, "manifest": str(output), "video": value["video"],
-            "video_sha256": file_sha(value["video"]), "platforms": ["instagram"], "platform_writes": 0,
-            "next": "Plan/publish this Instagram manifest. Landscape preparation is automatic; portrait/square footage is unchanged. Verify cover selection on the phone separately."}
+    result = {"state": state, "mode": "ORIGINAL_VIDEO", "manifest": str(output),
+              "video": str(video), "video_sha256": plan["video_sha256"], "video_modified": False,
+              "upload_crop": "original", "platforms": ["instagram"], "platform_writes": 0,
+              "web_cover": str(web_cover) if web_cover else None,
+              "mobile_cover": {"path": str(portrait), "sha256": file_sha(portrait)} if portrait else None,
+              "next": "Upload the original video with Original crop and select a separate cover. On a phone use Edit cover > Add from camera roll with the shared Douyin portrait artwork, then inspect profile-grid cropping. No cover frame is inserted into the video."}
+    atomic_json(output.with_suffix(output.suffix + ".handoff.json"), result)
+    return result

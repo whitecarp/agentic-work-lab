@@ -85,10 +85,14 @@ Set YouTube category per video from content/current official choices. Revise exi
 
 ## Instagram 預設處理 / Default Instagram preparation
 
-每個 Instagram 任務先執行 `vpub instagram prepare MANIFEST --out instagram-ready.json`，再 plan/publish 輸出的 Instagram 專用方案。方向自動判斷，不再詢問是否加封面：橫式加 1 秒原製作封面，直式／方形保留原片。內置瀏覽器的裁剪選「原版」，保留完整音軌與影片長度。讀回新 ID、英文配文、AI 標記和封面；手機網格仍須使用者檢查。需要 FFmpeg/ffprobe，不可將沒有處理過的橫式原片誤稱為封面片頭版。
+每個 Instagram 任務保留原製作成片，在內置瀏覽器選「原版」上傳並另選封面。`vpub instagram prepare MANIFEST --out instagram-ready.json` 只建立方案與封面交接，不修改影片。手機竪版圖優先重用抖音專用封面的同一檔案；可用 `--mobile-cover PATH` 指定，或由方案的抖音／Instagram portrait 路徑取得。提醒使用者在手機「編輯封面」→「從相機膠卷中添加」選共用圖，檢查網格後保存。
 
-For every Instagram job, run `vpub instagram prepare MANIFEST --out instagram-ready.json`, then plan/publish that Instagram-only manifest. Orientation routing is automatic: prepend the production cover to landscape, retain portrait/square source. Select Original in the built-in browser. Read back the new ID, English caption, AI label and cover; mobile-grid selection remains user-assisted. FFmpeg/ffprobe are required; do not label unprocessed landscape footage as a cover-lead variant. See [guide](docs/INSTAGRAM_GUIDE.md).
+Use original production footage with Original crop and a separate cover. Preparation only creates the manifest/handoff; video bytes remain unchanged. Reuse the exact Douyin portrait file for mobile cover selection, resolved from --mobile-cover or manifest portrait paths. Guide the user through Edit cover → Add from camera roll, then verify grid preview.
 
-X 封面使用 Media Studio 原比例圖片；不要套用 Instagram 的片頭規則。Studio 自訂封面與發帖本輪已實測；CLI `revise-cover` 尚未支援此表面，不能繞過其錯誤而偽造既有帖回執。
+0.2.4 的一秒封面插入實驗已撤回。不要再執行此處理，也不要選到留存的實驗衍生片。手機設定是使用者輔助操作，未取得回報前不可聲稱 CLI 已設定完成。[指南 / Guide](README.md#instagram-發布與封面)。
 
-X uses same-ratio artwork in Media Studio; do not apply Instagram's cover-lead rule. Studio UI upload/cover/publication was tested, but CLI `revise-cover` still lacks this surface. Do not bypass that guard or overwrite an earlier post receipt.
+The 0.2.4 one-second-cover experiment is withdrawn. Do not insert artwork or select retained experimental derivatives as the source. Mobile adjustment is user-assisted; never claim completion without evidence.
+
+X 封面使用 Media Studio 原比例圖片；Instagram 也不再插入片頭。Studio 自訂封面與發帖本輪已實測；CLI `revise-cover` 尚未支援此表面，不能繞過其錯誤而偽造既有帖回執。
+
+X uses same-ratio artwork in Media Studio; Instagram no longer inserts a cover lead either. Studio UI upload/cover/publication was tested, but CLI `revise-cover` still lacks this surface. Do not bypass that guard or overwrite an earlier post receipt.

@@ -46,11 +46,11 @@ This command retains identical video bytes, account, metadata, audience and decl
 
 ## Instagram 封面限制 / Cover limitations
 
-本次網頁實測：發布後「編輯資訊」沒有換封面入口；發布前直式圖片仍被裁成橫式影片的預覽比例。因此專用圖本身完整，並不代表預覽及個人主頁縮圖都完整。發布前檢查文字，發布後再看主頁；不因封面問題自動刪除作品。使用者可選保留橫式版面，或另行授權以完整畫面補邊的直式影片版本。
+本次網頁實測：發布後「編輯資訊」沒有換封面入口；發布前直式圖片仍被裁成橫式影片的預覽比例。因此專用圖本身完整，並不代表預覽及個人主頁縮圖都完整。發布前檢查文字，發布後再看主頁；不因封面問題自動刪除作品。保留原片比例；手機使用「編輯封面 → 從相機膠卷中添加」選抖音共用直式圖，再檢查主頁網格。
 
-Observed in this web session: Edit info after publication had no cover-replacement control; a portrait image before publication was cropped to the landscape video's preview ratio. Complete source artwork does not guarantee complete previews or profile thumbnails. Inspect both; never automatically delete a work to fix its cover. The operator can retain landscape framing or separately authorize a portrait-canvas video that contains the entire original picture.
+Observed in this web session: Edit info after publication had no cover-replacement control; a portrait image before publication was cropped to the landscape video's preview ratio. Complete source artwork does not guarantee complete previews or profile thumbnails. Inspect both; never automatically delete a work to fix its cover. Retain the original video ratio. On mobile, use Edit cover → Add from camera roll with the shared Douyin portrait and inspect the profile grid.
 
 
-目前預設 Instagram 流程改為依方向自動準備，仍保留原比例；詳見 [Instagram 指南](INSTAGRAM_GUIDE.md)。橫式加入封面片頭會改變影片雜湊，必須建立新方案，不使用只允許相同影片的 `repost-deleted`。
+目前預設 Instagram 保留原片及原比例，上傳時另外設定封面；手機可從相機膠卷選抖音共用直式圖。[目前指南](../README.md#instagram-發布與封面)。0.2.4 的片頭實驗已撤回，既有發布記錄仍保留。
 
-Current Instagram defaults preserve the original ratio with orientation-aware preparation; see the guide. Adding a cover lead changes video bytes and needs a new plan, not the same-video-only `repost-deleted` command.
+Current Instagram publishing retains original footage/ratio with a separate cover, using shared Douyin portrait artwork through the phone camera-roll picker. The 0.2.4 lead-in experiment is withdrawn; publication history remains intact.

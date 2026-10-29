@@ -203,19 +203,11 @@ def parser():
     q.add_argument("--portrait")
     q.add_argument("--out-dir", required=True)
     q.add_argument("--out", required=True)
-    q = c.add_parser("prepend-video", help="Create a new video with an opt-in silent cover lead-in; no upload.")
-    q.add_argument("--video", required=True)
-    q.add_argument("--source", required=True)
-    q.add_argument("--out", required=True)
-    q.add_argument("--seconds", type=float, default=1.0)
-    q.add_argument("--ffmpeg", default="ffmpeg")
-    q.add_argument("--ffprobe", default="ffprobe")
-    i = sub.add_parser("instagram", help="Prepare Instagram media with automatic orientation handling.").add_subparsers(dest="action", required=True)
+    i = sub.add_parser("instagram", help="Prepare original-video upload and shared portrait-cover handoff.").add_subparsers(dest="action", required=True)
     q = i.add_parser("prepare")
     q.add_argument("manifest")
     q.add_argument("--out", required=True)
-    q.add_argument("--ffmpeg", default="ffmpeg")
-    q.add_argument("--ffprobe", default="ffprobe")
+    q.add_argument("--mobile-cover", help="Shared Douyin/Instagram portrait artwork; defaults to the manifest's Douyin portrait, then Instagram portrait.")
     m = sub.add_parser("metadata", help="Host-conversation copywriting and platform-language routing.").add_subparsers(dest="action", required=True)
     q = m.add_parser("request")
     q.add_argument("manifest")
@@ -302,11 +294,8 @@ def parser():
 def execute(args):
     if args.command == "instagram":
         from .instagram_media import prepare
-        return prepare(args.manifest, args.out, args.ffmpeg, args.ffprobe)
+        return prepare(args.manifest, args.out, args.mobile_cover)
     if args.command == "covers":
-        if args.action == "prepend-video":
-            from .cover_video import prepend
-            return prepend(args.video, args.source, args.out, args.seconds, args.ffmpeg, args.ffprobe)
         from . import covers
         return covers.prepare(args.manifest, args.source, args.out_dir, args.out, args.portrait)
     if args.command == "metadata":
@@ -485,7 +474,7 @@ def capabilities():
     return {"product": "PublishOps CrossCast", "version": __version__,
             "metadata_targets": {p: "zh-Hans" if p in {"bilibili", "douyin"} else "en" for p in PLATFORMS},
             "cover_fitting": "Local contain-and-pad artwork; actual UI may crop. X Studio original-ratio thumbnail saved and posted by host UI; dedicated CLI Studio cover command not implemented.",
-            "instagram_media": "Run instagram prepare before plan/publish: landscape gets a 1-second original-cover lead-in; portrait/square is unchanged. Select Original in upload UI. No portrait-canvas conversion.",
+            "instagram_media": "Instagram preparation preserves original video bytes and ratio. Use a separate upload cover and shared Douyin portrait through the mobile camera-roll picker; no inserted lead-in or transcoding.",
             "instagram_deletion": "Explicit native deletion request, UI result/absence evidence, retained history, and separately authorized same-video cover replacement. No standalone deletion API.",
             "email": "Optional, off by default; host Gmail/Outlook send tool required at execution; no SMS.",
             "chapters": "Native Bilibili/Douyin/YouTube handoff, timing validation and saved-control evidence. Douyin titles limited to 12 UTF-16 units; four live chapters submitted; user confirmed mobile visibility, full desktop read-back pending.",
@@ -496,7 +485,7 @@ def capabilities():
              "publish_backend": {"bilibili": "bili-cli or native", "douyin": "experimental browser or native", "youtube": "native (default) or optional API"}.get(p, "native host-agent workflow"),
              "standalone_cli_publish": p in {"bilibili", "youtube", "douyin"},
             "live_upload_verified": p in {"youtube", "x", "instagram"}} for p in PLATFORMS},
-            "live_verification_scope": "2026-10-29: historical YouTube private upload, X draft/post and Instagram original publication verified in host UI. X Studio direct upload, saved 16:9 cover and newly authorized status read back; native AI badge not observed there, text disclosure retained. Instagram cover-lead version shared after user removed prior test, new ID read back. Mobile cover selection and full playback remain unverified.",
+            "live_verification_scope": "2026-10-29: historical YouTube private upload, X draft/post and Instagram original publication verified in host UI. X Studio direct upload, saved 16:9 cover and newly authorized status read back; native AI badge not observed there, text disclosure retained. Instagram cover-lead version shared after user removed prior test, new ID read back. Operator phone recordings support selecting a separate portrait from camera roll; the ineffective one-second lead experiment is withdrawn. Full playback remains unverified.",
             "native_execution": "The host agent performs real UI actions. A CLI handoff alone is not an executed action or confirmed login.",
             "bili_cli": "Use installed bili directly for its existing search, video, inbox, comment and creator-data commands.",
             "planned_common_commands": ["account", "search", "video", "works", "analytics", "comments", "inbox"],
