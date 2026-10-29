@@ -230,9 +230,9 @@ def report(since=None, language='auto', notes=None, _events=None):
     events=sorted((e for e in events if datetime.fromisoformat(e['at'])>=start),key=lambda e:e['at'])
     parts=[];details={}
     for platform in NAMES:
-        selected=[e for e in events if e['platform']==platform]
+        selected=[e for e in events if e['platform']==platform and not e['result'].get('test')]
         if not selected: continue
-        comments={};stats={};replies={};failed=[];new_comments=set();baselines=set()
+        comments={};stats={};replies={};engagement={};failed=[];new_comments=set();baselines=set()
         for e in selected:
             v=e['result']
             if v.get('state')=='FAILED': failed.append(v);continue
@@ -244,12 +244,18 @@ def report(since=None, language='auto', notes=None, _events=None):
                     if not c.get('is_owner'): comments[(e['work_id'],c['id'])]=c
             if e['action']=='stats': stats[e['work_id']]=v
             if e['action'] in {'reply','reply_verify'}: replies[v.get('reply_key',e['event_id'])]=v
+            if e['action']=='engagement': engagement[v.get('key',e['event_id'])]=v
         unavailable_stats=sum(not any(m.get('value') is not None for m in v.get('metrics',{}).values()) for v in stats.values())
         collected_stats=len(stats)-unavailable_stats
         confirmed=sum(v.get('state')=='REPLY_VERIFIED' for v in replies.values())
         pending=sum(v.get('state')!='REPLY_VERIFIED' for v in replies.values())
+        actions={kind+'_'+direction:sum(v.get('state')=='ACTION_VERIFIED' and v.get('kind')==kind and v.get('desired') is desired for v in engagement.values())
+                 for kind in ('like','save') for direction,desired in (('on',True),('off',False))}
+        actions_pending=sum(v.get('state') in {'ACTION_SUBMITTING','ACTION_UNVERIFIED'} for v in engagement.values())
+        actions_failed=sum(v.get('state')=='ACTION_FAILED' for v in engagement.values())
         details[platform]={'comments_read':len(comments),'newly_observed_comments':len(new_comments),'baseline_works':len(baselines),'replies_verified':confirmed,'work_metrics':stats,
-                           'replies_pending':pending,'works_with_stats':collected_stats,'works_without_visible_metrics':unavailable_stats,'failed_reads':len(failed)}
+                           'replies_pending':pending,'works_with_stats':collected_stats,'works_without_visible_metrics':unavailable_stats,'failed_reads':len(failed),
+                           'engagement_verified':actions,'engagement_pending':actions_pending,'engagement_failed':actions_failed}
         if lang=='zh':
             pieces=[]
             if any(e['action']=='comments' and e['result'].get('state')!='FAILED' for e in selected): pieces.append(f'读取{len(comments)}条观众评论')
@@ -260,7 +266,11 @@ def report(since=None, language='auto', notes=None, _events=None):
             if collected_stats: pieces.append(f'采集{collected_stats}条作品的数据')
             if unavailable_stats: pieces.append(f'{unavailable_stats}条作品暂未返回可用数值')
             if failed: pieces.append(f'{len(failed)}次读取未完成')
-            parts.append(NAMES[platform]+'：'+'，'.join(pieces))
+            for kind,label in [('like_on','点赞'),('like_off','取消点赞'),('save_on','保存到收藏／书签／播放列表'),('save_off','从收藏／书签／播放列表移除')]:
+                if actions[kind]:pieces.append(f'{label}{actions[kind]}次并读回确认')
+            if actions_pending:pieces.append(f'{actions_pending}次点赞或保存操作待核验，未重试')
+            if actions_failed:pieces.append(f'{actions_failed}次点赞或保存操作在提交前停止')
+            if pieces:parts.append(NAMES[platform]+'：'+'，'.join(pieces))
         else:
             pieces=[]
             counted=lambda n,noun:f'{n} {noun}'+('' if n==1 else 's')
@@ -272,7 +282,11 @@ def report(since=None, language='auto', notes=None, _events=None):
             if collected_stats: pieces.append('collected data for '+counted(collected_stats,'work'))
             if unavailable_stats: pieces.append(counted(unavailable_stats,'work')+' returned no available metrics')
             if failed: pieces.append(counted(len(failed),'read')+' did not complete')
-            parts.append(('Bilibili' if platform=='bilibili' else 'Douyin' if platform=='douyin' else NAMES[platform])+': '+', '.join(pieces))
+            for kind,label in [('like_on','like'),('like_off','unlike'),('save_on','save'),('save_off','remove-save')]:
+                if actions[kind]:pieces.append(f'verified {actions[kind]} {label} operations')
+            if actions_pending:pieces.append(f'{actions_pending} engagement attempts remain unverified; no retry')
+            if actions_failed:pieces.append(f'{actions_failed} engagement attempts stopped before submission')
+            if pieces:parts.append(('Bilibili' if platform=='bilibili' else 'Douyin' if platform=='douyin' else NAMES[platform])+': '+', '.join(pieces))
     summary=('本轮'+'；'.join(parts)+'。') if lang=='zh' and parts else ('This round — '+'; '.join(parts)+'.') if parts else ('本时段没有可汇报的执行记录。' if lang=='zh' else 'No execution records in this period.')
     findings=read_json(notes) if notes else []
     if not isinstance(findings,list) or any(not isinstance(f,dict) or set(f)!={'text','source'} or not isinstance(f['text'],str) or not f['text'].strip() or not re.match(r'^https?://',str(f['source'])) for f in findings):

@@ -21,7 +21,8 @@ Prepare platform-specific descriptions, covers and publication receipts for one 
 - Added cross-platform comment reads, single-language replies matching commenters, work metrics and Chinese/English operations reports; tested and pending scopes are documented.
 - Added five-platform work listing, watchlists and read-only collection: comment candidates, comparable metric changes and per-run reports; paged Bilibili/YouTube thread replies.
 - Production-cover fitting, YouTube playlist settings and Gmail-only email notifications, off until explicitly enabled.
-- **0.5.0 alpha, with 164 passing offline tests.** Full five-platform publication still has open acceptance items; tested scope and limits are documented.
+- Added five-platform likes/unlikes and favorites, bookmarks or selected-playlist saves/removals; check state, submit once and verify independently, with repeated identical commands becoming no-ops.
+- **0.6.0 alpha, with 193 passing offline tests.** Full five-platform publication still has open acceptance items; tested scope and limits are documented.
 
 [Install and use](tools/publishops-crosscast/README_EN.md) · [Feature scope](tools/publishops-crosscast/docs/FEATURES_EN.md) · [Validation](tools/publishops-crosscast/docs/VALIDATION_EN.md)
 

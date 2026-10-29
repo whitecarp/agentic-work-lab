@@ -26,6 +26,9 @@ async def run(payload):
                     return {"logged_in": True, "identity": actual, "account": account, "method": "browser"}
                 from .browser_backends import execute
                 try:
+                    if payload['action']=='engagement':
+                        from .engagement_browser import execute as engage
+                        return await engage(page,platform,actual,payload)
                     if payload['action']=='operations':
                         from .operations_browser import execute as operate
                         return await operate(page,platform,actual,payload)

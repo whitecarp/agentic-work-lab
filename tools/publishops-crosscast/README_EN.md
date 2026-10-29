@@ -8,13 +8,47 @@ This requirement exists because non-subscribers are limited to **140-second, 512
 
 ### Multi-platform video release operations console
 
-**v0.5.0 alpha · CLI `vpub` · AI-assisted development**
+**v0.6.0 alpha · CLI `vpub` · AI-assisted development**
 
 Prepare platform-specific metadata, covers and publication receipts for one original video. Choose any subset of Bilibili, Douyin, YouTube, Instagram and X. Sign in once; the CLI reuses its own local sessions for later uploads.
 
 Default routes: Bilibili uses bili-cli, YouTube uses its official API, and Douyin/Instagram/X use a dedicated persistent Chrome profile controlled by the CLI in the background. First login and official verification require the user. Explicit `method: native` retains host-browser handoff. This remains alpha; live development tests are documented separately from unattended acceptance. Comments, work metrics and reports now share CLI commands, with platform-specific validation below. TikTok is suspended; YouTube cards/clickable end screens and standalone X/Instagram APIs remain unimplemented.
 
 [Features](docs/FEATURES_EN.md) · [Validation](docs/VALIDATION_EN.md) · [Agent handoff](DEEPSEEK_HANDOFF_EN.md) · [Draft testing](docs/DRAFT_TESTING_EN.md)
+
+## Likes, saves and reversals
+
+After first login, use the same CLI commands for an exact work. Bilibili reuses bili-cli and YouTube uses its official API. Douyin, Instagram and X reuse the CLI's dedicated background Chrome session without step-by-step host-browser operation.
+
+| Platform | Like / unlike | What save / remove actually means |
+|---|---|---|
+| Bilibili | bili-cli | Selected favorite folder; a unique default is used if omitted. Removal preserves membership in other folders. |
+| YouTube | Official video rating API | Selected ordinary playlist owned by the account; no Watch Later, Likes-list or legacy Favorites management. |
+| Douyin | Exact video's Like control | Default favorite/save for that video. |
+| Instagram | Post toolbar Like | Default Saved; no named collections or comment likes. |
+| X | Exact post's Like | Private Bookmarks; not Lists or bookmark-folder management. |
+
+```sh
+vpub engage status instagram WORK_ID
+vpub engage like instagram WORK_ID
+vpub engage like instagram WORK_ID --remove
+vpub engage save x STATUS_ID
+vpub engage save x STATUS_ID --remove
+vpub engage collections bilibili
+vpub engage save bilibili BV_ID --collection FOLDER_ID
+vpub engage collections youtube
+vpub engage save youtube VIDEO_ID --collection PLAYLIST_ID
+vpub engage save youtube VIDEO_ID --collection PLAYLIST_ID --remove
+vpub engage verify RECEIPT_KEY
+```
+
+`status`, `collections` and `verify` are read-only. Choose folder/playlist IDs from `collections`; YouTube supports continuation through `--cursor`. Commands support `--out result.json`. `like` and `save` execute directly with optional `--dry-run`, without another per-action approval step.
+
+Exact Bilibili folder membership uses a read-only helper in pinned `bili-agent==0.7.0`; writes still use its CLI. That internal interface needs revalidation after upstream upgrades. Missing membership information never triggers guessing or removal from other folders.
+
+The CLI checks the account and current state first; an already matching state returns `NO_CHANGE`. It writes a durable receipt before one submission and confirms the result through an independent read. Only matching read-back produces `ACTION_VERIFIED`. For `ACTION_UNVERIFIED`, use read-only `verify`, retain the receipt and do not repeat or reverse the pending attempt. Login challenges and ambiguous controls stop the command. Account-state evidence is not organic growth; the [YouTube rating API](https://developers.google.com/youtube/v3/docs/videos/rate) also distinguishes account ratings from official like counts.
+
+Reports distinguish likes, unlikes, saves, removals and pending attempts, deduplicated by receipt. Explicitly authorized tests can use `--test-id LABEL` to exclude traffic from operations results; the label does not automatically undo an action. Login, installation and `ops sync` do not automatically engage. Bulk interaction, coins, triple actions, reposts and creating collections are outside this release.
 
 ## Comments, work metrics and operations reports
 

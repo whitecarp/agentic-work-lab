@@ -2,7 +2,29 @@
 
 [繁體中文](VALIDATION.md) · **English**
 
-Date: **2026-10-30**, PublishOps CrossCast **0.5.0 alpha**.
+Date: **2026-10-30**, PublishOps CrossCast **0.6.0 alpha**.
+
+## 0.6.0: likes, saves, reversals and deduplication
+
+The user authorized bounded live CLI tests on the existing episode-two work on each platform. Each action records its original state, changes it once and verifies independently; repeating the same command must return `NO_CHANGE`, then the original state is restored and queried again. Private receipts retain the test marker and are excluded from ordinary operations reports. Test traffic is not organic engagement or growth.
+
+| Platform | Like and reverse | Save and remove | Evidence |
+|---|---|---|---|
+| Bilibili | Passed, restored | Selected favorite folder passed, restored | Upstream CLI relation plus video-specific folder membership |
+| YouTube | Passed, restored | Selected owned playlist passed, restored | `getRating` and exact video/playlist item IDs |
+| Instagram | Passed, restored | Default Saved passed, restored | Post toolbar read after closing and restarting the CLI browser |
+| X | Passed, restored | Private bookmarks passed, restored | Exact post controls in an independent CLI browser |
+| Douyin | Passed, restored | Default saved items passed, restored | `aweme_detail.user_digged` / `collect_stat` loaded by the normal work page, matched to the exact video ID |
+
+Across five platforms, **20 writes including restorations were independently verified and 10 repeated commands returned `NO_CHANGE`**. All like/save states were restored to their recorded baselines. Failed reads and repairs remain recorded; no repeated clicks were used to manufacture success. Existing playlist items and membership in other favorite folders were preserved.
+
+Instagram live testing exposed nested sections matching the same toolbar. Selection now uses the innermost post toolbar, excluding comment likes. One X read stopped when the post appeared before its toolbar. After adding a bounded wait, bookmark creation, duplicate-command checking and removal completed. YouTube removes the exact playlist item; Bilibili removal targets only one folder.
+
+Douyin retained its Like tooltip after a successful like, causing the original check to mark the action unverified. The fix observes account state in the normal page's own loaded detail response and independently verifies the existing receipt without liking again. Tooltips locate controls only; neither heart color nor aggregate like count determines account state. This observes official-page responses, not an independent official API. Missing fields, wrong video IDs and states other than 0/1 stop execution.
+
+**193 offline tests pass.** Added state deduplication, durable submission, no resend or opposite toggle after timeout, account/collection checks, duplicate membership refusal, test-traffic report isolation and seven network-free DOM tests. This round did not reupload videos or change copy, covers, visibility or schedules. Existing language rules and Gmail-off defaults remain. Live development checks cover these accounts and layouts, not all accounts, layouts or clean-machine unattended operation.
+
+Official references: [YouTube rating](https://developers.google.com/youtube/v3/docs/videos/rate), [rating reads](https://developers.google.com/youtube/v3/docs/videos/getRating), [playlist membership](https://developers.google.com/youtube/v3/docs/playlistItems/insert), [X bookmarks](https://help.x.com/en/using-x/bookmarks). YouTube API rating success is distinct from official like counts; this test verifies account ratings. Raw pages, private receipts and login data are not published.
 
 ## 0.5.0: Read-only multi-platform collection
 

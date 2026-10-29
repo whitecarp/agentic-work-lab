@@ -8,13 +8,47 @@
 
 ### 跨平台影片發布營運台
 
-**v0.5.0 alpha · CLI `vpub` · AI 協助開發**
+**v0.6.0 alpha · CLI `vpub` · AI 協助開發**
 
 讓同一支原創影片擁有各平台適用的文案、封面與發布回執。選擇 Bilibili、抖音、YouTube、Instagram、X 的任意組合，首次登入後，CLI 復用本機專用會話完成後續上傳。
 
 預設路徑：B站沿用 bili-cli，YouTube 使用官方 API，抖音／Instagram／X 由 CLI 在背景控制專用 Chrome。首次登入與官方驗證需要使用者協助；明確設定 `method: native` 仍可使用宿主瀏覽器交接。這是 alpha 版本，開發期實測與無人值守驗收分開記錄。已新增評論、作品數據及匯報命令；各站實測範圍見下方。TikTok、YouTube 卡片／可點擊片尾與 X／Instagram 獨立 API 尚未實作。
 
 [功能範圍](docs/FEATURES.md) · [驗證記錄](docs/VALIDATION.md) · [Agent 交接](DEEPSEEK_HANDOFF.md) · [草稿測試](docs/DRAFT_TESTING.md)
+
+## 點讚、收藏與撤銷
+
+首次登入後，以同一組 CLI 命令操作指定作品。B站沿用 bili-cli，YouTube 使用官方 API；抖音、Instagram、X 復用 CLI 專用背景 Chrome，不需要宿主逐步操作內置瀏覽器。
+
+| 平台 | 點讚／取消讚 | 保存／移除的實際含義 |
+|---|---|---|
+| B站 | bili-cli | 指定收藏夾；省略 ID 時使用唯一預設夾，撤銷不影響其他夾 |
+| YouTube | 官方影片評分 API | 指定自己擁有的普通播放列表；不支援「稍後觀看」、喜歡清單或舊版最愛 |
+| 抖音 | 指定影片的點讚按鈕 | 該影片的預設收藏 |
+| Instagram | 作品工具列的 Like | 預設 Saved；未支援命名收藏集或評論點讚 |
+| X | 指定帖文的 Like | 私人 Bookmarks；不是 Lists，也不是書籤資料夾管理 |
+
+```sh
+vpub engage status instagram WORK_ID
+vpub engage like instagram WORK_ID
+vpub engage like instagram WORK_ID --remove
+vpub engage save x STATUS_ID
+vpub engage save x STATUS_ID --remove
+vpub engage collections bilibili
+vpub engage save bilibili BV_ID --collection FOLDER_ID
+vpub engage collections youtube
+vpub engage save youtube VIDEO_ID --collection PLAYLIST_ID
+vpub engage save youtube VIDEO_ID --collection PLAYLIST_ID --remove
+vpub engage verify RECEIPT_KEY
+```
+
+`status`、`collections`、`verify` 都是唯讀。收藏夾／播放列表 ID 來自 `collections`；YouTube 清單可用 `--cursor` 繼續。支援 `--out result.json`。`like`／`save` 是直接執行命令，可加 `--dry-run` 預覽；不另加逐次確認。
+
+B站的精確收藏夾成員查詢使用已鎖定 `bili-agent==0.7.0` 的唯讀輔助函式；寫入仍走上游 CLI。升級上游後需要重新驗證這個內部介面，讀不到成員狀態時不猜測或刪除其他收藏。
+
+每次先核對帳號和當前狀態，相同狀態返回 `NO_CHANGE`。寫入前保存回執，僅提交一次，再以獨立讀取確認；`ACTION_VERIFIED` 才表示讀回相符。若為 `ACTION_UNVERIFIED`，只用 `verify` 核驗，保留記錄，不重點、不反向切換。遇到登入驗證或不能唯一辨識的控制項會停止。操作記錄是帳號狀態證據，不能當作自然流量增長；[YouTube 評分 API](https://developers.google.com/youtube/v3/docs/videos/rate) 亦明確區分帳號評分和官方讚數。
+
+匯報分別列出點讚、取消讚、保存、移除及待核驗操作，依回執去重。明確授權的測試可加 `--test-id LABEL` 排除於營運成果；該標籤本身不會自動撤銷操作。登入、安裝與 `ops sync` 都不會自動點讚或收藏。這一版不含批量互動、投幣、一鍵三連、轉發或新增收藏夾。
 
 ## 評論、作品數據與營運匯報
 

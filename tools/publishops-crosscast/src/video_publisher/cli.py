@@ -168,6 +168,14 @@ def parser():
     sub = p.add_subparsers(dest="command", required=True)
     sub.add_parser("doctor", help="Local dependency checks; no login or upload.")
     sub.add_parser("capabilities", help="Show actual backends and verification boundaries.")
+    e=sub.add_parser('engage',help='Explicit work likes and saves; no automatic or bulk engagement.').add_subparsers(dest='action',required=True)
+    q=e.add_parser('status');q.add_argument('platform',choices=PLATFORMS);q.add_argument('work');q.add_argument('--collection');q.add_argument('--out')
+    q=e.add_parser('collections');q.add_argument('platform',choices=PLATFORMS);q.add_argument('--cursor');q.add_argument('--out')
+    for action in ('like','save'):
+        q=e.add_parser(action);q.add_argument('platform',choices=PLATFORMS);q.add_argument('work')
+        q.add_argument('--remove',action='store_true');q.add_argument('--collection');q.add_argument('--dry-run',action='store_true');q.add_argument('--out')
+        q.add_argument('--test-id',help='Explicit test label; retained and excluded from ordinary engagement reports.')
+    q=e.add_parser('verify');q.add_argument('key');q.add_argument('--out')
     c = sub.add_parser('comments', help='Read comments and send direct single-language replies.').add_subparsers(dest='action',required=True)
     q=c.add_parser('list')
     q.add_argument('platform',choices=PLATFORMS);q.add_argument('work')
@@ -339,6 +347,14 @@ def parser():
 
 
 def execute(args):
+    if args.command=='engage':
+        from . import engagement
+        if args.action=='status':result=engagement.status(args.platform,args.work,args.collection)
+        elif args.action=='collections':result=engagement.collections(args.platform,args.cursor)
+        elif args.action=='verify':result=engagement.verify(args.key)
+        else:result=engagement.set_action(args.platform,args.work,args.action,not args.remove,args.collection,args.dry_run,args.test_id)
+        if args.out:atomic_json(args.out,result)
+        return result
     if args.command=='ops':
         from . import operations_sync
         result=operations_sync.sync(args.platforms,args.limit,args.pages,args.language) if args.action=='sync' else operations_sync.watch(args.watch_action,getattr(args,'platform',None),getattr(args,'work',None))
@@ -576,6 +592,14 @@ def capabilities():
     from .operations import capabilities as operations_capabilities
     return {"product": "PublishOps CrossCast", "version": __version__,
             "operations":operations_capabilities(),
+            "engagement": {"commands":"engage status/collections/like/save/verify; --remove undoes the selected action, --dry-run is optional.",
+                "bilibili":"bili-cli likes and explicit favorite-folder membership; read membership through the pinned upstream helper.",
+                "youtube":"Official API rating and selected owned playlist membership; no Watch Later, Likes-list or legacy Favorites management.",
+                "douyin":"Exact video Like/Save controls; account state read from the official page's own detail response in a fresh session, never from static tooltip text.",
+                "instagram":"Post toolbar Like/Save only; comment likes and named collections are not implemented.",
+                "x":"Exact post Like/Bookmark controls; private bookmarks, not X Lists or bookmark folders.",
+                "verification":"Durable single attempt; current state checked before action and in an independent read after it. Uncertain attempts require read-only verify, never blind retries.",
+                "report":"Verified operations, reversals and unresolved attempts; --test-id traffic is excluded. No automatic or bulk engagement."},
             "x_requirements": {"support_scope":"Subscribed accounts with actual Media Studio access only.",
                                "free_account_publishing":False,
                                "checks":"Confirm Studio upload access and managed account before selecting media. Login/payment alone is not publishing readiness.",
@@ -614,7 +638,7 @@ def main():
         args = parser().parse_args()
         value = execute(args)
         ok = not (isinstance(value, dict) and (value.get("all_submissions_verified") is False or
-                  value.get('state') in {'PARTIAL','WAITING_FOR_USER','PREPARATION_INCOMPLETE','SUBMITTED_UNVERIFIED','UNKNOWN','EDIT_SUBMITTING','EDIT_SUBMITTED_UNVERIFIED','EDIT_UNAVAILABLE','REPLY_READY','REPLY_PENDING','REPLY_SUBMITTING','REPLY_UNVERIFIED','REPLY_REJECTED','TEST_SEED_UNVERIFIED','TEST_REPLY_UNVERIFIED','TEST_COMMENT_NOT_VISIBLE'}))
+                  value.get('state') in {'ACTION_READY','ACTION_SUBMITTING','ACTION_UNVERIFIED','ACTION_FAILED','PARTIAL','WAITING_FOR_USER','PREPARATION_INCOMPLETE','SUBMITTED_UNVERIFIED','UNKNOWN','EDIT_SUBMITTING','EDIT_SUBMITTED_UNVERIFIED','EDIT_UNAVAILABLE','REPLY_READY','REPLY_PENDING','REPLY_SUBMITTING','REPLY_UNVERIFIED','REPLY_REJECTED','TEST_SEED_UNVERIFIED','TEST_REPLY_UNVERIFIED','TEST_COMMENT_NOT_VISIBLE'}))
         print(json.dumps({"ok": ok, "data": value}, ensure_ascii=False))
         raise SystemExit(0 if ok else 4)
     except VpubError as e:
