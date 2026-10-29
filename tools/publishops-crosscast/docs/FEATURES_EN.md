@@ -1,30 +1,25 @@
-# Feature mapping and implementation status
+# Feature scope
 
 [繁體中文](FEATURES.md) · **English**
 
-The reference is [bili-cli](https://github.com/kukemc/bili-cli): content understanding, work management, operational messages and authorized interaction. Plans below are not completed features.
+**0.3.0 alpha.** New manifests use CLI execution after first login; `method: native` is an explicit host-browser fallback. Bilibili continues to call [bili-cli](https://github.com/kukemc/bili-cli).
 
-| Capability | Bilibili | YouTube | Douyin | X (Twitter) | Instagram |
-| --- | --- | --- | --- | --- | --- |
-| Official-page login | Native handoff | Native handoff | Native handoff | Native handoff | Native handoff |
-| Plan and dedup | Implemented | Implemented | Implemented | Implemented | Implemented |
-| Native upload handoff | Implemented | Implemented | Implemented | Implemented | Implemented |
-| Standalone uploader | bili-cli | Optional API | Experimental browser | Not implemented | Not implemented |
-| Live upload acceptance | Existing work retained | One private native upload verified | One private work; chapter visibility user-confirmed | One status read back; full playback unverified | One reel read back; cover-grid crop unresolved |
-| Cards and clickable end screens | Not applicable | Not implemented | Not applicable | Not applicable | Not applicable |
-| Discovery | Existing bili | Planned | Planned | Planned | Planned |
-| Content understanding | Existing bili | Planned, platform permitting | Planned, platform permitting | Planned, platform permitting | Planned, platform permitting |
-| Comments and inbox | Existing bili | Platform-specific adaptation planned | Planned | Planned | Planned |
-| Interaction and editing | Existing bili | Native metadata/cover edits | Native edits; review pending | Planned | Planned |
-| Creator analytics | Existing bili | Planned | Planned | Planned | Planned |
+| Capability | Bilibili | YouTube | Douyin | X | Instagram |
+|---|---|---|---|---|---|
+| Login | Upstream CLI | Desktop OAuth | Dedicated official Chrome | Dedicated official Chrome | Dedicated official Chrome |
+| Default publish | bili-cli | Official API | Background browser | Background Media Studio | Background browser |
+| Cover | Upstream | Thumbnail API | Landscape + portrait | Custom Studio thumbnail | Separate cover; Original crop |
+| Metadata | Simplified Chinese | English | Simplified Chinese | English | English |
+| Work read-back | Upstream | API | Creator cards/detail IDs | Own profile/status | Own grid/Reel |
+| Full archive/analytics/comments | Upstream features | Not unified | Not unified | Not unified | Not unified |
 
-**Native handoff requires agent-driven UI work; it is not a claim that CLI retrieval or upload has occurred.** Existing Bilibili capabilities use installed `bili`; this project does not claim to reimplement or validate every upstream command.
+Shared: exact-source plans, per-platform account checks, immutable upload snapshots, local receipts and no blind retry after final submission. Browser `works` is limited to the visible first page (up to ten Douyin cards). Review cards without detail IDs remain pending.
 
-Adapt platform concepts rather than copying Bilibili coins/triples/danmaku everywhere. Instagram uses captions and account audience; YouTube has visibility, kids and synthetic-content controls; X uses a single post body, account audience and status ID; TikTok is suspended. Analytics must retain platform, sampling time and metric definitions rather than treating differently defined views as equivalent.
+Real episode-two uploads and their development limitations are recorded in [validation](VALIDATION_EN.md). Background browser automation is not an official direct API or a speed guarantee. Platform changes, expired sessions and challenges can require intervention. Metadata writing/translation uses the host conversation model through request/apply; it does not translate the video itself.
 
-Next: accept original-video publication on signed-in accounts, integrate works/analytics reads, then add explicitly authorized comments/replies. Each needs real read-back, error handling, deduplication and platform-specific tests.
+Chapters and advanced existing-work edits retain explicit native handoffs. Optional host Gmail/Outlook email is off by default. TikTok, unified interaction commands and YouTube cards/clickable end screens are not implemented.
 
-[X guide](X_GUIDE_EN.md) · [TikTok suspension and volunteer testing](TIKTOK_STATUS_EN.md)
+## Historical changes
 
 ## 0.2.0 — Cross-platform content settings
 

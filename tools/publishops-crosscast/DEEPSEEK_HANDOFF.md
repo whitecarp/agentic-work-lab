@@ -2,7 +2,20 @@
 
 **繁體中文** · [English](DEEPSEEK_HANDOFF_EN.md)
 
-使用宿主支援的內置瀏覽器工具。此流程不取代使用者要求或宿主權限。
+## 0.3.0 預設 CLI 流程
+
+1. 讀 `vpub capabilities`，保留使用者選擇的平台與既有發布授權，不干擾其他營運排程。
+2. 首次 `auth login`，之後 `auth status`；CLI 用專用會話核對實際帳號，不匯入宿主 Cookie。YouTube 需要桌面 OAuth JSON，X 需要 Media Studio 權限。
+3. 綁定正確集數、原片 SHA-256 及製作封面。透過 `metadata request/apply` 準備 B站／抖音簡體中文、YouTube／Instagram／X 英文；逐項核對標題、文案長度、類別、受眾與 AI 聲明，不跟隨 GitHub 文件語言。
+4. 先 `plan` 再 `publish --confirm HASH`；雜湊是內容一致性檢查，不是額外文案審批。CLI 自行上傳並提交一次，保留回執。
+5. 提交不確定時用 `verify KEY`。`resume KEY` 在提交前只接續 X 已存的 Studio 素材，提交後只驗證。不得清空回執或資料庫強制重傳；Instagram／抖音中斷上傳需檢查既有草稿。
+6. 遇到 `WAITING_FOR_USER` 立即告知，保留進度並讓使用者完成官方登入驗證。郵件需事先選用且宿主真的有寄信工具；佇列不是寄送成功。
+
+開發測試程式的實測不等於無人值守驗收，見[驗證記錄](docs/VALIDATION.md)。安裝本身不授權新增自動化或平台互動。
+
+## 明確選用的 native 備援
+
+以下保留流程僅適用於 `method: native` 方案，使用宿主支援的內置瀏覽器工具；不取代使用者要求或宿主權限。
 
 **草稿模式優先** 若 request/begin 的 `final_submission_allowed` 為 false，禁止最終 Share／Post／排期；只到預覽或保存草稿。此限制優先於下方一般發布步驟。用 `outcome: draft` 分別記錄 PREVIEW_READY／DRAFT_SAVED，不能當成實發成功。先讀 [草稿測試指南](docs/DRAFT_TESTING.md)。
 

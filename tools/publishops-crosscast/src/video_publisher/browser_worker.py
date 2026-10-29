@@ -1,0 +1,55 @@
+"""One independent browser command; JSON stdout and no credential logging."""
+from __future__ import annotations
+
+import asyncio
+import contextlib
+import json
+from pathlib import Path
+import sys
+
+from .core import VpubError, atomic_json, now, read_json, stop_check
+from . import browser_runtime as runtime
+
+
+async def run(payload):
+    from patchright.async_api import async_playwright
+    platform, account = payload["platform"], payload.get("account", "default")
+    stop_check(platform)
+    with runtime.profile_lock(platform, account):
+        async with async_playwright() as pw:
+            if payload["action"] == "login":
+                return await runtime.login(pw, payload)
+            context = await runtime.open_context(pw, platform, account)
+            try:
+                page, actual = await runtime.signed_in_page(context, platform, payload.get("expected_identity"))
+                if payload["action"] == "status":
+                    return {"logged_in": True, "identity": actual, "account": account, "method": "browser"}
+                from .browser_backends import execute
+                return await execute(page, platform, actual, payload)
+            finally:
+                try:
+                    await runtime.save_session(context, platform, account)
+                finally:
+                    await context.close()
+
+
+def main():
+    payload = {}
+    try:
+        payload = read_json(sys.argv[2]) if len(sys.argv) == 3 and sys.argv[1] == "--job" else json.loads(sys.stdin.read())
+        with contextlib.redirect_stdout(sys.stderr):
+            result = asyncio.run(asyncio.wait_for(run(payload), timeout=1800))
+        out = {"ok": True, "data": result}
+        if payload.get("job_path"):
+            atomic_json(payload["job_path"], {"state": "LOGGED_IN", "completed_at": now(), **result})
+    except Exception as e:
+        out = {"ok": False, "error": {"code": e.code if isinstance(e, VpubError) else "browser_error",
+               "message": e.message if isinstance(e, VpubError) else f"Browser command failed ({type(e).__name__}).",
+               "hint": e.hint if isinstance(e, VpubError) else "Inspect the original draft/work and receipt before retrying; no automatic resubmission."}}
+        if payload.get("job_path"):
+            atomic_json(payload["job_path"], {"state": "FAILED", "platform": payload.get("platform"), **out})
+    print(json.dumps(out, ensure_ascii=False))
+
+
+if __name__ == "__main__":
+    main()

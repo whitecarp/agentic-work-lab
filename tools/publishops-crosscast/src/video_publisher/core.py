@@ -172,22 +172,18 @@ def load_plan(path, selected=None):
         if platform == "douyin" and v.get("method", "browser") not in {"native", "browser"}:
             raise VpubError("invalid_method", "Douyin method must be native or browser.")
         if platform == "douyin" and "expected_identity" in v:
-            if v.get("method", "browser") != "native":
-                raise VpubError("unsupported_identity_check", "Douyin expected_identity currently requires native mode and a host-observed account ID.")
             if not isinstance(v["expected_identity"], str) or not re.fullmatch(r"[A-Za-z0-9_.-]{1,64}", v["expected_identity"]):
                 raise VpubError("invalid_identity", "Use the Douyin account ID observed in the creator dashboard, not the display name.")
         if platform == "bilibili" and v.get("method", "cli") not in {"native", "cli"}:
             raise VpubError("invalid_method", "Bilibili method must be native or cli.")
-        if platform in {"x", "instagram"} and v.get("method", "native") != "native":
-            raise VpubError("invalid_method", "X/Instagram currently require the host's native browser; official API integration is not implemented.")
+        if platform in {"x", "instagram"} and v.get("method", "browser") not in {"native", "browser"}:
+            raise VpubError("invalid_method", "X/Instagram method must be browser or native.")
         if platform in {"x", "instagram"} and v.get("submission_mode", "publish") not in {"publish", "draft_only"}:
             raise VpubError("invalid_submission_mode", "Use publish or draft_only. Draft-only permits media upload/preview, never Share/Post or scheduling.")
         if platform == "x" and v.get("expected_identity") is not None and not re.fullmatch(r"[A-Za-z0-9_]{1,15}", str(v["expected_identity"])):
             raise VpubError("invalid_identity", "Use the X handle without @, as observed in the signed-in profile.")
-        if platform == "x" and cover:
+        if platform == "x" and cover and v.get("method", "browser") == "native":
             raise VpubError("unsupported_cover", "X native alpha uses the video's default thumbnail; shared covers are not implemented.")
-        if platform == "douyin" and cover and v.get("method", "browser") != "native":
-            raise VpubError("unsupported_cover", "Douyin custom covers require the native host-browser workflow; the experimental standalone backend cannot set them.")
         title = v.get("title", m.get("title", ""))
         desc = v.get("description", m.get("description", ""))
         tags = v.get("tags", m.get("tags", []))
@@ -205,7 +201,7 @@ def load_plan(path, selected=None):
         if platform == "youtube" and sum(len(t) + 1 for t in tags) > 500:
             raise VpubError("invalid_tags", "YouTube tags exceed the 500-character budget.")
         visibility = v.get("visibility")
-        supported = {"bilibili": {"public", "private"}, "youtube": {"public", "private", "unlisted"}, "douyin": {"public", "private"} if v.get("method") == "native" else {"public"},
+        supported = {"bilibili": {"public", "private"}, "youtube": {"public", "private", "unlisted"}, "douyin": {"public", "private"},
                      "x": {"account"}, "instagram": {"account"}}
         if visibility not in supported[platform]:
             raise VpubError("invalid_visibility", f"Explicit {platform} visibility required: {sorted(supported[platform])}")
@@ -243,7 +239,7 @@ def load_plan(path, selected=None):
         if platform == "douyin":
             plans[platform]["method"] = v.get("method", "browser")
         if platform in {"x", "instagram"}:
-            plans[platform]["method"] = "native"
+            plans[platform]["method"] = v.get("method", "browser")
         if platform in {"x", "instagram"}:
             if any(not re.fullmatch(r"#?\w+", t) for t in tags):
                 raise VpubError("invalid_tags", "Caption hashtags must contain only letters, digits or underscores, without spaces.")
@@ -263,9 +259,9 @@ def load_plan(path, selected=None):
         variants = supplied_covers.get(platform, {})
         if not isinstance(variants, dict) or set(variants) - {"landscape", "portrait"}:
             raise VpubError("invalid_cover", "Use landscape and/or portrait cover roles.")
-        if variants and (platform == "x" or (platform == "douyin" and plans[platform]["method"] != "native")):
+        if variants and platform == "x" and plans[platform]["method"] == "native":
             raise VpubError("unsupported_cover", "This route cannot set custom covers.")
-        if "portrait" in variants and platform in {"youtube", "bilibili"}:
+        if "portrait" in variants and platform in {"youtube", "bilibili", "x"}:
             raise VpubError("unsupported_cover", "This platform uses one landscape thumbnail in this workflow.")
         for role, filename in variants.items():
             if not isinstance(filename, str):

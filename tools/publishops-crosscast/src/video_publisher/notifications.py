@@ -85,10 +85,10 @@ def enqueue(key, platform, episode):
     # and private account IDs. The user resumes in their existing host session.
     subject = f"[CrossCast] {platform}: 需要登入驗證 / Sign-in verification required"
     body = (f"{platform} 的發布流程需要你完成官方登入或身份驗證。\n"
-            "請回到原來的 Codex／Agent 對話，在內置瀏覽器完成操作。\n"
+            "請回到原來的 Codex／Agent 對話，在對應的官方登入視窗完成操作。\n"
             "現有進度已保留；請勿重複上傳影片。\n\n"
             f"The {platform} workflow needs your help with official sign-in verification.\n"
-            "Return to the original agent conversation and complete it in the built-in browser.\n"
+            "Return to the original agent conversation and complete it in the matching official sign-in window.\n"
             "The existing attempt is preserved. Do not upload the video again.\n"
             f"Reference: {event_id[:12]}")
     value = {"provider": choice["provider"], "recipient": choice["recipient"],

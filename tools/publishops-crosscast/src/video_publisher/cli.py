@@ -10,7 +10,7 @@ import subprocess
 import sys
 
 from . import __version__, adapters
-from .core import (Ledger, PLATFORMS, SAU_COMMIT, VpubError, account_name, atomic_json,
+from .core import (Ledger, PLATFORMS, VpubError, account_name, atomic_json,
                    config, file_sha, home, load_plan, now, publication_lock, read_json, stop_check, platform_check)
 
 RISK_CODES = {"risk_control", "captcha_required", "rate_limited"}
@@ -38,6 +38,8 @@ def publish_plan(plan, confirm):
                     continue
                 try:
                     identity = adapters.preflight(platform, opts)
+                    if opts.get('method') == 'browser':
+                        opts = {**opts, 'expected_identity': identity['identity']}
                 except Exception as e:
                     code = e.code if isinstance(e, VpubError) else "preflight_error"
                     results[platform] = {"state": "NOT_STARTED", "code": code,
@@ -88,6 +90,9 @@ def publish_plan(plan, confirm):
                             asset["path"] = str(destination)
                     receipt = adapters.publish(platform, safe_plan, opts, checkpoint)
                     checkpoint(receipt)
+                    if receipt["state"] == "WAITING_FOR_USER":
+                        from .notifications import enqueue
+                        enqueue(key, platform, 1)
                     results[platform] = {"key": key, **receipt}
                 except Exception as e:
                     code = e.code if isinstance(e, VpubError) else "backend_error"
@@ -96,10 +101,10 @@ def publish_plan(plan, confirm):
                     durable = home() / "browser-receipts" / (plan["confirmation"] + "-" + platform + ".json")
                     if not receipt.get("id") and durable.exists():
                         candidate = read_json(durable)
-                        if candidate.get("id"):
+                        if candidate.get("platform") in {None, platform}:
                             receipt = candidate
                             record["receipt"] = receipt
-                    state = "SUBMITTED_UNVERIFIED" if receipt.get("id") else "UNKNOWN"
+                    state = "SUBMITTED_UNVERIFIED" if receipt.get("id") else receipt.get("state", "UNKNOWN")
                     record.update(error={"code": code,
                                          "message": e.message if isinstance(e, VpubError) else type(e).__name__})
                     ledger.save(key, state, record)
@@ -121,42 +126,25 @@ def publish_plan(plan, confirm):
 def doctor():
     modules = {name: importlib.util.find_spec(name) is not None for name in
                ("bili_cli", "googleapiclient", "google_auth_oauthlib", "socks", "patchright")}
-    root = home() / "social-auto-upload"
-    pin = None
-    if (root / ".git").exists():
-        pin = subprocess.check_output(["git", "-C", str(root), "rev-parse", "HEAD"], text=True).strip()
     return {"version": __version__, "python": sys.version.split()[0], "dependencies": modules,
-            "douyin_source_ready": pin == SAU_COMMIT, "douyin_revision": pin,
             "local_stop": (home() / "STOP.json").exists(), "runtime_directory": str(home()),
             "credentials_configured": {
                 "youtube_api": (home() / "accounts/default/youtube-token.json").exists(),
-                "douyin": (home() / "accounts/default/douyin-session.json").exists()},
+                **{p: (home() / 'accounts/default' / (p+'-browser-session.json')).exists()
+                   for p in ('douyin', 'instagram', 'x')}},
+            "browser_requirement": "Google Chrome; vpub setup --install-browser installs it through Patchright when needed.",
             "native_browser": "Owned by the host application; CLI does not inspect or export its login state.",
             "note": "Local checks only. Installed does not mean logged in or live-publishing verified."}
 
 
-def setup(external_stop=None):
-    root = home() / "social-auto-upload"
-    if not (root / ".git").exists():
-        subprocess.run(["git", "clone", "--filter=blob:none", "--no-checkout",
-                        "https://github.com/dreammis/social-auto-upload.git", str(root)],
+def setup(external_stop=None, install_browser=False):
+    if install_browser:
+        subprocess.run([sys.executable, '-m', 'patchright', 'install', 'chrome'],
                        check=True, stdout=sys.stderr, stderr=sys.stderr)
-        subprocess.run(["git", "-C", str(root), "checkout", "--detach", SAU_COMMIT],
-                       check=True, stdout=sys.stderr, stderr=sys.stderr)
-    pin = subprocess.check_output(["git", "-C", str(root), "rev-parse", "HEAD"], text=True).strip()
-    if pin != SAU_COMMIT:
-        raise VpubError("backend_changed", "Existing backend is a different revision; no automatic overwrite.")
-    conf = root / "conf.py"
-    if not conf.exists():
-        conf.write_text("from pathlib import Path\nBASE_DIR = Path(__file__).parent.resolve()\n"
-                        "LOCAL_CHROME_PATH = ''\nLOCAL_CHROME_HEADLESS = False\nDEBUG_MODE = False\nYT_PROXY = None\n",
-                        encoding="utf-8")
     if external_stop:
         c = config()
         c["external_stop_file"] = str(Path(external_stop).resolve())
         atomic_json(home() / "config.json", c)
-    from .douyin_worker import load_helpers
-    load_helpers()
     return doctor()
 
 
@@ -174,14 +162,15 @@ def parser():
     sub = p.add_subparsers(dest="command", required=True)
     sub.add_parser("doctor", help="Local dependency checks; no login or upload.")
     sub.add_parser("capabilities", help="Show actual backends and verification boundaries.")
-    s = sub.add_parser("setup", help="Install the pinned Douyin source; does not log in or post.")
+    s = sub.add_parser("setup", help="Prepare local settings; optionally install Chrome. Does not log in or post.")
     s.add_argument("--external-stop-file")
+    s.add_argument("--install-browser", action="store_true", help="Install Google Chrome through Patchright; may require OS permissions.")
     a = sub.add_parser("auth", help="Login or check each platform.").add_subparsers(dest="action", required=True)
     for action in ("login", "status"):
         q = a.add_parser(action)
         q.add_argument("platform", choices=[*PLATFORMS, "all"])
         q.add_argument("--account", default="default", choices=["default"])
-        q.add_argument("--method", choices=["native", "cli", "browser", "api"], help="Default login: native official page. Status defaults to the configured backend.")
+        q.add_argument("--method", choices=["native", "cli", "browser", "api"], help="Default: bili-cli, YouTube API, or a dedicated persistent browser for Douyin/Instagram/X.")
         if action == "login":
             q.add_argument("--client-json", help="YouTube Desktop OAuth client JSON; never commit this file.")
             q.add_argument("--manage-playlists", action="store_true", help="YouTube API only: explicitly request optional playlist-write OAuth permission.")
@@ -189,7 +178,7 @@ def parser():
             q.add_argument("--wait", type=int, default=0, help="QR/panel completion wait, 0–180 seconds.")
     q = sub.add_parser("onboard", help="Prepare the backend and start login for selected platforms.")
     q.add_argument("--platforms", default="all", help="all, or a comma-separated list of platforms.")
-    q.add_argument("--method", choices=["native"], default="native")
+    q.add_argument("--method", choices=["auto", "native"], default="auto")
     q = sub.add_parser("init", help="Create a publication manifest.")
     q.add_argument("--video", required=True)
     q.add_argument("--out", required=True)
@@ -279,7 +268,12 @@ def parser():
         if cmd == "publish":
             q.add_argument("--confirm")
             q.add_argument("--dry-run", action="store_true")
+    q = sub.add_parser("works", help="Read the visible first page of your own Douyin/Instagram/X works; no upload.")
+    q.add_argument("platform", choices=["douyin", "instagram", "x"])
+    q.add_argument("--account", choices=["default"], default="default")
     sub.add_parser("receipts", help="Read the local publication ledger.")
+    q = sub.add_parser("resume", help="Resume an existing browser attempt without repeating an upload or final submit.")
+    q.add_argument("key")
     q = sub.add_parser("verify", help="Read back an existing platform work; never upload.")
     q.add_argument("key")
     q = sub.add_parser("adopt", help="Associate an already-published video to avoid duplicate Bilibili uploads.")
@@ -292,6 +286,26 @@ def parser():
 
 
 def execute(args):
+    if args.command == "works":
+        return adapters.browser_call(args.platform, "works", args.account)
+    if args.command == "resume":
+        with publication_lock():
+            ledger = Ledger()
+            try:
+                row = ledger.get(args.key)
+                if not row or row['data'].get('options', {}).get('method') != 'browser':
+                    raise VpubError('invalid_resume', 'Use a receipt key from an independent browser attempt.')
+                record = row['data']
+                plan, opts = record['approved_plan'], record['options']
+                if file_sha(plan['video']) != plan['video_sha256']:
+                    raise VpubError('source_changed', 'Source no longer matches this attempt.')
+                result = adapters.browser_call(row['platform'], 'resume', row['account'],
+                    expected_identity=record['identity']['identity'], plan={**plan, 'options':opts})
+                record['receipt'] = result
+                ledger.save(args.key, result['state'], record)
+                return {'key':args.key, **result}
+            finally:
+                ledger.close()
     if args.command == "instagram":
         from .instagram_media import prepare
         return prepare(args.manifest, args.out, args.mobile_cover)
@@ -345,25 +359,25 @@ def execute(args):
     if args.command == "doctor":
         return doctor()
     if args.command == "setup":
-        return setup(args.external_stop_file)
+        return setup(args.external_stop_file, args.install_browser)
     if args.command == "onboard":
         selected = list(PLATFORMS) if args.platforms == "all" else args.platforms.split(",")
         if not selected or set(selected) - set(PLATFORMS):
             raise VpubError("invalid_platform", "Choose bilibili,youtube,douyin,instagram,x or all. TikTok is suspended.")
         from .notifications import onboarding
-        return {"platforms": login_selected(selected, "native"), "email_notifications": onboarding()}
+        return {"platforms": login_selected(selected, None if args.method == "auto" else args.method), "email_notifications": onboarding()}
     if args.command == "auth":
         if args.action == "login" and args.manage_playlists and (args.platform != "youtube" or args.method != "api"):
             raise VpubError("invalid_method", "--manage-playlists requires YouTube --method api.")
         if args.platform == "all":
             if args.action == "login":
-                return login_selected(PLATFORMS, args.method or "native")
+                return login_selected(PLATFORMS, args.method)
             return status_selected(PLATFORMS, args.wait, args.method)
         if args.action == "login":
             if args.manage_playlists and (args.platform != "youtube" or args.method != "api"):
                 raise VpubError("invalid_method", "--manage-playlists requires YouTube --method api.")
             return adapters.auth_login(args.platform, args.account, args.client_json, args.method, args.manage_playlists)
-        method = args.method or {"bilibili": "cli", "douyin": "browser"}.get(args.platform, "native")
+        method = args.method or adapters.default_method(args.platform)
         if method in {"native", "api"}:
             return adapters.auth_status(args.platform, args.account, method)
         if not 0 <= args.wait <= 180:
@@ -373,7 +387,7 @@ def execute(args):
         if args.platform != "bilibili":
             from .auth_jobs import wait
             job = wait(args.platform, args.wait)
-            if job and job.get("state") in {"STARTING", "LOGIN_PENDING", "VERIFICATION_REQUIRED", "FAILED"}:
+            if job and job.get("state") in {"STARTING", "LOGIN_PENDING", "VERIFICATION_REQUIRED"}:
                 return job
         return adapters.auth_status(args.platform, args.account, method)
     if args.command == "init":
@@ -390,7 +404,7 @@ def execute(args):
         options = value["platforms"]
         options.update(x={"account": "default", "method": "native", "visibility": "account", "ai_generated": True},
                        instagram={"account": "default", "method": "native", "visibility": "account", "ai_generated": True})
-        value["platforms"] = {p: options[p] for p in chosen}
+        value["platforms"] = {p: {**options[p], "method": adapters.default_method(p)} for p in chosen}
         if args.draft_only:
             for options in value["platforms"].values():
                 options["submission_mode"] = "draft_only"
@@ -432,6 +446,9 @@ def execute(args):
             return {"key": args.key, **result}
         old["data"]["receipt"] = result
         ledger.save(args.key, result["state"], old["data"])
+        plan_hash = old['data'].get('plan_hash') or old['data'].get('approved_plan', {}).get('confirmation')
+        if result.get('method') == 'browser' and plan_hash:
+            atomic_json(home() / 'browser-receipts' / (plan_hash+'-'+old['platform']+'.json'), result)
         return {"key": args.key, **result}
     finally:
         ledger.close()
@@ -441,11 +458,11 @@ def status_selected(platforms, wait_seconds=0, method=None):
     results = {}
     for platform in platforms:
         try:
-            selected_method = method or {"bilibili": "cli", "douyin": "browser"}.get(platform, "native")
-            if platform in {"douyin", "youtube"} and selected_method == "browser":
+            selected_method = method or adapters.default_method(platform)
+            if platform in {"douyin", "instagram", "x"} and selected_method == "browser":
                 from .auth_jobs import wait
                 job = wait(platform, wait_seconds)
-                if job and job.get("state") != "LOGGED_IN":
+                if job and job.get("state") in {"STARTING", "LOGIN_PENDING", "VERIFICATION_REQUIRED"}:
                     results[platform] = job
                     continue
             results[platform] = adapters.auth_status(platform, "default", selected_method)
@@ -454,7 +471,7 @@ def status_selected(platforms, wait_seconds=0, method=None):
     return results
 
 
-def login_selected(platforms, method="native"):
+def login_selected(platforms, method=None):
     results = {}
     for platform in platforms:
         try:
@@ -473,24 +490,25 @@ def login_selected(platforms, method="native"):
 def capabilities():
     return {"product": "PublishOps CrossCast", "version": __version__,
             "metadata_targets": {p: "zh-Hans" if p in {"bilibili", "douyin"} else "en" for p in PLATFORMS},
-            "cover_fitting": "Local contain-and-pad artwork; actual UI may crop. X Studio original-ratio thumbnail saved and posted by host UI; dedicated CLI Studio cover command not implemented.",
+            "cover_fitting": "Local contain-and-pad artwork, plus CLI upload of X Studio thumbnails, separate Instagram covers and both Douyin variants. Platform/grid cropping and artwork quality require visual checks.",
             "instagram_media": "Instagram preparation preserves original video bytes and ratio. Use a separate upload cover and shared Douyin portrait through the mobile camera-roll picker; no inserted lead-in or transcoding.",
             "instagram_deletion": "Explicit native deletion request, UI result/absence evidence, retained history, and separately authorized same-video cover replacement. No standalone deletion API.",
             "email": "Optional, off by default; host Gmail/Outlook send tool required at execution; no SMS.",
             "chapters": "Native Bilibili/Douyin/YouTube handoff, timing validation and saved-control evidence. Douyin titles limited to 12 UTF-16 units; four live chapters submitted; user confirmed mobile visibility, full desktop read-back pending.",
             "youtube_category": "Explicit per-video category required; host-model selection, in-place revision and read-back. API validates assignability before upload; no People & Blogs fallback.",
             "playlists": "YouTube native selections or optional API membership with explicit write scope.",
-            "draft_only": "Instagram/X: init --draft-only. Host must stop before Share/Post/scheduling. PREVIEW_READY and DRAFT_SAVED are unpublished observations; CLI does not control browser buttons.",
+            "draft_only": "Instagram/X: init --draft-only stops CLI before Share/Post. PREVIEW_READY is not a guaranteed persistent draft after closing the browser.",
             "platforms": {p: {"native_login": True,
-             "publish_backend": {"bilibili": "bili-cli or native", "douyin": "experimental browser or native", "youtube": "native (default) or optional API"}.get(p, "native host-agent workflow"),
-             "standalone_cli_publish": p in {"bilibili", "youtube", "douyin"},
+             "publish_backend": {"bilibili": "bili-cli", "youtube": "official API"}.get(p, "dedicated persistent background browser"),
+             "standalone_cli_publish": True,
             "live_upload_verified": p in {"youtube", "x", "instagram"}} for p in PLATFORMS},
-            "live_verification_scope": "2026-10-29: historical YouTube private upload, X draft/post and Instagram original publication verified in host UI. X Studio direct upload, saved 16:9 cover and newly authorized status read back; native AI badge not observed there, text disclosure retained. Instagram cover-lead version shared after user removed prior test, new ID read back. Operator phone recordings support selecting a separate portrait from camera roll; the ineffective one-second lead experiment is withdrawn. Full playback remains unverified.",
+            "live_verification_scope": "2026-10-29 episode 02: YouTube API upload, cover write, public status, category and processing verified; X Studio CLI post and exact text read back. Instagram backend published original video, separate cover, English caption and native AI label. Douyin backend submitted Simplified Chinese metadata and both covers; platform review was observed. Browser development runs needed selector fixes on existing attempts and are not clean-machine unattended acceptance. Full playback remains unverified.",
             "native_execution": "The host agent performs real UI actions. A CLI handoff alone is not an executed action or confirmed login.",
             "bili_cli": "Use installed bili directly for its existing search, video, inbox, comment and creator-data commands.",
-            "planned_common_commands": ["account", "search", "video", "works", "analytics", "comments", "inbox"],
+            "works": "Douyin/Instagram/X visible first-page work IDs and text; up to ten Douyin cards, excluding review cards without a detail page.",
+            "planned_common_commands": ["account", "search", "video", "analytics", "comments", "inbox"],
             "suspended_platforms": {"tiktok": "Login test with a Hong Kong number was unsuccessful; see docs/TIKTOK_STATUS.md."},
-            "not_implemented": "Unified non-Bilibili read/interaction commands, X/Instagram official API clients, and YouTube cards/clickable end screens.",
+            "not_implemented": "Unified analytics/comments/inbox, X/Instagram official API clients, and YouTube cards/clickable end screens. Chapters and existing-work edits use the explicit native handoff.",
             "interaction_rule": "Login/setup does not authorize comments, messages, likes or publication."}
 
 
@@ -500,7 +518,8 @@ def main():
     try:
         args = parser().parse_args()
         value = execute(args)
-        ok = not (isinstance(value, dict) and value.get("all_submissions_verified") is False)
+        ok = not (isinstance(value, dict) and (value.get("all_submissions_verified") is False or
+                  value.get('state') in {'WAITING_FOR_USER','PREPARATION_INCOMPLETE','SUBMITTED_UNVERIFIED','UNKNOWN'}))
         print(json.dumps({"ok": ok, "data": value}, ensure_ascii=False))
         raise SystemExit(0 if ok else 4)
     except VpubError as e:

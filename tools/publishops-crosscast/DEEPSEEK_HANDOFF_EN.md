@@ -2,7 +2,20 @@
 
 [繁體中文](DEEPSEEK_HANDOFF.md) · **English**
 
-Use the host's supported in-app browser. This workflow does not override user instructions or host permissions.
+## Default 0.3.0 CLI workflow
+
+1. Read `vpub capabilities`; retain the user's selected platforms and publication authority. Do not touch other scheduled operators.
+2. Use `auth login` once, then `auth status`. The CLI checks the actual account using its dedicated profile; never import host cookies. YouTube needs Desktop OAuth JSON; X needs Media Studio access.
+3. Bind the correct episode/video SHA-256 and production cover. Prepare Simplified Chinese for Bilibili/Douyin and English for YouTube/Instagram/X through `metadata request/apply`. Check exact titles, caption limits, category, audience and AI declaration; GitHub language is unrelated.
+4. Run `plan` then `publish --confirm HASH`. This is a content-integrity check, not an extra editorial approval. The CLI uploads and submits once. Preserve its receipt.
+5. Use `verify KEY` for uncertain submission. `resume KEY` only continues X's saved Studio asset before submission; after submission it only verifies. Never reset a ledger/receipt to force another upload. Instagram/Douyin partial uploads need inspection of the existing draft.
+6. On `WAITING_FOR_USER`, tell the user promptly, keep progress and run the official login flow when they can help. Optional email requires opt-in and a real host send tool; queued is not sent.
+
+Do not claim unattended acceptance from the development test harness. See [validation](docs/VALIDATION_EN.md). No new automation or platform interaction is authorized by installation alone.
+
+## Explicit native fallback
+
+The following retained steps apply only to manifests with `method: native`, using the host's supported in-app browser. This workflow does not override user instructions or host permissions.
 
 **Draft-mode override:** `final_submission_allowed: false` from request/begin overrides the general publication steps below: stop at preview/save draft, never submit or schedule. Record `outcome: draft` with PREVIEW_READY or DRAFT_SAVED; neither is publication success.
 

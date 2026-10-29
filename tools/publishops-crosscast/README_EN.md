@@ -4,17 +4,17 @@
 
 ### Multi-platform video release operations console
 
-**v0.2.5 alpha · CLI `vpub` · AI-assisted development**
+**v0.3.0 alpha · CLI `vpub` · AI-assisted development**
 
-Prepare platform-specific metadata, covers and publication receipts for one original video. Choose any subset of Bilibili, Douyin, YouTube, Instagram and X, then select your sign-in method on official sites inside the host's browser.
+Prepare platform-specific metadata, covers and publication receipts for one original video. Choose any subset of Bilibili, Douyin, YouTube, Instagram and X. Sign in once; the CLI reuses its own local sessions for later uploads.
 
-This alpha is not a fully validated five-platform publisher. Browser execution needs a host agent; a login URL or queue does not prove sign-in or publication. TikTok is suspended. YouTube cards/clickable end screens, standalone X/Instagram APIs and unified comments/analytics remain unimplemented.
+Default routes: Bilibili uses bili-cli, YouTube uses its official API, and Douyin/Instagram/X use a dedicated persistent Chrome profile controlled by the CLI in the background. First login and official verification require the user. Explicit `method: native` retains host-browser handoff. This remains alpha; live development tests are documented separately from unattended acceptance. TikTok is suspended. YouTube cards/clickable end screens, standalone X/Instagram APIs and unified comments/analytics remain unimplemented.
 
 [Features](docs/FEATURES_EN.md) · [Validation](docs/VALIDATION_EN.md) · [Agent handoff](DEEPSEEK_HANDOFF_EN.md) · [Draft testing](docs/DRAFT_TESTING_EN.md)
 
 ## Install and start
 
-Requires Python 3.10–3.12 and Git for Git-URL installation. The [Windows installer](install.ps1) finds compatible Python, creates an isolated environment and installs dependencies; missing Python must be prepared by the agent. Default sign-in needs no user OAuth setup or model API key.
+Requires Python 3.10–3.12 and Git for Git-URL installation. The [Windows installer](install.ps1) finds compatible Python, creates an isolated environment and installs dependencies; missing Python must be prepared by the agent. The background browser routes require Google Chrome. Run `vpub setup --install-browser` if it is missing. YouTube API mode requires a Desktop OAuth client JSON; the other three routes do not need platform developer keys. A standalone model API key is not required.
 
 ```sh
 pip install "git+https://github.com/whitecarp/agentic-work-lab.git#subdirectory=tools/publishops-crosscast"
@@ -27,7 +27,7 @@ Choose platforms, automatic publication versus editorial review, and optional em
 
 For upgrades, uninstall the old `whitecarp-video-publisher` package first. The `vpub` command, `video_publisher` Python module and runtime/sign-in/job storage are retained; do not delete user data.
 
-### Optional YouTube API sign-in
+### YouTube API sign-in
 
 Enable YouTube Data API v3 in Google Cloud, create a Desktop app OAuth client and download its JSON. An API key alone cannot authorize uploads. If the project is in Testing mode, add your sign-in account under Google Auth Platform → Audience → Test users to avoid `403 access_denied`.
 
@@ -39,6 +39,21 @@ vpub auth status youtube --method api
 Open the printed official Google authorization link on the same computer running the CLI, choose your channel and grant access. The callback waits for five minutes. Keep client JSON and tokens local; never commit them to GitHub. Set the YouTube manifest's `method` to `api` to use this backend; signing in does not change existing manifests. Playlist writes require explicit additional authorization with `--manage-playlists`.
 
 If authorization completes but API reads time out, run `vpub doctor`. Dependencies include [PySocks](https://pypi.org/project/PySocks/): without it, the Google client's `httplib2` transport can ignore a configured proxy. In an older environment, run `python -m pip install PySocks==1.7.1` with the same Python environment and retry the status query; do not reupload the video.
+
+## Login once, publish through the CLI
+
+```sh
+vpub auth login x
+vpub auth login instagram
+vpub auth login douyin
+vpub auth status all
+```
+
+Each first login opens CrossCast's own official Chrome window. Choose QR, password or another option offered by the site and complete any SMS/identity check yourself. Later commands run headlessly with the same local profile. This profile is separate from Codex's browser; no host cookies are exported. Sessions may expire or require verification again.
+
+`onboard` can start only the selected platforms. Existing manifests are not migrated automatically: set `method: browser` for Douyin/Instagram/X and `method: api` for YouTube; `init` now supplies those defaults. `method: native` is the explicit host-agent fallback.
+
+X/Instagram passed a fresh CLI read-back after restart. Douyin required login again after its upload; stable session reuse remains unverified. See [validation](docs/VALIDATION_EN.md).
 
 ## Copywriting and language
 
@@ -71,9 +86,9 @@ Prefer platform-specific `covers`, then a dedicated portrait, then shared produc
 |---|---|
 | Bilibili | 1600×1000; upstream CLI or native browser |
 | YouTube | 1920×1080; API or Studio, possibly requiring official verification |
-| Douyin | 1200×900 landscape + 1080×1440 portrait; native browser |
-| Instagram | Local 1080×1920 variants; separate web cover, shared Douyin portrait on mobile |
-| X | Original landscape artwork through Premium/Premium+ Media Studio; no standalone CLI cover command |
+| Douyin | 1200×900 landscape + 1080×1440 portrait; both uploaded by the background CLI |
+| Instagram | 1920×1080 web artwork and 1080×1920 mobile variant; separate cover, original video ratio |
+| X | Landscape artwork uploaded by the CLI through Media Studio; Studio access required |
 
 These are working presets, not permanent platform specifications. Complete local artwork does not prevent platform cropping: inspect platform previews and profile thumbnails. Source SHA-256 is not a remote-byte hash of the platform's compressed file.
 
@@ -128,12 +143,14 @@ The same four timestamps with Simplified Chinese titles were checked and submitt
 vpub plan ready.json
 vpub publish ready.json --dry-run
 vpub publish ready.json --confirm CURRENT_PLAN_HASH
-vpub browser request RECEIPT_KEY
-vpub browser begin RECEIPT_KEY --identity OBSERVED_ACCOUNT
-# The host performs authorized actions and reads back the saved result.
-vpub browser record RECEIPT_KEY --evidence local-evidence.json
+vpub verify RECEIPT_KEY
+vpub works instagram
+# X only: resume the existing Studio asset before final submission.
+vpub resume RECEIPT_KEY
 vpub receipts
 ```
+
+Browser receipts persist the account, exact text, source hashes and final-submit flag. An uncertain submit is never automatically clicked again; `verify` can find a unique new matching work. `resume` only verifies after submission; before submission it can continue the saved X Studio asset. Instagram/Douyin interrupted uploads require inspection of the existing draft. `works` lists the visible first page (up to ten Douyin cards), not a complete archive. Advanced native edits use `browser request/begin/record`.
 
 Templates default to public Bilibili/Douyin, private YouTube and account audience for Instagram/X; the host must apply user intent. Signing in never adds publication targets. Preparation, verification waits, platform review and public success are distinct; UI evidence and API verification have separate states.
 

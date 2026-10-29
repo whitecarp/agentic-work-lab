@@ -8,4 +8,9 @@ dist/
 *token*.json
 *client_secret*.json
 *cookie*.json
+*-browser-profile/
+*-browser-session.json
+browser-debug/
+browser-receipts/
+auth-jobs/
 

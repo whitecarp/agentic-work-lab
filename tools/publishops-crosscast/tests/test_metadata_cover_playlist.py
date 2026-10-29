@@ -110,15 +110,14 @@ class MetadataTests(unittest.TestCase):
         with self.assertRaises(VpubError):
             native_browser.begin(key,identity)
 
-    def test_douyin_private_cover_native_only(self):
+    def test_douyin_private_cover_browser_and_native(self):
         self.value['cover']=str(self.cover)
         self.value['platforms']['douyin']['visibility']='private'
         atomic_json(self.path,self.value)
         self.assertEqual('private',load_plan(self.path,['douyin'])['platforms']['douyin']['visibility'])
         self.value['platforms']['douyin']['method']='browser'
         atomic_json(self.path,self.value)
-        with self.assertRaises(VpubError):
-            load_plan(self.path,['douyin'])
+        self.assertEqual('browser', load_plan(self.path,['douyin'])['platforms']['douyin']['method'])
 
     def test_chapter_translation_preserves_timing(self):
         self.value['platforms']['youtube']['chapters']=[{'start_seconds':0,'title':'開始'}]

@@ -12,12 +12,12 @@
 
 **跨平台影片發布營運台**，CLI 指令為 `vpub`。
 
-為同一支原創影片準備不同平台的簡介、封面與發布回執。使用者選擇平台，在內置瀏覽器完成官方登入；AI 聊天模型協助寫作，工具負責結構校驗、去重與交接。
+為同一支原創影片準備不同平台的簡介、封面與發布回執。使用者選擇平台，首次登入後由 CLI 復用本機專用會話。AI 聊天模型協助寫作，CLI 核對素材與帳號、上傳、套用封面並記錄結果；YouTube 使用官方 API，抖音、Instagram、X 使用專用背景瀏覽器。
 
 - B站／抖音文案預設簡體中文；YouTube／Instagram／X 預設英文。
 - Instagram 使用原片及原比例，上傳時另設封面；手機可選與抖音共用的直式圖。
 - 提供專用封面適配、YouTube 播放列表設定與可選郵件提醒。
-- **0.2.5 alpha，72 項離線測試通過。** 完整五平台發布仍有待驗收項目；已測範圍與限制均有記錄。
+- **0.3.0 alpha，86 項離線測試通過。** 完整五平台發布仍有待驗收項目；已測範圍與限制均有記錄。
 
 [安裝與使用](tools/publishops-crosscast/README.md) · [功能範圍](tools/publishops-crosscast/docs/FEATURES.md) · [驗證記錄](tools/publishops-crosscast/docs/VALIDATION.md)
 

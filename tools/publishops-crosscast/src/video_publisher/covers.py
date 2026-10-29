@@ -11,7 +11,8 @@ PRESETS = {
     "bilibili": {"landscape": (1600, 1000)},
     "youtube": {"landscape": (1920, 1080)},
     "douyin": {"landscape": (1200, 900), "portrait": (1080, 1440)},
-    "instagram": {"portrait": (1080, 1920)},
+    "instagram": {"landscape": (1920, 1080), "portrait": (1080, 1920)},
+    "x": {"landscape": (1920, 1080)},
 }
 
 
@@ -23,11 +24,9 @@ def prepare(manifest, source, out_dir, output, portrait=None):
     portrait = Path(portrait).resolve() if portrait else None
     jobs, skipped = [], {}
     for platform, opts in original["platforms"].items():
-        if platform == "x":
+        if platform == "x" and opts.get('method', 'browser') == 'native':
             skipped[platform] = "Custom thumbnails are not implemented; video thumbnail remains unchanged."
             continue
-        if platform == "douyin" and opts.get("method", "browser") != "native":
-            raise VpubError("unsupported_cover", "Douyin covers require method=native for subsequent application.")
         for role, size in PRESETS[platform].items():
             override = original.get("covers", {}).get(platform, {}).get(role)
             asset = (path.parent / override).resolve() if override else portrait if role == "portrait" and portrait else source

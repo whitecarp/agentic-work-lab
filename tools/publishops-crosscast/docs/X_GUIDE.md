@@ -1,4 +1,27 @@
-# X（Twitter）適配
+# X：CLI Media Studio 發布
+
+**繁體中文** · [English](X_GUIDE_EN.md)
+
+**0.3.0 alpha：** 首次 `vpub auth login x` 開啟官方登入視窗。之後 `publish` 在背景復用 CrossCast 專用會話：核對帳號 → 上傳 Media Studio → 套用製作封面 → 填入完整英文帖文 → 提交一次 → 讀回原帖。這是程式操作官方網站，不是 X API 用戶端。
+
+```sh
+vpub auth login x
+vpub auth status x
+vpub init --video final.mp4 --language zh-Hans --platforms x --out x.json
+# 宿主準備平台適用的英文文案與製作封面。
+vpub plan x.json
+vpub publish x.json --confirm CURRENT_PLAN_HASH
+vpub verify RECEIPT_KEY
+vpub works x
+```
+
+用 `expected_identity` 綁定目標帳號。上傳前檢查 Studio 權限及其管理中的帳號。處理或選擇器在 Post 前失敗時，`resume KEY` 可接續既有素材；Post 後只驗證。既有回執阻止重傳。`--draft-only` 停在預覽，不保證關閉瀏覽器後仍是持久草稿。此路徑沿用帳號受眾，不修改受保護帳號設定。
+
+製作封面與第二期發布已實測，修復及限制見[驗證記錄](VALIDATION.md)。自訂縮圖需要真正可用的 Media Studio，訂閱本身不是成功保證。Studio 未觀察到原生 AI 標示控制，因此保留明確的 AI-generated 文字聲明。
+
+## 歷史 native 瀏覽器指南
+
+以下為先前由宿主操作的測試記錄，目前 CLI 支援以上方說明為準。
 
 **繁體中文** · [English](X_GUIDE_EN.md)
 

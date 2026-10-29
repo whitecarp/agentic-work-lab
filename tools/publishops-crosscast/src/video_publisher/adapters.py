@@ -90,14 +90,37 @@ def dy_worker(action, account, plan=None, timeout=180):
     return result["data"]
 
 
+def default_method(platform):
+    return {"bilibili": "cli", "youtube": "api"}.get(platform, "browser")
+
+
+def browser_call(platform, action, account, **kwargs):
+    payload = {"platform": platform, "action": action, "account": account, **kwargs}
+    try:
+        cp = subprocess.run([sys.executable, "-m", "video_publisher.browser_worker"],
+                            input=json.dumps(payload), capture_output=True, encoding="utf-8",
+                            timeout=1900 if action in {"publish", "resume"} else 120,
+                            env=dict(os.environ, PYTHONIOENCODING="utf-8"))
+    except subprocess.TimeoutExpired:
+        raise VpubError("browser_timeout", "Browser command timed out; existing receipts are retained.", "Inspect the existing draft/work; do not repeat an upload or final submit.")
+    try:
+        result = json.loads(cp.stdout)
+    except ValueError:
+        raise VpubError("browser_error", "Browser command returned no valid JSON receipt.")
+    if not result.get("ok"):
+        e = result["error"]
+        raise VpubError(e["code"], e["message"], e.get("hint", ""))
+    return result["data"]
+
+
 def auth_status(platform, account, method=None):
     platform_check(platform)
     stop_check(platform)
-    method = method or {"bilibili": "cli", "douyin": "browser"}.get(platform, "native")
+    method = method or default_method(platform)
     if method == "native":
         from .native_browser import login
         return login(platform)
-    supported = {"bilibili": {"cli"}, "douyin": {"browser"}, "youtube": {"api"}, "x": set(), "instagram": set()}
+    supported = {"bilibili": {"cli"}, "douyin": {"browser"}, "youtube": {"api"}, "x": {"browser"}, "instagram": {"browser"}}
     if method not in supported[platform]:
         raise VpubError("invalid_method", "This backend is unavailable on the selected platform.")
     if platform == "bilibili":
@@ -111,17 +134,20 @@ def auth_status(platform, account, method=None):
         if len(items) != 1:
             raise VpubError("channel_required", "Expected exactly one authorized YouTube channel.", "Create/select the intended YouTube channel and authorize again.")
         return {"logged_in": True, "account": account, "identity": items[0]["id"], "name": items[0]["snippet"]["title"]}
-    return dy_worker("status", account)
+    from .browser_runtime import profile_dir
+    if not (profile_dir(platform, account).parent / (platform + "-identity.json")).exists():
+        raise VpubError("not_logged_in", "No verified independent browser login.", f"Run vpub auth login {platform} --method browser.")
+    return browser_call(platform, "status", account)
 
 
 def auth_login(platform, account, client_json=None, method=None, manage_playlists=False):
     platform_check(platform)
     stop_check(platform)
-    method = method or ("api" if client_json else "native")
+    method = method or default_method(platform)
     if method == "native":
         from .native_browser import login
         return login(platform)
-    supported = {"bilibili": {"cli"}, "douyin": {"browser"}, "youtube": {"api"}, "x": set(), "instagram": set()}
+    supported = {"bilibili": {"cli"}, "douyin": {"browser"}, "youtube": {"api"}, "x": {"browser"}, "instagram": {"browser"}}
     if method not in supported[platform]:
         raise VpubError("invalid_method", "This login method is unavailable on the selected platform.")
     if platform == "bilibili":
@@ -129,7 +155,7 @@ def auth_login(platform, account, client_json=None, method=None, manage_playlist
     if platform == "youtube":
         return youtube_login(account, client_json, manage_playlists)
     from .auth_jobs import start
-    return start("douyin", account)
+    return start(platform, account)
 
 
 def preflight(platform, options):
@@ -140,8 +166,8 @@ def preflight(platform, options):
         if not any(creds.has_scopes([s]) for s in (PLAYLIST_SCOPE, "https://www.googleapis.com/auth/youtube", "https://www.googleapis.com/auth/youtubepartner")):
             raise VpubError("playlist_scope_required", "Playlist writes require an additional optional OAuth scope, before uploading.", "Use native mode or explicitly reauthorize with --manage-playlists; existing permissions are not expanded automatically.")
     identity = auth_status(platform, options["account"], options.get("method"))
-    expected = options.get("expected_uid") if platform == "bilibili" else options.get("expected_channel_id")
-    if expected and str(expected) != identity.get("identity"):
+    expected = options.get("expected_uid") if platform == "bilibili" else options.get("expected_channel_id") if platform == "youtube" else options.get("expected_identity")
+    if expected and str(expected).casefold() != str(identity.get("identity")).casefold():
         raise VpubError("wrong_account", "The authorized account differs from the manifest.")
     return identity
 
@@ -252,15 +278,18 @@ def publish(platform, plan, options, checkpoint):
         return publish_bilibili(plan, options, checkpoint)
     if platform == "youtube":
         return publish_youtube(plan, options, checkpoint)
-    return dy_worker("publish", options["account"], {**plan, "options": options}, timeout=1800)
+    result = browser_call(platform, "publish", options["account"],
+                          expected_identity=options.get("expected_identity"), plan={**plan, "options": options})
+    checkpoint(result)
+    return result
 
 
 def verify(platform, account, receipt):
     if receipt.get("method") == "native":
         return {**receipt, "state": "BROWSER_VERIFICATION_REQUIRED", "note": "Re-open the original work in the same built-in browser and record actual UI evidence. No CLI platform check was performed."}
     video_id = receipt.get("id")
-    if platform == "douyin":
-        return dy_worker("verify", account, receipt)
+    if receipt.get("method") == "browser" and platform in {"douyin", "instagram", "x"}:
+        return browser_call(platform, "verify", account, expected_identity=receipt.get("identity"), receipt=receipt)
     if not video_id:
         raise VpubError("receipt_missing", "No platform video ID; inspect the original submission before retrying.")
     if platform == "bilibili":

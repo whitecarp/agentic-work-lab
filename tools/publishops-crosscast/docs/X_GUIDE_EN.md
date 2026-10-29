@@ -1,4 +1,27 @@
-# X (Twitter) adapter
+# X: CLI Media Studio publishing
+
+[繁體中文](X_GUIDE.md) · **English**
+
+**0.3.0 alpha:** `vpub auth login x` opens the official login window once. Later `publish` commands reuse CrossCast's dedicated profile headlessly: check account → upload to Media Studio → apply the production thumbnail → fill exact English post text → submit once → read back the original status. This is a scripted official website workflow, not an X API client.
+
+```sh
+vpub auth login x
+vpub auth status x
+vpub init --video final.mp4 --language zh-Hans --platforms x --out x.json
+# Host prepares platform-specific English metadata and production cover.
+vpub plan x.json
+vpub publish x.json --confirm CURRENT_PLAN_HASH
+vpub verify RECEIPT_KEY
+vpub works x
+```
+
+Use `expected_identity` for the intended handle. Media Studio access is checked before upload, including the managed account identity. If processing or a selector fails before Post, `resume KEY` can reopen the same saved media; after Post it only verifies. Existing receipts prevent another upload. `--draft-only` stops at preview, which is not a guaranteed persistent post draft. This route uses current account audience and does not alter protected-account settings.
+
+Production cover upload and episode-two publication were observed; [validation](VALIDATION_EN.md) records the repairs and limits. Custom thumbnails require actual Media Studio access; a subscription alone is not a guarantee. Native AI-label control was not observed in Studio, so this route retains the explicit AI-generated caption disclosure.
+
+## Historical native-browser guide
+
+The following records describe earlier host-operated tests; current CLI support is stated above.
 
 [繁體中文](X_GUIDE.md) · **English**
 

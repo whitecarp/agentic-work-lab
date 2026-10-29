@@ -4,17 +4,17 @@
 
 ### 跨平台影片發布營運台
 
-**v0.2.5 alpha · CLI `vpub` · AI 協助開發**
+**v0.3.0 alpha · CLI `vpub` · AI 協助開發**
 
-讓同一支原創影片擁有各平台適用的文案、封面與發布回執。選擇 Bilibili、抖音、YouTube、Instagram、X 的任意組合，在宿主內置瀏覽器開官方網站，登入方式由使用者選。
+讓同一支原創影片擁有各平台適用的文案、封面與發布回執。選擇 Bilibili、抖音、YouTube、Instagram、X 的任意組合，首次登入後，CLI 復用本機專用會話完成後續上傳。
 
-這是 alpha 整合工具，五站完整實發尚未驗收。內置瀏覽器需要宿主 Agent 實際操作；CLI 的登入網址或佇列不等於已登入或已發布。TikTok 已暫停，YouTube 卡片／可點擊片尾、X／Instagram 獨立 API、通用評論與數據命令尚未實作。
+預設路徑：B站沿用 bili-cli，YouTube 使用官方 API，抖音／Instagram／X 由 CLI 在背景控制專用 Chrome。首次登入與官方驗證需要使用者協助；明確設定 `method: native` 仍可使用宿主瀏覽器交接。這是 alpha 版本，開發期實測與無人值守驗收分開記錄。TikTok 已暫停，YouTube 卡片／可點擊片尾、X／Instagram 獨立 API、通用評論與數據命令尚未實作。
 
 [功能範圍](docs/FEATURES.md) · [驗證記錄](docs/VALIDATION.md) · [Agent 交接](DEEPSEEK_HANDOFF.md) · [草稿測試](docs/DRAFT_TESTING.md)
 
 ## 安裝與開始
 
-需要 Python 3.10–3.12，Git URL 安裝另需 Git。[Windows 安裝腳本](install.ps1) 尋找相容 Python、建立獨立環境並安裝依賴；缺少 Python 時提示 Agent 準備。預設登入不需要使用者申請 OAuth 或模型 API 金鑰。
+需要 Python 3.10–3.12，Git URL 安裝另需 Git。[Windows 安裝腳本](install.ps1) 尋找相容 Python、建立獨立環境並安裝依賴；缺少 Python 時提示 Agent 準備。背景瀏覽器需要 Google Chrome，缺少時可用 `vpub setup --install-browser` 安裝。YouTube API 需要桌面 OAuth 用戶端 JSON，另外三站無需申請平台開發者金鑰；不需要獨立模型 API 金鑰。
 
 ```sh
 pip install "git+https://github.com/whitecarp/agentic-work-lab.git#subdirectory=tools/publishops-crosscast"
@@ -27,7 +27,7 @@ vpub init --video final.mp4 --language zh-Hans --out publish.json --platforms bi
 
 舊版升級先卸載套件 `whitecarp-video-publisher`，再安裝本版本。保留 `vpub`、Python 模組 `video_publisher` 與原有執行、登入及工作紀錄，不刪除使用者資料。
 
-### YouTube 官方 API 登入（選用）
+### YouTube 官方 API 登入
 
 啟用 Google Cloud 的 YouTube Data API v3，建立「桌面應用程式」OAuth 用戶端並下載 JSON；API Key 本身不能授權上傳。若專案仍在測試模式，先於 Google Auth Platform 的「目標對象／受眾 → 測試使用者」加入登入帳號，避免 `403 access_denied`。
 
@@ -39,6 +39,21 @@ vpub auth status youtube --method api
 在執行 CLI 的同一台電腦開啟輸出的 Google 官方授權連結，選擇頻道並完成授權；回呼等待時間為五分鐘。JSON 與登入權杖留在本機，請勿提交 GitHub。方案的 YouTube `method` 設為 `api` 才會使用 API；登入不會自動改變既有方案。播放列表寫入需另加 `--manage-playlists` 授權。
 
 若授權已完成卻在 API 查詢逾時，先執行 `vpub doctor`。安裝依賴包含 [PySocks](https://pypi.org/project/PySocks/)；Google API 客戶端的 `httplib2` 缺少它時可能忽略已設定的代理。舊環境可在同一個 Python 環境執行 `python -m pip install PySocks==1.7.1`，再執行狀態查詢，毋須重傳影片。
+
+## 登入一次，後續用 CLI 發布
+
+```sh
+vpub auth login x
+vpub auth login instagram
+vpub auth login douyin
+vpub auth status all
+```
+
+首次登入開啟 CrossCast 專用的官方 Chrome 視窗，使用者自行選擇網站提供的掃碼、密碼等方式並完成簡訊或身份驗證。後續命令在背景復用同一本機會話。這與 Codex 內置瀏覽器分開，不搬移宿主 Cookie；登入可能過期或再次要求驗證。
+
+`onboard` 只啟動選中的平台。既有方案不會自動遷移：抖音／Instagram／X 設為 `method: browser`，YouTube 設為 `method: api`；新版 `init` 已使用這些預設。`method: native` 是明確選用的宿主 Agent 備援。
+
+本次 X／Instagram 已通過重啟後 CLI 回讀；抖音上傳後重啟再次要求登入，會話穩定性仍待驗收。詳見[驗證記錄](docs/VALIDATION.md)。
 
 ## 自動簡介與語言
 
@@ -71,9 +86,9 @@ vpub covers prepare localized.json --source production/cover.jpg --out-dir cover
 |---|---|
 | Bilibili | 1600×1000；上游 CLI 或內置瀏覽器 |
 | YouTube | 1920×1080；API 或 Studio，可能要求官方驗證 |
-| 抖音 | 1200×900 橫式＋1080×1440 直式；內置瀏覽器 |
-| Instagram | 本地可生成 1080×1920 圖；網頁另傳封面，手機可用抖音共用直式圖 |
-| X | 使用原橫式封面；Premium／Premium+ 的 Media Studio，尚無獨立 CLI 封面命令 |
+| 抖音 | 1200×900 橫式＋1080×1440 直式；CLI 在背景分別上傳 |
+| Instagram | 1920×1080 網頁圖及 1080×1920 手機圖；另傳封面，影片保留原比例 |
+| X | CLI 經 Media Studio 上傳橫式封面；帳號需有 Studio 權限 |
 
 這些是工作預設，不是永久平台規格。本地保留全圖不代表平台不裁切，必須檢查平台預覽與主頁縮圖。來源 SHA-256 也不是平台壓縮檔的遠端雜湊。
 
@@ -128,14 +143,16 @@ B站／抖音／YouTube 的內置瀏覽器交接支援 `duration_seconds` 與 `c
 vpub plan ready.json
 vpub publish ready.json --dry-run
 vpub publish ready.json --confirm CURRENT_PLAN_HASH
-vpub browser request RECEIPT_KEY
-vpub browser begin RECEIPT_KEY --identity OBSERVED_ACCOUNT
-# 宿主執行已授權操作，保存後讀回實際結果。
-vpub browser record RECEIPT_KEY --evidence local-evidence.json
+vpub verify RECEIPT_KEY
+vpub works instagram
+# X：最終提交前，接續既有 Studio 素材。
+vpub resume RECEIPT_KEY
 vpub receipts
 ```
 
-新範本預設 B站／抖音公開、YouTube 私密、Instagram／X 依帳號受眾，宿主須按使用者意圖設定。登入不會自動增加發布目標。準備、待驗證、審核中與公開成功分開記錄；畫面證據及 API 查詢使用不同狀態。
+新回執保存帳號、完整文案、素材雜湊與最終提交標記。不確定的提交不會自動再按一次；`verify` 可尋找唯一吻合的新作品。`resume` 在提交後只做驗證；提交前可接續 X 已存的 Studio 素材。Instagram／抖音中斷上傳需檢查既有草稿。`works` 只讀可見首頁（抖音最多十張卡片），不是完整歷史匯出。進階 native 修改仍用 `browser request/begin/record`。
+
+範本預設 B站／抖音公開、YouTube 私密、Instagram／X 依帳號受眾，宿主須按使用者意圖設定。登入不會自動增加發布目標。準備、待驗證、審核中與公開成功分開記錄；畫面證據及 API 查詢使用不同狀態。
 
 ## 可選郵件提醒
 

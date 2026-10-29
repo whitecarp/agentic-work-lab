@@ -2,9 +2,28 @@
 
 [繁體中文](VALIDATION.md) · **English**
 
-Date: **2026-10-29**, PublishOps CrossCast 0.2.5 alpha.
+Date: **2026-10-29**, PublishOps CrossCast **0.3.0 alpha**.
 
-## 0.2.5 — Latest status
+## Episode 02: independent backends
+
+The operator authorized this exact test asset: **GPT Duty Log 02 | Asked for a Song, I Asked a Question First**. Source: 84.4 seconds, 1920×1080, SHA-256 `decb95dbb5ebaac47aa41a9d578c55e17e027d565b2610652ca435277dd70991`. All uploads used the same original bytes. Bilibili was not reuploaded and existing schedules were retained.
+
+| Platform | Observed result |
+|---|---|
+| YouTube | [API-uploaded episode](https://www.youtube.com/watch?v=zuLz9rEBcj0). Exact English title, public visibility, category 1 (Film & Animation) and processing `succeeded` read back. Production-thumbnail API write succeeded. |
+| X | [Studio post](https://x.com/White_Carp2000/status/2115749753178992679). Dedicated session, one media upload, saved production thumbnail and exact English post text read back. Resumed the same Studio asset after selector fixes; no duplicate post. Text AI disclosure is present; native AI badge was not observed. |
+| Instagram | [Reel](https://www.instagram.com/reel/DfExzPeiC_i/). Original crop and unchanged video, separate production cover, full English caption and native AI Content label read back. Grid/mobile cropping is not guaranteed. |
+| Douyin | One episode-two work submitted with the exact Simplified Chinese title/caption, native AI declaration, public setting and both cover variants. Creator Center displayed the matching 1:24 work under platform review. This is submission evidence, not anonymous playback acceptance. |
+
+X and Instagram passed a fresh CLI read-back after closing their test browsers. Douyin initially reused the dedicated session, but the post-upload restart returned to the official login page; stable session reuse remains an open acceptance item. Its submitted work was retained, and no duplicate was uploaded. YouTube used the public CLI API route. Browser backend development runs included selector repairs while preserving the existing upload; Instagram and Douyin were exercised through a persistent local development harness. These are real publications, but **not a clean-machine, uninterrupted end-to-end acceptance run**. No full continuous playback or cross-OS installation acceptance was performed.
+
+The production cover is the correct episode-two artwork. Douyin accepted the paired contain-and-pad images, but flagged the portrait's large border area as a quality issue. Dedicated portrait composition is preferable; automatic fitting does not guarantee a good thumbnail. Source hashes and UI acceptance do not prove pixel-identical remote assets.
+
+**86 offline tests pass.** New coverage includes single-submit persistence on timeout, profile locks, wrong-account rejection, changed assets, recovery without reupload, Instagram's account-prefixed work links, portrait-only artwork handling and verified-receipt persistence. Tests do not post to platforms or send email.
+
+Unfinished scope: direct X/Instagram official APIs, unified analytics/comments/inbox, YouTube cards/clickable end screens, live API playlist writes and fully unattended multi-platform acceptance. Advanced chapters and edits remain explicit native handoffs. TikTok stays suspended. Private profiles, tokens, raw page captures and receipts are excluded from GitHub.
+
+## 0.2.5 — Historical status
 
 **2026-10-29 live YouTube API connection:** Desktop OAuth completed and `vpub auth status youtube --method api` returned the intended channel. An API read confirmed the existing test video's public visibility and processed upload status. Missing PySocks caused `httplib2` to ignore the configured proxy and time out; installing `PySocks==1.7.1` restored connectivity. It is now an installation dependency and a `doctor` check. This session made read-only calls, with no new upload or platform edit. Live API upload, thumbnail writes and playlist writes remain unverified.
 
