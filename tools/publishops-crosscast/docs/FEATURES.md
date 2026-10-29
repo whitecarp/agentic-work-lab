@@ -56,3 +56,10 @@ Instagram／X 可用 `init --draft-only`，區分預覽與保存草稿；使用�
 ## 0.2.3：刪除回執與封面限制 / Deletion receipts and cover limits
 
 Instagram 新增明確刪除交接、確認結果與刷新後缺席證據、保留歷史的同片封面重發流程。已實測刪除；替換影片尚未分享。X 自訂封面改走需要訂閱權限的 Media Studio；本次媒體庫初始化失敗，封面修改未驗收。 / Instagram now has explicit deletion handoff, acknowledgement/absence evidence and history-preserving same-video cover replacement. Deletion was exercised; replacement has not been shared. X custom thumbnails use subscription-gated Media Studio; this session hit library initialization failure, so thumbnail changes remain unverified. [操作指南 / Guide](DELETION_AND_COVERS.md).
+
+
+## 0.2.4：Instagram 自動片頭與 X Studio 實測 / Automatic Instagram lead-in and X Studio validation
+
+`instagram prepare` 自動判斷：橫式加入 1 秒原封面，直式／方形原片通過；維持原比例、原檔、可追溯雜湊及重跑復用。X 原橫式封面已透過 Studio 保存及發布；這是宿主網頁操作，不是新建了獨立 API。前面的 0.2.3 段落是歷史測試狀態，以最新 [驗證記錄](VALIDATION.md) 為準。
+
+Instagram preparation automatically adds a one-second production-cover lead to landscape, passes portrait/square through, and retains original ratio, inputs, hashes and rerun reuse. X's landscape cover was saved/published through Studio UI, not a new standalone API. Earlier 0.2.3 entries are historical; consult current validation.

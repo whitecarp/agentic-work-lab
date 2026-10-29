@@ -2,7 +2,7 @@
 
 ### 跨平台影片發布營運台 / Multi-platform video release operations console
 
-**v0.2.3 alpha · CLI `vpub` · AI 協助開發 / AI-assisted development**
+**v0.2.4 alpha · CLI `vpub` · AI 協助開發 / AI-assisted development**
 
 讓同一支原創影片擁有各平台適用的文案、封面與發布回執。選擇 Bilibili、抖音、YouTube、Instagram、X 的任意組合，在宿主內置瀏覽器開官方網站，登入方式由使用者選。
 
@@ -166,6 +166,10 @@ New YouTube plans require an explicit `category_id`, selected from content and o
 
 Local contain-and-pad output does not prevent platform cropping. In this web session Instagram cropped a portrait cover to the landscape video preview. Inspect text before publishing and the profile thumbnail afterwards; never crop away video content just to fit a cover.
 
-X 自訂封面使用需要訂閱權限的 Media Studio；訂閱後還要確認媒體庫實際可用。本輪媒體庫初始化失敗，尚未套用自訂封面，不採用片頭插圖替代方案。[權限與操作 / Access and procedure](docs/X_GUIDE.md)。
+X 自訂封面使用 Premium／Premium+ 的 Media Studio；Basic 不包括此功能。本輪直接上傳到媒體庫後，原橫式封面已保存並發布，新帖封面已讀回。[X 流程 / X procedure](docs/X_GUIDE.md)。
 
-X custom covers use subscription-gated Media Studio. Verify library availability after subscribing. This session reached Studio but library initialization failed; no custom thumbnail was saved and no intro-frame workaround was implemented.
+X custom thumbnails use Premium/Premium+ Media Studio, not Basic. Direct library upload, original landscape-cover saving and a new post were exercised; the posted cover was read back.
+
+Instagram 發布前預設執行 `vpub instagram prepare`：橫式自動加 1 秒封面，直式／方形原片通過。上傳選「原版」，手機可從影片開頭選封面。[完整流程 / Full workflow](docs/INSTAGRAM_GUIDE.md)。
+
+Run `vpub instagram prepare` before Instagram publication: landscape automatically receives a one-second cover lead, while portrait/square video passes through. Select Original on upload; use the opening frame in the phone cover picker.

@@ -39,6 +39,16 @@ Discovery, work listings, analytics, comments and inbox are not unified X comman
 
 [官方權限說明 / Official access](https://help.x.com/en/using-x/media-studio) · [官方縮圖說明 / Official thumbnails](https://help.x.com/en/using-x/media-studio-faqs)（查閱 / checked 2026-10-29）。
 
-本輪已進入 Studio，但媒體庫回報「We encountered a problem while setting up your library. Try again later.」；關閉首次提示並刷新仍未恢復。未換封面，不將此記為成功。使用者已取消片頭封面替代方案。媒體庫恢復後先找原媒體，換圖並讀回原帖；不得為了測試自動刪帖或重複發布。
+**訂閱級別 / Tier:** Media Studio 列於 Premium 與 Premium+，Basic 不包含。[官方訂閱比較 / Official tier comparison](https://help.x.com/en/using-x/x-premium)。
 
-Studio opened in this test, but the library reported a setup error even after onboarding dismissal and reload. No thumbnail change was recorded. The user cancelled the intro-cover workaround. Once available, locate the existing media, change the thumbnail and verify the original status; do not automatically delete or duplicate it.
+**2026-10-29 後續實測 / Follow-up:** 原本媒體庫初始化失敗；直接點 Upload Media 上傳原片一次後，素材入庫並可開啟詳情。Change thumbnail → upload 上傳同為 16:9 的製作封面；關閉及重開後封面、標題、簡述保留。依使用者新增的明確授權再從 Studio 發布，已讀到新帖與原封面；舊帖保留。這是宿主 UI 實測，尚未整合為獨立 Studio API 或 CLI 封面回執命令。
+
+The library initially failed to initialize. A single direct Upload Media attempt succeeded and exposed media details. Change thumbnail → upload accepted the matching 16:9 production cover; artwork and metadata survived closing/reopening. Newly authorized Studio publication produced a new status with the original cover. The previous status was retained. This is host-UI validation, not a standalone Studio API or dedicated CLI cover-receipt command.
+
+流程：確認帳號與素材 → 上傳／選擇既有媒體 → Change thumbnail → 上傳與影片同比例的原封面 → 讀回 → 依授權 Post → 核對新作品連結。資料庫素材 ID 與帖文 ID 不相同；素材入庫不等於發布，也不會自動替換舊帖影片。
+
+Workflow: verify account/media → upload or select existing media → Change thumbnail → upload same-ratio artwork → read back → Post when authorized → verify the status URL. Library media IDs differ from post IDs. Uploading media is not publication and does not replace an earlier post.
+
+本次 Studio 新帖保留文案中的 AI-generated 聲明，但未觀察到一般發帖頁的 Made with AI 標記。不要把文案聲明當成已驗證的原生標記。完整播放與手機顯示仍需另行驗收。
+
+This Studio post retains the AI-generated text disclosure, but the native Made with AI badge was not observed. Text disclosure is not proof of the native label. Full playback and mobile presentation remain separate checks.

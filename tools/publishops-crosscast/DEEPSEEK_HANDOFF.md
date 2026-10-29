@@ -82,3 +82,13 @@ Set YouTube category per video from content/current official choices. Revise exi
 
 
 刪除與重發使用 [專用交接](docs/DELETION_AND_COVERS.md)。只驗證刪除不代表重發成功；舊作品 ID 必須保留於歷史。不得對 X、YouTube、抖音或 B站套用 Instagram 刪除命令。 / Use the dedicated deletion/repost handoff. Deletion success is not replacement publication success; preserve the old ID in history. The new deletion commands support Instagram only.
+
+## Instagram 預設處理 / Default Instagram preparation
+
+每個 Instagram 任務先執行 `vpub instagram prepare MANIFEST --out instagram-ready.json`，再 plan/publish 輸出的 Instagram 專用方案。方向自動判斷，不再詢問是否加封面：橫式加 1 秒原製作封面，直式／方形保留原片。內置瀏覽器的裁剪選「原版」，保留完整音軌與影片長度。讀回新 ID、英文配文、AI 標記和封面；手機網格仍須使用者檢查。需要 FFmpeg/ffprobe，不可將沒有處理過的橫式原片誤稱為封面片頭版。
+
+For every Instagram job, run `vpub instagram prepare MANIFEST --out instagram-ready.json`, then plan/publish that Instagram-only manifest. Orientation routing is automatic: prepend the production cover to landscape, retain portrait/square source. Select Original in the built-in browser. Read back the new ID, English caption, AI label and cover; mobile-grid selection remains user-assisted. FFmpeg/ffprobe are required; do not label unprocessed landscape footage as a cover-lead variant. See [guide](docs/INSTAGRAM_GUIDE.md).
+
+X 封面使用 Media Studio 原比例圖片；不要套用 Instagram 的片頭規則。Studio 自訂封面與發帖本輪已實測；CLI `revise-cover` 尚未支援此表面，不能繞過其錯誤而偽造既有帖回執。
+
+X uses same-ratio artwork in Media Studio; do not apply Instagram's cover-lead rule. Studio UI upload/cover/publication was tested, but CLI `revise-cover` still lacks this surface. Do not bypass that guard or overwrite an earlier post receipt.
