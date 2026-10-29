@@ -379,7 +379,9 @@ def execute(args):
         if not selected or set(selected) - set(PLATFORMS):
             raise VpubError("invalid_platform", "Choose bilibili,youtube,douyin,instagram,x or all. TikTok is suspended.")
         from .notifications import onboarding
-        return {"platforms": login_selected(selected, None if args.method == "auto" else args.method), "email_notifications": onboarding()}
+        return {"platforms": login_selected(selected, None if args.method == "auto" else args.method),
+                "requirements": {"x": capabilities()['x_requirements']} if 'x' in selected else {},
+                "email_notifications": onboarding()}
     if args.command == "auth":
         if args.action == "login" and args.manage_playlists and (args.platform != "youtube" or args.method != "api"):
             raise VpubError("invalid_method", "--manage-playlists requires YouTube --method api.")
@@ -503,6 +505,11 @@ def login_selected(platforms, method=None):
 
 def capabilities():
     return {"product": "PublishOps CrossCast", "version": __version__,
+            "x_requirements": {"support_scope":"Subscribed accounts with actual Media Studio access only.",
+                               "free_account_publishing":False,
+                               "checks":"Confirm Studio upload access and managed account before selecting media. Login/payment alone is not publishing readiness.",
+                               "note":"Legacy Basic does not include Media Studio. Validate the actual account entitlement, not only a plan name.",
+                               "official_source":"https://help.x.com/en/using-x/media-studio"},
             "metadata_targets": {p: "zh-Hans" if p in {"bilibili", "douyin"} else "en" for p in PLATFORMS},
             "metadata_policy": "Bilibili/Douyin: Chinese content becomes Simplified Chinese only; other languages retain source plus Simplified Chinese. YouTube/Instagram/X: English only for English content, otherwise source plus English. Host model supplies the text; schema validation is not translation quality assurance.",
             "cover_fitting": "Landscape contain fitting; Douyin and Instagram share identical dedicated portrait bytes. No landscape-to-portrait padding fallback. Grid cropping, small text and aesthetics require separate visual checks.",

@@ -16,6 +16,7 @@ Prepare platform-specific descriptions, covers and publication receipts for one 
 
 - Source-aware copy: Chinese content becomes Simplified Chinese on Bilibili/Douyin; other languages retain the original plus Chinese. Non-English content retains the original plus English on YouTube/Instagram/X.
 - Douyin/Instagram share dedicated portrait artwork; phone grids still crop footer text. Cover aesthetics and safe areas are the next iteration priority.
+- X publishing supports subscribed users whose accounts can actually access Media Studio.
 - Instagram retains the original video and aspect ratio with a separate upload cover. Its mobile editor can use the same portrait artwork as Douyin.
 - Production-cover fitting, YouTube playlist settings and optional email notifications.
 - **0.3.1 alpha, with 98 passing offline tests.** Full five-platform publication still has open acceptance items; tested scope and limits are documented.

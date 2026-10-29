@@ -2,6 +2,8 @@
 
 [繁體中文](FEATURES.md) · **English**
 
+**X publishing supports subscribed users whose accounts can actually access Media Studio.** No free-account publishing route is currently provided. Login or payment alone does not establish publishing access; the CLI checks the library entry and managed account before selecting media.
+
 **0.3.1 alpha.** New manifests use CLI execution after first login; `method: native` is an explicit host-browser fallback. Bilibili continues to call [bili-cli](https://github.com/kukemc/bili-cli).
 
 | Capability | Bilibili | YouTube | Douyin | X | Instagram |

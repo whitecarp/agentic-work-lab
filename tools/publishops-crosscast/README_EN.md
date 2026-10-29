@@ -2,6 +2,8 @@
 
 [繁體中文](README.md) · **English**
 
+**X publishing supports subscribed users whose accounts can actually access Media Studio.** No free-account publishing route is currently provided. Login or payment alone does not establish publishing access; the CLI checks the library entry and managed account before selecting media.
+
 ### Multi-platform video release operations console
 
 **v0.3.1 alpha · CLI `vpub` · AI-assisted development**

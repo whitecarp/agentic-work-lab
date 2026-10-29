@@ -2,6 +2,8 @@
 
 **繁體中文** · [English](FEATURES_EN.md)
 
+**X 發布僅面向已訂閱、且帳號實際能進入 Media Studio 的使用者。** 目前不提供免費帳號發布路徑；登入或付款本身不代表已具備發布權限，上傳前仍會核對媒體庫入口與所選帳號。
+
 **0.3.1 alpha。** 新方案在首次登入後由 CLI 執行；`method: native` 是明確選用的宿主瀏覽器備援。B站繼續呼叫 [bili-cli](https://github.com/kukemc/bili-cli)。
 
 | 能力 | Bilibili | YouTube | 抖音 | X | Instagram |

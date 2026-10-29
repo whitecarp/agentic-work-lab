@@ -2,6 +2,8 @@
 
 **繁體中文** · [English](X_GUIDE_EN.md)
 
+**X 發布僅面向已訂閱、且帳號實際能進入 Media Studio 的使用者。** 目前不提供免費帳號發布路徑；登入或付款本身不代表已具備發布權限，上傳前仍會核對媒體庫入口與所選帳號。
+
 **0.3.1 alpha：** 首次 `vpub auth login x` 開啟官方登入視窗。之後 `publish` 在背景復用 CrossCast 專用會話：核對帳號 → 上傳 Media Studio → 套用製作封面 → 填入按原語言規則產生的完整帖文 → 提交一次 → 讀回原帖。這是程式操作官方網站，不是 X API 用戶端。
 
 ```sh
@@ -18,6 +20,12 @@ vpub works x
 用 `expected_identity` 綁定目標帳號。上傳前檢查 Studio 權限及其管理中的帳號。處理或選擇器在 Post 前失敗時，`resume KEY` 可接續既有素材；Post 後只驗證。既有回執阻止重傳。`--draft-only` 停在預覽，不保證關閉瀏覽器後仍是持久草稿。此路徑沿用帳號受眾，不修改受保護帳號設定。
 
 製作封面與第二期發布已實測，修復及限制見[驗證記錄](VALIDATION.md)。自訂縮圖需要真正可用的 Media Studio，訂閱本身不是成功保證。Studio 未觀察到原生 AI 標示控制，因此保留明確的 AI-generated 文字聲明。
+
+## 支援條件與官方限制
+
+本專案目前只適配具有實際 Media Studio 存取權的訂閱帳號，不以免費帳號的短片額度作為本後端的支援承諾。X 官方一般網頁上傳說明列出非訂閱帳號上限為 140 秒、512 MB；Media Studio 的自訂封面與媒體管理需要另外符合存取權限。[一般上傳限制](https://help.x.com/en/using-x/x-videos) · [Media Studio 權限](https://help.x.com/en/using-x/media-studio)。
+
+現行官方級別表的傳統 Basic 不含 Media Studio，Premium／Premium+ 包含；平台亦有其他新方案，最終以帳號實際權限為準，不保證所有付費方案都適用。[官方級別說明](https://help.x.com/en/using-x/x-premium)。核對日期：2026-10-30。
 
 ## 歷史 native 瀏覽器指南
 

@@ -46,7 +46,7 @@ async def publish_x(page, tx):
     try:
         await page.locator('button').filter(has_text=re.compile(r'^\s*Upload Media\s*$')).wait_for(timeout=30000)
     except Exception:
-        raise VpubError('studio_access_required', 'This X route needs Media Studio access. No video was uploaded.', 'Use an account with Studio access or the explicit native fallback.')
+        raise VpubError('studio_access_required', 'CrossCast X publishing supports subscribed accounts with actual Media Studio access only. No video was uploaded.', 'Confirm the connected account can open Media Studio and upload media. Payment or login alone does not prove access; free-account publishing is not supported by this backend.')
     # A managed Studio account can differ from the x.com navigation account.
     account_link = page.locator('a[href*="analytics.twitter.com/user/"]')
     hrefs = await account_link.evaluate_all('es => es.map(e=>e.href)')
