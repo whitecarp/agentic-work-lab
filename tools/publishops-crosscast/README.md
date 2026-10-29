@@ -8,7 +8,7 @@
 
 ### 跨平台影片發布營運台
 
-**v0.4.1 alpha · CLI `vpub` · AI 協助開發**
+**v0.5.0 alpha · CLI `vpub` · AI 協助開發**
 
 讓同一支原創影片擁有各平台適用的文案、封面與發布回執。選擇 Bilibili、抖音、YouTube、Instagram、X 的任意組合，首次登入後，CLI 復用本機專用會話完成後續上傳。
 
@@ -54,6 +54,38 @@ vpub comments self-test youtube VIDEO_ID --test-id hello-test-01
 ```
 
 這會在自己的作品下發送一次「你好」並回覆「你好」；同一 test-id 重跑復用記錄，未確認結果不重送。它不會在登入或安裝時執行，也不會自動刪除留言。
+
+## 多平台巡檢與數據變化
+
+先選擇要追蹤的作品，之後一個指令即可收集評論、作品數據與本輪匯報。這是手動執行的唯讀巡檢，不會建立排程、發送回覆、按讚或寄信。
+
+```sh
+vpub works youtube --limit 20
+vpub works bilibili --limit 20
+vpub works instagram --limit 10
+vpub ops watch add youtube VIDEO_ID
+vpub ops watch add douyin WORK_ID
+vpub ops watch list
+vpub ops sync --pages 2 --limit 20 --language zh --out round.json
+vpub ops sync --platforms youtube,douyin --out selected-round.json
+vpub ops watch remove youtube VIDEO_ID
+```
+
+`works` 支援五站：YouTube 從已授權頻道的上傳列表讀取，B站只列已發布稿件，保留定時與審核安排。這兩站用 `--cursor` 翻頁。抖音、Instagram、X 仍只列目前可見的首頁，不把它當成完整作品庫。瀏覽器平台的追蹤作品需要既有 CrossCast 發布回執；API 平台直接核對作品擁有者。
+
+`ops sync` 僅處理追蹤清單，每部作品最多讀取 `--pages` 頁，每頁最多 `--limit` 條頂層評論；API 回覆預覽可能另外增加項目數。首次讀取建立基線，後續按評論 ID 去重，自己的留言不列入觀眾互動。`inbox` 是已觀察評論的待處理候選清單，不是私訊或全帳號收件箱；`needs_thread_check` 表示尚不能確定是否已回覆，必須讀取上下文。CLI 不會因候選清單而自行發送。
+
+作品數據保留歷次事件與最新快照；只有同帳號、同作品、同來源、同標籤及單位的精確數值才計算 `changes.delta`。缺失、約數、換來源都保留 `null`，百分比差值標為百分點，負數變化照實保留。不同平台的播放或瀏覽定義不相加。部分失敗會保留成功項目並回傳 `PARTIAL`、退出碼 4；遇到驗證或帳號錯誤，不會換路徑重試。每輪保存本機回執，匯報只涵蓋該輪事件。
+
+### 讀取評論樓的下一頁
+
+```sh
+vpub comments replies youtube VIDEO_ID ROOT_COMMENT_ID --limit 20 --out replies.json
+vpub comments replies youtube VIDEO_ID ROOT_COMMENT_ID --cursor NEXT_CURSOR
+vpub comments replies bilibili BV_ID ROOT_COMMENT_ID --limit 20
+```
+
+這兩站可分頁讀取指定頂層留言下的回覆，核對作品與父留言。`next_cursor` 表示仍有下一頁；`complete` 僅描述目前請求範圍。這不會把 Instagram、X、抖音的可見留言讀取升級為完整歷史匯出，也不會繞過原有發送去重。
 
 ## 安裝與開始
 

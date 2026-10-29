@@ -2,7 +2,19 @@
 
 [繁體中文](VALIDATION.md) · **English**
 
-Date: **2026-10-30**, PublishOps CrossCast **0.4.1 alpha**.
+Date: **2026-10-30**, PublishOps CrossCast **0.5.0 alpha**.
+
+## 0.5.0: Read-only multi-platform collection
+
+Live checks used the current signed-in accounts and existing episode-two works through the CLI, without the host's in-app browser. All five `works` calls returned works. New YouTube/Bilibili work pagination and `comments replies` read back the existing hello comment and reply. No test comments were resent and no video, copy, cover, visibility or Bilibili schedule was changed.
+
+After adding the five works to the local watchlist, `ops sync` completed all comment reads and statistics queries. Bilibili, YouTube, Douyin and X returned available metrics; Instagram's current work surface returned none, retained null values and reported the limitation. Own comments were excluded from audience interactions. Browser comments remain limited to visible entries and Bilibili thread lists retain reply previews; this collection is not a complete historical inbox.
+
+YouTube and Bilibili work lists were followed to the next page. A second API collection reported zero newly observed comments on both platforms. X can display a zero comment count while loading conversation entries, so all three browser adapters now retain `complete: false`.
+
+**164 offline tests pass.** New cases cover page budgets and cursor loops, deduplication, account-change stops, partial failures, source/unit/rounded-value incompatibility, percentage-point deltas, watchlists and read-only dispatch. Live acceptance covers these accounts, works and layouts, not every account or clean-machine unattended operation. Watch duration, full Insights, private messages and automatic likes remain unintegrated; Gmail stays off by default.
+
+API references: [YouTube upload-list pagination](https://developers.google.com/youtube/v3/docs/playlistItems/list), [comment-reply pagination](https://developers.google.com/youtube/v3/docs/comments/list).
 
 ## 0.4.1: Douyin reply and read-back repair
 

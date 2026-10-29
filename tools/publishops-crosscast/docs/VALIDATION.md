@@ -2,7 +2,19 @@
 
 **繁體中文** · [English](VALIDATION_EN.md)
 
-日期：**2026-10-30**，PublishOps CrossCast **0.4.1 alpha**。
+日期：**2026-10-30**，PublishOps CrossCast **0.5.0 alpha**。
+
+## 0.5.0：多平台唯讀巡檢
+
+以目前登入帳號及既有第二期作品實測，全部透過 CLI 執行，未使用宿主內置瀏覽器。五站 `works` 均返回作品；YouTube／B站新增作品分頁與 `comments replies`，已讀回原有「你好」留言及回覆。沒有重新發送測試留言，也沒有變更影片、文案、封面、可見性或 B站排程。
+
+五部作品加入本機追蹤清單後，`ops sync` 成功完成全部評論讀取及數據查詢：B站、YouTube、抖音、X 有可用數值；Instagram 當前作品頁沒有可用數值，保留 null 並在匯報中說明。自己的留言不計為觀眾互動。瀏覽器評論仍是可見範圍，B站頂層清單仍包含回覆預覽，沒有把這次巡檢寫成完整歷史收件箱。
+
+YouTube 與 B站作品列表已實際翻至下一頁；第二次 API 巡檢新增評論數均為 0，未重複計數。實測亦發現 X 顯示零評論仍可能載入對話列，因此三個瀏覽器平台一律保留 `complete: false`。
+
+**164 項離線測試通過。** 新增分頁上限與游標循環、重複項去重、帳號切換停止、部分失敗保留、來源／單位／約數不相容、百分點差值、追蹤清單及唯讀呼叫測試。實測只涵蓋目前帳號、作品和頁面，不能外推成所有帳號或乾淨安裝的無人值守驗收。觀看時長、完整 Insights、私訊及自動點讚仍未整合；Gmail 仍預設關閉。
+
+API 參考：[YouTube 上傳列表分頁](https://developers.google.com/youtube/v3/docs/playlistItems/list)、[評論回覆分頁](https://developers.google.com/youtube/v3/docs/comments/list)。
 
 ## 0.4.1：修復抖音回覆與讀回
 

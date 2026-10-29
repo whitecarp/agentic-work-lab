@@ -20,7 +20,8 @@ def _bili_comment(c, owner):
     return {'id':str(c['rpid']),'parent_id':str(c['root']) if c.get('root') else None,
             'text':c['content'],'author':c['user'].get('name'),'author_id':str(c['user']['mid']),
             'published_at':c.get('time'),'likes':c.get('like'),'is_owner':str(c['user']['mid'])==owner,
-            'owner_replied':any(str(r['user']['mid'])==owner for r in c.get('replies_preview',[])) or None}
+            'owner_replied':any(str(r['user']['mid'])==owner for r in c.get('replies_preview',[])) or None,
+            'thread_id':str(c.get('root') or c['rpid']),'reply_count':c.get('reply_count')}
 
 
 def execute(platform, action, work, **kw):
@@ -64,6 +65,23 @@ def execute(platform, action, work, **kw):
                            'completion_percent':metric(None,'Not supplied by YouTube Data API','percent'),
                            'average_watch_seconds':metric(None,'Requires separate YouTube Analytics access','seconds')},
                 'url':'https://www.youtube.com/watch?v='+work}
+    if action=='replies':
+        root=kw['comment_id']
+        threads=service.commentThreads().list(part='snippet',id=root,textFormat='plainText').execute().get('items',[])
+        if len(threads)!=1 or threads[0]['snippet'].get('videoId')!=work or threads[0]['snippet']['topLevelComment']['id']!=root:
+            raise VpubError('wrong_work','The root comment does not belong to the requested video.')
+        args={'part':'snippet','parentId':root,'maxResults':kw['limit'],'textFormat':'plainText'}
+        if kw.get('cursor'):args['pageToken']=kw['cursor']
+        data=service.comments().list(**args).execute()
+        children=[_yt_comment(c,identity,root) for c in data.get('items',[])]
+        if any(c['parent_id']!=root for c in children):raise VpubError('wrong_thread','Reply parent mismatch.')
+        top=_yt_comment(threads[0]['snippet']['topLevelComment'],identity)
+        top['owner_replied']=True if any(c['is_owner'] for c in children) else False if not kw.get('cursor') and not data.get('nextPageToken') else None
+        rows=[top,*children]
+        for c in rows:c['thread_id']=threads[0]['id']
+        return {'state':'OBSERVED','identity':identity,'items':rows,'root_id':root,'next_cursor':data.get('nextPageToken'),
+                'complete':not kw.get('cursor') and not data.get('nextPageToken'),'source':'youtube_comments_api',
+                'scope':'One page of replies to this root, with its root comment; not other video threads.'}
     if action=='comments':
         args={'part':'snippet,replies','videoId':work,'maxResults':kw['limit'],'order':'time','textFormat':'plainText'}
         if kw.get('cursor'): args['pageToken']=kw['cursor']
@@ -84,6 +102,7 @@ def execute(platform, action, work, **kw):
         return {'state':'OBSERVED','identity':identity,'items':rows,'next_cursor':data.get('nextPageToken'),
                 'scope':'One API page of top-level threads, with the API-provided reply preview; not a full reply export.',
                 'complete':not data.get('nextPageToken') and all(t['snippet'].get('totalReplyCount',0)==len(t.get('replies',{}).get('comments',[])) for t in data.get('items',[])),
+                'replies_complete':all(t['snippet'].get('totalReplyCount',0)==len(t.get('replies',{}).get('comments',[])) for t in data.get('items',[])),
                 'source':'youtube_data_api'}
     request=kw['reply_request'];target=request['comment']
     if identity!=request['expected_identity']: raise VpubError('wrong_account','The authorized channel changed since the comment was read.')
@@ -152,6 +171,20 @@ def bilibili(action,work,**kw):
                  'completion_percent':metric(d.get('completion_percent'),'Creator completion percentage','percent'),
                  'average_watch_seconds':metric(d.get('avg_watch_seconds'),'Creator average watch duration','seconds')},
                 'note':'Creator completion/watch metrics may update on the following day; observations are not real-time guarantees.'}
+    if action=='replies':
+        root=kw['comment_id'];cursor=kw.get('cursor') or '1'
+        if not root.isdigit() or not re.fullmatch(r'[1-9][0-9]{0,7}',cursor):raise VpubError('invalid_cursor','Use numeric Bilibili root and page IDs.')
+        page=int(cursor);size=min(20,kw['limit'])
+        data=adapters.bili(['comment','replies',work,root,'--page',str(page),'--size',str(size)])
+        if str(data.get('root',{}).get('rpid'))!=root:raise VpubError('wrong_thread','Root comment mismatch.')
+        children=[_bili_comment(c,identity) for c in data.get('items',[])]
+        if any(c.get('parent_id')!=root for c in children):raise VpubError('wrong_thread','Reply root mismatch.')
+        total=data.get('total');more=page*size<total if isinstance(total,int) else len(children)==size
+        top=_bili_comment(data['root'],identity)
+        top['owner_replied']=True if any(c['is_owner'] for c in children) else False if page==1 and not more else None
+        return {'state':'OBSERVED','identity':identity,'items':[top,*children],'root_id':root,'next_cursor':str(page+1) if more else None,
+                'complete':page==1 and not more,'source':'bili_cli_replies','reported_total':total,
+                'scope':'One upstream reply page plus the root; not other work threads.'}
     if action=='comments':
         cursor=kw.get('cursor') or '1'
         match=re.fullmatch(r'([1-9][0-9]*)(?::([0-9]+))?',str(cursor))
@@ -168,6 +201,7 @@ def bilibili(action,work,**kw):
         return {'state':'OBSERVED','identity':identity,'source':'bili_cli','items':rows,
                 'next_cursor':f'{page}:{offset+len(selected)}' if offset+len(selected)<len(page_items) else str(page+1) if page_items else None,
                 'complete':False,'scope':'One upstream page with reply previews; the displayed total may include replies.',
+                'replies_complete':False,
                 'reported_total':data.get('total')}
     request=kw['reply_request'];target=request['comment'];root=target.get('parent_id') or target['id']
     if identity!=request['expected_identity']: raise VpubError('wrong_account','Bilibili account changed since reading.')

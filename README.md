@@ -19,8 +19,9 @@
 - X 發布僅面向已訂閱、且帳號實際能進入 Media Studio 的使用者。未訂閱帳號的影片上傳限 140 秒、512 MB，並缺少本工具依賴的 Studio 媒體管理與自訂封面權限；因此 X 後端需要上述存取權。[上傳限制](https://help.x.com/en/using-x/x-videos) · [Studio 權限](https://help.x.com/en/using-x/media-studio)。
 - Instagram 使用原片及原比例，上傳時另設封面；手機可選與抖音共用的直式圖。
 - 新增跨平台評論讀取、按評論者語言單語回覆、作品數據與中／英文營運匯報；各站實測及待驗項目見驗證記錄。
+- 新增五站作品列表、追蹤清單與唯讀巡檢：彙整評論候選、同口徑數據變化及本輪匯報；B站／YouTube 可分頁讀取評論樓。
 - 提供專用封面適配、YouTube 播放列表設定與預設關閉、主動開啟的 Gmail 郵件提醒。
-- **0.4.1 alpha，147 項離線測試通過。** 完整五平台發布仍有待驗收項目；已測範圍與限制均有記錄。
+- **0.5.0 alpha，164 項離線測試通過。** 完整五平台發布仍有待驗收項目；已測範圍與限制均有記錄。
 
 [安裝與使用](tools/publishops-crosscast/README.md) · [功能範圍](tools/publishops-crosscast/docs/FEATURES.md) · [驗證記錄](tools/publishops-crosscast/docs/VALIDATION.md)
 

@@ -8,7 +8,7 @@ This requirement exists because non-subscribers are limited to **140-second, 512
 
 ### Multi-platform video release operations console
 
-**v0.4.1 alpha · CLI `vpub` · AI-assisted development**
+**v0.5.0 alpha · CLI `vpub` · AI-assisted development**
 
 Prepare platform-specific metadata, covers and publication receipts for one original video. Choose any subset of Bilibili, Douyin, YouTube, Instagram and X. Sign in once; the CLI reuses its own local sessions for later uploads.
 
@@ -54,6 +54,38 @@ vpub comments self-test youtube VIDEO_ID --test-id hello-test-01
 ```
 
 This posts one “你好” comment and one “你好” reply on your own work. Reusing the test ID retains the attempt; an uncertain result is not resent. It never runs during login/setup and never deletes comments automatically.
+
+## Multi-platform collection and metric changes
+
+Choose works to watch, then use one command to collect comments, work metrics and a report for that run. This is an on-demand, read-only collection: it creates no schedule and sends no replies, likes or email.
+
+```sh
+vpub works youtube --limit 20
+vpub works bilibili --limit 20
+vpub works instagram --limit 10
+vpub ops watch add youtube VIDEO_ID
+vpub ops watch add douyin WORK_ID
+vpub ops watch list
+vpub ops sync --pages 2 --limit 20 --language en --out round.json
+vpub ops sync --platforms youtube,douyin --out selected-round.json
+vpub ops watch remove youtube VIDEO_ID
+```
+
+`works` supports all five platforms. YouTube reads the authorized channel uploads playlist; Bilibili lists published submissions and leaves scheduled/reviewing work alone. These two return a `--cursor` for pagination. Douyin, Instagram and X still expose only the visible first page, not a full account archive. Browser-platform watch targets require an existing CrossCast publication receipt; API platforms check work ownership directly.
+
+`ops sync` processes only the watchlist, up to `--pages` per work and `--limit` top-level comments per page; API reply previews can add entries. The first read establishes a baseline. Later reads deduplicate by comment ID and exclude own comments from audience interactions. `inbox` contains observed candidates, not private messages or a full account inbox. `needs_thread_check` means reply status is uncertain and context must be read. Candidates never trigger automatic sending.
+
+Metrics retain historical events and the latest snapshot. `changes.delta` requires exact numbers from the same account, work, source, label and unit. Missing, rounded or changed-source values keep a null delta; percentage changes use percentage points and negative changes are retained. View/play definitions are not added across platforms. A partial failure preserves successful work and returns `PARTIAL` with exit code 4. Challenges or account mismatches are not retried through another route. Each run saves a local receipt and reports only its own events.
+
+### Read the next page of a comment thread
+
+```sh
+vpub comments replies youtube VIDEO_ID ROOT_COMMENT_ID --limit 20 --out replies.json
+vpub comments replies youtube VIDEO_ID ROOT_COMMENT_ID --cursor NEXT_CURSOR
+vpub comments replies bilibili BV_ID ROOT_COMMENT_ID --limit 20
+```
+
+These two platforms support paged replies to a top-level comment with work and parent checks. `next_cursor` indicates another page; `complete` describes only the requested scope. This does not turn Instagram, X or Douyin visible comments into a complete historical export or bypass reply deduplication.
 
 ## Install and start
 

@@ -172,6 +172,16 @@ def parser():
     q=c.add_parser('list')
     q.add_argument('platform',choices=PLATFORMS);q.add_argument('work')
     q.add_argument('--limit',type=int,default=20);q.add_argument('--cursor');q.add_argument('--out')
+    q=c.add_parser('replies',help='Read a Bilibili/YouTube reply page; retain continuation cursor.')
+    q.add_argument('platform',choices=['bilibili','youtube']);q.add_argument('work');q.add_argument('comment_id')
+    q.add_argument('--limit',type=int,default=20);q.add_argument('--cursor');q.add_argument('--out')
+    o=sub.add_parser('ops',help='Read-only watchlists and multi-platform collection.').add_subparsers(dest='action',required=True)
+    q=o.add_parser('sync');q.add_argument('--platforms');q.add_argument('--limit',type=int,default=20)
+    q.add_argument('--pages',type=int,default=2);q.add_argument('--language',choices=['auto','zh','en'],default='auto');q.add_argument('--out')
+    w=o.add_parser('watch').add_subparsers(dest='watch_action',required=True)
+    w.add_parser('list')
+    for action in ('add','remove'):
+        q=w.add_parser(action);q.add_argument('platform',choices=PLATFORMS);q.add_argument('work')
     q=c.add_parser('reply',help='Send directly; --dry-run is an optional preview, not a required approval step.')
     q.add_argument('platform',choices=PLATFORMS);q.add_argument('work');q.add_argument('comment_id')
     body=q.add_mutually_exclusive_group(required=True)
@@ -305,9 +315,10 @@ def parser():
         if cmd == "publish":
             q.add_argument("--confirm")
             q.add_argument("--dry-run", action="store_true")
-    q = sub.add_parser("works", help="Read the visible first page of your own Douyin/Instagram/X works; no upload.")
-    q.add_argument("platform", choices=["douyin", "instagram", "x"])
+    q = sub.add_parser("works", help="Read your works: API pages or browser visible first page.")
+    q.add_argument("platform", choices=PLATFORMS)
     q.add_argument("--account", choices=["default"], default="default")
+    q.add_argument('--limit',type=int,default=20);q.add_argument('--cursor');q.add_argument('--out')
     sub.add_parser("receipts", help="Read the local publication ledger.")
     q = sub.add_parser("resume", help="Resume an existing browser attempt without repeating an upload or final submit.")
     q.add_argument("key")
@@ -328,10 +339,16 @@ def parser():
 
 
 def execute(args):
+    if args.command=='ops':
+        from . import operations_sync
+        result=operations_sync.sync(args.platforms,args.limit,args.pages,args.language) if args.action=='sync' else operations_sync.watch(args.watch_action,getattr(args,'platform',None),getattr(args,'work',None))
+        if getattr(args,'out',None):atomic_json(args.out,result)
+        return result
     if args.command in {'comments','stats','report','preferences'}:
         from . import operations
         if args.command=='comments':
             if args.action=='list': result=operations.observe(args.platform,args.work,'comments',args.limit,args.cursor)
+            elif args.action=='replies':result=operations.observe(args.platform,args.work,'replies',args.limit,args.cursor,args.comment_id)
             elif args.action=='reply':
                 text=Path(args.file).read_text(encoding='utf-8-sig') if args.file else args.text
                 result=operations.reply(args.platform,args.work,args.comment_id,text,args.language,args.dry_run)
@@ -346,7 +363,10 @@ def execute(args):
         from .edits import run
         return run(args.key, args.patch, args.dry_run, args.verify_only)
     if args.command == "works":
-        return adapters.browser_call(args.platform, "works", args.account)
+        from .operations_sync import works
+        result=works(args.platform,args.limit,args.cursor)
+        if args.out:atomic_json(args.out,result)
+        return result
     if args.command == "resume":
         with publication_lock():
             ledger = Ledger()
@@ -580,7 +600,7 @@ def capabilities():
             "live_verification_scope": "2026-10-30: source-plus-English YouTube/Instagram corrections and user-accepted v3 shared portrait retained. All five hello reply tests read back; Douyin was repaired through Creator Center and verified with a fresh nested-parent read. Browser evidence differs from API parent-ID verification. Not clean-machine unattended or full-playback acceptance.",
             "native_execution": "The host agent performs real UI actions. A CLI handoff alone is not an executed action or confirmed login.",
             "bili_cli": "Use installed bili directly for its existing search, video, inbox, comment and creator-data commands.",
-            "works": "Douyin/Instagram/X visible first-page work IDs and text; up to ten Douyin cards, excluding review cards without a detail page.",
+            "works": "Bilibili published-work pages and YouTube upload-playlist pages; Douyin/Instagram/X visible first page only.",
             "planned_common_commands": ["account", "search", "video", "analytics-history", "inbox"],
             "suspended_platforms": {"tiktok": "Login test with a Hong Kong number was unsuccessful; see docs/TIKTOK_STATUS.md."},
             "not_implemented": "Full historical analytics/inbox, X/Instagram official API clients, and YouTube cards/clickable end screens. Instagram mobile-cover replacement remains user-assisted. Douyin replies to nested replies are not supported.",
@@ -594,7 +614,7 @@ def main():
         args = parser().parse_args()
         value = execute(args)
         ok = not (isinstance(value, dict) and (value.get("all_submissions_verified") is False or
-                  value.get('state') in {'WAITING_FOR_USER','PREPARATION_INCOMPLETE','SUBMITTED_UNVERIFIED','UNKNOWN','EDIT_SUBMITTING','EDIT_SUBMITTED_UNVERIFIED','EDIT_UNAVAILABLE','REPLY_READY','REPLY_PENDING','REPLY_SUBMITTING','REPLY_UNVERIFIED','REPLY_REJECTED','TEST_SEED_UNVERIFIED','TEST_REPLY_UNVERIFIED','TEST_COMMENT_NOT_VISIBLE'}))
+                  value.get('state') in {'PARTIAL','WAITING_FOR_USER','PREPARATION_INCOMPLETE','SUBMITTED_UNVERIFIED','UNKNOWN','EDIT_SUBMITTING','EDIT_SUBMITTED_UNVERIFIED','EDIT_UNAVAILABLE','REPLY_READY','REPLY_PENDING','REPLY_SUBMITTING','REPLY_UNVERIFIED','REPLY_REJECTED','TEST_SEED_UNVERIFIED','TEST_REPLY_UNVERIFIED','TEST_COMMENT_NOT_VISIBLE'}))
         print(json.dumps({"ok": ok, "data": value}, ensure_ascii=False))
         raise SystemExit(0 if ok else 4)
     except VpubError as e:

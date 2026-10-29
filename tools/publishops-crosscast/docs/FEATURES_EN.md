@@ -6,7 +6,7 @@
 
 This requirement exists because non-subscribers are limited to **140-second, 512 MB** video uploads and cannot use the Media Studio media-management and custom-thumbnail workflow on which this tool depends. CrossCast uploads videos and sets production thumbnails through Media Studio, so its X backend currently supports subscription accounts with that access. Login or payment alone does not establish access; the CLI checks the library entry and managed account before selecting media. [Official upload limits](https://help.x.com/en/using-x/x-videos) · [Media Studio access](https://help.x.com/en/using-x/media-studio).
 
-**0.4.1 alpha.** New manifests use CLI execution after first login; `method: native` is an explicit host-browser fallback. Bilibili continues to call [bili-cli](https://github.com/kukemc/bili-cli).
+**0.5.0 alpha.** New manifests use CLI execution after first login; `method: native` is an explicit host-browser fallback. Bilibili continues to call [bili-cli](https://github.com/kukemc/bili-cli).
 
 | Capability | Bilibili | YouTube | Douyin | X | Instagram |
 |---|---|---|---|---|---|
@@ -24,6 +24,10 @@ Shared: exact-source plans, per-platform account checks, immutable upload snapsh
 Real episode-two uploads and their development limitations are recorded in [validation](VALIDATION_EN.md). Background browser automation is not an official direct API or a speed guarantee. Platform changes, expired sessions and challenges can require intervention. Metadata writing/translation uses the host conversation model through request/apply; it does not translate the video itself.
 
 When the source language differs, retain source plus translation; Chinese scripts become Simplified Chinese only on Bilibili/Douyin. Douyin custom chapters are integrated into CLI publication/verification. `vpub edit` handles YouTube metadata, Instagram captions, an available X Edit action and Douyin covers/chapters; native handoffs remain. The user confirmed the shared v3 portrait and visible footer in both supplied phone views; this is not all-device acceptance. Email supports Gmail only, remains off by default and offers plugin setup assistance only after an explicit enable request. Outlook, QQ, NetEase and SMTP are unsupported. Single-language replies and user-language reports are described in the [README](../README_EN.md#comments-work-metrics-and-operations-reports). TikTok, private messages/automatic likes, full-history exports and YouTube cards/clickable end screens are not implemented.
+
+## 0.5.0 — Bounded operations collection
+
+Five-platform work listing; Bilibili/YouTube pagination and reply-page reads; account-bound watchlists; `ops sync` with inbox candidates, comparable metric changes and per-run reports. Reads only, no scheduler or automatic engagement. [Commands and limits](../README_EN.md#multi-platform-collection-and-metric-changes).
 
 ## Historical changes
 

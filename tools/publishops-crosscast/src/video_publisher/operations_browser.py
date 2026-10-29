@@ -137,7 +137,7 @@ async def comments(page,platform,identity,work,limit):
         body=await page.locator('[data-e2e="comment-list"]').inner_text() if await page.locator('[data-e2e="comment-list"]').count() else ''
         if not rows and not re.search('暂无评论|暂时没有更多评论',body):
             raise VpubError('comments_layout_unverified','The public comment list has no verified rows or empty state.')
-        return {'items':rows,'complete':not rows,'scope':'Visible public comment rows; collapsed replies are not a complete export.','reported_total':None}
+        return {'items':rows,'complete':False,'scope':'Visible public comment rows; collapsed replies are not a complete export.','reported_total':None}
     if platform=='x':
         root=await x_root(page,identity,work);metrics=await x_metrics(root)
         # Timeline entries may be ranked, collapsed or incomplete. Never call a
@@ -156,7 +156,7 @@ async def comments(page,platform,identity,work,limit):
                           'published_at':await anchor.locator('time').get_attribute('datetime'),
                           'relationship':'visible conversation entry; direct parent not exposed'})
             if len(items)>=limit:break
-        return {'items':items,'complete':metrics['comments']['value']==0,'scope':'Visible conversation only; ranked/collapsed replies may be absent.',
+        return {'items':items,'complete':False,'scope':'Visible conversation only; ranked/collapsed replies may be absent.',
                 'reported_total':metrics['comments']['value']}
     if platform=='douyin':
         for attempt in range(3):
@@ -183,7 +183,7 @@ async def comments(page,platform,identity,work,limit):
                       'text_scope':'Visible comment text' if row['text']!=row['raw'] else 'Visible row; extraction incomplete'})
     if not items and not empty:
         raise VpubError('comments_layout_unverified','No identifiable comment rows or explicit empty state; not reported as zero comments.')
-    return {'items':items,'complete':empty,'scope':'Visible rows only; no automatic scrolling or complete history claim.',
+    return {'items':items,'complete':False,'scope':'Visible rows only; no automatic scrolling or complete history claim.',
             'reported_total':0 if empty else None}
 
 

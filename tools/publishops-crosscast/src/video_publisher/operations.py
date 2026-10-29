@@ -70,28 +70,46 @@ def backend(platform, action, work, **kw):
                                  operation=action,work_id=work,**kw)
 
 
-def observe(platform, work, action, limit=20, cursor=None):
-    work=work_id(platform,work);stop_check(platform)
-    if action not in {'comments','stats'}: raise VpubError('invalid_operation','Choose comments or stats.')
-    if not 1<=limit<=100: raise VpubError('invalid_limit','Limit must be 1–100.')
-    if cursor and (not isinstance(cursor,str) or len(cursor)>1000): raise VpubError('invalid_cursor','Invalid page cursor.')
-    try:
-        result=backend(platform,action,work,limit=limit,cursor=cursor)
-        result.update(platform=platform,work_id=work,observed_at=now())
+def save_observation(platform, work, action, result):
+    result.update(platform=platform,work_id=work,observed_at=now())
+    with publication_lock():
         if action=='comments':
             for comment in result.get('items',[]):
                 comment.setdefault('language_hint',language_hint(comment.get('text','')))
-            # A first collection is a baseline, not proof that all comments are new.
-            with publication_lock():
-                path=home()/'operations/seen'/(digest([platform,work])+'.json')
-                old=read_json(path) if path.exists() else None
-                ids={c['id'] for c in result.get('items',[])}
-                audience_ids={c['id'] for c in result.get('items',[]) if not c.get('is_owner')}
-                result['newly_observed_count']=len(audience_ids-set(old['ids'])) if old else None
-                result['baseline']=old is None
-                atomic_json(path,{'ids':sorted(ids|set((old or {}).get('ids',[]))),'at':now()})
-                atomic_json(home()/'operations/comments'/(digest([platform,work])+'.json'),result)
-        return record(action,platform,work,result)
+            path=home()/'operations/seen'/(digest([platform,work])+'.json')
+            old=read_json(path) if path.exists() else None
+            if old and old.get('identity')!=result['identity']: old=None
+            ids={c['id'] for c in result.get('items',[])}
+            audience_ids={c['id'] for c in result.get('items',[]) if not c.get('is_owner')}
+            result['newly_observed_count']=len(audience_ids-set(old['ids'])) if old else None
+            result['newly_observed_ids']=sorted(audience_ids-set(old['ids'])) if old else []
+            result['baseline']=old is None
+            atomic_json(path,{'identity':result['identity'],'ids':sorted(ids|set((old or {}).get('ids',[]))),'at':now()})
+            atomic_json(home()/'operations/comments'/(digest([platform,work])+'.json'),result)
+        elif action=='stats':
+            from .operations_sync import metric_changes
+            path=home()/'operations/stats'/(digest([platform,result['identity'],work])+'.json')
+            old=read_json(path) if path.exists() else None
+            result['changes']=metric_changes(old,result)
+            result['baseline']=old is None
+            result['previous_observed_at']=(old or {}).get('observed_at')
+            atomic_json(path,result)
+    return record(action,platform,work,result)
+
+
+def observe(platform, work, action, limit=20, cursor=None, comment_id=None):
+    work=work_id(platform,work);stop_check(platform)
+    if action not in {'comments','stats','replies'}: raise VpubError('invalid_operation','Choose comments, replies or stats.')
+    if not 1<=limit<=100: raise VpubError('invalid_limit','Limit must be 1–100.')
+    if cursor and (not isinstance(cursor,str) or len(cursor)>1000): raise VpubError('invalid_cursor','Invalid page cursor.')
+    try:
+        if action=='replies':
+            if platform not in {'bilibili','youtube'}:
+                raise VpubError('unsupported_operation','Paged reply reading is available for Bilibili and YouTube; browser reads remain bounded.')
+            if not isinstance(comment_id,str) or not re.fullmatch(r'[A-Za-z0-9_.:-]{1,200}',comment_id):
+                raise VpubError('invalid_comment_id','Use a top-level comment ID from comments list.')
+        result=backend(platform,action,work,limit=limit,cursor=cursor,comment_id=comment_id)
+        return save_observation(platform,work,'comments' if action=='replies' else action,result)
     except Exception as e:
         record(action,platform,work,{'state':'FAILED','code':e.code if isinstance(e,VpubError) else type(e).__name__})
         raise
@@ -202,24 +220,26 @@ def self_test(platform, work, test_id):
     return {**saved,'state':'TEST_VERIFIED' if result['state']=='REPLY_VERIFIED' else 'TEST_REPLY_UNVERIFIED','reply':result}
 
 
-def report(since=None, language='auto', notes=None):
+def report(since=None, language='auto', notes=None, _events=None):
     lang=reporting_language(language)
     try:
         start=datetime.fromisoformat(since.replace('Z','+00:00')) if since else datetime.now(timezone.utc)-timedelta(days=1)
         if start.tzinfo is None: raise ValueError()
     except ValueError: raise VpubError('invalid_since','Use an ISO timestamp with a timezone.')
-    events=[read_json(p) for p in (home()/'operations/events').glob('*.json')]
+    events=_events if _events is not None else [read_json(p) for p in (home()/'operations/events').glob('*.json')]
     events=sorted((e for e in events if datetime.fromisoformat(e['at'])>=start),key=lambda e:e['at'])
     parts=[];details={}
     for platform in NAMES:
         selected=[e for e in events if e['platform']==platform]
         if not selected: continue
-        comments={};stats={};replies={};failed=[]
+        comments={};stats={};replies={};failed=[];new_comments=set();baselines=set()
         for e in selected:
             v=e['result']
             if v.get('state')=='FAILED': failed.append(v);continue
             if v.get('test'): continue
             if e['action']=='comments':
+                new_comments.update((e['work_id'],cid) for cid in v.get('newly_observed_ids',[]))
+                if v.get('baseline'):baselines.add(e['work_id'])
                 for c in v.get('items',[]):
                     if not c.get('is_owner'): comments[(e['work_id'],c['id'])]=c
             if e['action']=='stats': stats[e['work_id']]=v
@@ -228,11 +248,13 @@ def report(since=None, language='auto', notes=None):
         collected_stats=len(stats)-unavailable_stats
         confirmed=sum(v.get('state')=='REPLY_VERIFIED' for v in replies.values())
         pending=sum(v.get('state')!='REPLY_VERIFIED' for v in replies.values())
-        details[platform]={'comments_read':len(comments),'replies_verified':confirmed,
+        details[platform]={'comments_read':len(comments),'newly_observed_comments':len(new_comments),'baseline_works':len(baselines),'replies_verified':confirmed,'work_metrics':stats,
                            'replies_pending':pending,'works_with_stats':collected_stats,'works_without_visible_metrics':unavailable_stats,'failed_reads':len(failed)}
         if lang=='zh':
             pieces=[]
             if any(e['action']=='comments' and e['result'].get('state')!='FAILED' for e in selected): pieces.append(f'读取{len(comments)}条观众评论')
+            if new_comments:pieces.append(f'其中{len(new_comments)}条为新读到的评论')
+            if baselines:pieces.append(f'{len(baselines)}条作品首次建立评论基线')
             if confirmed: pieces.append(f'回复{confirmed}条并确认可见')
             if pending: pieces.append(f'{pending}条回复尚未确认成功，未重复发送')
             if collected_stats: pieces.append(f'采集{collected_stats}条作品的数据')
@@ -243,6 +265,8 @@ def report(since=None, language='auto', notes=None):
             pieces=[]
             counted=lambda n,noun:f'{n} {noun}'+('' if n==1 else 's')
             if any(e['action']=='comments' and e['result'].get('state')!='FAILED' for e in selected): pieces.append('read '+counted(len(comments),'audience comment'))
+            if new_comments:pieces.append(counted(len(new_comments),'newly observed comment'))
+            if baselines:pieces.append('established first-read baselines for '+counted(len(baselines),'work'))
             if confirmed: pieces.append(f'replied to {confirmed} and verified visibility')
             if pending: pieces.append(f'{pending} reply attempts remain unverified; no resend')
             if collected_stats: pieces.append('collected data for '+counted(collected_stats,'work'))
@@ -259,7 +283,10 @@ def report(since=None, language='auto', notes=None):
 
 
 def capabilities():
-    return {'comments':{'bilibili':'upstream CLI, paged threads','youtube':'official API, paged threads and replies',
+    return {'collection':'ops watch add/list/remove and ops sync: bounded read-only multi-platform inbox candidates, metrics and per-run report; no scheduler or automatic replies.',
+            'works':'Bilibili published pages, YouTube uploads playlist pages, other platforms visible first page.',
+            'reply_pages':'comments replies: Bilibili and YouTube roots with next_cursor; browser replies remain bounded.',
+            'comments':{'bilibili':'upstream CLI, paged threads','youtube':'official API, paged threads and replies',
                         'douyin':'CLI public work reads; Creator Center top-level replies and statistics','instagram':'CLI visible comments','x':'CLI visible conversation entries; parent ID is not exposed'},
             'reply':'Direct send, optional --dry-run; one language matching the comment; durable deduplication and read-back.',
             'stats':'Per-work observations with source and timestamp; missing metrics stay null. X post views are not video plays.',

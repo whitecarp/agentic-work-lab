@@ -19,8 +19,9 @@ Prepare platform-specific descriptions, covers and publication receipts for one 
 - X publishing supports subscribed users whose accounts can actually access Media Studio. Non-subscribers have a 140-second, 512 MB upload limit and lack the Studio media-management and custom-thumbnail access required by this backend. [Upload limits](https://help.x.com/en/using-x/x-videos) · [Studio access](https://help.x.com/en/using-x/media-studio).
 - Instagram retains the original video and aspect ratio with a separate upload cover. Its mobile editor can use the same portrait artwork as Douyin.
 - Added cross-platform comment reads, single-language replies matching commenters, work metrics and Chinese/English operations reports; tested and pending scopes are documented.
+- Added five-platform work listing, watchlists and read-only collection: comment candidates, comparable metric changes and per-run reports; paged Bilibili/YouTube thread replies.
 - Production-cover fitting, YouTube playlist settings and Gmail-only email notifications, off until explicitly enabled.
-- **0.4.1 alpha, with 147 passing offline tests.** Full five-platform publication still has open acceptance items; tested scope and limits are documented.
+- **0.5.0 alpha, with 164 passing offline tests.** Full five-platform publication still has open acceptance items; tested scope and limits are documented.
 
 [Install and use](tools/publishops-crosscast/README_EN.md) · [Feature scope](tools/publishops-crosscast/docs/FEATURES_EN.md) · [Validation](tools/publishops-crosscast/docs/VALIDATION_EN.md)
 
