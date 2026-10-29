@@ -78,4 +78,7 @@ Set YouTube category per video from content/current official choices. Revise exi
 
 ## 草稿改為發布 / Authorizing an existing draft
 
-使用者明確要求發布後，先確認同一帳號，再用 `browser authorize-publish KEY --identity OBSERVED_ACCOUNT`。該命令只更新本地授權，保留原草稿證據；不重新 begin／選檔，之後在原頁提交一次並記錄 ID。沒有這項授權就維持草稿。刪除另行處理；本次使用者明確要求暫不刪除。 / Only explicit user authorization permits this command. It preserves draft evidence and updates local authorization without uploading. Submit the existing draft once and record its ID. Without authorization, keep draft mode. Deletion is separate; the current user requested no deletion.
+使用者明確要求發布後，先確認同一帳號，再用 `browser authorize-publish KEY --identity OBSERVED_ACCOUNT`。該命令只更新本地授權，保留原草稿證據；不重新 begin／選檔，之後在原頁提交一次並記錄 ID。沒有這項授權就維持草稿。刪除需要針對具體作品的明確授權，不能從發布授權推斷。 / Only explicit user authorization permits this command. It preserves draft evidence and updates local authorization without uploading. Submit the existing draft once and record its ID. Without authorization, keep draft mode. Deletion requires explicit authorization for the specific work, separate from publication.
+
+
+刪除與重發使用 [專用交接](docs/DELETION_AND_COVERS.md)。只驗證刪除不代表重發成功；舊作品 ID 必須保留於歷史。不得對 X、YouTube、抖音或 B站套用 Instagram 刪除命令。 / Use the dedicated deletion/repost handoff. Deletion success is not replacement publication success; preserve the old ID in history. The new deletion commands support Instagram only.

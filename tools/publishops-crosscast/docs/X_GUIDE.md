@@ -29,3 +29,16 @@ X 官方網頁上傳說明目前列出：未訂閱帳號最多 140 秒、512 MB�
 搜尋、作品清單、數據分析、評論與收件箱尚未接成統一 X 命令；不要將此交接流程宣傳為完整 X CLI。
 
 Discovery, work listings, analytics, comments and inbox are not unified X commands yet. Do not describe this handoff as a full X CLI.
+
+
+## 自訂封面與訂閱 / Custom thumbnails and subscription
+
+**自訂封面走需要訂閱權限的 Media Studio。** X 官方資料說明 Media Studio 僅向已驗證訂閱者開放，媒體庫的 Change thumbnail 可選影片影格或上傳圖片；圖片比例應與影片相同。一般發帖頁沒有同等保證，訂閱付款也不代表媒體庫已完成初始化。
+
+**Custom thumbnails use subscription-gated Media Studio.** Official guidance limits Studio access to verified subscribers. Its library offers Change thumbnail with a video frame or uploaded image matching the video aspect ratio. Ordinary post composition is a different surface; payment alone does not prove that the library is ready.
+
+[官方權限說明 / Official access](https://help.x.com/en/using-x/media-studio) · [官方縮圖說明 / Official thumbnails](https://help.x.com/en/using-x/media-studio-faqs)（查閱 / checked 2026-10-29）。
+
+本輪已進入 Studio，但媒體庫回報「We encountered a problem while setting up your library. Try again later.」；關閉首次提示並刷新仍未恢復。未換封面，不將此記為成功。使用者已取消片頭封面替代方案。媒體庫恢復後先找原媒體，換圖並讀回原帖；不得為了測試自動刪帖或重複發布。
+
+Studio opened in this test, but the library reported a setup error even after onboarding dismissal and reload. No thumbnail change was recorded. The user cancelled the intro-cover workaround. Once available, locate the existing media, change the thumbnail and verify the original status; do not automatically delete or duplicate it.

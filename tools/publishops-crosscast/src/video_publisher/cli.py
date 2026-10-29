@@ -241,6 +241,19 @@ def parser():
     q.add_argument("--file", required=True)
     q.add_argument("--portrait", help="Optional separate portrait cover, for Douyin/Instagram native mode.")
     q.add_argument("--identity", required=True)
+    q = b.add_parser("delete-request", help="Explicitly authorized Instagram deletion handoff; does not delete remotely.")
+    q.add_argument("key")
+    q.add_argument("--identity", required=True)
+    q.add_argument("--id", required=True)
+    q = b.add_parser("delete-record", help="Record UI deletion acknowledgement and refreshed profile absence.")
+    q.add_argument("key")
+    q.add_argument("--evidence", required=True)
+    q = b.add_parser("repost-deleted", help="Explicit Instagram cover replacement after verified deletion; preserves history.")
+    q.add_argument("key")
+    q.add_argument("manifest")
+    q.add_argument("--confirm", required=True)
+    q.add_argument("--identity", required=True)
+    q.add_argument("--deleted-id", required=True)
     n = sub.add_parser("notify", help="Optional host-plugin email alerts. Disabled by default; no SMS.").add_subparsers(dest="action", required=True)
     n.add_parser("status")
     q = n.add_parser("configure")
@@ -301,6 +314,13 @@ def execute(args):
         return capabilities()
     if args.command == "browser":
         from . import native_browser
+        if args.action in {"delete-request", "delete-record", "repost-deleted"}:
+            from . import deletion
+            if args.action == "delete-request":
+                return deletion.request(args.key, args.identity, args.id)
+            if args.action == "delete-record":
+                return deletion.record(args.key, args.evidence)
+            return deletion.repost(args.key, args.manifest, args.confirm, args.identity, args.deleted_id)
         if args.action == "request":
             return native_browser.request(args.key)
         if args.action == "begin":
@@ -445,7 +465,8 @@ def login_selected(platforms, method="native"):
 def capabilities():
     return {"product": "PublishOps CrossCast", "version": __version__,
             "metadata_targets": {p: "zh-Hans" if p in {"bilibili", "douyin"} else "en" for p in PLATFORMS},
-            "cover_fitting": "Local production artwork, contain-and-pad, per-platform variants; X unsupported. Saved UI results require evidence.",
+            "cover_fitting": "Local contain-and-pad artwork; actual UI may crop to video ratio. X custom thumbnails require subscription-gated Media Studio; CrossCast cover automation is not yet verified.",
+            "instagram_deletion": "Explicit native deletion request, UI result/absence evidence, retained history, and separately authorized same-video cover replacement. No standalone deletion API.",
             "email": "Optional, off by default; host Gmail/Outlook send tool required at execution; no SMS.",
             "chapters": "Native Bilibili/Douyin/YouTube handoff, timing validation and saved-control evidence. Douyin titles limited to 12 UTF-16 units; four live chapters submitted; user confirmed mobile visibility, full desktop read-back pending.",
             "youtube_category": "Explicit per-video category required; host-model selection, in-place revision and read-back. API validates assignability before upload; no People & Blogs fallback.",
@@ -455,7 +476,7 @@ def capabilities():
              "publish_backend": {"bilibili": "bili-cli or native", "douyin": "experimental browser or native", "youtube": "native (default) or optional API"}.get(p, "native host-agent workflow"),
              "standalone_cli_publish": p in {"bilibili", "youtube", "douyin"},
             "live_upload_verified": p in {"youtube", "x", "instagram"}} for p in PLATFORMS},
-            "live_verification_scope": "2026-10-29: YouTube private work checked in Studio. X draft saved/reopened, then explicitly authorized and submitted once; original status read back with exact English text, Made with AI and 1:19 embedded video. Full playback/anonymous access not verified. Instagram initial Share failed; after reauthentication and fresh absence evidence, one retry succeeded and exact text/AI label/video were read back. Cover applied but portrait profile-grid cropping remains unresolved. No deletion performed.",
+            "live_verification_scope": "2026-10-29: YouTube private work checked in Studio. X draft saved/reopened, then explicitly authorized and submitted once; original status read back with exact English text, Made with AI and 1:19 embedded video. Full playback/anonymous access not verified. Instagram initial Share failed; after reauthentication and fresh absence evidence, one retry succeeded and exact text/AI label/video were read back. The initial Instagram work was later deleted with explicit authorization; profile absence was read back. Replacement upload is unsubmitted, pending cover review. X Media Studio opened after subscription but library setup failed; no custom thumbnail was saved.",
             "native_execution": "The host agent performs real UI actions. A CLI handoff alone is not an executed action or confirmed login.",
             "bili_cli": "Use installed bili directly for its existing search, video, inbox, comment and creator-data commands.",
             "planned_common_commands": ["account", "search", "video", "works", "analytics", "comments", "inbox"],

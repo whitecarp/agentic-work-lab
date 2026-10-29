@@ -2,7 +2,7 @@
 
 ### 跨平台影片發布營運台 / Multi-platform video release operations console
 
-**v0.2.2 alpha · CLI `vpub` · AI 協助開發 / AI-assisted development**
+**v0.2.3 alpha · CLI `vpub` · AI 協助開發 / AI-assisted development**
 
 讓同一支原創影片擁有各平台適用的文案、封面與發布回執。選擇 Bilibili、抖音、YouTube、Instagram、X 的任意組合，在宿主內置瀏覽器開官方網站，登入方式由使用者選。
 
@@ -12,7 +12,7 @@ Prepare platform-specific metadata, covers and publication receipts for one orig
 
 **This alpha is not a fully validated five-platform publisher.** A URL or queue is not success evidence; native-browser execution needs a host agent. X/Instagram APIs, unified comments/analytics, YouTube cards and clickable end screens remain unimplemented. TikTok is suspended.
 
-[草稿測試 / Draft testing](docs/DRAFT_TESTING.md) · [功能範圍 / Features](docs/FEATURES.md) · [驗證記錄 / Validation](docs/VALIDATION.md) · [Agent 交接 / Handoff](DEEPSEEK_HANDOFF.md)
+[刪除與封面重發 / Deletion and cover replacement](docs/DELETION_AND_COVERS.md) · [草稿測試 / Draft testing](docs/DRAFT_TESTING.md) · [功能範圍 / Features](docs/FEATURES.md) · [驗證記錄 / Validation](docs/VALIDATION.md) · [Agent 交接 / Handoff](DEEPSEEK_HANDOFF.md)
 
 ## 安裝與開始 / Install and start
 
@@ -158,3 +158,14 @@ These four chapters were checked in the Douyin editor and submitted; initial rea
 YouTube 新方案必須明確填寫 `category_id`；宿主以腳本及官方選項選類別，不再預設「人物和博客」。`metadata request/apply` 可由當前聊天模型完成選擇，已指定值會保留。抖音章節入口、12 字元限制及審核回執見[操作指南](docs/CATEGORIES_AND_CHAPTERS.md)。
 
 New YouTube plans require an explicit `category_id`, selected from content and official choices rather than defaulting to People & Blogs. The current host model can supply it via `metadata request/apply`; explicit selections are preserved. See the [guide](docs/CATEGORIES_AND_CHAPTERS.md) for Douyin chapters, title limits and review receipts.
+
+
+### 平台實際裁切 / Platform cropping
+
+本地保留全圖不代表平台不裁切。Instagram 網頁本次將直式封面裁成橫式影片的預覽比例；發布前必須查看標題及底部文字，發布後另核對個人主頁縮圖。不要為配合封面而裁掉原影片內容。
+
+Local contain-and-pad output does not prevent platform cropping. In this web session Instagram cropped a portrait cover to the landscape video preview. Inspect text before publishing and the profile thumbnail afterwards; never crop away video content just to fit a cover.
+
+X 自訂封面使用需要訂閱權限的 Media Studio；訂閱後還要確認媒體庫實際可用。本輪媒體庫初始化失敗，尚未套用自訂封面，不採用片頭插圖替代方案。[權限與操作 / Access and procedure](docs/X_GUIDE.md)。
+
+X custom covers use subscription-gated Media Studio. Verify library availability after subscribing. This session reached Studio but library initialization failed; no custom thumbnail was saved and no intro-frame workaround was implemented.

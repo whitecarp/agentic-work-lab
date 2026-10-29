@@ -71,7 +71,7 @@ def request(key):
         if any(file_sha(a["path"]) != a["sha256"] for a in variants.values()):
             raise VpubError("source_changed", "A platform cover snapshot changed.")
         return {**job, "state": old["state"], "can_begin": old["state"] == "WAITING_FOR_BROWSER",
-                "final_submission_allowed": job["options"].get("submission_mode") != "draft_only",
+                "final_submission_allowed": job["options"].get("submission_mode") != "draft_only" and old["state"] not in {"DELETE_PENDING", "AGENT_REPORTED_DELETED", "REPOST_PREPARING"},
                 "user_action_required": old["state"] == "WAITING_FOR_USER",
                 "resume_existing_attempt": old["state"] == "WAITING_FOR_USER",
                 "user_action": old["data"].get("receipt", {}).get("observation") if old["state"] == "WAITING_FOR_USER" else None}

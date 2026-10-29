@@ -51,3 +51,8 @@ See README and current validation for the latest acceptance status; these supers
 ## 0.2.2：草稿與明確發布 / Drafts and explicit publication
 
 Instagram／X 可用 `init --draft-only`，區分預覽與保存草稿；使用者明確改為發布後才用 `browser authorize-publish` 繼續同一份內容，不重傳。X 的草稿及原帖已實測，Instagram 首次提交失敗，重新登入及核對無重複後重試成功；封面網格裁切仍待適配。 / Draft-only mode distinguishes preview from saved drafts. Explicit operator authorization can enable submission of the same draft without reuploading. X draft and status were tested; Instagram succeeded after reauthentication and a rejection/absence-checked retry; profile-cover cropping remains unresolved. See [validation](VALIDATION.md).
+
+
+## 0.2.3：刪除回執與封面限制 / Deletion receipts and cover limits
+
+Instagram 新增明確刪除交接、確認結果與刷新後缺席證據、保留歷史的同片封面重發流程。已實測刪除；替換影片尚未分享。X 自訂封面改走需要訂閱權限的 Media Studio；本次媒體庫初始化失敗，封面修改未驗收。 / Instagram now has explicit deletion handoff, acknowledgement/absence evidence and history-preserving same-video cover replacement. Deletion was exercised; replacement has not been shared. X custom thumbnails use subscription-gated Media Studio; this session hit library initialization failure, so thumbnail changes remain unverified. [操作指南 / Guide](DELETION_AND_COVERS.md).

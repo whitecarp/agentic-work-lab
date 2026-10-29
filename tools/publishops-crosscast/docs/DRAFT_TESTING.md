@@ -93,3 +93,10 @@ retry evidence 僅含 identity、官方個人頁 page_url、work_absent:true、�
 
 X 片頭加入封面作為縮圖候選目前只屬待測方案，尚未實作，也不保證平台取第一幀。 / Inserting artwork at the start as an X thumbnail candidate remains a proposed test, not an implemented feature or a guarantee that X selects frame zero.
 
+
+
+## 後續狀態 / Subsequent status — 0.2.3
+
+使用者後續明確授權刪除 Instagram 測試作品，已確認刷新後不存在。替換上傳停在發布前封面檢查，尚無新作品 ID。X 原帖仍保留；使用者訂閱後改用 Media Studio 自訂封面方向，取消片頭封面方案，但媒體庫初始化尚未成功。此段取代以上歷史狀態中的下一步計畫。
+
+The operator subsequently authorized deleting the Instagram test work; refreshed absence was verified. Replacement remains at an unpublished cover preview with no new work ID. The X status is retained. Following subscription, Media Studio replaces the cancelled intro-cover approach, but library setup has not succeeded. This supersedes next-step plans in the historical entries above.

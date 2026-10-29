@@ -11,7 +11,7 @@
 📦 **[影片下載 / Video downloads](https://github.com/whitecarp/ai-video-lab/releases)** · **[影片目錄 / Video catalogue](media/README.md)**  
 📊 **[帳號與營運資料 / Channel and operations data](data/README.md)**
 
-🛠️ **[PublishOps CrossCast · 跨平台影片發布營運台 / Multi-platform video release operations console](tools/publishops-crosscast/README.md)**：依平台生成文案與適配專用封面，保留發布回執，提供可選郵件提醒與播放列表設定。B站／抖音預設簡體中文，YouTube／Instagram／X 預設英文；65 項離線測試通過，實發限制見驗證記錄。 / Platform copywriting and production-cover fitting, durable receipts, optional email and playlist settings. Simplified Chinese for Bilibili/Douyin; English for YouTube/Instagram/X. 65 offline tests passed; see validation for live limits.
+🛠️ **[PublishOps CrossCast · 跨平台影片發布營運台 / Multi-platform video release operations console](tools/publishops-crosscast/README.md)**：依平台生成文案與適配專用封面，保留發布回執，提供可選郵件提醒與播放列表設定。B站／抖音預設簡體中文，YouTube／Instagram／X 預設英文；68 項離線測試通過，實發限制見驗證記錄。 / Platform copywriting and production-cover fitting, durable receipts, optional email and playlist settings. Simplified Chinese for Bilibili/Douyin; English for YouTube/Instagram/X. 68 offline tests passed; see validation for live limits.
 
 **最新更新 / Latest update:** [2026-10-28 晚間：新增三個影片版本、首日數據與逐幀修復 / Three video versions, day-one analytics and frame-level repair](docs/updates/2026-10-28-evening.md)
 
