@@ -1,0 +1,33 @@
+{
+  "bvid": "BV1Wfx56JEih",
+  "title": "鲸鱼娘代班日志02｜上班第一天，我被人类派了三个活",
+  "published_at": "2026-10-28T19:30:00+08:00",
+  "due_at": "2026-10-29T19:30:00+08:00",
+  "sampled_at": "2026-10-29T19:33:00+08:00",
+  "age_bucket": "24h",
+  "duration_seconds": 117,
+  "metrics": {
+    "view": 308,
+    "like": 24,
+    "favorite": 5,
+    "coin": 0,
+    "reply": 51,
+    "share": 0,
+    "danmaku": 1,
+    "completion_percent": 36.63,
+    "avg_watch_seconds": 42,
+    "per_100_plays": {
+      "like": 7.79,
+      "favorite": 1.62,
+      "coin": 0.0,
+      "reply": 16.56,
+      "share": 0.0,
+      "danmaku": 0.32
+    }
+  },
+  "missing": [],
+  "source": "Recorded creator analytics checkpoint, reused from the operations instance",
+  "actual_age_hours": 24.05,
+  "limitation_zh_hant": "到期後 3 分鐘採樣；單片描述性數據。回覆數不等於獨立觀眾數，也不能證明模型或題材造成增長。",
+  "limitation_en": "Sampled three minutes after the due time. Descriptive single-video data; replies are not unique viewers and do not establish causal model or topic effects."
+}

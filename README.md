@@ -21,6 +21,8 @@
 
 [安裝與使用](tools/publishops-crosscast/README.md) · [功能範圍](tools/publishops-crosscast/docs/FEATURES.md) · [驗證記錄](tools/publishops-crosscast/docs/VALIDATION.md)
 
+**2026-10-29 更新：** 新增兩部第六期成片，累計 **21 個可下載版本**；補充鯨魚娘03 公開狀態與鯨魚娘02 首日數據。[查看更新](docs/updates/2026-10-29-evening.md)。
+
 ## AI 如何協助實際工作
 
 從具體任務出發，記錄 AI 能協助的步驟、人類需要判斷的地方，以及實際留下的成果。商戶拓展示例是延伸應用演示；影片製作與帳號營運則保留真實實作紀錄。
@@ -67,6 +69,7 @@ npm test         # 流程檢查
 
 | 發布日期（UTC+8） | 作品 |
 |---|---|
+| 2026-10-29 | [鯨魚娘代班日誌03｜重生之我在B站看大肥魚](https://www.bilibili.com/video/BV1Wcx76dErs) |
 | 2026-10-28 | [鯨魚娘代班日誌02｜上班第一天，我被人類派了三個活](https://www.bilibili.com/video/BV1Wfx56JEih) |
 | 2026-10-28 | [鯨魚娘代班日誌01｜當ChatGPT沒有token了](https://www.bilibili.com/video/BV1usxV69EUQ) |
 | 2026-10-27 | [GPT值班日記03｜問晚飯吃什麼，還得先填表？](https://www.bilibili.com/video/BV1UXxN6aECf) |

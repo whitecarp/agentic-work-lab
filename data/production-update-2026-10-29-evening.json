@@ -1,0 +1,50 @@
+{
+  "sampled_at": "2026-10-29T19:39:00+08:00",
+  "source": "Local delivery and operations receipts; no new platform writes or queries during this update",
+  "completed_files": [
+    {
+      "file": "gpt-log-06-v2-20261029.mp4",
+      "sha256": "b53d3df6f85b2e361af10636eacfcb88a5cd672401028fd133dfa403e07b5454",
+      "bytes": 44282436,
+      "duration_seconds": 591.466667,
+      "bvid": "BV1iBs96VEL9",
+      "scheduled_time": "2026-10-31T12:00:00+08:00",
+      "title_original": "GPT值班日记06｜手把手教你如何让DeepSeek帮我打工",
+      "state": "APPROVED_SCHEDULED_AWAITING_PUBLIC"
+    },
+    {
+      "file": "whale-log-06-v2-20261029.mp4",
+      "sha256": "35bc463bc4c7fca56aea2fcf9addd55b8ca19dc74231f6aa03dcaa0dfd0d35ba",
+      "bytes": 14552237,
+      "duration_seconds": 184.2,
+      "bvid": "BV1jis96yENU",
+      "scheduled_time": "2026-11-02T12:00:00+08:00",
+      "title_original": "鲸鱼娘代班日志06｜AI负责全自动，我负责假装人工",
+      "state": "APPROVED_SCHEDULED_WITH_RESERVATION_AWAITING_PUBLIC"
+    }
+  ],
+  "whale_log03": {
+    "bvid": "BV1Wcx76dErs",
+    "state": "published",
+    "actual_public_time": "2026-10-29T19:30:00+08:00",
+    "checked_at": "2026-10-29T19:30:36+08:00"
+  },
+  "crosscast": {
+    "version": "0.3.0-alpha",
+    "verified_commit": "596e9517dc02e19637bd8115fd1108279dbb0540",
+    "offline_tests_previously_passed": 86,
+    "tests_rerun_this_update": false,
+    "episode02_submission_verified": [
+      "youtube",
+      "instagram",
+      "x"
+    ],
+    "douyin": "Submitted and review card observed; auth expired after restart; final readback pending"
+  },
+  "privacy_review": {
+    "gpt06": "Production review records 13 source windows and 26 boundary frames within approved sanitized ranges; v2 receipt records safe media unchanged. Raw recordings excluded.",
+    "whale06": "Rendered character animation; local delivery and technical QA records only."
+  },
+  "acceptance_limit": "Platform review approval and technical QA are separate from full-film human acceptance; no continuous human viewing or listening claim.",
+  "historical_snapshots_preserved": true
+}

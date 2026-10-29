@@ -23,4 +23,8 @@ Define the task and acceptance criteria before comparing completion time, rework
 
 The earlier 52-record snapshot and its metrics remain in the [archive](../data/snapshots/2026-10-28-afternoon/creator-video-snapshot.json).
 
+## Additional day-one observation
+
+[Whale Girl 02](../data/whale-log02-24h-2026-10-29.json), sampled at 2026-10-29 19:33 UTC+8, recorded 308 views, 24 likes, five favourites, 51 replies, 36.63% completion and 42 seconds average watch time on a 117-second video. The sample is three minutes after the 24-hour checkpoint. Replies are not unique viewers. Different durations and topics prevent treating a comparison with [GPT03](../data/episode03-24h-2026-10-28.json) as a model-performance or efficiency test.
+
 [Back to the lab](../README_EN.md)

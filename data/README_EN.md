@@ -34,4 +34,8 @@ New data: [episode 03 day-one observation](episode03-24h-2026-10-28.json) and [e
 
 The dataset excludes viewer lists, comment text, private messages, credentials, and raw client logs.
 
+## 2026-10-29 incremental observations
+
+[Whale Girl 02 day-one metrics](whale-log02-24h-2026-10-29.json) and [two episode-six delivery and schedule records](production-update-2026-10-29-evening.json) are added separately. The full-channel snapshot above remains dated 2026-10-28; this is not a new census of the channel.
+
 [Back to the lab](../README_EN.md)

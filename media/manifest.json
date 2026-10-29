@@ -81,9 +81,10 @@
       "sha256": "95a862fd0e9ed8bb3e1414b26d582084c45d6a1a171d1b64217ae47684c8f58d",
       "github_asset_status": "published_verified",
       "github_asset_url": "https://github.com/whitecarp/agentic-work-lab/releases/download/archive-2026-10-28/whale-log-03.mp4",
-      "bilibili_current_state": "scheduled_on_bilibili",
-      "state_verified_at": "2026-10-28T13:04:26.206Z",
-      "scheduled_time": "2026-10-29T19:30:00+08:00"
+      "bilibili_current_state": "published",
+      "state_verified_at": "2026-10-29T19:30:36+08:00",
+      "scheduled_time": "2026-10-29T19:30:00+08:00",
+      "actual_public_time": "2026-10-29T19:30:00+08:00"
     },
     {
       "file": "gpt-log-04.mp4",
@@ -243,12 +244,51 @@
       "github_asset_status": "published_verified",
       "github_asset_url": "https://github.com/whitecarp/agentic-work-lab/releases/download/update-2026-10-28-evening/gpt-log-05-v3-antiflash-20261028.mp4",
       "bilibili_current_state": "scheduled_on_bilibili"
+    },
+    {
+      "file": "gpt-log-06-v2-20261029.mp4",
+      "bytes": 44282436,
+      "sha256": "b53d3df6f85b2e361af10636eacfcb88a5cd672401028fd133dfa403e07b5454",
+      "duration_seconds": 591.466667,
+      "bvid": "BV1iBs96VEL9",
+      "scheduled_time": "2026-10-31T12:00:00+08:00",
+      "title_zh_hant": "GPT 值班日記 06：手把手教你如何讓 DeepSeek 幫我打工（v2）",
+      "title_en": "GPT Duty Log 06: Step by step, getting DeepSeek to help with my work (v2)",
+      "title_original": "GPT值班日记06｜手把手教你如何让DeepSeek帮我打工",
+      "bilibili_state_at_snapshot": "scheduled_on_bilibili",
+      "bilibili_current_state": "scheduled_on_bilibili",
+      "state_verified_at": "2026-10-29T19:39:00+08:00",
+      "state_source": "Reused local operations publication receipt and checkpoint; no new platform query",
+      "github_asset_status": "published_verified",
+      "github_asset_url": "https://github.com/whitecarp/agentic-work-lab/releases/download/update-2026-10-29-evening/gpt-log-06-v2-20261029.mp4",
+      "github_verified_at": "2026-10-29T13:19:05.535094+00:00",
+      "review_limit": "Technical and sampled-frame checks recorded; no claim of continuous human viewing or listening"
+    },
+    {
+      "file": "whale-log-06-v2-20261029.mp4",
+      "bytes": 14552237,
+      "sha256": "35bc463bc4c7fca56aea2fcf9addd55b8ca19dc74231f6aa03dcaa0dfd0d35ba",
+      "duration_seconds": 184.2,
+      "bvid": "BV1jis96yENU",
+      "scheduled_time": "2026-11-02T12:00:00+08:00",
+      "title_zh_hant": "鯨魚娘代班日誌 06：AI 負責全自動，我負責假裝人工（v2）",
+      "title_en": "Whale Girl Shift Log 06: AI does the automation; I pretend to be human (v2)",
+      "title_original": "鲸鱼娘代班日志06｜AI负责全自动，我负责假装人工",
+      "bilibili_state_at_snapshot": "scheduled_on_bilibili",
+      "bilibili_current_state": "scheduled_on_bilibili",
+      "state_verified_at": "2026-10-29T19:39:00+08:00",
+      "state_source": "Reused local operations publication receipt and checkpoint; no new platform query",
+      "github_asset_status": "published_verified",
+      "github_asset_url": "https://github.com/whitecarp/agentic-work-lab/releases/download/update-2026-10-29-evening/whale-log-06-v2-20261029.mp4",
+      "github_verified_at": "2026-10-29T13:19:05.535094+00:00",
+      "review_limit": "Technical and sampled-frame checks recorded; no claim of continuous human viewing or listening"
     }
   ],
   "release_url": "https://github.com/whitecarp/agentic-work-lab/releases/tag/archive-2026-10-28",
-  "github_verified_at": "2026-10-28T13:18:44.185Z",
-  "latest_release_url": "https://github.com/whitecarp/agentic-work-lab/releases/tag/update-2026-10-28-evening",
+  "github_verified_at": "2026-10-29T13:19:32.734836+00:00",
+  "latest_release_url": "https://github.com/whitecarp/agentic-work-lab/releases/tag/update-2026-10-29-evening",
   "release_urls": [
+    "https://github.com/whitecarp/agentic-work-lab/releases/tag/update-2026-10-29-evening",
     "https://github.com/whitecarp/agentic-work-lab/releases/tag/update-2026-10-28-evening",
     "https://github.com/whitecarp/agentic-work-lab/releases/tag/archive-2026-10-28"
   ]

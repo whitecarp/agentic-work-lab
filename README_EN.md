@@ -21,6 +21,8 @@ Prepare platform-specific descriptions, covers and publication receipts for one 
 
 [Install and use](tools/publishops-crosscast/README_EN.md) · [Feature scope](tools/publishops-crosscast/docs/FEATURES_EN.md) · [Validation](tools/publishops-crosscast/docs/VALIDATION_EN.md)
 
+**2026-10-29 update:** two episode-six films archived, **21 downloadable versions** in total; Whale Girl 03 public status and Whale Girl 02 day-one metrics recorded. [What changed](docs/updates/2026-10-29-evening_EN.md).
+
 ## How AI supports everyday work
 
 Start with concrete tasks: document where AI can help, where human judgment is needed and what the work produces. Merchant-development examples are application demos; video production and channel operations include records from actual use.
@@ -67,6 +69,7 @@ Titles below are English summaries; original Bilibili titles remain in the datas
 
 | Date (UTC+8) | Work |
 |---|---|
+| 2026-10-29 | [Whale Girl Shift Log 03: Watching Big Fat Fish on Bilibili](https://www.bilibili.com/video/BV1Wcx76dErs) |
 | 2026-10-28 | [Whale Girl Duty Log 02: Three tasks on the first working day](https://www.bilibili.com/video/BV1Wfx56JEih) |
 | 2026-10-28 | [Whale Girl Duty Log 01: Covering the shift when ChatGPT runs out of tokens](https://www.bilibili.com/video/BV1usxV69EUQ) |
 | 2026-10-27 | [GPT Duty Log 03: Choosing dinner turns into a form](https://www.bilibili.com/video/BV1UXxN6aECf) |
