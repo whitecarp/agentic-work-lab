@@ -11,7 +11,8 @@ import sys
 from .core import VpubError, atomic_json, config, home, read_json, stop_check, platform_check
 
 SCOPES = ["https://www.googleapis.com/auth/youtube.upload",
-          "https://www.googleapis.com/auth/youtube.readonly"]
+          "https://www.googleapis.com/auth/youtube.readonly",
+          "https://www.googleapis.com/auth/youtube.force-ssl"]
 PLAYLIST_SCOPE = "https://www.googleapis.com/auth/youtube.force-ssl"
 
 
@@ -62,7 +63,9 @@ def youtube_login(account, client_json, manage_playlists=False):
         raise VpubError("oauth_setup_required", "YouTube requires a Desktop OAuth client JSON on first setup.",
                         "Enable YouTube Data API v3 in Google Cloud; create a Desktop OAuth client. Then run vpub auth login youtube --client-json PATH.")
     from google_auth_oauthlib.flow import InstalledAppFlow
-    scopes = [*SCOPES, PLAYLIST_SCOPE] if manage_playlists else SCOPES
+    # All features CrossCast exposes are explained and authorized on first connection.
+    # Keep manage_playlists as a backwards-compatible alias, without duplicate scopes.
+    scopes = list(dict.fromkeys(SCOPES))
     flow = InstalledAppFlow.from_client_secrets_file(str(Path(client_json).resolve()), scopes,
                                                     autogenerate_code_verifier=True)
     # OAuth URLs and progress belong on stderr, never mixed with the JSON result.
@@ -99,7 +102,7 @@ def browser_call(platform, action, account, **kwargs):
     try:
         cp = subprocess.run([sys.executable, "-m", "video_publisher.browser_worker"],
                             input=json.dumps(payload), capture_output=True, encoding="utf-8",
-                            timeout=1900 if action in {"publish", "resume"} else 120,
+                            timeout=1900 if action in {"publish", "resume"} else 600 if action in {'edit','verify'} else 120,
                             env=dict(os.environ, PYTHONIOENCODING="utf-8"))
     except subprocess.TimeoutExpired:
         raise VpubError("browser_timeout", "Browser command timed out; existing receipts are retained.", "Inspect the existing draft/work; do not repeat an upload or final submit.")

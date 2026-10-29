@@ -80,6 +80,10 @@ class Transaction:
             if saved.get('video_sha256') != plan['video_sha256'] or saved.get('identity') != identity:
                 raise VpubError('receipt_conflict', 'Resume must use the same account and media.')
             self.receipt = saved
+        elif platform=='douyin' and self.options.get('chapters'):
+            self.receipt['pending_chapters']={'chapters':self.options['chapters'],
+                                             'duration_seconds':self.options['duration_seconds']}
+            self.receipt['chapters_state']='PENDING_WORK_ID'
 
     def save(self, **changes):
         self.receipt.update(changes, updated_at=now())
@@ -237,23 +241,29 @@ async def verify(page, platform, identity, receipt):
 
 async def execute(page, platform, identity, payload):
     action = payload["action"]
+    if action == 'edit':
+        from .browser_edits import execute as edit
+        return await edit(page, platform, identity, payload)
     if action == "works":
         return {"identity": identity, "items": list((await works(page, platform, identity)).values()),
                 "scope": "Visible first page only; not a complete account export."}
     if action == "verify":
-        return await verify(page, platform, identity, payload["receipt"])
+        result=await verify(page, platform, identity, payload["receipt"])
+        return await complete_pending_chapters(page,platform,identity,result)
     if action not in {"publish", "resume"}:
         raise VpubError("unsupported_action", "Use status, works, publish or verify.")
     tx = Transaction(platform, identity, payload["plan"], resume=action == 'resume')
     if tx.receipt['final_submit_attempted']:
-        return tx.save(**await verify(page, platform, identity, tx.receipt))
+        result=await verify(page, platform, identity, tx.receipt)
+        return tx.save(**await complete_pending_chapters(page,platform,identity,result))
     if action == 'resume' and tx.receipt['media_selected'] and platform != 'x':
         raise VpubError('inspect_existing_draft', 'An upload already started. Resume requires inspecting that existing draft; uploading again is prohibited.')
     tx.save(state='PREPARING', error=None, user_action_required=False)
     try:
         tx.validate_assets()
         from . import browser_forms
-        return await getattr(browser_forms, "publish_" + platform)(page, tx)
+        result=await getattr(browser_forms, "publish_" + platform)(page, tx)
+        return tx.save(**await complete_pending_chapters(page,platform,identity,result))
     except Exception as e:
         # Local diagnostics are deliberately outside the repository. No cookies,
         # form values, private URLs or raw page source are included in stdout.
@@ -272,3 +282,23 @@ async def execute(page, platform, identity, payload):
                               "message": e.message if isinstance(e, VpubError) else type(e).__name__},
                        user_action_required=human,
                        hint="Inspect the existing draft/work. Progress is saved; no automatic upload or submit retry.")
+
+
+async def complete_pending_chapters(page,platform,identity,receipt):
+    pending=receipt.get('pending_chapters')
+    if platform!='douyin' or not pending or receipt.get('chapters_state')=='VERIFIED': return receipt
+    if not receipt.get('id') or receipt.get('state')!='SUBMISSION_VERIFIED':
+        return {**receipt,'chapters_state':'PENDING_WORK_ID','next':'Run vpub verify for this receipt after platform review; chapters are not yet applied.'}
+    from .browser_edits import execute as edit
+    path=home()/'edits'/('douyin-chapters-'+receipt['id']+'.json')
+    if path.exists() and read_json(path).get('state') in {'EDIT_SUBMITTING','EDIT_SUBMITTED_UNVERIFIED'}:
+        return {**receipt,'chapters_state':'SAVE_UNVERIFIED','next':'Inspect the existing saved chapters; no automatic second Save.'}
+    if path.exists() and read_json(path).get('state')=='EDIT_VERIFIED':
+        return {**receipt,'chapters_state':'VERIFIED','chapters_receipt':read_json(path)}
+    try:
+        result=await edit(page,platform,identity,{'receipt':receipt,
+            'patch':{**pending,'expected_identity':identity},'edit_receipt_path':str(path)})
+        return {**receipt,'chapters_state':'VERIFIED' if result['state']=='EDIT_VERIFIED' else 'SAVE_UNVERIFIED','chapters_receipt':result}
+    except Exception as exc:
+        return {**receipt,'chapters_state':'INCOMPLETE','chapters_error':exc.code if isinstance(exc,VpubError) else type(exc).__name__,
+                'next':'The video exists. Fix/retry only the chapter step; do not upload the video again.'}

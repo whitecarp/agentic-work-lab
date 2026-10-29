@@ -2,11 +2,11 @@
 
 [繁體中文](DEEPSEEK_HANDOFF.md) · **English**
 
-## Default 0.3.0 CLI workflow
+## Default 0.3.1 CLI workflow
 
 1. Read `vpub capabilities`; retain the user's selected platforms and publication authority. Do not touch other scheduled operators.
 2. Use `auth login` once, then `auth status`. The CLI checks the actual account using its dedicated profile; never import host cookies. YouTube needs Desktop OAuth JSON; X needs Media Studio access.
-3. Bind the correct episode/video SHA-256 and production cover. Prepare Simplified Chinese for Bilibili/Douyin and English for YouTube/Instagram/X through `metadata request/apply`. Check exact titles, caption limits, category, audience and AI declaration; GitHub language is unrelated.
+3. Bind the correct episode/video SHA-256 and production cover. Use `metadata request/apply`: Chinese content becomes Simplified Chinese only on Bilibili/Douyin; other content keeps source plus Chinese. English content stays English on YouTube/Instagram/X; other content keeps source plus English. Check exact titles, caption limits, category, audience and AI declaration; GitHub language is unrelated.
 4. Run `plan` then `publish --confirm HASH`. This is a content-integrity check, not an extra editorial approval. The CLI uploads and submits once. Preserve its receipt.
 5. Use `verify KEY` for uncertain submission. `resume KEY` only continues X's saved Studio asset before submission; after submission it only verifies. Never reset a ledger/receipt to force another upload. Instagram/Douyin partial uploads need inspection of the existing draft.
 6. On `WAITING_FOR_USER`, tell the user promptly, keep progress and run the official login flow when they can help. Optional email requires opt-in and a real host send tool; queued is not sent.
@@ -53,7 +53,7 @@ See the linked X guide and TikTok status before proceeding.
 ## 0.2.0 — Settings for this version
 
 - Ask once about platforms, automatic publication and optional email; reuse authorization. Email defaults off; persist the chosen option.
-- Use host-model copywriting; route Bilibili/Douyin to Simplified Chinese and YouTube/Instagram/X to English. Bilingual is explicit; GitHub language is unrelated.
+- Use host-model copywriting with the current README language policy: differing source/target languages automatically retain both; GitHub language is unrelated.
 - No external links by default; preserve voice, context and third-party credits/licenses; omit irrelevant BV references.
 - Prefer dedicated artwork and re-laid-out variants. Fit without cropping and verify every saved role, recording its source hash and visual observation.
 - Select intended playlists, avoid duplicate membership, resolve ambiguous names. Chapters must use actual same-video timings; unavailable UI or review means pending, not fake success from text timestamps.
@@ -92,3 +92,10 @@ X uses same-ratio artwork in Media Studio; Instagram no longer inserts a cover l
 Related links: [Draft testing](docs/DRAFT_TESTING_EN.md) · [X procedure](docs/X_GUIDE_EN.md) · [TikTok status](docs/TIKTOK_STATUS_EN.md) · [Deletion/repost handoff](docs/DELETION_AND_COVERS_EN.md) · [Guide](README_EN.md#instagram-publishing-and-covers)
 
 [Back to the lab](../../README_EN.md)
+
+
+## 0.3.1 completion and next checks
+
+First YouTube OAuth requests upload, read and video/playlist management together. Use `vpub edit`, with `--verify-only` after an uncertain save; never reupload. Include custom Douyin chapters in the plan and apply after obtaining the work ID. `verify`/`resume` may complete pending chapters and are not strictly read-only. Keep the episode-two X post unchanged as instructed; no automatic replacement.
+
+Douyin and Instagram share the same dedicated portrait; the user handles mobile cover selection. Both phone grids crop the footer. Layout acceptance remains open: prioritize crop/UI safe areas, small-text legibility and composition on the next video, without further redesign this round.

@@ -27,3 +27,10 @@ Observed on 2026-10-29: Content management → the intended work → hover Edit 
 Four chapters at 00:00 / 00:19 / 00:46 / 00:57 were submitted. The first read-back showed platform review, then the user confirmed that chapters are visible in the Douyin mobile app. A full desktop read-back has not yet been repeated. The work stays private. Video copy and chapter titles use Simplified Chinese; this documentation uses Traditional Chinese and English.
 
 [Back to the lab](../../../README_EN.md)
+
+
+## 0.3.1: Douyin CLI chapters
+
+Plans with `method: browser` can include custom chapters. The CLI applies them after a durable work ID becomes readable. Review delays leave a step for `verify`/`resume`; no video is reuploaded. Platform-generated suggestions do not count as custom-chapter acceptance.
+
+Episode two's six chapter pairs were saved and independently reopened: 00:00, 00:14, 00:36, 00:49, 01:00 and 01:09. This is saved desktop-list evidence; phone presentation is separate. After an uncertain save, retain the receipt and use `vpub edit ... --verify-only` without another Save.

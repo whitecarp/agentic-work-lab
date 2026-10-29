@@ -2,13 +2,13 @@
 
 **繁體中文** · [English](X_GUIDE_EN.md)
 
-**0.3.0 alpha：** 首次 `vpub auth login x` 開啟官方登入視窗。之後 `publish` 在背景復用 CrossCast 專用會話：核對帳號 → 上傳 Media Studio → 套用製作封面 → 填入完整英文帖文 → 提交一次 → 讀回原帖。這是程式操作官方網站，不是 X API 用戶端。
+**0.3.1 alpha：** 首次 `vpub auth login x` 開啟官方登入視窗。之後 `publish` 在背景復用 CrossCast 專用會話：核對帳號 → 上傳 Media Studio → 套用製作封面 → 填入按原語言規則產生的完整帖文 → 提交一次 → 讀回原帖。這是程式操作官方網站，不是 X API 用戶端。
 
 ```sh
 vpub auth login x
 vpub auth status x
 vpub init --video final.mp4 --language zh-Hans --platforms x --out x.json
-# 宿主準備平台適用的英文文案與製作封面。
+# 宿主準備英文內容的英文文案，或其他內容的原文＋英文，以及製作封面。
 vpub plan x.json
 vpub publish x.json --confirm CURRENT_PLAN_HASH
 vpub verify RECEIPT_KEY

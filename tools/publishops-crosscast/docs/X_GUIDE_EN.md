@@ -2,7 +2,7 @@
 
 [繁體中文](X_GUIDE.md) · **English**
 
-**0.3.0 alpha:** `vpub auth login x` opens the official login window once. Later `publish` commands reuse CrossCast's dedicated profile headlessly: check account → upload to Media Studio → apply the production thumbnail → fill exact English post text → submit once → read back the original status. This is a scripted official website workflow, not an X API client.
+**0.3.1 alpha:** `vpub auth login x` opens the official login window once. Later `publish` commands reuse CrossCast's dedicated profile headlessly: check account → upload to Media Studio → apply the production thumbnail → fill exact source-aware post text → submit once → read back the original status. This is a scripted official website workflow, not an X API client.
 
 ```sh
 vpub auth login x

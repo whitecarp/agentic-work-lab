@@ -2,14 +2,14 @@
 
 **繁體中文** · [English](FEATURES_EN.md)
 
-**0.3.0 alpha。** 新方案在首次登入後由 CLI 執行；`method: native` 是明確選用的宿主瀏覽器備援。B站繼續呼叫 [bili-cli](https://github.com/kukemc/bili-cli)。
+**0.3.1 alpha。** 新方案在首次登入後由 CLI 執行；`method: native` 是明確選用的宿主瀏覽器備援。B站繼續呼叫 [bili-cli](https://github.com/kukemc/bili-cli)。
 
 | 能力 | Bilibili | YouTube | 抖音 | X | Instagram |
 |---|---|---|---|---|---|
 | 登入 | 上游 CLI | 桌面 OAuth | 專用官方 Chrome | 專用官方 Chrome | 專用官方 Chrome |
 | 預設發布 | bili-cli | 官方 API | 背景瀏覽器 | 背景 Media Studio | 背景瀏覽器 |
 | 封面 | 上游功能 | 封面 API | 橫式＋直式 | Studio 自訂縮圖 | 獨立圖片；原片比例 |
-| 文案 | 簡體中文 | 英文 | 簡體中文 | 英文 | 英文 |
+| 目標文案語言 | 簡體中文 | 英文 | 簡體中文 | 英文 | 英文 |
 | 作品回讀 | 上游功能 | API | 創作者卡片／詳情 ID | 自己主頁／帖文 | 自己主頁／Reel |
 | 完整歷史／數據／評論 | 上游功能 | 未統一 | 未統一 | 未統一 | 未統一 |
 
@@ -17,7 +17,7 @@
 
 第二期真實上傳及開發限制見[驗證記錄](VALIDATION.md)。背景瀏覽器不是官方直連 API，也沒有速度保證；介面變更、登入過期及驗證可能需要介入。文案寫作／翻譯由宿主聊天模型透過 request/apply 完成，不會翻譯影片本身。
 
-章節及進階發布後修改保留明確選用的 native 交接。宿主 Gmail／Outlook 郵件預設關閉。TikTok、通用互動指令及 YouTube 卡片／可點擊片尾未實作。
+內容語言與平台目標不同時保留原語言＋翻譯；中文的簡繁體在 B站／抖音統一簡體，不重複兩段。抖音自訂章節已接入 CLI 發布／驗證流程。`vpub edit` 支援 YouTube 資料、Instagram 配文、可用的 X 編輯入口及抖音封面／章節；native 交接仍保留。共用直圖位元組一致，但底部小字在兩站手機網格被裁切，版式尚未驗收。宿主 Gmail／Outlook 郵件預設關閉。TikTok、通用互動指令及 YouTube 卡片／可點擊片尾未實作。
 
 ## 歷史變更
 

@@ -24,6 +24,8 @@ class MetadataTests(unittest.TestCase):
         self.value['platforms']['youtube']['category_id']='1'  # Synthetic fixture only.
         self.value['platforms']['instagram'] = {'method':'native','visibility':'account','ai_generated':True}
         self.value['platforms']['x'] = {'method':'native','visibility':'account','ai_generated':True}
+        for platform in self.value['platforms'].values():
+            platform['metadata_mode']='bilingual'  # Japanese content requires source plus every selected platform's target.
         atomic_json(self.path, self.value)
 
     def tearDown(self):
@@ -38,6 +40,10 @@ class MetadataTests(unittest.TestCase):
             'tags':['AI'],'metadata_language':t['language'],'metadata_mode':t['mode']}
             for p,t in job['targets'].items()}}
         response['platforms']['youtube']['category_id']='1'
+        for p, text in response['platforms'].items():
+            if job['targets'][p]['mode']=='bilingual':
+                text['description_parts']=['原文の説明', text['description']]
+                text['description']='\n\n'.join(text['description_parts'])
         req, out = self.root/'request.json', self.root/'response.json'
         atomic_json(req,job)
         atomic_json(out,response)
@@ -51,7 +57,7 @@ class MetadataTests(unittest.TestCase):
         self.assertEqual('zh-Hans',value['platforms']['douyin']['metadata_language'])
         self.assertEqual('en',value['platforms']['x']['metadata_language'])
         self.assertEqual('bilingual',value['platforms']['youtube']['metadata_mode'])
-        self.assertEqual('target_only',value['platforms']['bilibili']['metadata_mode'])
+        self.assertEqual('bilingual',value['platforms']['bilibili']['metadata_mode'])
         self.assertEqual(self.value, read_json(self.path))
         self.assertEqual(0,result['platform_writes'])
 

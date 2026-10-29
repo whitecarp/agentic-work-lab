@@ -154,10 +154,12 @@ async def signed_in_page(context, platform, expected=None):
     page = context.pages[0] if context.pages else await context.new_page()
     page.set_default_timeout(10000)
     await page.goto(URLS[platform], wait_until="domcontentloaded", timeout=60000)
-    for _ in range(12):
+    for _ in range(45):
         await risk_check(page)
         actual = await identity(page, platform)
         if actual:
             return page, check_identity(actual, expected)
         await asyncio.sleep(1)
+    if not (await page.locator('body').inner_text()).strip():
+        raise VpubError('page_not_ready', 'The official site returned an empty/loading page; login expiry is not established.', 'Check network/site availability; no upload or edit was attempted.')
     raise VpubError("auth_expired", "Official page did not confirm a signed-in account.", f"Run vpub auth login {platform} --method browser.")

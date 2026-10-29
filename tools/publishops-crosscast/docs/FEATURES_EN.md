@@ -2,14 +2,14 @@
 
 [繁體中文](FEATURES.md) · **English**
 
-**0.3.0 alpha.** New manifests use CLI execution after first login; `method: native` is an explicit host-browser fallback. Bilibili continues to call [bili-cli](https://github.com/kukemc/bili-cli).
+**0.3.1 alpha.** New manifests use CLI execution after first login; `method: native` is an explicit host-browser fallback. Bilibili continues to call [bili-cli](https://github.com/kukemc/bili-cli).
 
 | Capability | Bilibili | YouTube | Douyin | X | Instagram |
 |---|---|---|---|---|---|
 | Login | Upstream CLI | Desktop OAuth | Dedicated official Chrome | Dedicated official Chrome | Dedicated official Chrome |
 | Default publish | bili-cli | Official API | Background browser | Background Media Studio | Background browser |
 | Cover | Upstream | Thumbnail API | Landscape + portrait | Custom Studio thumbnail | Separate cover; Original crop |
-| Metadata | Simplified Chinese | English | Simplified Chinese | English | English |
+| Target metadata language | Simplified Chinese | English | Simplified Chinese | English | English |
 | Work read-back | Upstream | API | Creator cards/detail IDs | Own profile/status | Own grid/Reel |
 | Full archive/analytics/comments | Upstream features | Not unified | Not unified | Not unified | Not unified |
 
@@ -17,7 +17,7 @@ Shared: exact-source plans, per-platform account checks, immutable upload snapsh
 
 Real episode-two uploads and their development limitations are recorded in [validation](VALIDATION_EN.md). Background browser automation is not an official direct API or a speed guarantee. Platform changes, expired sessions and challenges can require intervention. Metadata writing/translation uses the host conversation model through request/apply; it does not translate the video itself.
 
-Chapters and advanced existing-work edits retain explicit native handoffs. Optional host Gmail/Outlook email is off by default. TikTok, unified interaction commands and YouTube cards/clickable end screens are not implemented.
+When the source language differs, retain source plus translation; Chinese scripts become Simplified Chinese only on Bilibili/Douyin. Douyin custom chapters are integrated into CLI publication/verification. `vpub edit` handles YouTube metadata, Instagram captions, an available X Edit action and Douyin covers/chapters; native handoffs remain. Shared portrait bytes are identical, but both phone grids crop the footer: layout acceptance remains open. Optional host Gmail/Outlook email is off by default. TikTok, unified interaction commands and YouTube cards/clickable end screens are not implemented.
 
 ## Historical changes
 

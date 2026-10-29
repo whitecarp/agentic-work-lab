@@ -421,7 +421,7 @@ class WorkflowTests(unittest.TestCase):
     def x_manifest(self):
         self.value.update(title="原創短片", description="Original short", tags=["AI"], content_language="zh-Hant")
         self.value["platforms"] = {"x": {"method": "native", "visibility": "account",
-                                             "ai_generated": True, "expected_identity": "tester"}}
+                                             "ai_generated": True, "expected_identity": "tester", "metadata_mode":"bilingual"}}
         self.save()
 
     def test_x_caption_visibility_and_methods(self):

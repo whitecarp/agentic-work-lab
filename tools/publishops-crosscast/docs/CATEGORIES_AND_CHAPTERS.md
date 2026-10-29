@@ -29,3 +29,10 @@
 相關連結：[videoCategories.list](https://developers.google.com/youtube/v3/docs/videoCategories/list) · [videos.insert](https://developers.google.com/youtube/v3/docs/videos/insert)
 
 [返回實驗室首頁](../../../README.md)
+
+
+## 0.3.1：抖音 CLI 章節
+
+`method: browser` 的方案可直接包含自訂章節。發布後等作品 ID 可讀，再由 CLI 填寫；審核延遲時 `verify`／`resume` 完成該步，不重傳影片。平台自動生成的建議不能當成自訂章節驗收。
+
+第二期已透過 CLI 保存六章並重新開啟逐項核對：00:00、00:14、00:36、00:49、01:00、01:09。此次是已保存列表的桌面讀回，手機呈現另行驗收。保存不明時保留原回執並用 `vpub edit ... --verify-only` 讀取，不再按保存。

@@ -25,7 +25,16 @@ async def run(payload):
                 if payload["action"] == "status":
                     return {"logged_in": True, "identity": actual, "account": account, "method": "browser"}
                 from .browser_backends import execute
-                return await execute(page, platform, actual, payload)
+                try:
+                    return await execute(page, platform, actual, payload)
+                except Exception as exc:
+                    if payload['action']=='edit':
+                        output=Path(payload['edit_receipt_path'])
+                        atomic_json(output.with_suffix('.error.json'),{'type':type(exc).__name__, 'message':str(exc)[:1600], 'url':page.url,
+                            'controls':await page.locator('input,textarea,button,[role=button],[contenteditable=true]').evaluate_all('es=>es.map(e=>({tag:e.tagName,type:e.type,placeholder:e.getAttribute("placeholder"),aria:e.getAttribute("aria-label"),text:e.tagName==="BUTTON"?e.innerText:null}))')})
+                        try: await page.screenshot(path=str(output.with_suffix('.error.png')),timeout=3000)
+                        except Exception: pass
+                    raise
             finally:
                 try:
                     await runtime.save_session(context, platform, account)

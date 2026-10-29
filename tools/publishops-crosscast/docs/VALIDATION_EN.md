@@ -2,9 +2,23 @@
 
 [繁體中文](VALIDATION.md) · **English**
 
-Date: **2026-10-29**, PublishOps CrossCast **0.3.0 alpha**.
+Date: **2026-10-29**, PublishOps CrossCast **0.3.1 alpha**.
 
-## Episode 02: independent backends
+
+## 0.3.1: episode-two corrections and acceptance limits
+
+- **YouTube:** The CLI official API updated the same work to original Chinese plus English. Full title/description were read back; category, tags and public visibility were retained. Management authorization completed; first connection now requests the tool's required scopes together.
+- **Instagram:** The CLI-owned session updated the same work to original Chinese plus English, with full read-back after restart. Caption editing preserved original footage and the user's phone-set cover.
+- **X:** The original post no longer exposed Edit. The operator chose to retain its English copy and use the new policy on the next post; no deletion, repost or reply occurred. A successful available-Edit save remains untested.
+- **Douyin:** [Episode two](https://www.douyin.com/video/7702037050320506122) is listed as published. The CLI saved the shared dedicated portrait, visible in the management page and the user's phone screenshot. Six custom chapters at 00:00 / 00:14 / 00:36 / 00:49 / 01:00 / 01:09 were saved and reopened, replacing the default chapter list. No video was reuploaded.
+- **Cover limitation:** Both phone grids still crop the footer line. Cover application is confirmed; visual adaptation and aesthetics are not accepted. Next video prioritizes common safe areas, UI overlays, thumbnail text size, contrast and composition; retain the current art this round. Local SHA-256 does not establish equality with platform image pixels.
+
+**98 offline tests pass.** Added language matrix, bilingual-section, shared-portrait, existing-work edit and uncertain-save safeguards. YouTube edit tests cover account ownership and retention of category, tags, audio language and visibility. Chapter tests cover time/title pairing and pending-step recovery. These tests are not fully unattended or phone-layout acceptance.
+
+Corrections used the official API or CLI-owned sessions; the user's phone cover selection is a separate manual step. Raw pages, private profiles, sign-in data and phone screenshots are excluded from the public repository.
+
+
+## 0.3.0 history: episode 02 independent backends
 
 The operator authorized this exact test asset: **GPT Duty Log 02 | Asked for a Song, I Asked a Question First**. Source: 84.4 seconds, 1920×1080, SHA-256 `decb95dbb5ebaac47aa41a9d578c55e17e027d565b2610652ca435277dd70991`. All uploads used the same original bytes. Bilibili was not reuploaded and existing schedules were retained.
 

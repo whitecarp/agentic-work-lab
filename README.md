@@ -14,10 +14,11 @@
 
 為同一支原創影片準備不同平台的簡介、封面與發布回執。使用者選擇平台，首次登入後由 CLI 復用本機專用會話。AI 聊天模型協助寫作，CLI 核對素材與帳號、上傳、套用封面並記錄結果；YouTube 使用官方 API，抖音、Instagram、X 使用專用背景瀏覽器。
 
-- B站／抖音文案預設簡體中文；YouTube／Instagram／X 預設英文。
+- 依影片語言保留原文並適配平台：中文內容在 B站／抖音使用簡體，其餘內容加簡體翻譯；非英文內容在 YouTube／Instagram／X 保留原文並加英文。
+- 抖音／Instagram 共用專用直式封面；目前手機網格仍裁掉底部小字，封面美觀與安全區是下一輪重點。
 - Instagram 使用原片及原比例，上傳時另設封面；手機可選與抖音共用的直式圖。
 - 提供專用封面適配、YouTube 播放列表設定與可選郵件提醒。
-- **0.3.0 alpha，86 項離線測試通過。** 完整五平台發布仍有待驗收項目；已測範圍與限制均有記錄。
+- **0.3.1 alpha，98 項離線測試通過。** 完整五平台發布仍有待驗收項目；已測範圍與限制均有記錄。
 
 [安裝與使用](tools/publishops-crosscast/README.md) · [功能範圍](tools/publishops-crosscast/docs/FEATURES.md) · [驗證記錄](tools/publishops-crosscast/docs/VALIDATION.md)
 

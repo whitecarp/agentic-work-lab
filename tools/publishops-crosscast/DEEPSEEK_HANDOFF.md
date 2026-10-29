@@ -2,11 +2,11 @@
 
 **繁體中文** · [English](DEEPSEEK_HANDOFF_EN.md)
 
-## 0.3.0 預設 CLI 流程
+## 0.3.1 預設 CLI 流程
 
 1. 讀 `vpub capabilities`，保留使用者選擇的平台與既有發布授權，不干擾其他營運排程。
 2. 首次 `auth login`，之後 `auth status`；CLI 用專用會話核對實際帳號，不匯入宿主 Cookie。YouTube 需要桌面 OAuth JSON，X 需要 Media Studio 權限。
-3. 綁定正確集數、原片 SHA-256 及製作封面。透過 `metadata request/apply` 準備 B站／抖音簡體中文、YouTube／Instagram／X 英文；逐項核對標題、文案長度、類別、受眾與 AI 聲明，不跟隨 GitHub 文件語言。
+3. 綁定正確集數、原片 SHA-256 及製作封面。透過 `metadata request/apply` 按內容原語言準備：B站／抖音中文內容僅簡體，其他內容原文＋簡體；YouTube／Instagram／X 英文內容僅英文，其他內容原文＋英文；逐項核對標題、文案長度、類別、受眾與 AI 聲明，不跟隨 GitHub 文件語言。
 4. 先 `plan` 再 `publish --confirm HASH`；雜湊是內容一致性檢查，不是額外文案審批。CLI 自行上傳並提交一次，保留回執。
 5. 提交不確定時用 `verify KEY`。`resume KEY` 在提交前只接續 X 已存的 Studio 素材，提交後只驗證。不得清空回執或資料庫強制重傳；Instagram／抖音中斷上傳需檢查既有草稿。
 6. 遇到 `WAITING_FOR_USER` 立即告知，保留進度並讓使用者完成官方登入驗證。郵件需事先選用且宿主真的有寄信工具；佇列不是寄送成功。
@@ -53,7 +53,7 @@ X 操作與欄位見 [X_GUIDE](docs/X_GUIDE.md)；取消 TikTok 的原因及招�
 ## 0.2.0 必須沿用的設定
 
 - 首次詢問平台、是否自動發布與可選郵件；已有授權不逐片再問。郵件預設關閉，保存 off/Gmail/Outlook 選擇。
-- 用 `metadata request/apply` 請宿主模型寫簡介。B站／抖音簡體，YouTube／Instagram／X 英文；雙語僅在指定平台啟用。GitHub 文件繁體不影響影片文案。
+- 用 `metadata request/apply` 請宿主模型寫簡介。現行規則以本文開頭及 README 為準；不同語言自動保留原文＋平台語言，不再手動開啟雙語。GitHub 文件繁體不影響影片文案。
 - 預設簡介不放連結；保留角色聲音、內容與第三方作者／授權資訊，移除無用的跨平台 BV 參照。
 - 專用封面優先。`covers prepare` 自動縮放補邊；原工程有橫豎重排版時優先使用。不得只找到檔案便宣稱已更新。`cover_evidence` 每個 role 需 source_sha256 與實際畫面 observation。
 - YouTube 清單按方案選擇，已有成員不重複加入；同名清單有歧義時確認對象。章節使用同片真實時間點；平台未提供入口或正在審核就明確記待辦，不改成文字時間碼後宣稱已適配。
@@ -92,3 +92,10 @@ X 封面使用 Media Studio 原比例圖片；Instagram 也不再插入片頭。
 相關連結：[完整指南](docs/CATEGORIES_AND_CHAPTERS.md)
 
 [返回實驗室首頁](../../README.md)
+
+
+## 0.3.1 收尾與下輪檢查
+
+首次 YouTube OAuth 一次取得上傳、讀取與影片／播放列表管理權限。修改使用 `vpub edit`，保存不明時 `--verify-only`，不可重傳。抖音方案帶入自訂章節，取得作品 ID 後套用；`verify`／`resume` 可完成待辦章節，不是純讀取命令。X 第二期原帖依使用者決定保留，禁止自動補發。
+
+抖音和 Instagram 共用同一張專用直圖，手機封面仍由使用者處理。兩站底部小字被裁切，這不是已通過的版式；下一條影片優先研究裁切與介面安全區、小字可讀性及整體美觀，本輪不繼續改圖。

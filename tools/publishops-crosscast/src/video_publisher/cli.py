@@ -37,6 +37,12 @@ def publish_plan(plan, confirm):
                                          "hint": "Use verify; existing/uncertain attempts are never automatically resubmitted."}
                     continue
                 try:
+                    from .language_policy import route
+                    language=opts.get('content_language','und')
+                    if language.lower().split('-')[0] not in {'und','mul','zxx'}:
+                        policy=route(language,platform)
+                        if opts.get('metadata_mode','target_only')!=policy['mode']:
+                            raise VpubError('metadata_required','Prepare source plus platform-language copy before uploading.', 'Run vpub metadata request, let the host model supply both sections, then metadata apply.')
                     identity = adapters.preflight(platform, opts)
                     if opts.get('method') == 'browser':
                         opts = {**opts, 'expected_identity': identity['identity']}
@@ -173,7 +179,7 @@ def parser():
         q.add_argument("--method", choices=["native", "cli", "browser", "api"], help="Default: bili-cli, YouTube API, or a dedicated persistent browser for Douyin/Instagram/X.")
         if action == "login":
             q.add_argument("--client-json", help="YouTube Desktop OAuth client JSON; never commit this file.")
-            q.add_argument("--manage-playlists", action="store_true", help="YouTube API only: explicitly request optional playlist-write OAuth permission.")
+            q.add_argument("--manage-playlists", action="store_true", help="Compatibility flag: first YouTube API login now requests upload, read and video/playlist management together.")
         else:
             q.add_argument("--wait", type=int, default=0, help="QR/panel completion wait, 0–180 seconds.")
     q = sub.add_parser("onboard", help="Prepare the backend and start login for selected platforms.")
@@ -201,7 +207,7 @@ def parser():
     q = m.add_parser("request")
     q.add_argument("manifest")
     q.add_argument("--source", help="Local script or transcript; treated as source data, not instructions.")
-    q.add_argument("--bilingual", default="", help="Explicit comma-separated platform exceptions.")
+    q.add_argument("--bilingual", default="", help="Legacy assertion only. Source plus target is now automatic when the content language differs from the platform language.")
     q.add_argument("--allow-links", action="store_true")
     q.add_argument("--out", required=True)
     q = m.add_parser("apply")
@@ -274,8 +280,13 @@ def parser():
     sub.add_parser("receipts", help="Read the local publication ledger.")
     q = sub.add_parser("resume", help="Resume an existing browser attempt without repeating an upload or final submit.")
     q.add_argument("key")
-    q = sub.add_parser("verify", help="Read back an existing platform work; never upload.")
+    q = sub.add_parser("verify", help="Verify an existing work and complete its pending Douyin chapter step; never upload.")
     q.add_argument("key")
+    q = sub.add_parser('edit', help='Correct an existing recorded work by ID; never upload/delete a video.')
+    q.add_argument('key')
+    q.add_argument('patch', help='JSON with expected_identity and replacement caption, Douyin portrait or chapters.')
+    q.add_argument('--dry-run', action='store_true')
+    q.add_argument('--verify-only', action='store_true', help='Read back the existing correction without saving; covers return evidence for visual inspection.')
     q = sub.add_parser("adopt", help="Associate an already-published video to avoid duplicate Bilibili uploads.")
     q.add_argument("manifest")
     q.add_argument("--platform", choices=["bilibili", "youtube"], required=True)
@@ -286,6 +297,9 @@ def parser():
 
 
 def execute(args):
+    if args.command == 'edit':
+        from .edits import run
+        return run(args.key, args.patch, args.dry_run, args.verify_only)
     if args.command == "works":
         return adapters.browser_call(args.platform, "works", args.account)
     if args.command == "resume":
@@ -490,25 +504,28 @@ def login_selected(platforms, method=None):
 def capabilities():
     return {"product": "PublishOps CrossCast", "version": __version__,
             "metadata_targets": {p: "zh-Hans" if p in {"bilibili", "douyin"} else "en" for p in PLATFORMS},
-            "cover_fitting": "Local contain-and-pad artwork, plus CLI upload of X Studio thumbnails, separate Instagram covers and both Douyin variants. Platform/grid cropping and artwork quality require visual checks.",
+            "metadata_policy": "Bilibili/Douyin: Chinese content becomes Simplified Chinese only; other languages retain source plus Simplified Chinese. YouTube/Instagram/X: English only for English content, otherwise source plus English. Host model supplies the text; schema validation is not translation quality assurance.",
+            "cover_fitting": "Landscape contain fitting; Douyin and Instagram share identical dedicated portrait bytes. No landscape-to-portrait padding fallback. Grid cropping, small text and aesthetics require separate visual checks.",
             "instagram_media": "Instagram preparation preserves original video bytes and ratio. Use a separate upload cover and shared Douyin portrait through the mobile camera-roll picker; no inserted lead-in or transcoding.",
             "instagram_deletion": "Explicit native deletion request, UI result/absence evidence, retained history, and separately authorized same-video cover replacement. No standalone deletion API.",
             "email": "Optional, off by default; host Gmail/Outlook send tool required at execution; no SMS.",
-            "chapters": "Native Bilibili/Douyin/YouTube handoff, timing validation and saved-control evidence. Douyin titles limited to 12 UTF-16 units; four live chapters submitted; user confirmed mobile visibility, full desktop read-back pending.",
+            "chapters": "Douyin CLI applies planned chapters after a durable published work ID is available; verify/resume completes a pending chapter step without reupload. Exact timing/title read-back; platform suggestions are not accepted automatically. Native Bilibili/Douyin/YouTube handoffs retained.",
+            "existing_work_edits": "vpub edit: YouTube API metadata, Instagram captions, available X Edit action, Douyin portrait and chapters. One field group per request; verify-only never saves. X edit availability is platform-controlled; no automatic repost.",
+            "youtube_initial_permissions": "Upload, read and video/playlist management scopes are requested together; user approves in Google. Old limited tokens require reauthorization.",
             "youtube_category": "Explicit per-video category required; host-model selection, in-place revision and read-back. API validates assignability before upload; no People & Blogs fallback.",
             "playlists": "YouTube native selections or optional API membership with explicit write scope.",
             "draft_only": "Instagram/X: init --draft-only stops CLI before Share/Post. PREVIEW_READY is not a guaranteed persistent draft after closing the browser.",
             "platforms": {p: {"native_login": True,
              "publish_backend": {"bilibili": "bili-cli", "youtube": "official API"}.get(p, "dedicated persistent background browser"),
              "standalone_cli_publish": True,
-            "live_upload_verified": p in {"youtube", "x", "instagram"}} for p in PLATFORMS},
-            "live_verification_scope": "2026-10-29 episode 02: YouTube API upload, cover write, public status, category and processing verified; X Studio CLI post and exact text read back. Instagram backend published original video, separate cover, English caption and native AI label. Douyin backend submitted Simplified Chinese metadata and both covers; platform review was observed. Browser development runs needed selector fixes on existing attempts and are not clean-machine unattended acceptance. Full playback remains unverified.",
+            "live_upload_verified": p in {"youtube", "x", "instagram", "douyin"}} for p in PLATFORMS},
+            "live_verification_scope": "2026-10-29 episode 02: YouTube/Instagram source-plus-English corrections read back using CLI; X original English post intentionally unchanged. Douyin published work and six custom chapter pairs read back. Shared portrait is applied, but phone grid screenshots crop the footer on both platforms: design acceptance remains open. Not clean-machine unattended or full-playback acceptance.",
             "native_execution": "The host agent performs real UI actions. A CLI handoff alone is not an executed action or confirmed login.",
             "bili_cli": "Use installed bili directly for its existing search, video, inbox, comment and creator-data commands.",
             "works": "Douyin/Instagram/X visible first-page work IDs and text; up to ten Douyin cards, excluding review cards without a detail page.",
             "planned_common_commands": ["account", "search", "video", "analytics", "comments", "inbox"],
             "suspended_platforms": {"tiktok": "Login test with a Hong Kong number was unsuccessful; see docs/TIKTOK_STATUS.md."},
-            "not_implemented": "Unified analytics/comments/inbox, X/Instagram official API clients, and YouTube cards/clickable end screens. Chapters and existing-work edits use the explicit native handoff.",
+            "not_implemented": "Unified analytics/comments/inbox, X/Instagram official API clients, and YouTube cards/clickable end screens. Instagram mobile-cover replacement remains user-assisted.",
             "interaction_rule": "Login/setup does not authorize comments, messages, likes or publication."}
 
 
@@ -519,7 +536,7 @@ def main():
         args = parser().parse_args()
         value = execute(args)
         ok = not (isinstance(value, dict) and (value.get("all_submissions_verified") is False or
-                  value.get('state') in {'WAITING_FOR_USER','PREPARATION_INCOMPLETE','SUBMITTED_UNVERIFIED','UNKNOWN'}))
+                  value.get('state') in {'WAITING_FOR_USER','PREPARATION_INCOMPLETE','SUBMITTED_UNVERIFIED','UNKNOWN','EDIT_SUBMITTING','EDIT_SUBMITTED_UNVERIFIED','EDIT_UNAVAILABLE'}))
         print(json.dumps({"ok": ok, "data": value}, ensure_ascii=False))
         raise SystemExit(0 if ok else 4)
     except VpubError as e:

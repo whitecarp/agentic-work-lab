@@ -234,6 +234,11 @@ def load_plan(path, selected=None):
             plans[platform]["metadata_language"] = language_tag(v["metadata_language"])
         if v.get("metadata_mode", "target_only") not in {"target_only", "bilingual"}:
             raise VpubError("invalid_metadata_mode", "Choose target_only or bilingual.")
+        if 'metadata_mode' in v:
+            from .language_policy import route
+            policy = route(plans[platform]['content_language'], platform)
+            if v['metadata_mode'] != policy['mode'] or v.get('metadata_language', policy['language']) != policy['language']:
+                raise VpubError('wrong_metadata_language', 'Metadata mode/language conflicts with the video content language. Run vpub metadata request/apply.')
         if platform == "youtube":
             plans[platform]["method"] = v.get("method", "native")
         if platform == "douyin":
