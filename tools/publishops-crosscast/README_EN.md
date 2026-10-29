@@ -6,7 +6,7 @@
 
 ### Multi-platform video release operations console
 
-**v0.3.2 alpha · CLI `vpub` · AI-assisted development**
+**v0.3.3 alpha · CLI `vpub` · AI-assisted development**
 
 Prepare platform-specific metadata, covers and publication receipts for one original video. Choose any subset of Bilibili, Douyin, YouTube, Instagram and X. Sign in once; the CLI reuses its own local sessions for later uploads.
 
@@ -111,7 +111,7 @@ On the phone, open Edit cover, choose Add from camera roll and select the shared
 
 The handoff prefers an explicit `--mobile-cover`, then `covers.douyin.portrait`, then `covers.instagram.portrait`. It records the identical image path and hash; the user performs the mobile step. For future shared artwork, generally consider a 9:16 composition with titles, faces and essential text in a central safe area that also survives 3:4 crops. Avoid edges and UI overlays and inspect both platforms. This is a design guideline, not a guarantee of identical cropping.
 
-**Next-video priority: cover adaptation and visual quality.** Both phone profile grids cropped the footer text in this test. Application succeeded; layout acceptance did not. Next, inspect real phone-size thumbnails for headline, subtitle, footer and face visibility, including crop and playback-count overlays. Move essential information into the common safe area, remove ineffective small text and compare size, contrast and composition. Retain the current cover for this round.
+**Episode-two shared cover accepted.** On 2026-10-30, the user applied v3 on Douyin and Instagram and confirmed both phone profile-grid screenshots. The footer now sits inside the visible area. Acceptance covers those two supplied views, not every device or display surface. Future artwork should retain shared safe areas and check text size, contrast, composition and playback-count overlays.
 
 Use the production original in new plans, not retained 0.2.4 lead-in experiments. A CLI update does not replace, delete or repost existing publications.
 
@@ -153,6 +153,8 @@ vpub edit RECEIPT_KEY correction.json
 # Read back an uncertain save without saving again:
 vpub edit RECEIPT_KEY correction.json --verify-only
 ```
+
+Instagram caption edits read the original saved text from the existing work’s editor. Page translations, comments and old success receipts are not current-caption evidence. Matching text causes no save; a mismatch is corrected on the same work, then the editor is reopened for read-back. `vpub edit KEY PATCH --verify-only` checks without saving; `EDIT_MISMATCH` means the actual text differs and permits an explicit correction after inspection.
 
 JSON requires `expected_identity` and exactly one group: full `title`/`description` with language fields, a Douyin `portrait` file, or `chapters`/`duration_seconds`. YouTube uses its API; Instagram/X/Douyin use the CLI-owned session. Video bytes and visibility are not changed. Receipts retain the work ID and block automatic retries after uncertain saves. Cover read-back provides a local screenshot for visual inspection; source hashes are not remote pixel comparisons.
 

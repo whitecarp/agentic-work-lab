@@ -6,7 +6,7 @@
 
 ### 跨平台影片發布營運台
 
-**v0.3.2 alpha · CLI `vpub` · AI 協助開發**
+**v0.3.3 alpha · CLI `vpub` · AI 協助開發**
 
 讓同一支原創影片擁有各平台適用的文案、封面與發布回執。選擇 Bilibili、抖音、YouTube、Instagram、X 的任意組合，首次登入後，CLI 復用本機專用會話完成後續上傳。
 
@@ -111,13 +111,15 @@ vpub instagram prepare ready.json --out instagram-ready.json
 
 交接優先取明確的 `--mobile-cover`，其次是 `covers.douyin.portrait`，再取 `covers.instagram.portrait`。交接檔保存同一張圖片的路徑與雜湊，手機操作由使用者完成。未來共用封面優先考慮 9:16 構圖，把標題、人物臉部與必要文字放在兼顧 3:4 裁切的中央安全區，避開邊緣與介面遮擋，並檢查兩站實際預覽。這是設計原則，不保證所有畫面裁切一致。
 
-**下一條影片的重點：封面適配與美觀。** 本次兩站手機主頁都裁掉了底部小字；封面已套用，不代表版式驗收通過。下一輪先以真實手機縮略圖檢查主標、副標、底部小字及人物臉部，預留裁切與播放數等介面遮擋空間；必要資訊移入共同安全區，減少無效小字，再比較字級、對比和構圖。這次保留現有封面，不再反覆換圖。
+**第二期共用封面已確認可用。** 2026-10-30，使用者在抖音與 Instagram 手機主頁套用 v3 後提供截圖並確認通過；底部小字已移入可見區域。這次驗收僅涵蓋提供的兩個手機主頁畫面，不能保證所有裝置與展示位置的裁切一致。後續封面沿用共同安全區，繼續檢查字級、對比、構圖及播放數等介面遮擋。
 
 新方案明確選原製作成片，不要選 0.2.4 已插入片頭的實驗版本。更新 CLI 不會自動替換、刪除或重發既有作品。
 
 [X Media Studio 流程](docs/X_GUIDE.md) · [刪除與封面重發](docs/DELETION_AND_COVERS.md)
 
 修改支援平台的現有作品可用下列交接命令；需核對原帳號、作品及保存結果。Instagram 手機換圖與 X Studio 使用上面的專用流程。
+
+Instagram 文案修正會打開原作品的編輯欄，完整比較已保存的原始文字；不把頁面翻譯、留言或舊成功回執當作目前簡介。相同文字不再保存；不一致時修正同一作品，再重新開啟編輯欄讀回。`vpub edit KEY PATCH --verify-only` 只核驗、不保存；`EDIT_MISMATCH` 代表實際文字不同，可檢查後明確重新執行修改。
 
 ```sh
 vpub browser cover RECEIPT_KEY --file landscape.jpg --portrait portrait.jpg --identity OBSERVED_ACCOUNT

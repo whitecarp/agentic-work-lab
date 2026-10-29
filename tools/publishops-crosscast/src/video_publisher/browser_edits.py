@@ -1,9 +1,27 @@
 """Official-page edits using the existing CLI-owned session, not the host browser."""
 from pathlib import Path
 import re
+from urllib.parse import urlsplit
 from .core import VpubError, atomic_json, file_sha, now
 from .browser_runtime import risk_check, unique_visible, visible
 from .browser_backends import normalize, work_url
+
+
+async def instagram_caption_editor(page, work_id):
+    """Read the owning work's editor, never translated text or comments in body."""
+    url=f'https://www.instagram.com/p/{work_id}/'
+    await page.goto(url,wait_until='domcontentloaded',timeout=60000)
+    more=page.locator('svg[aria-label="More options"]')
+    await more.wait_for(state='visible',timeout=45000)
+    current=urlsplit(page.url)
+    if current.hostname not in {'www.instagram.com','instagram.com'} or current.path.rstrip('/') not in {f'/p/{work_id}',f'/reel/{work_id}'}:
+        raise VpubError('wrong_work','Instagram redirected away from the requested work; no edit attempted.')
+    await risk_check(page)
+    await (await unique_visible(more,'work More options')).click()
+    await (await unique_visible(page.get_by_role('button',name='Edit',exact=True),'work Edit')).click()
+    editor=page.get_by_role('textbox',name='Add a caption...',exact=True)
+    await editor.wait_for(state='visible',timeout=45000)
+    return await unique_visible(editor,'work caption editor')
 
 
 async def execute(page, platform, identity, payload):
@@ -19,28 +37,24 @@ async def execute(page, platform, identity, payload):
     if platform=='instagram':
         if not re.fullmatch(r'[A-Za-z0-9_-]+',work_id): raise VpubError('invalid_id','Invalid Instagram work ID.')
         url=f'https://www.instagram.com/p/{work_id}/'
-        await page.goto(url,wait_until='domcontentloaded',timeout=60000)
-        more=page.locator('svg[aria-label="More options"]')
-        await more.wait_for(state='visible',timeout=45000)
-        if normalize(patch['post_text']) in normalize(await page.locator('body').inner_text()):
-            return save(state='EDIT_VERIFIED',url=url,unchanged=True)
-        if payload.get('verify_only'):
-            return save(state='EDIT_SUBMITTED_UNVERIFIED',url=url,reason='Caption read-back differs; no write attempted.')
-        await more.click()
-        await page.get_by_role('button',name='Edit',exact=True).click()
-        editor=page.get_by_role('textbox',name='Add a caption...',exact=True)
-        await editor.wait_for(state='visible',timeout=45000)
+        editor=await instagram_caption_editor(page,work_id)
         before=await editor.inner_text()
+        evidence={'url':url,'verification_source':'work_caption_editor','cover_modified':False}
+        if normalize(before)==normalize(patch['post_text']):
+            return save(state='EDIT_VERIFIED',unchanged=True,caption=before,platform_writes=0,**evidence)
+        if payload.get('verify_only'):
+            return save(state='EDIT_MISMATCH',caption=before,platform_writes=0,
+                        reason='The saved caption differs; no write attempted.',**evidence)
         await editor.fill(patch['post_text'])
         if normalize(await editor.inner_text())!=normalize(patch['post_text']): raise VpubError('metadata_mismatch','Instagram editor did not retain the intended text.')
         save(state='EDIT_PREPARED',before=before)
-        await submit(page.get_by_role('button',name='Done',exact=True))
+        await submit(await unique_visible(page.get_by_role('button',name='Done',exact=True),'save caption'))
         await editor.wait_for(state='hidden',timeout=45000)
-        await page.reload(wait_until='domcontentloaded')
-        await page.locator('svg[aria-label="More options"]').wait_for(timeout=45000)
-        text=normalize(await page.locator('body').inner_text())
-        if normalize(patch['post_text']) not in text: return save(state='EDIT_SUBMITTED_UNVERIFIED',url=url)
-        return save(state='EDIT_VERIFIED',url=url,caption=patch['post_text'],cover_modified=False)
+        saved_editor=await instagram_caption_editor(page,work_id)
+        after=await saved_editor.inner_text()
+        matched=normalize(after)==normalize(patch['post_text'])
+        return save(state='EDIT_VERIFIED' if matched else 'EDIT_SUBMITTED_UNVERIFIED',
+                    before=before,caption=after,platform_writes=1,**evidence)
     if platform=='x':
         url=work_url('x',identity,work_id)
         await page.goto(url,wait_until='domcontentloaded',timeout=60000)

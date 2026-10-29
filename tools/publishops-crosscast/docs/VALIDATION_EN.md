@@ -2,8 +2,17 @@
 
 [繁體中文](VALIDATION.md) · **English**
 
-Date: **2026-10-30**, PublishOps CrossCast **0.3.2 alpha**.
+Date: **2026-10-30**, PublishOps CrossCast **0.3.3 alpha**.
 
+
+## 0.3.3: persisted Instagram caption checks and cover acceptance
+
+- **Observed problem:** The user reported English-only copy on episode two. Reopening the original work’s editor confirmed it. Earlier success records did not establish current platform state; the cause of this discrepancy is unconfirmed.
+- **Correction:** The CLI-owned session restored original Chinese plus English on the [same Reel](https://www.instagram.com/reel/DfExzPeiC_i/), totaling 1,771 characters. The saved editor was reopened, followed by an independent read after closing and restarting the CLI browser; the full text matched exactly. No reupload, deletion, cover or visibility action occurred.
+- **Code fix:** An old `EDIT_VERIFIED` no longer short-circuits a current platform check. Instagram compares full original text in the requested work’s editor instead of searching the whole page and rejects wrong-work redirects. Verify-only returns `EDIT_MISMATCH` without saving; a mismatching read after a save remains unverified.
+- **Cover:** The user applied the shared episode-two v3 artwork on Douyin and Instagram, supplied two phone profile-grid screenshots and confirmed acceptance, including visible footer text. This covers only those views; phone screenshots and private data remain unpublished.
+
+**113 offline tests pass.** Six added regressions cover old success receipts, misleading body text, matching-text no-op, ineffective saves, reopened read-back and wrong-work redirects. Gmail alerts remain explicit opt-in and off by default.
 
 ## 0.3.2: Gmail-only notifications and cover candidate
 
@@ -17,7 +26,7 @@ Date: **2026-10-30**, PublishOps CrossCast **0.3.2 alpha**.
 ## 0.3.1: episode-two corrections and acceptance limits
 
 - **YouTube:** The CLI official API updated the same work to original Chinese plus English. Full title/description were read back; category, tags and public visibility were retained. Management authorization completed; first connection now requests the tool's required scopes together.
-- **Instagram:** The CLI-owned session updated the same work to original Chinese plus English, with full read-back after restart. Caption editing preserved original footage and the user's phone-set cover.
+- **Instagram historical correction:** The earlier record reported successful Chinese-plus-English editing. On 2026-10-30, the editor still contained English only, so that record cannot establish current state. See 0.3.3 for the correction and new independent read-back.
 - **X:** The original post no longer exposed Edit. The operator chose to retain its English copy and use the new policy on the next post; no deletion, repost or reply occurred. A successful available-Edit save remains untested.
 - **Douyin:** [Episode two](https://www.douyin.com/video/7702037050320506122) is listed as published. The CLI saved the shared dedicated portrait, visible in the management page and the user's phone screenshot. Six custom chapters at 00:00 / 00:14 / 00:36 / 00:49 / 01:00 / 01:09 were saved and reopened, replacing the default chapter list. No video was reuploaded.
 - **Cover limitation:** Both phone grids still crop the footer line. Cover application is confirmed; visual adaptation and aesthetics are not accepted. Next video prioritizes common safe areas, UI overlays, thumbnail text size, contrast and composition; retain the current art this round. Local SHA-256 does not establish equality with platform image pixels.

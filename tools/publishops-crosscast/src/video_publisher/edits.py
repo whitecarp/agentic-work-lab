@@ -94,7 +94,8 @@ def run(key, patch_path, dry_run=False, verify_only=False):
             if dry_run: return {'key':key,'id':work_id,'patch':patch,'platform_writes':0,'edit_id':edit_id}
             if path.exists():
                 saved=read_json(path)
-                if saved.get('state')=='EDIT_VERIFIED' and not verify_only: return {**saved,'reused':True}
+                # A prior success is history, not current platform state. The backend
+                # reads the existing work and skips saving only when it still matches.
                 if saved.get('state') in {'EDIT_SUBMITTING','EDIT_SUBMITTED_UNVERIFIED'} and not verify_only:
                     raise VpubError('inspect_existing_edit','A save was already attempted; inspect the existing work before any retry.')
             def checkpoint(data): atomic_json(path,{'key':key,'edit_id':edit_id,'at':now(),**data})
