@@ -2,7 +2,7 @@
 
 ### 跨平台影片發布營運台 / Multi-platform video release operations console
 
-**v0.2.0 alpha · CLI `vpub` · AI 協助開發 / AI-assisted development**
+**v0.2.1 alpha · CLI `vpub` · AI 協助開發 / AI-assisted development**
 
 讓同一支原創影片擁有各平台適用的文案、封面與發布回執。選擇 Bilibili、抖音、YouTube、Instagram、X 的任意組合，在宿主內置瀏覽器開官方網站，登入方式由使用者選。
 
@@ -139,7 +139,7 @@ Platform options accept measured `duration_seconds` and `chapters`. Starts must 
 
 ```json
 {
-  "duration_seconds": 79,
+  "duration_seconds": 78.506667,
   "chapters": [
     {"start_seconds": 0, "title": "迟到的回复"},
     {"start_seconds": 19, "title": "旧留言里的想念"},
@@ -149,6 +149,12 @@ Platform options accept measured `duration_seconds` and `chapters`. Starts must 
 }
 ```
 
-本例是同一集現有章節的時間規劃，不是抖音已添加的證明。目前只實作 B站／抖音／YouTube 的內置瀏覽器交接與回執檢查，其他路徑明確拒絕。平台無入口、未開通或審核中時保留待辦，不能只在簡介寫時間碼就宣稱平台章節已生效。
+本例的四章已在抖音列表核對後提交，首次回讀為平台審核中，使用者隨後確認手機版可見章節；作品維持私密。目前只實作 B站／抖音／YouTube 的內置瀏覽器交接與回執檢查，其他路徑明確拒絕。平台無入口、未開通或審核中時保留待辦，不能只在簡介寫時間碼就宣稱平台章節已生效。
 
-This example is a timing plan from existing chapters for the same episode, not proof of Douyin application. Native Bilibili/Douyin/YouTube handoff and evidence checks are implemented; other routes reject the field. Missing access/UI or review stays pending; description timestamps alone do not prove native chapters are active.
+These four chapters were checked in the Douyin editor and submitted; initial read-back showed review, then the user confirmed mobile chapter visibility; the work remains private. Native Bilibili/Douyin/YouTube handoff and evidence checks are implemented; other routes reject the field. Missing access/UI or review stays pending; description timestamps alone do not prove native chapters are active.
+
+## 類別選擇與章節操作 / Categories and chapter workflow
+
+YouTube 新方案必須明確填寫 `category_id`；宿主以腳本及官方選項選類別，不再預設「人物和博客」。`metadata request/apply` 可由當前聊天模型完成選擇，已指定值會保留。抖音章節入口、12 字元限制及審核回執見[操作指南](docs/CATEGORIES_AND_CHAPTERS.md)。
+
+New YouTube plans require an explicit `category_id`, selected from content and official choices rather than defaulting to People & Blogs. The current host model can supply it via `metadata request/apply`; explicit selections are preserved. See the [guide](docs/CATEGORIES_AND_CHAPTERS.md) for Douyin chapters, title limits and review receipts.

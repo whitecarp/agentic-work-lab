@@ -4,6 +4,15 @@ from video_publisher.core import VpubError
 
 
 class ChapterTests(unittest.TestCase):
+    def test_douyin_title_limit_does_not_truncate_or_change_other_platforms(self):
+        chapter = [{'start_seconds': 0, 'title': '章' * 12}]
+        self.assertEqual(chapter, validate(chapter, 'douyin', 'native', 79))
+        chapter[0]['title'] += '节'
+        with self.assertRaises(VpubError):
+            validate(chapter, 'douyin', 'native', 79)
+        self.assertEqual(chapter, validate(chapter, 'youtube', 'native', 79))
+        self.assertEqual('章' * 12 + '节', chapter[0]['title'])
+
     def test_rejects_unsupported_routes_and_bad_times(self):
         valid=[{'start_seconds':0,'title':'Start'},{'start_seconds':19,'title':'Next'}]
         self.assertEqual(valid,validate(valid,'douyin','native',79))

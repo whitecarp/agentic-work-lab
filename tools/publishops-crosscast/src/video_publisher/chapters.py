@@ -19,5 +19,7 @@ def validate(values, platform, method, duration):
             raise VpubError("invalid_chapters", "Starts must be whole seconds, begin at zero and increase within the video duration.")
         if not isinstance(title, str) or not title.strip() or len(title) > 120 or any(c in title for c in '\r\n\x00'):
             raise VpubError("invalid_chapters", "Use short single-line titles; the official UI may impose tighter limits.")
+        if platform == "douyin" and len(title.encode("utf-16-le")) // 2 > 12:
+            raise VpubError("invalid_chapters", "Douyin chapter titles allow at most 12 UTF-16 units, as counted by its web input. Shorten the title without changing its start.")
         previous = start
     return values

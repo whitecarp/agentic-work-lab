@@ -90,7 +90,9 @@ class EmailTests(unittest.TestCase):
         video = self.root / "test.mp4"
         video.write_bytes(b"synthetic, not playable")
         manifest = self.root / "publish.json"
-        atomic_json(manifest, cli.template(video))
+        value = cli.template(video)
+        value['platforms']['youtube']['category_id'] = '1'
+        atomic_json(manifest, value)
         plan = load_plan(manifest, ["youtube"])
         key = cli.publish_plan(plan, plan["confirmation"])["results"]["youtube"]["key"]
         identity = "UC" + "a" * 22

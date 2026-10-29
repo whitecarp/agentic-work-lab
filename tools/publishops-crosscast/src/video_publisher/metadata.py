@@ -28,7 +28,8 @@ def request(manifest, source=None, bilingual=(), allow_links=False):
                "targets": {p: {"language": TARGETS[p], "mode": "bilingual" if p in bilingual else "target_only",
                                "title_limit": {"bilibili": 80, "douyin": 30}.get(p, 100),
                                "description_limit": 1000 if p == "douyin" else 5000 if p == "youtube" else 2000,
-                               "chapters": platforms[p].get("chapters", [])}
+                               "chapters": platforms[p].get("chapters", []),
+                               **({"category_selection": {"required": True, "current_id": platforms[p].get("category_id")}} if p == "youtube" else {})}
                            for p in platforms}, "allow_links": allow_links,
                "host_instructions": [
                    "Use the current host conversation's model to write or translate titles, descriptions and tags. No extra API key is needed in this mode.",
@@ -37,7 +38,8 @@ def request(manifest, source=None, bilingual=(), allow_links=False):
                    "When source already matches target, preserve its wording unless platform length/format needs adaptation. Bilingual is an explicit per-platform exception: source plus target, within limits.",
                    "No links by default. Remove platform-specific BV numbers and timestamps used solely as cross-platform source references, retaining the relevant context in plain words. Do not alter subtitle timing/chapter markers without distinguishing them.",
                    "No new video/audio/subtitles are rendered. content_language remains the video's original language; metadata_language records the written text's target.",
-                   "Return request_id plus platforms with exactly title, description, tags, metadata_language and metadata_mode. If a target contains chapters, additionally return chapters with translated titles but identical start_seconds. Never invent chapter timing. A human review is needed only if the user chose it or host policy requires it; reuse standing publication authorization."]}
+                   "For YouTube also return category_id as a string. Preserve an explicit current_id; otherwise inspect current Studio/API category choices and choose from the actual script/content, not merely the use of AI. Animated narrative, tutorials, and technical demonstrations need different judgments. Do not silently use People & Blogs. If content is insufficient, obtain context before applying.",
+                   "Return request_id plus platforms with title, description, tags, metadata_language and metadata_mode; YouTube also requires category_id. If a target contains chapters, additionally return chapters with translated titles but identical start_seconds. Never invent chapter timing. A human review is needed only if the user chose it or host policy requires it; reuse standing publication authorization."]}
     return {**payload, "request_id": digest(payload), "generation_state": "HOST_MODEL_REQUIRED"}
 
 
@@ -56,11 +58,19 @@ def apply(manifest, request_path, response_path, output):
     value = deepcopy(original)
     for platform, text in response["platforms"].items():
         required = {"title", "description", "tags", "metadata_language", "metadata_mode"}
+        selection = job["targets"][platform].get("category_selection")
+        if selection:
+            required.add("category_id")
         expected_chapters = job["targets"][platform].get("chapters", [])
         if expected_chapters:
             required.add("chapters")
         if set(text) != required:
             raise VpubError("invalid_metadata", "Model output may change text only, never accounts, visibility, media or declarations.")
+        if selection:
+            from .categories import validate_youtube
+            validate_youtube(text["category_id"])
+            if selection.get("current_id") and text["category_id"] != selection["current_id"]:
+                raise VpubError("category_changed", "Preserve an explicitly selected category; change the source plan intentionally to reclassify.")
         if expected_chapters:
             supplied = text["chapters"]
             if not isinstance(supplied, list) or any(not isinstance(c, dict) for c in supplied) or [c.get("start_seconds") for c in supplied] != [c["start_seconds"] for c in expected_chapters]:

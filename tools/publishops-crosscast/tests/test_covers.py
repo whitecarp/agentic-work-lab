@@ -22,6 +22,7 @@ class CoverTests(unittest.TestCase):
         image.save(self.source)
         self.manifest = self.root/'publish.json'
         self.value = cli.template(video, 'zh-Hans')
+        self.value['platforms']['youtube']['category_id'] = '1'
         self.value['platforms']['x'] = {'method':'native','visibility':'account','ai_generated':True}
         atomic_json(self.manifest, self.value)
 

@@ -159,6 +159,8 @@ def load_plan(path, selected=None):
         if platform == "youtube" and v.get("method", "native") not in {"native", "api"}:
             raise VpubError("invalid_method", "YouTube method must be native or api. The screen-relay prototype was retired.")
         if platform == "youtube":
+            from .categories import validate_youtube
+            validate_youtube(v.get("category_id"))
             for field in ("playlist_ids", "playlist_titles"):
                 values = v.get(field, [])
                 if not isinstance(values, list) or len(values) > 20 or not all(isinstance(x, str) and x.strip() and len(x) <= 150 for x in values) or len(set(values)) != len(values):

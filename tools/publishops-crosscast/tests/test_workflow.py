@@ -22,6 +22,7 @@ class WorkflowTests(unittest.TestCase):
         self.video.write_bytes(b"synthetic test fixture, not a playable upload")
         self.manifest = self.root / "publish.json"
         self.value = cli.template(self.video)
+        self.value["platforms"]["youtube"]["category_id"] = "1"  # Explicit synthetic fixture choice.
         self.save()
 
     def tearDown(self):
@@ -47,7 +48,7 @@ class WorkflowTests(unittest.TestCase):
 
     def evidence(self, **updates):
         opts = self.plan(["youtube"])["platforms"]["youtube"]
-        e = {k: opts[k] for k in ("title", "description", "tags", "visibility", "ai_generated", "made_for_kids")}
+        e = {k: opts[k] for k in ("title", "description", "tags", "visibility", "ai_generated", "made_for_kids", "category_id")}
         e.update(id="abcdefghijk", identity="UC" + "a" * 22,
                  page_url="https://studio.youtube.com/video/abcdefghijk/edit",
                  observation="Synthetic test only: expected fields visible in a test fixture.", outcome="verified")
@@ -283,6 +284,10 @@ class WorkflowTests(unittest.TestCase):
     def test_all_five_manifest_and_instagram_audience(self):
         out = self.root / "all.json"
         cli.execute(cli.parser().parse_args(["init", "--video", str(self.video), "--out", str(out), "--platforms", ",".join(cli.PLATFORMS)]))
+        value = read_json(out)
+        self.assertNotIn('category_id', value['platforms']['youtube'])
+        value['platforms']['youtube']['category_id'] = '1'
+        atomic_json(out, value)
         p = load_plan(out)
         self.assertEqual(5, len(p["platforms"]))
         self.assertEqual("account", p["platforms"]["instagram"]["visibility"])

@@ -169,15 +169,20 @@ def publish_bilibili(plan, options, checkpoint):
 
 
 def publish_youtube(plan, options, checkpoint):
+    from .categories import validate_youtube
+    category_id = validate_youtube(options.get("category_id"))
     from googleapiclient.http import MediaFileUpload
     service = yt_service(options["account"])
+    categories = service.videoCategories().list(part="snippet", id=category_id).execute().get("items", [])
+    if not any(c.get("id") == category_id and c.get("snippet", {}).get("assignable") is True for c in categories):
+        raise VpubError("invalid_category", "YouTube does not currently allow the selected category; no video was uploaded.")
     status = {"privacyStatus": options["visibility"],
               "selfDeclaredMadeForKids": options["made_for_kids"],
               "containsSyntheticMedia": options["ai_generated"]}
     if options.get("schedule"):
         status["publishAt"] = options["schedule"]
     body = {"snippet": {"title": options["title"], "description": options["description"],
-                        "tags": options["tags"], "categoryId": str(options.get("category_id", "22"))}, "status": status}
+                        "tags": options["tags"], "categoryId": category_id}, "status": status}
     req = service.videos().insert(part="snippet,status", body=body,
                                  media_body=MediaFileUpload(plan["video"], chunksize=8 * 1024 * 1024, resumable=True))
     result = None
@@ -188,7 +193,7 @@ def publish_youtube(plan, options, checkpoint):
     video_id = result.get("id")
     if not video_id:
         return {"state": "SUBMITTED_UNVERIFIED", "reason": "Upload completed without a video ID."}
-    receipt = {"state": "SUBMITTED", "method": "api", "id": video_id, "url": f"https://www.youtube.com/watch?v={video_id}"}
+    receipt = {"state": "SUBMITTED", "method": "api", "id": video_id, "url": f"https://www.youtube.com/watch?v={video_id}", "expected_category_id": category_id}
     checkpoint(receipt)  # persist the video ID before optional cover/verification calls
     if plan.get("cover"):
         try:
@@ -275,9 +280,12 @@ def verify(platform, account, receipt):
             playlist_results[playlist_id] = {"state": "VERIFIED", "item_id": members[0]["id"]} if members else {"state": "UNVERIFIED"}
         except Exception:
             playlist_results[playlist_id] = {"state": "UNKNOWN"}
-    incomplete = any(x["state"] != "VERIFIED" for x in playlist_results.values()) or bool(receipt.get("warning"))
+    category_id = item.get("snippet", {}).get("categoryId")
+    category_mismatch = bool(receipt.get("expected_category_id") and category_id != receipt["expected_category_id"])
+    incomplete = any(x["state"] != "VERIFIED" for x in playlist_results.values()) or bool(receipt.get("warning")) or category_mismatch
     return {**receipt, "state": "PLATFORM_REJECTED" if failed else "SUBMITTED_UNVERIFIED" if incomplete else "SUBMISSION_VERIFIED",
             "visibility": status.get("privacyStatus"), "upload_status": status.get("uploadStatus"),
             "processing_status": item.get("processingDetails", {}).get("processingStatus"),
             "publish_at": status.get("publishAt"), "channel_id": item.get("snippet", {}).get("channelId"),
+            "category_id": category_id, "category_mismatch": category_mismatch,
             "note": "Video ID read back; public playback depends on privacy, processing and platform review."}

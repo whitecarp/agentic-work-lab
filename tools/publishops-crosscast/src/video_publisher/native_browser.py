@@ -130,6 +130,8 @@ def revise(key, manifest, confirmation, identity):
                 raise VpubError("revision_media_changed", "Use browser cover to change cover variants.")
             opts = plan["platforms"][old["platform"]]
             editable = {"title", "description", "tags", "post_text", "content_language", "metadata_language", "metadata_mode", "playlist_ids", "playlist_titles", "chapters", "duration_seconds"}
+            if old["platform"] == "youtube":
+                editable.add("category_id")
             # Preserve a privacy reduction already made by the user and read
             # back from the same work. This does not issue a platform write.
             if opts["visibility"] == "private" and data.get("receipt", {}).get("visibility") == "private":
@@ -157,7 +159,7 @@ def revise(key, manifest, confirmation, identity):
 def record(key, evidence_path):
     evidence = read_json(evidence_path)
     allowed = {"id", "page_url", "identity", "title", "description", "tags", "visibility", "made_for_kids",
-               "ai_generated", "observation", "outcome", "post_text", "cover_source_sha256", "cover_observation", "cover_evidence", "playlist_ids", "playlist_titles", "chapters", "chapters_observation"}
+               "ai_generated", "observation", "outcome", "post_text", "cover_source_sha256", "cover_observation", "cover_evidence", "playlist_ids", "playlist_titles", "chapters", "chapters_observation", "category_id"}
     if not isinstance(evidence, dict) or set(evidence) - allowed:
         raise VpubError("invalid_evidence", "Use only documented browser-evidence fields; never include cookies or raw page dumps.")
     outcome = evidence.get("outcome")
@@ -210,6 +212,8 @@ def record(key, evidence_path):
                         raise VpubError("chapters_not_verified", "Inspect saved native chapter controls; text timestamps alone are not proof.")
                 if old["platform"] == "youtube":
                     fields.append("made_for_kids")
+                    if "category_id" in opts:
+                        fields.append("category_id")
                     fields.extend(f for f in ("playlist_ids", "playlist_titles") if opts.get(f))
                 if old["platform"] == "x" or (old["platform"] == "instagram" and "post_text" in opts):
                     fields.append("post_text")

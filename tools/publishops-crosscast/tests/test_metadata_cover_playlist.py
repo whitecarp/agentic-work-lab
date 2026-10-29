@@ -21,6 +21,7 @@ class MetadataTests(unittest.TestCase):
         self.cover.write_bytes(b'not a real cover; structural fixture')
         self.path = self.root / 'publish.json'
         self.value = cli.template(self.video, 'ja')
+        self.value['platforms']['youtube']['category_id']='1'  # Synthetic fixture only.
         self.value['platforms']['instagram'] = {'method':'native','visibility':'account','ai_generated':True}
         self.value['platforms']['x'] = {'method':'native','visibility':'account','ai_generated':True}
         atomic_json(self.path, self.value)
@@ -36,6 +37,7 @@ class MetadataTests(unittest.TestCase):
             'description':'内容' if p in ('bilibili','douyin') else 'Video description',
             'tags':['AI'],'metadata_language':t['language'],'metadata_mode':t['mode']}
             for p,t in job['targets'].items()}}
+        response['platforms']['youtube']['category_id']='1'
         req, out = self.root/'request.json', self.root/'response.json'
         atomic_json(req,job)
         atomic_json(out,response)
@@ -81,7 +83,7 @@ class MetadataTests(unittest.TestCase):
         native_browser.revise_cover(key,self.cover,identity)
         job=native_browser.request(key)
         opts=job['options']
-        evidence={k:opts[k] for k in ('title','description','tags','visibility','ai_generated','made_for_kids')}
+        evidence={k:opts[k] for k in ('title','description','tags','visibility','ai_generated','made_for_kids','category_id')}
         evidence.update(id='abcdefghijk',identity=identity,page_url='https://studio.youtube.com/video/abcdefghijk/edit',
                         outcome='verified',observation='Synthetic test only.')
         path=self.root/'evidence.json'

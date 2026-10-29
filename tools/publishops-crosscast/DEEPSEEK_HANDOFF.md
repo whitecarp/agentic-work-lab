@@ -67,3 +67,9 @@ vpub notify record ALERT_ID --claim-token RETURNED_TOKEN --response response.jso
 ```
 
 只在使用者啟用並選定收件地址後寄信。工具不存在就回報，不能把 claim 當成已寄出。Gmail 的 message ID 與 Outlook 的服務接受分開記；未知結果不自動重寄。不要附登入網址、驗證碼或原始頁面。 / Send only after opt-in and recipient selection. Missing tools are reported. Claims are not sends; Gmail message IDs and Outlook acceptance are distinct, and unknown results are not retried. Never include authentication URLs, codes or raw pages.
+
+## 0.2.1 類別與章節修復 / Category and chapter fixes
+
+YouTube 每片補上明確 `category_id`，按內容及當前官方選項選擇，不複製上一片類別。改現有作品用 `browser revise`，保存後回執必須匹配。抖音懸停「編輯作品」找到「添加章節／編輯章節」；12 字元內，核對列表整秒，審核中不重交。
+
+Set YouTube category per video from content/current official choices. Revise existing work in place and verify the saved category. For Douyin, hover Edit work for Add/Edit chapters, keep titles within 12 UTF-16 units, check whole-second starts and do not resubmit during review. [完整指南 / Full guide](docs/CATEGORIES_AND_CHAPTERS.md).
