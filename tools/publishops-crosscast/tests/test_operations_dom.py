@@ -39,3 +39,12 @@ class CommentDOMTests(unittest.IsolatedAsyncioTestCase):
         rows=await self.page.evaluate(DOUYIN_PUBLIC_ROWS,20)
         self.assertEqual('123456789',rows[0]['id']);self.assertTrue(rows[0]['is_owner'])
         self.assertFalse(rows[1]['is_owner']);self.assertEqual('Question',rows[1]['text'])
+
+    async def test_douyin_nested_reply_keeps_its_parent_comment_id(self):
+        def node(cid):
+            return f'<div class="comment-item-info-wrap"><a href="/user/creator">Creator<span class="comment-item-tag-text">作者</span></a><div data-e2e="video-comment-more"><i id="tooltip_{cid}"></i></div></div><div>你好</div><div>刚刚</div>'
+        await self.page.set_content('<div data-e2e="comment-item">'+node('123456789')+
+            '<div class="replyContainer"><div data-e2e="comment-item">'+node('987654321')+'</div></div></div>')
+        rows=await self.page.evaluate(DOUYIN_PUBLIC_ROWS,20)
+        self.assertIsNone(rows[0]['parent_id']);self.assertEqual('123456789',rows[1]['parent_id'])
+        self.assertEqual('dom_nested_thread',rows[1]['parent_relationship'])

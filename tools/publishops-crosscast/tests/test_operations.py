@@ -40,6 +40,14 @@ class OperationsTests(unittest.TestCase):
         send.assert_not_called();self.assertEqual(0,result['platform_writes'])
         self.assertFalse((home()/'operations/replies').exists())
 
+    def test_explicitly_prepared_repair_retains_original_attempt_history(self):
+        key=digest(['youtube','channel','abcdefghijk','comment123'])
+        history=[{'state':'REPLY_UNVERIFIED','at':'2026-10-29T00:00:00Z'}]
+        atomic_json(home()/'operations/replies'/(key+'.json'),{'state':'REPLY_READY','recovery_history':history})
+        with patch.object(ops,'backend',return_value={'state':'REPLY_VERIFIED','reply_id':'new'}):
+            result=ops.reply('youtube','abcdefghijk','comment123','你好')
+        self.assertEqual(history,result['recovery_history'])
+
     def test_timeout_after_submit_blocks_resend(self):
         def uncertain(*a,**kw):
             p=Path(kw['reply_receipt_path']);d=read_json(p);d['state']='REPLY_SUBMITTING';atomic_json(p,d)

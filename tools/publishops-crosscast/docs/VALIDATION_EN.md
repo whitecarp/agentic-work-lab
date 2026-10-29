@@ -2,7 +2,17 @@
 
 [繁體中文](VALIDATION.md) · **English**
 
-Date: **2026-10-30**, PublishOps CrossCast **0.4.0 alpha**.
+Date: **2026-10-30**, PublishOps CrossCast **0.4.1 alpha**.
+
+## 0.4.1: Douyin reply and read-back repair
+
+The user confirmed on the phone that only the original comment existed. Public-work submission requests produced no readable reply. Replies now use the selected comment's Creator Center composer, scoped separately from the top-level comment box. After fresh Creator Center data showed zero replies, a recorded repair test ran without creating another top-level seed.
+
+**The reply succeeded and was read back by an independent CLI session.** A fresh comment ID, author, exact “你好” text and nested parent all matched; data loaded by the official page independently corroborated the parent. Earlier failed attempts remain recorded. Video, caption, cover, visibility and schedules were unchanged. HTTP 200 or a successful click alone is not success evidence.
+
+The repair also handles missing absolute timestamps, extracts nested comment parents, and distinguishes platform rejection, uncertain submission and verified visibility. An ambiguous mapping between a comment ID and a visible Creator Center row stops before sending. Only top-level targets are supported. No automatic resend mechanism was added; this was a controlled repair supported by the user's report and fresh creator data.
+
+**147 tests pass.** New regressions cover work/parent/author/text matching, empty acknowledgements and rejections, retained repair history, nested DOM and missing timestamps. All five live hello tests now have read-back replies. These development tests do not establish full unattended acceptance for every account, layout or clean installation.
 
 ## 0.4.0: comments, replies and operations reports
 
@@ -14,7 +24,7 @@ The user explicitly authorized one “你好” comment and one “你好” rep
 | YouTube | Official Data API posted and verified the comment/reply. A live bug was fixed: Comment resources may omit videoId, so CommentThread now establishes work membership; matching the channel alone is insufficient. |
 | Instagram | The CLI session clicked Reply on the selected comment; a fresh comment ID, author and “@author 你好” text were read back. Relative-time changes and delayed Post-button appearance were fixed. No official API parent relationship was verified. |
 | X | The CLI session posted and read back fresh IDs, author and exact text. Delayed nested dialogs and Draft.js CJK input were fixed; the original video post was preserved. No official API parent relationship was verified. |
-| Douyin | The seed comment was read back on the public work page while Creator Center temporarily omitted it. The submitted reply is still REPLY_UNVERIFIED, was not resent, and awaits the user's phone observation. |
+| Douyin | The seed comment was read back on the public work page while Creator Center temporarily omitted it. The submitted reply is still REPLY_UNVERIFIED, was not resent, and was subsequently repaired as recorded in 0.4.1 above. |
 
 One work per platform was queried: Bilibili creator data, YouTube basic statistics, Douyin creator metrics, X post counters and Instagram visible fields. Missing Instagram values stay null; full Insights is not integrated. YouTube completion/watch duration still needs separate Analytics support. X post views are not video plays. Debug visits and test comments can affect raw counters; these are not organic growth or efficiency evidence.
 

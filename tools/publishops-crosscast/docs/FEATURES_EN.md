@@ -6,7 +6,7 @@
 
 This requirement exists because non-subscribers are limited to **140-second, 512 MB** video uploads and cannot use the Media Studio media-management and custom-thumbnail workflow on which this tool depends. CrossCast uploads videos and sets production thumbnails through Media Studio, so its X backend currently supports subscription accounts with that access. Login or payment alone does not establish access; the CLI checks the library entry and managed account before selecting media. [Official upload limits](https://help.x.com/en/using-x/x-videos) · [Media Studio access](https://help.x.com/en/using-x/media-studio).
 
-**0.4.0 alpha.** New manifests use CLI execution after first login; `method: native` is an explicit host-browser fallback. Bilibili continues to call [bili-cli](https://github.com/kukemc/bili-cli).
+**0.4.1 alpha.** New manifests use CLI execution after first login; `method: native` is an explicit host-browser fallback. Bilibili continues to call [bili-cli](https://github.com/kukemc/bili-cli).
 
 | Capability | Bilibili | YouTube | Douyin | X | Instagram |
 |---|---|---|---|---|---|
@@ -15,7 +15,7 @@ This requirement exists because non-subscribers are limited to **140-second, 512
 | Cover | Upstream | Thumbnail API | Landscape + portrait | Custom Studio thumbnail | Separate cover; Original crop |
 | Target metadata language | Simplified Chinese | English | Simplified Chinese | English | English |
 | Work read-back | Upstream | API | Creator cards/detail IDs | Own profile/status | Own grid/Reel |
-| Comments/replies | Upstream CLI | Official API | Public work; reply unverified | Visible conversation/Reply | Visible comments/Reply |
+| Comments/replies | Upstream CLI | Official API | Public reads/Creator Center top-level replies | Visible conversation/Reply | Visible comments/Reply |
 | Work metrics | Creator data | Basic statistics | Creator Center | Post metrics | Visible values; not full Insights |
 | Operations report | Local receipts | Local receipts | Local receipts | Local receipts | Local receipts |
 

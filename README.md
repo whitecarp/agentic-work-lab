@@ -20,7 +20,7 @@
 - Instagram 使用原片及原比例，上傳時另設封面；手機可選與抖音共用的直式圖。
 - 新增跨平台評論讀取、按評論者語言單語回覆、作品數據與中／英文營運匯報；各站實測及待驗項目見驗證記錄。
 - 提供專用封面適配、YouTube 播放列表設定與預設關閉、主動開啟的 Gmail 郵件提醒。
-- **0.4.0 alpha，140 項離線測試通過。** 完整五平台發布仍有待驗收項目；已測範圍與限制均有記錄。
+- **0.4.1 alpha，147 項離線測試通過。** 完整五平台發布仍有待驗收項目；已測範圍與限制均有記錄。
 
 [安裝與使用](tools/publishops-crosscast/README.md) · [功能範圍](tools/publishops-crosscast/docs/FEATURES.md) · [驗證記錄](tools/publishops-crosscast/docs/VALIDATION.md)
 

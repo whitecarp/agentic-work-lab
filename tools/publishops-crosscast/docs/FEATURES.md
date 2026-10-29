@@ -6,7 +6,7 @@
 
 原因是未訂閱帳號的影片上傳上限為 **140 秒、512 MB**，且無法使用本工具所依賴的 Media Studio 媒體管理與自訂封面流程。CrossCast 的 X 後端透過 Media Studio 上傳影片並設定製作封面，因此目前僅支援具備此權限的訂閱帳號。登入或付款本身不代表權限已開通，上傳前仍會核對媒體庫入口與所選帳號。[官方上傳限制](https://help.x.com/en/using-x/x-videos) · [Media Studio 權限](https://help.x.com/en/using-x/media-studio)。
 
-**0.4.0 alpha。** 新方案在首次登入後由 CLI 執行；`method: native` 是明確選用的宿主瀏覽器備援。B站繼續呼叫 [bili-cli](https://github.com/kukemc/bili-cli)。
+**0.4.1 alpha。** 新方案在首次登入後由 CLI 執行；`method: native` 是明確選用的宿主瀏覽器備援。B站繼續呼叫 [bili-cli](https://github.com/kukemc/bili-cli)。
 
 | 能力 | Bilibili | YouTube | 抖音 | X | Instagram |
 |---|---|---|---|---|---|
@@ -15,7 +15,7 @@
 | 封面 | 上游功能 | 封面 API | 橫式＋直式 | Studio 自訂縮圖 | 獨立圖片；原片比例 |
 | 目標文案語言 | 簡體中文 | 英文 | 簡體中文 | 英文 | 英文 |
 | 作品回讀 | 上游功能 | API | 創作者卡片／詳情 ID | 自己主頁／帖文 | 自己主頁／Reel |
-| 評論／回覆 | 上游 CLI | 官方 API | 作品頁；回覆待驗 | 可見對話／Reply | 可見評論／Reply |
+| 評論／回覆 | 上游 CLI | 官方 API | 作品頁讀取／創作者中心頂層回覆 | 可見對話／Reply | 可見評論／Reply |
 | 作品數據 | 創作者數據 | 基礎數據 | 創作者後台 | 帖文指標 | 可見欄位；非完整 Insights |
 | 營運匯報 | 本機回執 | 本機回執 | 本機回執 | 本機回執 | 本機回執 |
 

@@ -132,6 +132,7 @@ def reply(platform, work, comment_id, text, language='auto', dry_run=False, _tes
     key=digest([platform,snapshot['identity'],work,comment_id])
     path=home()/'operations/replies'/(key+'.json')
     with publication_lock():
+        previous={}
         if path.exists():
             previous=read_json(path)
             if previous.get('state')!='REPLY_READY':
@@ -140,6 +141,9 @@ def reply(platform, work, comment_id, text, language='auto', dry_run=False, _tes
         # Durable before any backend can submit; even a lost response prevents duplicates.
         attempt={'state':'REPLY_READY','reply_key':key,'platform':platform,'work_id':work,
                  'identity':snapshot['identity'],'request':request,'at':now(),'test':bool(_test_key)}
+        # An explicitly prepared repair must retain earlier failed attempts.
+        for field in ('recovery_history','recovery_reason','creator_repair_prepared'):
+            if field in previous:attempt[field]=previous[field]
         atomic_json(path,attempt)
         try:
             result=backend(platform,'reply',work,reply_request=request,reply_receipt_path=str(path))
@@ -256,9 +260,9 @@ def report(since=None, language='auto', notes=None):
 
 def capabilities():
     return {'comments':{'bilibili':'upstream CLI, paged threads','youtube':'official API, paged threads and replies',
-                        'douyin':'CLI public work comments; Creator Center statistics','instagram':'CLI visible comments','x':'CLI visible conversation entries; parent ID is not exposed'},
+                        'douyin':'CLI public work reads; Creator Center top-level replies and statistics','instagram':'CLI visible comments','x':'CLI visible conversation entries; parent ID is not exposed'},
             'reply':'Direct send, optional --dry-run; one language matching the comment; durable deduplication and read-back.',
             'stats':'Per-work observations with source and timestamp; missing metrics stay null. X post views are not video plays.',
             'report':'Receipt-based natural Chinese/English, selected from host user language or saved report_language; excludes owner comments and self-tests; no automatic email.',
-            'live_reply_tests':{'bilibili':'verified','youtube':'verified','instagram':'visible author/text/ID verified; browser reply-action evidence','x':'visible author/text/ID verified; browser reply-action evidence','douyin':'seed verified; reply submission not yet verified'},
-            'not_in_this_scope':['private messages','automatic likes','watch/transcribe','hot-topic research','unbounded historical export']}
+            'live_reply_tests':{'bilibili':'verified','youtube':'verified','instagram':'visible author/text/ID verified; browser reply-action evidence','x':'visible author/text/ID verified; browser reply-action evidence','douyin':'Creator Center reply verified in a fresh session with author/text/new ID and nested parent'},
+            'not_in_this_scope':['private messages','automatic likes','watch/transcribe','hot-topic research','unbounded historical export','Douyin replies to nested replies']}

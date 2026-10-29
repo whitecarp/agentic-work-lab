@@ -119,8 +119,10 @@ DOUYIN_PUBLIC_ROWS=r'''limit => [...document.querySelectorAll('[data-e2e="commen
  if(!id || !author || !body) return null;
  row.setAttribute('data-crosscast-comment-row',String(index));
  const owner=[...info.querySelectorAll('.comment-item-tag-text')].some(e=>e.textContent.trim()==='作者');
+ const parent=row.parentElement?.closest('[data-e2e="comment-item"]');
+ const parentId=parent?.querySelector('[data-e2e="video-comment-more"] [id^="tooltip_"]')?.id?.match(/^tooltip_(\d+)$/)?.[1]||null;
  return {id,text:body.innerText.trim(),author:author.querySelector('[data-click-from="title"]')?.textContent?.trim()||author.textContent.trim(),
- author_id:author.getAttribute('href'),is_owner:owner,parent_id:null,owner_replied:null,ui_index:index,
+ author_id:author.getAttribute('href'),is_owner:owner,parent_id:parentId,parent_relationship:parentId?'dom_nested_thread':null,owner_replied:null,ui_index:index,
  published_at:null,time_label:body.nextElementSibling?.innerText?.trim(),text_scope:'Visible comment text',source:'douyin_public_comment_dom'};
 }).filter(Boolean)'''
 
@@ -187,7 +189,10 @@ async def comments(page,platform,identity,work,limit):
 
 async def execute(page,platform,identity,payload):
     work=payload['work_id'];action=payload['operation']
-    url=await open_work(page,platform,identity,work,public_comments=platform=='douyin' and action not in {'stats','test_seed'})
+    url=await open_work(page,platform,identity,work,public_comments=platform=='douyin' and action not in {'stats','test_seed','reply'})
+    if platform=='douyin' and action=='reply':
+        from .operations_douyin import reply as creator_reply
+        return await creator_reply(page,identity,payload)
     if action=='stats':
         if platform=='douyin':
             await page.get_by_text('播放量',exact=True).wait_for(timeout=30000)
@@ -256,7 +261,8 @@ async def execute(page,platform,identity,payload):
         matches=[]
         for c in actual['items']:
             if not c['is_owner'] or normalize(c['text']) not in texts or c['id'] in before: continue
-            try: recent=cutoff and datetime.fromisoformat(c['published_at'].replace('Z','+00:00'))>=cutoff
+            if platform=='douyin' and c.get('parent_id')!=(target.get('parent_id') or target['id']):continue
+            try: recent=cutoff and datetime.fromisoformat((c.get('published_at') or '').replace('Z','+00:00'))>=cutoff
             except (ValueError,KeyError,TypeError): recent=False
             if recent or (platform=='douyin' and saved.get('before_reply_ids') and saved.get('submitted_text')): matches.append(c)
         rid=saved.get('reply_id')
@@ -265,10 +271,11 @@ async def execute(page,platform,identity,payload):
         # combines the recorded targeted Reply action with a fresh owner/text/ID;
         # its evidence label must retain that narrower boundary.
         verified=len(matches)==1 and saved.get('state') in {'REPLY_UNVERIFIED','REPLY_VERIFIED'}
+        evidence='creator_reply_action_and_fresh_nested_comment' if platform=='douyin' else 'targeted_reply_action_and_fresh_author_text_permalink'
         return {'state':'REPLY_VERIFIED' if verified else 'REPLY_UNVERIFIED','reply_id':matches[0]['id'] if verified else rid,
-                'platform_writes':0,'verification_source':'targeted_reply_action_and_fresh_author_text_permalink' if verified else 'parent_relationship_not_verified',
+                'platform_writes':0,'verification_source':evidence if verified else 'parent_relationship_not_verified',
                 'hint':None if verified else 'No confirmed reply read-back; do not resend.',
-                'parent_evidence':'Clicked Reply on the exact collected comment; browser DOM does not expose an API parent ID.'}
+                'parent_evidence':'Fresh nested DOM row identifies the parent comment; not an official API integration.' if platform=='douyin' and verified else 'Clicked Reply on the exact collected comment; browser DOM does not expose an API parent ID.'}
     if action!='reply': raise VpubError('unsupported_operation','Unsupported browser operation.')
     current=await comments(page,platform,identity,work,100)
     matches=[c for c in current['items'] if c['id']==target['id'] and normalize(c['text'])==normalize(target['text'])]

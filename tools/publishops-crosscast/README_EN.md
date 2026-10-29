@@ -8,7 +8,7 @@ This requirement exists because non-subscribers are limited to **140-second, 512
 
 ### Multi-platform video release operations console
 
-**v0.4.0 alpha · CLI `vpub` · AI-assisted development**
+**v0.4.1 alpha · CLI `vpub` · AI-assisted development**
 
 Prepare platform-specific metadata, covers and publication receipts for one original video. Choose any subset of Bilibili, Douyin, YouTube, Instagram and X. Sign in once; the CLI reuses its own local sessions for later uploads.
 
@@ -37,9 +37,11 @@ Before sending, the CLI checks the current comment and account, persists its int
 |---|---|---|
 | Bilibili | Upstream bili-cli; thread and reply IDs retained | Views, likes, comments, favorites and other supplied fields; creator completion/watch time when available |
 | YouTube | Official Data API; work, thread, author, text and reply ID checks | Views, likes and comments; completion/watch duration do not yet use Analytics |
-| Douyin | Visible public work comments; Creator Center lists can lag; this round's reply remains unverified | Creator Center's displayed views, likes, comments, shares, favorites and completion metrics |
+| Douyin | Public work reads; Creator Center replies to top-level comments; fresh reply and parent read back | Creator Center's displayed views, likes, comments, shares, favorites and completion metrics |
 | Instagram | Visible comments and Reply; fresh comment ID, author, text and action receipts | Values actually displayed on the work; full Insights is not integrated |
 | X | Visible conversation and Reply; fresh status ID, author, text and action receipts | Post views, replies, reposts and likes; post views are not video plays |
+
+Douyin replies use native Creator Center controls and observe requests made by that page to bind the comment ID; this is not a standalone official API. A missing target, ambiguous identical name/text, or nested-reply target stops before sending and retains the receipt. Submission acknowledgement is separate from fresh visibility.
 
 Metrics retain source, observation time and units. Unavailable values stay `null`, not zero. Browser verification records the targeted Reply action and visible result; it does not claim an official API parent relationship. See [validation boundaries](docs/VALIDATION_EN.md).
 

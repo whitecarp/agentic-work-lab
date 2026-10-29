@@ -20,7 +20,7 @@ Prepare platform-specific descriptions, covers and publication receipts for one 
 - Instagram retains the original video and aspect ratio with a separate upload cover. Its mobile editor can use the same portrait artwork as Douyin.
 - Added cross-platform comment reads, single-language replies matching commenters, work metrics and Chinese/English operations reports; tested and pending scopes are documented.
 - Production-cover fitting, YouTube playlist settings and Gmail-only email notifications, off until explicitly enabled.
-- **0.4.0 alpha, with 140 passing offline tests.** Full five-platform publication still has open acceptance items; tested scope and limits are documented.
+- **0.4.1 alpha, with 147 passing offline tests.** Full five-platform publication still has open acceptance items; tested scope and limits are documented.
 
 [Install and use](tools/publishops-crosscast/README_EN.md) · [Feature scope](tools/publishops-crosscast/docs/FEATURES_EN.md) · [Validation](tools/publishops-crosscast/docs/VALIDATION_EN.md)
 
