@@ -27,6 +27,19 @@ Choose platforms, automatic publication versus editorial review, and optional em
 
 For upgrades, uninstall the old `whitecarp-video-publisher` package first. The `vpub` command, `video_publisher` Python module and runtime/sign-in/job storage are retained; do not delete user data.
 
+### Optional YouTube API sign-in
+
+Enable YouTube Data API v3 in Google Cloud, create a Desktop app OAuth client and download its JSON. An API key alone cannot authorize uploads. If the project is in Testing mode, add your sign-in account under Google Auth Platform → Audience → Test users to avoid `403 access_denied`.
+
+```sh
+vpub auth login youtube --method api --client-json /path/to/client.json
+vpub auth status youtube --method api
+```
+
+Open the printed official Google authorization link on the same computer running the CLI, choose your channel and grant access. The callback waits for five minutes. Keep client JSON and tokens local; never commit them to GitHub. Set the YouTube manifest's `method` to `api` to use this backend; signing in does not change existing manifests. Playlist writes require explicit additional authorization with `--manage-playlists`.
+
+If authorization completes but API reads time out, run `vpub doctor`. Dependencies include [PySocks](https://pypi.org/project/PySocks/): without it, the Google client's `httplib2` transport can ignore a configured proxy. In an older environment, run `python -m pip install PySocks==1.7.1` with the same Python environment and retry the status query; do not reupload the video.
+
 ## Copywriting and language
 
 | Platform | Default metadata language |

@@ -27,6 +27,19 @@ vpub init --video final.mp4 --language zh-Hans --out publish.json --platforms bi
 
 舊版升級先卸載套件 `whitecarp-video-publisher`，再安裝本版本。保留 `vpub`、Python 模組 `video_publisher` 與原有執行、登入及工作紀錄，不刪除使用者資料。
 
+### YouTube 官方 API 登入（選用）
+
+啟用 Google Cloud 的 YouTube Data API v3，建立「桌面應用程式」OAuth 用戶端並下載 JSON；API Key 本身不能授權上傳。若專案仍在測試模式，先於 Google Auth Platform 的「目標對象／受眾 → 測試使用者」加入登入帳號，避免 `403 access_denied`。
+
+```sh
+vpub auth login youtube --method api --client-json /path/to/client.json
+vpub auth status youtube --method api
+```
+
+在執行 CLI 的同一台電腦開啟輸出的 Google 官方授權連結，選擇頻道並完成授權；回呼等待時間為五分鐘。JSON 與登入權杖留在本機，請勿提交 GitHub。方案的 YouTube `method` 設為 `api` 才會使用 API；登入不會自動改變既有方案。播放列表寫入需另加 `--manage-playlists` 授權。
+
+若授權已完成卻在 API 查詢逾時，先執行 `vpub doctor`。安裝依賴包含 [PySocks](https://pypi.org/project/PySocks/)；Google API 客戶端的 `httplib2` 缺少它時可能忽略已設定的代理。舊環境可在同一個 Python 環境執行 `python -m pip install PySocks==1.7.1`，再執行狀態查詢，毋須重傳影片。
+
 ## 自動簡介與語言
 
 | 平台 | 預設文案語言 |

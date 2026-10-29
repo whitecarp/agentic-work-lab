@@ -6,6 +6,8 @@ Date: **2026-10-29**, PublishOps CrossCast 0.2.5 alpha.
 
 ## 0.2.5 — Latest status
 
+**2026-10-29 live YouTube API connection:** Desktop OAuth completed and `vpub auth status youtube --method api` returned the intended channel. An API read confirmed the existing test video's public visibility and processed upload status. Missing PySocks caused `httplib2` to ignore the configured proxy and time out; installing `PySocks==1.7.1` restored connectivity. It is now an installation dependency and a `doctor` check. This session made read-only calls, with no new upload or platform edit. Live API upload, thumbnail writes and playlist writes remain unverified.
+
 The operator supplied two phone recordings and reported that the one-second lead did not solve the need, while camera-roll portrait covers worked. Sampled frames show cover editing and return to the work; this is not agent-operated phone control or full-playback acceptance. Lead-in functionality is removed. Original-video/shared-artwork handoff is implemented; this rule update did not republish the test work.
 
 72 tests pass. Four current Instagram tests check unchanged video SHA-256, exact Douyin portrait reuse, scoped/idempotent manifests, overwrite guards and truthful missing-artwork state. The 0.2.4 FFmpeg test is historical, not an active publishing feature.

@@ -120,7 +120,7 @@ def publish_plan(plan, confirm):
 
 def doctor():
     modules = {name: importlib.util.find_spec(name) is not None for name in
-               ("bili_cli", "googleapiclient", "google_auth_oauthlib", "patchright")}
+               ("bili_cli", "googleapiclient", "google_auth_oauthlib", "socks", "patchright")}
     root = home() / "social-auto-upload"
     pin = None
     if (root / ".git").exists():
