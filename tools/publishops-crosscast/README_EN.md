@@ -6,7 +6,7 @@
 
 ### Multi-platform video release operations console
 
-**v0.3.1 alpha · CLI `vpub` · AI-assisted development**
+**v0.3.2 alpha · CLI `vpub` · AI-assisted development**
 
 Prepare platform-specific metadata, covers and publication receipts for one original video. Choose any subset of Bilibili, Douyin, YouTube, Instagram and X. Sign in once; the CLI reuses its own local sessions for later uploads.
 
@@ -25,7 +25,7 @@ vpub onboard --platforms bilibili,douyin,youtube
 vpub init --video final.mp4 --language zh-Hans --out publish.json --platforms bilibili,douyin,youtube
 ```
 
-Choose platforms, automatic publication versus editorial review, and optional email once. Reuse authorization without repeated editorial approvals. `--confirm` is a plan-integrity hash. The CLI persists email settings; the host remembers editorial preferences.
+Choose platforms and automatic publication versus editorial review once. Gmail-only email stays off unless explicitly requested. Reuse authorization without repeated editorial approvals. `--confirm` is a plan-integrity hash. The CLI persists email settings; the host remembers editorial preferences.
 
 For upgrades, uninstall the old `whitecarp-video-publisher` package first. The `vpub` command, `video_publisher` Python module and runtime/sign-in/job storage are retained; do not delete user data.
 
@@ -175,18 +175,31 @@ Browser receipts persist the account, exact text, source hashes and final-submit
 
 Templates default to public Bilibili/Douyin, private YouTube and account audience for Instagram/X; the host must apply user intent. Signing in never adds publication targets. Preparation, verification waits, platform review and public success are distinct; UI evidence and API verification have separate states.
 
-## Optional email notifications
+## Optional email notifications: Gmail only
 
-Choose off/Gmail/Outlook once. **Default is off; no SMS.** If enabled, select a recipient and use an actually available connected send tool. An installed plugin alone does not prove send capability.
+**Off by default; enable only when explicitly requested by the user.** Ordinary installation/login does not ask for an address or turn on email. This feature supports the host agent's Gmail plugin only: no Outlook, QQ, NetEase, SMTP or SMS.
+
+Only after an enable request does the host ask for the user's own Gmail address. It checks the address and plugin, helps install a missing plugin or authorize an unconnected one, and allows cancellation with email left off. Before sending, the connected account must exactly match the chosen address. **Send from that account to itself only.** External service sign-in aliases are not treated as Gmail mailboxes.
 
 ```sh
-vpub notify status
+# Run only when email is wanted; ordinary installation does not configure it
+vpub notify configure --to you@gmail.com
+# Disable at any time
 vpub notify configure --provider off
-# Opt in: vpub notify configure --provider gmail --to you@example.com
-vpub notify pending
 ```
 
-On official verification, notify inline and preserve the work. Email queues only if enabled. The host uses `notify claim`, calls Gmail/Outlook and records the actual result with `notify record`. Queued is not sent; accepted is not delivered. Report missing tools or uncertainty without automatic resend. See the [handoff guide](DEEPSEEK_HANDOFF_EN.md).
+The following is performed by the host agent; ordinary users do not edit JSON:
+
+```sh
+vpub notify inspect --email you@gmail.com --inventory host-mail-inventory.json
+# A one-off test does not enable ongoing alerts; the same test-id never resends
+vpub notify test --email you@gmail.com --test-id setup-test-001 --inventory host-mail-inventory.json
+vpub notify claim RETURNED_ALERT_ID --available-tool mcp__codex_apps__gmail_send_email --inventory host-mail-inventory.json
+# The host calls the returned real send tool, saves its response, then records it
+vpub notify record RETURNED_ALERT_ID --claim-token RETURNED_TOKEN --response actual-send-response.json
+```
+
+Test messages are labelled TEST, with no fabricated sign-in incident. When official verification interrupts publishing, preserve the existing work and notify inline. Email queues only if enabled. The host must have a usable Gmail plugin at execution time; the CLI cannot send through it when the host is not running. Queued, sent and inbox-delivered are separate states. Timeouts or uncertain results never cause automatic retries. See the [handoff guide](DEEPSEEK_HANDOFF_EN.md) and [live validation](docs/VALIDATION_EN.md).
 
 ## Backends and references
 

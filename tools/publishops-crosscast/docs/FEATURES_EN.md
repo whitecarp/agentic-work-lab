@@ -4,7 +4,7 @@
 
 **X publishing supports subscribed users whose accounts can actually access Media Studio.** No free-account publishing route is currently provided. Login or payment alone does not establish publishing access; the CLI checks the library entry and managed account before selecting media.
 
-**0.3.1 alpha.** New manifests use CLI execution after first login; `method: native` is an explicit host-browser fallback. Bilibili continues to call [bili-cli](https://github.com/kukemc/bili-cli).
+**0.3.2 alpha.** New manifests use CLI execution after first login; `method: native` is an explicit host-browser fallback. Bilibili continues to call [bili-cli](https://github.com/kukemc/bili-cli).
 
 | Capability | Bilibili | YouTube | Douyin | X | Instagram |
 |---|---|---|---|---|---|
@@ -19,7 +19,7 @@ Shared: exact-source plans, per-platform account checks, immutable upload snapsh
 
 Real episode-two uploads and their development limitations are recorded in [validation](VALIDATION_EN.md). Background browser automation is not an official direct API or a speed guarantee. Platform changes, expired sessions and challenges can require intervention. Metadata writing/translation uses the host conversation model through request/apply; it does not translate the video itself.
 
-When the source language differs, retain source plus translation; Chinese scripts become Simplified Chinese only on Bilibili/Douyin. Douyin custom chapters are integrated into CLI publication/verification. `vpub edit` handles YouTube metadata, Instagram captions, an available X Edit action and Douyin covers/chapters; native handoffs remain. Shared portrait bytes are identical, but both phone grids crop the footer: layout acceptance remains open. Optional host Gmail/Outlook email is off by default. TikTok, unified interaction commands and YouTube cards/clickable end screens are not implemented.
+When the source language differs, retain source plus translation; Chinese scripts become Simplified Chinese only on Bilibili/Douyin. Douyin custom chapters are integrated into CLI publication/verification. `vpub edit` handles YouTube metadata, Instagram captions, an available X Edit action and Douyin covers/chapters; native handoffs remain. Shared portrait bytes are identical, but both phone grids crop the footer: layout acceptance remains open. Email supports Gmail only, remains off by default and offers plugin setup assistance only after an explicit enable request. Outlook, QQ, NetEase and SMTP are unsupported. TikTok, unified interaction commands and YouTube cards/clickable end screens are not implemented.
 
 ## Historical changes
 

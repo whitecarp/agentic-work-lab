@@ -6,7 +6,7 @@
 
 ### 跨平台影片發布營運台
 
-**v0.3.1 alpha · CLI `vpub` · AI 協助開發**
+**v0.3.2 alpha · CLI `vpub` · AI 協助開發**
 
 讓同一支原創影片擁有各平台適用的文案、封面與發布回執。選擇 Bilibili、抖音、YouTube、Instagram、X 的任意組合，首次登入後，CLI 復用本機專用會話完成後續上傳。
 
@@ -25,7 +25,7 @@ vpub onboard --platforms bilibili,douyin,youtube
 vpub init --video final.mp4 --language zh-Hans --out publish.json --platforms bilibili,douyin,youtube
 ```
 
-首次選擇平台、自動發布或先看文案，以及是否開啟郵件。沿用已取得的授權，不逐片強迫文案審核。`--confirm` 是方案完整性雜湊；CLI 保存郵件設定，宿主保存文案審核偏好。
+首次選擇平台及自動發布或先看文案；郵件僅支援 Gmail，預設關閉，使用者主動要求時才開啟。沿用已取得的授權，不逐片強迫文案審核。`--confirm` 是方案完整性雜湊；CLI 保存郵件設定，宿主保存文案審核偏好。
 
 舊版升級先卸載套件 `whitecarp-video-publisher`，再安裝本版本。保留 `vpub`、Python 模組 `video_publisher` 與原有執行、登入及工作紀錄，不刪除使用者資料。
 
@@ -175,18 +175,31 @@ vpub receipts
 
 範本預設 B站／抖音公開、YouTube 私密、Instagram／X 依帳號受眾，宿主須按使用者意圖設定。登入不會自動增加發布目標。準備、待驗證、審核中與公開成功分開記錄；畫面證據及 API 查詢使用不同狀態。
 
-## 可選郵件提醒
+## 可選郵件提醒：僅支援 Gmail
 
-首次選「不啟用／Gmail／Outlook」，**預設關閉，不需要簡訊**。啟用後設定收件地址，宿主使用當時實際可用的已連接寄信工具；已安裝插件不等於具備寄信權限。
+**預設關閉，只有使用者主動要求時才開啟。** 一般安裝／登入不詢問郵箱，也不會自動啟用。此功能僅支援宿主 Agent 的 Gmail 插件；不支援 Outlook、QQ、網易、SMTP 或簡訊。
+
+使用者要求開啟後，才請其填寫自己的 Gmail 地址。宿主識別地址並檢查插件：缺少插件時協助安裝；已安裝但未連接時引導授權；隨時可放棄並維持關閉。寄出前核對當前連接帳號與所填地址完全一致，**只從自己發給自己**，不把其他服務的登入別名當作 Gmail。
 
 ```sh
-vpub notify status
+# 需要時才執行；一般安裝不執行 configure
+vpub notify configure --to you@gmail.com
+# 隨時關閉
 vpub notify configure --provider off
-# 選擇啟用：vpub notify configure --provider gmail --to you@example.com
-vpub notify pending
 ```
 
-官方驗證出現時立即在對話提醒並保留原作品。已啟用郵件才入列；宿主 `notify claim` 後呼叫 Gmail／Outlook，再 `notify record` 記真實結果。入列不等於寄出，服務接受不等於送達；缺少工具或結果不明就回報，不自動重寄。詳見[交接文件](DEEPSEEK_HANDOFF.md)。
+以下由宿主 Agent 操作；一般使用者不用編輯 JSON：
+
+```sh
+vpub notify inspect --email you@gmail.com --inventory host-mail-inventory.json
+# 一次性測試不會開啟長期提醒，同一 test-id 不重寄
+vpub notify test --email you@gmail.com --test-id setup-test-001 --inventory host-mail-inventory.json
+vpub notify claim RETURNED_ALERT_ID --available-tool mcp__codex_apps__gmail_send_email --inventory host-mail-inventory.json
+# 宿主呼叫返回的真實寄信工具，再保存回傳並記錄
+vpub notify record RETURNED_ALERT_ID --claim-token RETURNED_TOKEN --response actual-send-response.json
+```
+
+測試信明確標記 TEST，不偽造登入故障。官方驗證出現時保留原作品並立即在對話提示；只有已啟用郵件才入列。宿主必須當下能呼叫 Gmail 插件，CLI 不會在宿主未運行時獨自寄信。入列、已寄出與收件箱送達分開記錄；逾時或結果不明不自動重寄。詳見[交接文件](DEEPSEEK_HANDOFF.md)與[實測狀態](docs/VALIDATION.md)。
 
 ## 後端與參考
 

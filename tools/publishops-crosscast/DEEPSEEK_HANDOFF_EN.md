@@ -52,7 +52,7 @@ See the linked X guide and TikTok status before proceeding.
 
 ## 0.2.0 — Settings for this version
 
-- Ask once about platforms, automatic publication and optional email; reuse authorization. Email defaults off; persist the chosen option.
+- Ask once about platforms and automatic publication; reuse authorization. Email supports Gmail only and defaults off. Do not ask about or enable email during ordinary setup; on an explicit enable request, obtain the Gmail address and help connect/install the plugin or leave it off.
 - Use host-model copywriting with the current README language policy: differing source/target languages automatically retain both; GitHub language is unrelated.
 - No external links by default; preserve voice, context and third-party credits/licenses; omit irrelevant BV references.
 - Prefer dedicated artwork and re-laid-out variants. Fit without cropping and verify every saved role, recording its source hash and visual observation.
@@ -63,13 +63,13 @@ Host email flow:
 
 ```sh
 vpub notify pending
-vpub notify claim ALERT_ID --available-tool EXACT_AVAILABLE_SEND_TOOL
+vpub notify claim ALERT_ID --available-tool EXACT_AVAILABLE_SEND_TOOL --inventory host-mail-inventory.json
 # Call the returned tool_name with its arguments through the connected host tool.
 # Save {"tool_name":"ACTUAL_TOOL_NAME","response": ACTUAL_TOOL_RESULT} locally.
 vpub notify record ALERT_ID --claim-token RETURNED_TOKEN --response response.json
 ```
 
-Send only after opt-in and recipient selection. Missing tools are reported. Claims are not sends; Gmail message IDs and Outlook acceptance are distinct, and unknown results are not retried. Never include authentication URLs, codes or raw pages.
+Send only from the matching connected Gmail account to itself, after an explicit enable request. Capture fresh send-tool inventory and the actual get_profile response before claiming. The private inventory object contains tools (tool-name list), plugins ({gmail: {installed: true/false}}) and profiles ({gmail: actual profile-tool response}); never fabricate connection evidence. Use plugin search and installation assistance if missing, or connect/skip if installed but unavailable. Outlook, QQ, NetEase and SMTP are unsupported. A notify test command with a stable test-id is one-off and does not enable ongoing alerts. A claim is not a send; unknown results must not be retried. Never include authentication URLs, codes or raw pages. The CLI cannot call Gmail tools when the host is not running.
 
 ## 0.2.1 — Category and chapter fixes
 

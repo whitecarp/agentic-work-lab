@@ -18,8 +18,8 @@
 - 抖音／Instagram 共用專用直式封面；目前手機網格仍裁掉底部小字，封面美觀與安全區是下一輪重點。
 - X 發布僅面向已訂閱、且帳號實際能進入 Media Studio 的使用者。
 - Instagram 使用原片及原比例，上傳時另設封面；手機可選與抖音共用的直式圖。
-- 提供專用封面適配、YouTube 播放列表設定與可選郵件提醒。
-- **0.3.1 alpha，98 項離線測試通過。** 完整五平台發布仍有待驗收項目；已測範圍與限制均有記錄。
+- 提供專用封面適配、YouTube 播放列表設定與預設關閉、主動開啟的 Gmail 郵件提醒。
+- **0.3.2 alpha，107 項離線測試通過。** 完整五平台發布仍有待驗收項目；已測範圍與限制均有記錄。
 
 [安裝與使用](tools/publishops-crosscast/README.md) · [功能範圍](tools/publishops-crosscast/docs/FEATURES.md) · [驗證記錄](tools/publishops-crosscast/docs/VALIDATION.md)
 

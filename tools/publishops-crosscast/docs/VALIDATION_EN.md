@@ -2,8 +2,17 @@
 
 [繁體中文](VALIDATION.md) · **English**
 
-Date: **2026-10-29**, PublishOps CrossCast **0.3.1 alpha**.
+Date: **2026-10-30**, PublishOps CrossCast **0.3.2 alpha**.
 
+
+## 0.3.2: Gmail-only notifications and cover candidate
+
+- **Gmail:** A real plugin sent one clearly labelled TEST message from the connected account to itself. Matching From/To and SENT/INBOX were read back; the user confirmed receipt. Ongoing alerts remained off.
+- **Final scope:** Gmail only, off by default, enabled only on an explicit user request. Ordinary setup does not prompt for email. Plugin discovery, installation/connection assistance and exact-account checks precede sending. Outlook, QQ, NetEase and SMTP are excluded; unsupported legacy preferences cannot dispatch.
+- **Outlook test history:** A test went to a QQ address returned by the connected profile. It appeared in Sent Items, but the user reported no receipt in QQ or Outlook. This was not delivery success. No retry occurred; Outlook adaptation was removed at the user's request.
+- **Cover:** Episode-two v3 shared portrait was delivered for user replacement, with the footer moved upward. Text remains complete in local 3:4/4:5 center-crop previews. This is not phone-platform acceptance; no online cover was changed.
+
+**107 offline tests pass.** Added explicit opt-in, Gmail address/account checks, missing/disconnected plugins, unsupported-provider rejection, one-off test deduplication and uncertain-send suppression. Email addresses, private responses and authorization data are not published.
 
 ## 0.3.1: episode-two corrections and acceptance limits
 

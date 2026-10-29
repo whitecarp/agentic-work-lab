@@ -18,8 +18,8 @@ Prepare platform-specific descriptions, covers and publication receipts for one 
 - Douyin/Instagram share dedicated portrait artwork; phone grids still crop footer text. Cover aesthetics and safe areas are the next iteration priority.
 - X publishing supports subscribed users whose accounts can actually access Media Studio.
 - Instagram retains the original video and aspect ratio with a separate upload cover. Its mobile editor can use the same portrait artwork as Douyin.
-- Production-cover fitting, YouTube playlist settings and optional email notifications.
-- **0.3.1 alpha, with 98 passing offline tests.** Full five-platform publication still has open acceptance items; tested scope and limits are documented.
+- Production-cover fitting, YouTube playlist settings and Gmail-only email notifications, off until explicitly enabled.
+- **0.3.2 alpha, with 107 passing offline tests.** Full five-platform publication still has open acceptance items; tested scope and limits are documented.
 
 [Install and use](tools/publishops-crosscast/README_EN.md) · [Feature scope](tools/publishops-crosscast/docs/FEATURES_EN.md) · [Validation](tools/publishops-crosscast/docs/VALIDATION_EN.md)
 

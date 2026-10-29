@@ -52,7 +52,7 @@ X 操作與欄位見 [X_GUIDE](docs/X_GUIDE.md)；取消 TikTok 的原因及招�
 
 ## 0.2.0 必須沿用的設定
 
-- 首次詢問平台、是否自動發布與可選郵件；已有授權不逐片再問。郵件預設關閉，保存 off/Gmail/Outlook 選擇。
+- 首次詢問平台與是否自動發布，已有授權不逐片再問。郵件僅支援 Gmail，預設關閉；一般設定不主動詢問或開啟，使用者要求時才取得 Gmail 地址並協助安裝／連接插件，或維持關閉。
 - 用 `metadata request/apply` 請宿主模型寫簡介。現行規則以本文開頭及 README 為準；不同語言自動保留原文＋平台語言，不再手動開啟雙語。GitHub 文件繁體不影響影片文案。
 - 預設簡介不放連結；保留角色聲音、內容與第三方作者／授權資訊，移除無用的跨平台 BV 參照。
 - 專用封面優先。`covers prepare` 自動縮放補邊；原工程有橫豎重排版時優先使用。不得只找到檔案便宣稱已更新。`cover_evidence` 每個 role 需 source_sha256 與實際畫面 observation。
@@ -63,13 +63,13 @@ X 操作與欄位見 [X_GUIDE](docs/X_GUIDE.md)；取消 TikTok 的原因及招�
 
 ```sh
 vpub notify pending
-vpub notify claim ALERT_ID --available-tool EXACT_AVAILABLE_SEND_TOOL
+vpub notify claim ALERT_ID --available-tool EXACT_AVAILABLE_SEND_TOOL --inventory host-mail-inventory.json
 # Call the returned tool_name with its arguments through the connected host tool.
 # Save {"tool_name":"ACTUAL_TOOL_NAME","response": ACTUAL_TOOL_RESULT} locally.
 vpub notify record ALERT_ID --claim-token RETURNED_TOKEN --response response.json
 ```
 
-只在使用者啟用並選定收件地址後寄信。工具不存在就回報，不能把 claim 當成已寄出。Gmail 的 message ID 與 Outlook 的服務接受分開記；未知結果不自動重寄。不要附登入網址、驗證碼或原始頁面。
+只有使用者主動要求啟用時，Gmail 才從已核對的連接帳號發給同一地址。每次領取前保存最新寄信工具清單與實際 get_profile 結果；本地 inventory 包含 tools（工具名稱列表）、plugins（{gmail: {installed: true/false}}）及 profiles（{gmail: 真實帳號工具回傳}），不能偽造連接證據。缺少插件時搜尋並協助安裝；已安裝但不可用時協助連接或跳過。不支援 Outlook、QQ、網易或 SMTP。一次測試用穩定 test-id 的 notify test，不開啟長期提醒。claim 不是寄出；未知結果不重寄。不要附登入網址、驗證碼或原始頁面。宿主未運行時，CLI 不能自行呼叫 Gmail 插件。
 
 ## 0.2.1 類別與章節修復
 

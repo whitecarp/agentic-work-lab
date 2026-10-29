@@ -257,12 +257,21 @@ def parser():
     n = sub.add_parser("notify", help="Optional host-plugin email alerts. Disabled by default; no SMS.").add_subparsers(dest="action", required=True)
     n.add_parser("status")
     q = n.add_parser("configure")
-    q.add_argument("--provider", choices=["off", "gmail", "outlook"], required=True)
+    q.add_argument("--provider", choices=["auto", "off", "gmail"], default="auto")
     q.add_argument("--to")
+    q.add_argument("--inventory")
+    q = n.add_parser("inspect", help="Detect the email provider and required host plugin setup; sends nothing.")
+    q.add_argument("--email", required=True)
+    q.add_argument("--inventory")
+    q = n.add_parser("test", help="Queue one self-send TEST; does not enable ongoing alerts.")
+    q.add_argument("--email", required=True)
+    q.add_argument("--test-id", required=True)
+    q.add_argument("--inventory", required=True)
     n.add_parser("pending")
     q = n.add_parser("claim")
     q.add_argument("id")
     q.add_argument("--available-tool", required=True)
+    q.add_argument("--inventory", required=True)
     q = n.add_parser("record")
     q.add_argument("id")
     q.add_argument("--claim-token", required=True)
@@ -340,11 +349,15 @@ def execute(args):
         if args.action == "status":
             return notifications.onboarding()
         if args.action == "configure":
-            return notifications.configure(args.provider, args.to)
+            return notifications.configure(args.provider, args.to, args.inventory)
+        if args.action == "inspect":
+            return notifications.inspect_mailbox(args.email, args.inventory)
+        if args.action == "test":
+            return notifications.prepare_test(args.email, args.test_id, args.inventory)
         if args.action == "pending":
             return notifications.pending()
         if args.action == "claim":
-            return notifications.claim(args.id, args.available_tool)
+            return notifications.claim(args.id, args.available_tool, args.inventory)
         return notifications.record(args.id, args.claim_token, args.response)
     if args.command == "capabilities":
         return capabilities()
@@ -515,7 +528,7 @@ def capabilities():
             "cover_fitting": "Landscape contain fitting; Douyin and Instagram share identical dedicated portrait bytes. No landscape-to-portrait padding fallback. Grid cropping, small text and aesthetics require separate visual checks.",
             "instagram_media": "Instagram preparation preserves original video bytes and ratio. Use a separate upload cover and shared Douyin portrait through the mobile camera-roll picker; no inserted lead-in or transcoding.",
             "instagram_deletion": "Explicit native deletion request, UI result/absence evidence, retained history, and separately authorized same-video cover replacement. No standalone deletion API.",
-            "email": "Optional, off by default; host Gmail/Outlook send tool required at execution; no SMS.",
+            "email": "Gmail only, disabled by default. Enable only on explicit request; no ordinary-setup prompt. Host verifies the exact account and live send tool, helps install/connect a missing plugin or leaves email off. Self-send only. No Outlook, QQ, NetEase, SMTP or SMS. A TEST does not enable ongoing alerts.",
             "chapters": "Douyin CLI applies planned chapters after a durable published work ID is available; verify/resume completes a pending chapter step without reupload. Exact timing/title read-back; platform suggestions are not accepted automatically. Native Bilibili/Douyin/YouTube handoffs retained.",
             "existing_work_edits": "vpub edit: YouTube API metadata, Instagram captions, available X Edit action, Douyin portrait and chapters. One field group per request; verify-only never saves. X edit availability is platform-controlled; no automatic repost.",
             "youtube_initial_permissions": "Upload, read and video/playlist management scopes are requested together; user approves in Google. Old limited tokens require reauthorization.",
