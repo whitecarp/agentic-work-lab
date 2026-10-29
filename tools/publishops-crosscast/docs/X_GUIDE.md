@@ -1,54 +1,45 @@
-# X（Twitter）適配 / X (Twitter) adapter
+# X（Twitter）適配
+
+**繁體中文** · [English](X_GUIDE_EN.md)
 
 本版提供 **內置瀏覽器交接**：登入網址、單一帖文文案、帳號核對、檔案快照、單次提交與回執校驗。Agent 仍須實際操作官方網站；沒有獨立 X API 發布器；一條原創影片已發布並在登入頁讀回，完整播放尚未驗收。
 
-This release provides **in-app-browser handoff**: sign-in URL, one post body, account checks, media snapshots, single submission and receipt validation. A host agent must operate the official site. One X publication has now been read back in the signed-in UI; a standalone API publisher and full-playback acceptance remain incomplete.
-
-**0.2.2 實測 / Live test:** 影片達 Ready，保存到 Unsent posts 並重新開啟，英文文案、影片及 Made with AI 保留。其後依使用者明確授權從同一草稿發布，原帖已讀回，未刪除。僅自己可見的測試使用 `vpub init --platforms x --draft-only`，此時禁止下方一般流程的最終提交。詳見 [草稿指南](DRAFT_TESTING.md)。 / Ready media, English text and AI disclosure survived a saved-draft reopen. The user then explicitly authorized publication; the same draft was submitted and the original status read back. It was not deleted. Self-only tests must use draft-only mode, which forbids final submission until explicit authorization changes the mode.
+**0.2.2 實測** 影片達 Ready，保存到 Unsent posts 並重新開啟，英文文案、影片及 Made with AI 保留。其後依使用者明確授權從同一草稿發布，原帖已讀回，未刪除。僅自己可見的測試使用 `vpub init --platforms x --draft-only`，此時禁止下方一般流程的最終提交。詳見 [草稿指南](DRAFT_TESTING.md)。
 
 ```sh
 vpub onboard --platforms x
 vpub init --video final.mp4 --out x-publish.json --platforms x
-# 修改帳號與文案 / Review identity and text
+# 修改帳號與文案
 vpub plan x-publish.json
 vpub publish x-publish.json --confirm CURRENT_PLAN_HASH
 ```
 
 在平台選項加入 `expected_identity`，值為登入後個人檔案可見的 handle（不含 `@`）。同一瀏覽器確認帳號後才執行 `browser begin`；登入方式由使用者自行選擇。
 
-Set `expected_identity` to the handle visible in the signed-in profile, without `@`. Confirm the account in the same browser before `browser begin`; let the user choose the sign-in method.
+- **文案：** `plan.platforms.x.post_text` 依序組合標題、說明與 hashtag；`ai_generated: true` 附上 AI 生成聲明。上傳時使用完整 `post_text`，不要重組或截斷。
+- **受眾** `visibility: account` 遵循帳號和頁面當前受眾。不是每條影片的「僅自己可見」，不自動修改帳號公開／保護設定。
+- **規格** 以網站的文案計數器、影片檢查和帳號權限為準；中文、emoji、網址不能用 Python `len()` 當成 X 的正式計數。Agent 先核對影片時長、大小與格式，有不符即停止，不自動裁片或假設有付費權限。
+- **提交** 等待影片處理完成、核對全文與受眾，再點擊一次發布；不確定結果只檢查原帖。
+- **回執** 讀回 `https://x.com/HANDLE/status/ID`，記錄數字 ID、原帳號、全文 `post_text` 與各來源欄位。校驗器拒絕另一帳號的網址、不同 ID 或遺漏 AI 說明的全文。
 
-- **文案 / Text:** `plan.platforms.x.post_text` 依序組合標題、說明、hashtag；`ai_generated: true` 會附「AI 生成內容 / AI-generated」。上傳時使用完整 `post_text`，不要重組或截斷。 / Use the exact generated `post_text`, including its AI disclosure; do not silently rewrite or truncate it.
-- **受眾 / Audience:** `visibility: account` 遵循帳號和頁面當前受眾。不是每條影片的「僅自己可見」，不自動修改帳號公開／保護設定。 / Account/current UI audience applies; this is not an individual private-video switch and does not change protected-account settings.
-- **規格 / Limits:** 以網站的文案計數器、影片檢查和帳號權限為準；中文、emoji、網址不能用 Python `len()` 當成 X 的正式計數。Agent 先核對影片時長、大小與格式，有不符即停止，不自動裁片或假設有付費權限。 / Check the website's weighted character counter, media validation and account limits; do not treat Python string length as X's counter. Inspect duration/size/format first, stop on mismatch, and do not silently trim or assume paid privileges.
-- **提交 / Submit:** 等待影片處理完成、核對全文與受眾，再點擊一次發布；不確定結果只檢查原帖。 / Wait for processing, check exact text/audience, submit once; inspect the original post after an uncertain result.
-- **回執 / Receipt:** 讀回 `https://x.com/HANDLE/status/ID`，記錄數字 ID、原帳號、全文 `post_text` 與各來源欄位。校驗器拒絕另一帳號的網址、不同 ID 或遺漏 AI 說明的全文。 / Read back the status URL, numeric ID, original handle, exact `post_text` and source fields. Validation rejects a different author, mismatched ID or altered disclosure/text.
-
-X 官方網頁上傳說明目前列出：未訂閱帳號最多 140 秒、512 MB；付費帳號有不同額度。這是查閱日期的參考，實際帳號介面仍須驗證。 / X's web-upload guide currently lists 140 seconds and 512 MB for non-subscribers, with different paid limits; validate the actual account UI as well. [官方來源 / Official source](https://help.x.com/en/using-x/x-videos)（查閱 / checked 2026-10-29）。
+X 官方網頁上傳說明目前列出：未訂閱帳號最多 140 秒、512 MB；付費帳號有不同額度。這是查閱日期的參考，實際帳號介面仍須驗證。
 
 搜尋、作品清單、數據分析、評論與收件箱尚未接成統一 X 命令；不要將此交接流程宣傳為完整 X CLI。
 
-Discovery, work listings, analytics, comments and inbox are not unified X commands yet. Do not describe this handoff as a full X CLI.
-
-
-## 自訂封面與訂閱 / Custom thumbnails and subscription
+## 自訂封面與訂閱
 
 **自訂封面走需要訂閱權限的 Media Studio。** X 官方資料說明 Media Studio 僅向已驗證訂閱者開放，媒體庫的 Change thumbnail 可選影片影格或上傳圖片；圖片比例應與影片相同。一般發帖頁沒有同等保證，訂閱付款也不代表媒體庫已完成初始化。
 
-**Custom thumbnails use subscription-gated Media Studio.** Official guidance limits Studio access to verified subscribers. Its library offers Change thumbnail with a video frame or uploaded image matching the video aspect ratio. Ordinary post composition is a different surface; payment alone does not prove that the library is ready.
+[官方權限說明](https://help.x.com/en/using-x/media-studio) · [官方縮圖說明](https://help.x.com/en/using-x/media-studio-faqs)（查閱：2026-10-29）。
 
-[官方權限說明 / Official access](https://help.x.com/en/using-x/media-studio) · [官方縮圖說明 / Official thumbnails](https://help.x.com/en/using-x/media-studio-faqs)（查閱 / checked 2026-10-29）。
+**訂閱級別** Media Studio 列於 Premium 與 Premium+，Basic 不包含。[官方訂閱比較](https://help.x.com/en/using-x/x-premium)。
 
-**訂閱級別 / Tier:** Media Studio 列於 Premium 與 Premium+，Basic 不包含。[官方訂閱比較 / Official tier comparison](https://help.x.com/en/using-x/x-premium)。
-
-**2026-10-29 後續實測 / Follow-up:** 原本媒體庫初始化失敗；直接點 Upload Media 上傳原片一次後，素材入庫並可開啟詳情。Change thumbnail → upload 上傳同為 16:9 的製作封面；關閉及重開後封面、標題、簡述保留。依使用者新增的明確授權再從 Studio 發布，已讀到新帖與原封面；舊帖保留。這是宿主 UI 實測，尚未整合為獨立 Studio API 或 CLI 封面回執命令。
-
-The library initially failed to initialize. A single direct Upload Media attempt succeeded and exposed media details. Change thumbnail → upload accepted the matching 16:9 production cover; artwork and metadata survived closing/reopening. Newly authorized Studio publication produced a new status with the original cover. The previous status was retained. This is host-UI validation, not a standalone Studio API or dedicated CLI cover-receipt command.
+**2026-10-29 後續實測** 原本媒體庫初始化失敗；直接點 Upload Media 上傳原片一次後，素材入庫並可開啟詳情。Change thumbnail → upload 上傳同為 16:9 的製作封面；關閉及重開後封面、標題、簡述保留。依使用者新增的明確授權再從 Studio 發布，已讀到新帖與原封面；舊帖保留。這是宿主 UI 實測，尚未整合為獨立 Studio API 或 CLI 封面回執命令。
 
 流程：確認帳號與素材 → 上傳／選擇既有媒體 → Change thumbnail → 上傳與影片同比例的原封面 → 讀回 → 依授權 Post → 核對新作品連結。資料庫素材 ID 與帖文 ID 不相同；素材入庫不等於發布，也不會自動替換舊帖影片。
 
-Workflow: verify account/media → upload or select existing media → Change thumbnail → upload same-ratio artwork → read back → Post when authorized → verify the status URL. Library media IDs differ from post IDs. Uploading media is not publication and does not replace an earlier post.
-
 本次 Studio 新帖保留文案中的 AI-generated 聲明，但未觀察到一般發帖頁的 Made with AI 標記。不要把文案聲明當成已驗證的原生標記。完整播放與手機顯示仍需另行驗收。
 
-This Studio post retains the AI-generated text disclosure, but the native Made with AI badge was not observed. Text disclosure is not proof of the native label. Full playback and mobile presentation remain separate checks.
+相關連結：[官方來源](https://help.x.com/en/using-x/x-videos)
+
+[返回實驗室首頁](../../../README.md)

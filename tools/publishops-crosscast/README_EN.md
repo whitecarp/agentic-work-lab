@@ -10,14 +10,14 @@ Prepare platform-specific metadata, covers and publication receipts for one orig
 
 This alpha is not a fully validated five-platform publisher. Browser execution needs a host agent; a login URL or queue does not prove sign-in or publication. TikTok is suspended. YouTube cards/clickable end screens, standalone X/Instagram APIs and unified comments/analytics remain unimplemented.
 
-[Features](docs/FEATURES.md) · [Validation](docs/VALIDATION.md) · [Agent handoff](DEEPSEEK_HANDOFF.md) · [Draft testing](docs/DRAFT_TESTING.md)
+[Features](docs/FEATURES_EN.md) · [Validation](docs/VALIDATION_EN.md) · [Agent handoff](DEEPSEEK_HANDOFF_EN.md) · [Draft testing](docs/DRAFT_TESTING_EN.md)
 
 ## Install and start
 
 Requires Python 3.10–3.12 and Git for Git-URL installation. The [Windows installer](install.ps1) finds compatible Python, creates an isolated environment and installs dependencies; missing Python must be prepared by the agent. Default sign-in needs no user OAuth setup or model API key.
 
 ```sh
-pip install "git+https://github.com/whitecarp/ai-video-lab.git#subdirectory=tools/publishops-crosscast"
+pip install "git+https://github.com/whitecarp/agentic-work-lab.git#subdirectory=tools/publishops-crosscast"
 vpub doctor
 vpub onboard --platforms bilibili,douyin,youtube
 vpub init --video final.mp4 --language zh-Hans --out publish.json --platforms bilibili,douyin,youtube
@@ -79,7 +79,7 @@ The handoff prefers an explicit `--mobile-cover`, then `covers.douyin.portrait`,
 
 Use the production original in new plans, not retained 0.2.4 lead-in experiments. A CLI update does not replace, delete or repost existing publications.
 
-[X Media Studio workflow](docs/X_GUIDE.md) · [Deletion and cover replacement](docs/DELETION_AND_COVERS.md)
+[X Media Studio workflow](docs/X_GUIDE_EN.md) · [Deletion and cover replacement](docs/DELETION_AND_COVERS_EN.md)
 
 For supported platforms, use the following handoff to edit an existing work, checking its original account, work ID and saved result. Instagram mobile covers and X Studio use the dedicated workflows above.
 
@@ -107,7 +107,7 @@ Native Bilibili/Douyin/YouTube handoffs accept measured `duration_seconds` and `
 }
 ```
 
-The same four timestamps with Simplified Chinese titles were checked and submitted on Douyin. The user later confirmed mobile visibility; the work remains private. See the [guide](docs/CATEGORIES_AND_CHAPTERS.md) for the chapter entry, 12-character title limit and review receipts. Description timestamps do not prove native chapters are active; missing access or review stays pending.
+The same four timestamps with Simplified Chinese titles were checked and submitted on Douyin. The user later confirmed mobile visibility; the work remains private. See the [guide](docs/CATEGORIES_AND_CHAPTERS_EN.md) for the chapter entry, 12-character title limit and review receipts. Description timestamps do not prove native chapters are active; missing access or review stays pending.
 
 ## Publication and receipts
 
@@ -135,10 +135,10 @@ vpub notify configure --provider off
 vpub notify pending
 ```
 
-On official verification, notify inline and preserve the work. Email queues only if enabled. The host uses `notify claim`, calls Gmail/Outlook and records the actual result with `notify record`. Queued is not sent; accepted is not delivered. Report missing tools or uncertainty without automatic resend. See the [handoff guide](DEEPSEEK_HANDOFF.md).
+On official verification, notify inline and preserve the work. Email queues only if enabled. The host uses `notify claim`, calls Gmail/Outlook and records the actual result with `notify record`. Queued is not sent; accepted is not delivered. Report missing tools or uncertainty without automatic resend. See the [handoff guide](DEEPSEEK_HANDOFF_EN.md).
 
 ## Backends and references
 
-Bilibili reuses [kukemc/bili-cli](https://github.com/kukemc/bili-cli). YouTube offers an optional official API; standalone Douyin remains experimental. X/Instagram use host-browser handoff. See [validation](docs/VALIDATION.md) for actual publication evidence and limits.
+Bilibili reuses [kukemc/bili-cli](https://github.com/kukemc/bili-cli). YouTube offers an optional official API; standalone Douyin remains experimental. X/Instagram use host-browser handoff. See [validation](docs/VALIDATION_EN.md) for actual publication evidence and limits.
 
-[NOTICE](NOTICE.md) · [Research](docs/RESEARCH.md) · [TikTok status](docs/TIKTOK_STATUS.md) · [Bilibili contact](https://space.bilibili.com/10706217) · [Lab home](../../README_EN.md)
+[NOTICE](NOTICE_EN.md) · [Research](docs/RESEARCH_EN.md) · [TikTok status](docs/TIKTOK_STATUS_EN.md) · [Bilibili contact](https://space.bilibili.com/10706217) · [Lab home](../../README_EN.md)

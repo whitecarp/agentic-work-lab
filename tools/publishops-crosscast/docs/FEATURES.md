@@ -1,72 +1,61 @@
-# 功能對照與實作狀態 / Feature mapping and implementation status
+# 功能對照與實作狀態
+
+**繁體中文** · [English](FEATURES_EN.md)
 
 目標參考 [bili-cli](https://github.com/kukemc/bili-cli)：讓 Agent 能理解內容、管理作品、讀取營運訊息並在授權內互動。以下區分現在可用與待實作，不能將計畫列成完成。
 
-The reference is [bili-cli](https://github.com/kukemc/bili-cli): content understanding, work management, operational messages and authorized interaction. Plans below are not completed features.
-
-| 能力 / Capability | Bilibili | YouTube | Douyin | X (Twitter) | Instagram |
-|---|---|---|---|---|---|
-| 官方頁登入 / Official-page login | Native handoff | Native handoff | Native handoff | Native handoff | Native handoff |
-| 跨平台方案與去重 / Plan and dedup | Implemented | Implemented | Implemented | Implemented | Implemented |
-| 內置瀏覽器發布交接 / Native upload handoff | Implemented | Implemented | Implemented | Implemented | Implemented |
-| 獨立發布後端 / Standalone uploader | bili-cli | Optional API | Experimental browser | Not implemented | Not implemented |
-| 真實發片驗收 / Live upload acceptance | Existing work retained | One private native upload verified | One private work; chapter visibility user-confirmed | One status read back; full playback unverified | One reel read back; cover-grid crop unresolved |
-| YouTube 卡片／可點擊片尾 / Cards and clickable end screens | Not applicable | Not implemented | Not applicable | Not applicable | Not applicable |
-| 搜尋／推薦 / Discovery | Existing bili | Planned | Planned | Planned | Planned |
-| 作品／字幕／內容理解 / Content understanding | Existing bili | Planned, platform permitting | Planned, platform permitting | Planned, platform permitting | Planned, platform permitting |
-| 評論／收件箱／訊息 / Comments and inbox | Existing bili | Platform-specific adaptation planned | Planned | Planned | Planned |
-| 互動與發布後修改 / Interaction and editing | Existing bili | Native metadata/cover edits | Native edits; review pending | Planned | Planned |
-| 創作者數據 / Creator analytics | Existing bili | Planned | Planned | Planned | Planned |
+| 能力 | Bilibili | YouTube | Douyin | X (Twitter) | Instagram |
+| --- | --- | --- | --- | --- | --- |
+| 官方頁登入 | 內置瀏覽器交接 | 內置瀏覽器交接 | 內置瀏覽器交接 | 內置瀏覽器交接 | 內置瀏覽器交接 |
+| 跨平台方案與去重 | 已實作 | 已實作 | 已實作 | 已實作 | 已實作 |
+| 內置瀏覽器發布交接 | 已實作 | 已實作 | 已實作 | 已實作 | 已實作 |
+| 獨立發布後端 | bili-cli | 選配 API | 實驗性瀏覽器後端 | 尚未實作 | 尚未實作 |
+| 真實發片驗收 | 保留既有作品 | 一條內置瀏覽器私密上傳已驗證 | 一條私密作品；使用者確認手機章節可見 | 已讀回一條帖文；完整播放未驗收 | 已讀回一條 Reel；網格封面裁切仍有限制 |
+| YouTube 卡片／可點擊片尾 | 不適用 | 尚未實作 | 不適用 | 不適用 | 不適用 |
+| 搜尋／推薦 | 沿用 bili | 待實作 | 待實作 | 待實作 | 待實作 |
+| 作品／字幕／內容理解 | 沿用 bili | 待實作，視平台能力而定 | 待實作，視平台能力而定 | 待實作，視平台能力而定 | 待實作，視平台能力而定 |
+| 評論／收件箱／訊息 | 沿用 bili | 計畫按平台適配 | 待實作 | 待實作 | 待實作 |
+| 互動與發布後修改 | 沿用 bili | 內置瀏覽器修改文案／封面 | 內置瀏覽器修改；待平台審核 | 待實作 | 待實作 |
+| 創作者數據 | 沿用 bili | 待實作 | 待實作 | 待實作 | 待實作 |
 
 **Native handoff 是需要 Agent 操作網頁的流程，不是 CLI 已取得資料或已上傳的宣告。** B站現有能力使用安裝後的 `bili`；本工具不宣稱重新實作或驗收了它所有命令。
 
-**Native handoff requires agent-driven UI work; it is not a claim that CLI retrieval or upload has occurred.** Existing Bilibili capabilities use installed `bili`; this project does not claim to reimplement or validate every upstream command.
-
 平台適配原則：B站投幣／三連／彈幕不硬套其他平台；Instagram 使用 caption 與帳號受眾；YouTube 使用影片可見範圍、兒童與合成內容聲明；X 使用單一帖文、帳號受眾與 status ID；TikTok 已暫停。跨平台數據保留平台、採樣時間與各自定義，不把不同播放口徑當成同一指標。
-
-Adapt platform concepts rather than copying Bilibili coins/triples/danmaku everywhere. Instagram uses captions and account audience; YouTube has visibility, kids and synthetic-content controls; X uses a single post body, account audience and status ID; TikTok is suspended. Analytics must retain platform, sampling time and metric definitions rather than treating differently defined views as equivalent.
 
 下一步依序：完成已登入帳號的原創影片驗收、整合作品與數據讀取、再增加經使用者授權的評論／回覆。每項都需真實回讀、錯誤碼、去重及平台對應測試。
 
-Next: accept original-video publication on signed-in accounts, integrate works/analytics reads, then add explicitly authorized comments/replies. Each needs real read-back, error handling, deduplication and platform-specific tests.
+[X 操作說明](X_GUIDE.md) · [TikTok 暫停及協助測試](TIKTOK_STATUS.md)
 
-[X 操作說明 / X guide](X_GUIDE.md) · [TikTok 暫停及協助測試 / TikTok suspension and volunteer testing](TIKTOK_STATUS.md)
+## 0.2.0：跨平台內容設定
 
-## 0.2.0：跨平台內容設定 / Cross-platform content settings
-
-| 能力 / Capability | 本版範圍 / This release |
-|---|---|
-| 文案生成 / Copywriting | Host-model request/apply, source-bound validation; no independent model API |
-| 語言 / Language | Bilibili/Douyin → Simplified Chinese; YouTube/Instagram/X → English; bilingual opt-in |
-| 封面 / Covers | Production artwork → platform canvases; no cropping; immutable snapshots and read-back per variant |
-| 現有作品修改 / Existing-work edits | Metadata/cover changes retain the original work ID; privacy reduction preserved after actual read-back |
-| 播放列表 / Playlists | YouTube native fields and optional API membership operations; Bilibili collections remain upstream |
-| 郵件 / Email | Off by default; host Gmail/Outlook send-tool handoff, claims and durable results; no SMS |
-| 章節 / Chapters | Native handoff; Douyin chapters submitted and mobile visibility user-confirmed |
+| 能力 | 本版範圍 |
+| --- | --- |
+| 文案生成 | 宿主模型 request/apply 與來源校驗；沒有獨立模型 API |
+| 語言 | B站／抖音為簡體中文，YouTube／Instagram／X 為英文；雙語需明確選擇 |
+| 封面 | 製作封面轉為平台畫布，保留完整圖；不可變快照與逐版讀回 |
+| 現有作品修改 | 修改文案／封面保留原作品 ID；縮小受眾後以實際讀回確認 |
+| 播放列表 | YouTube 內置瀏覽器欄位與選配 API 成員操作；B站合集沿用上游 |
+| 郵件 | 預設關閉；宿主 Gmail／Outlook 寄信交接、領取與持久結果；無簡訊 |
+| 章節 | 內置瀏覽器交接；抖音章節已提交，使用者確認手機可見 |
 
 詳見 [README](../README.md) 與當前 [驗證記錄](VALIDATION.md)，上方早期能力表中的發布驗收以此記錄為準。
 
-See README and current validation for the latest acceptance status; these supersede historical live-upload entries above.
+## 0.2.2：草稿與明確發布
 
-## 0.2.2：草稿與明確發布 / Drafts and explicit publication
+Instagram／X 可用 `init --draft-only`，區分預覽與保存草稿；使用者明確改為發布後才用 `browser authorize-publish` 繼續同一份內容，不重傳。X 的草稿及原帖已實測，Instagram 首次提交失敗，重新登入及核對無重複後重試成功；封面網格裁切仍待適配。
 
-Instagram／X 可用 `init --draft-only`，區分預覽與保存草稿；使用者明確改為發布後才用 `browser authorize-publish` 繼續同一份內容，不重傳。X 的草稿及原帖已實測，Instagram 首次提交失敗，重新登入及核對無重複後重試成功；封面網格裁切仍待適配。 / Draft-only mode distinguishes preview from saved drafts. Explicit operator authorization can enable submission of the same draft without reuploading. X draft and status were tested; Instagram succeeded after reauthentication and a rejection/absence-checked retry; profile-cover cropping remains unresolved. See [validation](VALIDATION.md).
+## 0.2.3：刪除回執與封面限制
 
+Instagram 新增明確刪除交接、確認結果與刷新後缺席證據、保留歷史的同片封面重發流程。已實測刪除；替換影片尚未分享。X 自訂封面改走需要訂閱權限的 Media Studio；本次媒體庫初始化失敗，封面修改未驗收。
 
-## 0.2.3：刪除回執與封面限制 / Deletion receipts and cover limits
-
-Instagram 新增明確刪除交接、確認結果與刷新後缺席證據、保留歷史的同片封面重發流程。已實測刪除；替換影片尚未分享。X 自訂封面改走需要訂閱權限的 Media Studio；本次媒體庫初始化失敗，封面修改未驗收。 / Instagram now has explicit deletion handoff, acknowledgement/absence evidence and history-preserving same-video cover replacement. Deletion was exercised; replacement has not been shared. X custom thumbnails use subscription-gated Media Studio; this session hit library initialization failure, so thumbnail changes remain unverified. [操作指南 / Guide](DELETION_AND_COVERS.md).
-
-
-## 0.2.4 歷史實驗：片頭方案已撤回 / Historical experiment: lead-in withdrawn
+## 0.2.4 歷史實驗：片頭方案已撤回
 
 當時的 `instagram prepare` 自動判斷：橫式加入 1 秒原封面，直式／方形原片通過；維持原比例、原檔、可追溯雜湊及重跑復用。X 原橫式封面已透過 Studio 保存及發布；這是宿主網頁操作，不是新建了獨立 API。前面的 0.2.3 段落是歷史測試狀態，以最新 [驗證記錄](VALIDATION.md) 為準。
 
-The former preparation command added a one-second production-cover lead to landscape, passed portrait/square through, and retained original ratio, inputs, hashes and rerun reuse. This experiment was withdrawn in 0.2.5 after mobile testing. X's landscape cover was saved/published through Studio UI, not a new standalone API. Earlier 0.2.3 entries are historical; consult current validation.
-
-
-## 0.2.5：原影片與共用直式封面 / Original video and shared portrait cover
+## 0.2.5：原影片與共用直式封面
 
 依手機實測撤回一秒片頭處理，刪除該命令。Instagram 準備不改影片位元組、比例或時長；網頁另傳封面，手機從相機膠卷選抖音共用圖。交接回傳同一張圖片的路徑與雜湊，手機保存由使用者操作並驗收。
 
-Mobile testing supersedes the one-second lead-in experiment; that command is removed. Preparation preserves original video bytes, ratio and duration, with a separate web cover and shared Douyin portrait for the phone camera-roll picker. The handoff returns the identical image path/hash; the user saves and verifies mobile changes.
+相關連結：[操作指南](DELETION_AND_COVERS.md)
+
+[返回實驗室首頁](../../../README.md)

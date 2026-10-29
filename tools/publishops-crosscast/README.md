@@ -17,7 +17,7 @@
 需要 Python 3.10–3.12，Git URL 安裝另需 Git。[Windows 安裝腳本](install.ps1) 尋找相容 Python、建立獨立環境並安裝依賴；缺少 Python 時提示 Agent 準備。預設登入不需要使用者申請 OAuth 或模型 API 金鑰。
 
 ```sh
-pip install "git+https://github.com/whitecarp/ai-video-lab.git#subdirectory=tools/publishops-crosscast"
+pip install "git+https://github.com/whitecarp/agentic-work-lab.git#subdirectory=tools/publishops-crosscast"
 vpub doctor
 vpub onboard --platforms bilibili,douyin,youtube
 vpub init --video final.mp4 --language zh-Hans --out publish.json --platforms bilibili,douyin,youtube

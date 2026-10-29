@@ -1,4 +1,4 @@
-# AI at Work Lab
+# Agentic Work Lab
 
 [繁體中文](README.md) · **English**
 
@@ -6,7 +6,7 @@
 
 Explore how AI supports research, content production and operations, then turn practical lessons into repeatable, verifiable workflows that others can use.
 
-🎬 [Bilibili channel · UID 10706217](https://space.bilibili.com/10706217) · 📦 [Video downloads](https://github.com/whitecarp/ai-video-lab/releases) · [Video catalogue](media/README.md) · [Operations data](data/README.md)
+🎬 [Bilibili channel · UID 10706217](https://space.bilibili.com/10706217) · 📦 [Video downloads](https://github.com/whitecarp/agentic-work-lab/releases) · [Video catalogue](media/README_EN.md) · [Operations data](data/README_EN.md)
 
 ## PublishOps CrossCast
 
@@ -19,7 +19,7 @@ Prepare platform-specific descriptions, covers and publication receipts for one 
 - Production-cover fitting, YouTube playlist settings and optional email notifications.
 - **0.2.5 alpha, with 72 passing offline tests.** Full five-platform publication still has open acceptance items; tested scope and limits are documented.
 
-[Install and use](tools/publishops-crosscast/README_EN.md) · [Feature scope](tools/publishops-crosscast/docs/FEATURES.md) · [Validation](tools/publishops-crosscast/docs/VALIDATION.md)
+[Install and use](tools/publishops-crosscast/README_EN.md) · [Feature scope](tools/publishops-crosscast/docs/FEATURES_EN.md) · [Validation](tools/publishops-crosscast/docs/VALIDATION_EN.md)
 
 ## How AI supports everyday work
 
@@ -27,12 +27,12 @@ Start with concrete tasks: document where AI can help, where human judgment is n
 
 | Use in practice | Methods and outputs |
 |---|---|
-| Organise merchant research, prioritise leads and prepare outreach | [Merchant-development demo](docs/business-development.md) |
-| Choose AI tools and plugins for the task | [Tool selection and usage](docs/toolchain.md) |
-| Coordinate research, production and review | [GPT/DeepSeek workflow evidence](docs/model-workflow.md) |
-| Turn repeated steps into reusable code | [Code map](docs/code-map.md) · [Runnable examples](scripts) |
-| Compare operations data and check conclusions | [Data comparison and limits](docs/data-comparison.md) |
-| Preserve context for team handoffs | [Merchant brief](templates/merchant-brief.md) · [Operations checklist](templates/operations-checklist.md) |
+| Organise merchant research, prioritise leads and prepare outreach | [Merchant-development demo](docs/business-development_EN.md) |
+| Choose AI tools and plugins for the task | [Tool selection and usage](docs/toolchain_EN.md) |
+| Coordinate research, production and review | [GPT/DeepSeek workflow evidence](docs/model-workflow_EN.md) |
+| Turn repeated steps into reusable code | [Code map](docs/code-map_EN.md) · [Runnable examples](scripts) |
+| Compare operations data and check conclusions | [Data comparison and limits](docs/data-comparison_EN.md) |
+| Preserve context for team handoffs | [Merchant brief](templates/merchant-brief_EN.md) · [Operations checklist](templates/operations-checklist_EN.md) |
 
 **2026-10-28 snapshot:** 55 upload records, 69 de-identified operations events, 19 publicly downloadable video versions, four workflow scripts/modules and ten workflow tests. These counts exclude subsequent CrossCast code and tests. The merchant example uses fictional data; simulated results are not presented as real partnerships or measured team-efficiency gains.
 
@@ -54,10 +54,10 @@ This is the public research and production archive behind the **AI Girls at Work
 
 | Topic | Delivered | Read |
 |---|---|---|
-| Animation timing | Distinguish output FPS, exposure and spacing; define contact-action checks. | [Study](docs/animation-timing.md) |
-| Editable video | Align scenes, captions and audio to a speech clock; document editable delivery. | [Workflow](docs/editable-video-workflow.md) |
-| Automation verification | Verify an actual hourly scheduled run and completion with one active operator. | [Verification](docs/automation-verification.md) |
-| Channel research | Document historical human-led uploads and the current AI series with sampling definitions. | [Data notes](data/README.md) |
+| Animation timing | Distinguish output FPS, exposure and spacing; define contact-action checks. | [Study](docs/animation-timing_EN.md) |
+| Editable video | Align scenes, captions and audio to a speech clock; document editable delivery. | [Workflow](docs/editable-video-workflow_EN.md) |
+| Automation verification | Verify an actual hourly scheduled run and completion with one active operator. | [Verification](docs/automation-verification_EN.md) |
+| Channel research | Document historical human-led uploads and the current AI series with sampling definitions. | [Data notes](data/README_EN.md) |
 
 These are production experiments and engineering findings, not controlled evidence of guaranteed channel growth. Different topics, video ages and traffic sources prevent a direct “human versus AI” verdict from lifetime views.
 
@@ -73,16 +73,16 @@ Titles below are English summaries; original Bilibili titles remain in the datas
 | 2026-10-26 | [GPT Duty Log 02: A song-title question receives another question](https://www.bilibili.com/video/BV1gxnU6GEuz) |
 | 2026-10-25 | [GPT Duty Log 01: A reply to a comment from 2022](https://www.bilibili.com/video/BV1qjHV6sEuD) |
 
-Videos not yet public on Bilibili and earlier experimental cuts are listed in the [catalogue](media/README.md). A public GitHub download does not mean a Bilibili upload has been published; this repository does not change platform schedules.
+Videos not yet public on Bilibili and earlier experimental cuts are listed in the [catalogue](media/README_EN.md). A public GitHub download does not mean a Bilibili upload has been published; this repository does not change platform schedules.
 
-[2026-10-28 evening update: three video versions, day-one analytics and frame-level repair](docs/updates/2026-10-28-evening.md)
+[2026-10-28 evening update: three video versions, day-one analytics and frame-level repair](docs/updates/2026-10-28-evening_EN.md)
 
 ## Using the material
 
-- [Research method](docs/research-method.md): source → evidence → test → limits.
-- [Research-note template](templates/research-note.md): separate observations from inferences.
+- [Research method](docs/research-method_EN.md): source → evidence → test → limits.
+- [Research-note template](templates/research-note_EN.md): separate observations from inferences.
 - [Delivery manifest](templates/delivery-manifest.json): record formats, hashes, review and publication status.
-- [Operations checklist](templates/operations-checklist.md): act on due work and verify before recording success.
+- [Operations checklist](templates/operations-checklist_EN.md): act on due work and verify before recording success.
 
 Data is provided as CSV/JSON, with downloadable video files and SHA-256 checksums. Missing values remain empty rather than becoming zero. Sampling times and sources accompany each dataset.
 

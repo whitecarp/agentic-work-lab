@@ -1,4 +1,4 @@
-# AI 工作實驗室
+# 智能體工作實驗室
 
 **繁體中文** · [English](README_EN.md)
 
@@ -6,7 +6,7 @@
 
 探索 AI 如何協助資料研究、內容製作與營運，把實作經驗整理成可重跑、可檢查、可交接的方法。
 
-🎬 [Bilibili：穿睡衣的小白白](https://space.bilibili.com/10706217) · 📦 [影片下載](https://github.com/whitecarp/ai-video-lab/releases) · [影片目錄](media/README.md) · [營運資料](data/README.md)
+🎬 [Bilibili：穿睡衣的小白白](https://space.bilibili.com/10706217) · 📦 [影片下載](https://github.com/whitecarp/agentic-work-lab/releases) · [影片目錄](media/README.md) · [營運資料](data/README.md)
 
 ## PublishOps CrossCast
 

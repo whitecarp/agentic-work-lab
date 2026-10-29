@@ -1,9 +1,9 @@
 {
-  "name": "ai-video-lab-bd-portfolio",
+  "name": "agentic-work-lab",
   "version": "0.1.0",
   "private": true,
   "type": "module",
-  "description": "Evidence-backed AI operations and Business Development workflow demos",
+  "description": "Practical agent workflows for research, content production and operations",
   "engines": { "node": ">=20" },
   "scripts": {
     "demo": "node scripts/prioritize-merchants.mjs",

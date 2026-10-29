@@ -1,19 +1,15 @@
-# TikTok 暫停支援 / TikTok support suspended
+# TikTok 暫停支援
 
-更新 / Updated: **2026-10-29**
+**繁體中文** · [English](TIKTOK_STATUS_EN.md)
+
+更新：**2026-10-29**
 
 本次使用香港（+852）手機號碼未能完成 TikTok 登入，專案維護者因此決定取消目前的 TikTok 適配。這是本次測試的限制記錄；尚未取得足以斷言所有香港號碼、所有登入方式均不支援的官方證據。
 
-Our test could not complete TikTok sign-in with a Hong Kong (+852) phone number. The maintainer has therefore suspended TikTok integration. This records the observed test limitation; it is not an independently verified claim that every Hong Kong number or sign-in method is unsupported.
-
 TikTok 已從登入選單、`all` 與新發布範本移除。包含 TikTok 的舊方案及尚未開始的工作會被拒絕，原有回執保留。抖音是另一個平台，仍在適配範圍內。
-
-TikTok is removed from sign-in selection, `all`, and new publication templates. Old TikTok plans and unstarted jobs are blocked; historical receipts are retained. Douyin is a separate platform and remains in scope.
 
 如果你在其他地區擁有能正常登入 TikTok 的帳號，並願意使用自己的帳號協助測試，請透過 **[B站：穿睡衣的小白白（UID 10706217）](https://space.bilibili.com/10706217)** 聯絡。測試時由帳號持有人自行登入；請勿在 GitHub Issue、留言或私訊中提供密碼、簡訊驗證碼或 Cookie。
 
-If you have a working TikTok account in another region and would like to help test using your own account, contact **[穿睡衣的小白白 on Bilibili (UID 10706217)](https://space.bilibili.com/10706217)**. Account owners should sign in themselves during testing; do not send passwords, SMS codes or cookies through GitHub issues, comments or messages.
-
 本版不包含 TikTok 發布能力，恢復適配須另行驗收後發布新版本。
 
-This release does not support TikTok publication. Restoring the integration requires separate validation and a new release.
+[返回實驗室首頁](../../../README.md)

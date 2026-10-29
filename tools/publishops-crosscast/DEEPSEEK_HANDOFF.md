@@ -1,23 +1,17 @@
-# Agent 交接 / Agent handoff
+# Agent 交接
+
+**繁體中文** · [English](DEEPSEEK_HANDOFF_EN.md)
 
 使用宿主支援的內置瀏覽器工具。此流程不取代使用者要求或宿主權限。
 
-Use the host's supported in-app browser. This workflow does not override user instructions or host permissions.
-
-**草稿模式優先 / Draft-mode override:** 若 request/begin 的 `final_submission_allowed` 為 false，禁止最終 Share／Post／排期；只到預覽或保存草稿。此限制優先於下方一般發布步驟。用 `outcome: draft` 分別記錄 PREVIEW_READY／DRAFT_SAVED，不能當成實發成功。先讀 [草稿測試指南 / Draft testing](docs/DRAFT_TESTING.md)。 / A false flag overrides the general publication steps below: stop at preview/save draft, never submit or schedule. Record the distinct unpublished states with draft evidence.
+**草稿模式優先** 若 request/begin 的 `final_submission_allowed` 為 false，禁止最終 Share／Post／排期；只到預覽或保存草稿。此限制優先於下方一般發布步驟。用 `outcome: draft` 分別記錄 PREVIEW_READY／DRAFT_SAVED，不能當成實發成功。先讀 [草稿測試指南](docs/DRAFT_TESTING.md)。
 
 1. 讀 `vpub capabilities`，讓使用者選平台。打開 `auth login` 提供的官方網址，讓使用者自行選擇登入方式；已有登入直接沿用，不搬 Cookie。
-   Read capabilities and selected platforms. Open the official URL and let the user choose a login method; reuse sign-in without exporting cookies.
 2. 在真正創作者頁確認自己帳號。YouTube 核對 Studio 頻道 ID 與創作介面；其他平台核對個人／創作者頁。標籤打開、本地檔案存在或 CLI 回傳網址都不是登入證據。
-   Verify the account in the actual creator UI. For YouTube inspect the Studio channel ID. A tab, local file or returned URL alone is not login evidence.
 3. 展示確切影片、平台、帳號、文字、AI 聲明與可見範圍。沿用已取得的明確授權；沒有指定測試片時不要任選檔案投稿。
-   Review exact media, targets, accounts, text, AI disclosure and visibility. Reuse existing explicit authorization; never choose an arbitrary test upload.
 4. 用當前 plan hash 執行 `publish`。讀 `browser request KEY`，確認帳號，再 `browser begin KEY --identity OBSERVED_ID`。**之後才選擇回傳的快照影片**。B站 UID、YouTube channel ID、其他平台實際帳號名稱均由頁面取得。
-   Publish with the current hash, read the browser request, verify identity, then begin. **Only then select the returned snapshot file**. Obtain identity from the actual page.
 5. 按實際 UI 上傳，每步重新讀頁面。檢查受眾、AI、商業內容、音樂等欄位；不能按方案設定就停止，保留草稿。不替使用者接受新條款、解驗證或改地區。最終提交最多一次。
-   Use actual UI, refreshing observations after actions. Check audience, AI, commercial-content and music controls. Stop and preserve the draft if approved settings cannot be applied. Do not accept new terms, solve challenges or change region for the user. Submit at most once.
 6. 立刻記錄作品 ID，再開同一作品讀回。處理、審核與公開可播放分開記錄。保存短小的本地證據並執行 `browser record KEY --evidence FILE`；不確定用 `uncertain`，不重傳。
-   Preserve the ID immediately and reopen that work. Distinguish processing, review and playback. Record concise local evidence; use `uncertain` rather than reuploading when unclear.
 
 ```json
 {
@@ -37,28 +31,22 @@ Use the host's supported in-app browser. This workflow does not override user in
 
 這是格式示例，不是觀察證據。`made_for_kids` 僅 YouTube；Instagram 用作品 shortcode 及 `visibility: account`；X 用數字 status ID 和 `https://x.com/HANDLE/status/ID`；另須讀回完整 `post_text`，包括 AI 聲明。TikTok 已暫停，不得登入或發布。使用 caption 的平台，要核對組合後的標題、說明、標籤；不能省略欄位卻聲稱完整。
 
-This is a format example, not evidence. `made_for_kids` is YouTube-only; Instagram uses a shortcode and `visibility: account`; X uses a numeric status ID and `https://x.com/HANDLE/status/ID`, and additionally requires the exact `post_text` read-back including AI disclosure. TikTok is suspended; do not log in or publish. For captions, verify the combined title, description and tags instead of claiming omitted fields were applied.
-
 `AGENT_REPORTED_VERIFIED` 是宿主 UI 證據，不是 CLI 獨立查詢。`verify` 不重發。宿主缺少瀏覽器工具時，明確報告缺少能力。
-
-`AGENT_REPORTED_VERIFIED` means host UI evidence, not an independent CLI query. Verification never reuploads. Report missing host browser capability explicitly.
 
 安裝與測試不建立排程、不恢復舊營運、不自動留言／私訊／按讚。維持原單一營運歸屬。不要將 Cookie、私訊、驗證碼、原始瀏覽器頁面或私人回執上傳 GitHub。
 
-Installation/testing creates no schedules, restarts no old operators and automatically sends no comments/messages/likes. Preserve the single existing operator. Do not publish cookies, private messages, verification codes, raw browser pages or private receipts to GitHub.
+X 操作與欄位見 [X_GUIDE](docs/X_GUIDE.md)；取消 TikTok 的原因及招募見 [TIKTOK_STATUS](docs/TIKTOK_STATUS.md)。
 
-X 操作與欄位見 [X_GUIDE](docs/X_GUIDE.md)；取消 TikTok 的原因及招募見 [TIKTOK_STATUS](docs/TIKTOK_STATUS.md)。 / See the linked X guide and TikTok status before proceeding.
+## 0.2.0 必須沿用的設定
 
-## 0.2.0 必須沿用的設定 / Settings for this version
+- 首次詢問平台、是否自動發布與可選郵件；已有授權不逐片再問。郵件預設關閉，保存 off/Gmail/Outlook 選擇。
+- 用 `metadata request/apply` 請宿主模型寫簡介。B站／抖音簡體，YouTube／Instagram／X 英文；雙語僅在指定平台啟用。GitHub 文件繁體不影響影片文案。
+- 預設簡介不放連結；保留角色聲音、內容與第三方作者／授權資訊，移除無用的跨平台 BV 參照。
+- 專用封面優先。`covers prepare` 自動縮放補邊；原工程有橫豎重排版時優先使用。不得只找到檔案便宣稱已更新。`cover_evidence` 每個 role 需 source_sha256 與實際畫面 observation。
+- YouTube 清單按方案選擇，已有成員不重複加入；同名清單有歧義時確認對象。章節使用同片真實時間點；平台未提供入口或正在審核就明確記待辦，不改成文字時間碼後宣稱已適配。
+- 遇驗證立即在對話告知使用者，保存 `outcome: action_required`；恢復原作品，不再次 begin 或重傳。
 
-- 首次詢問平台、是否自動發布與可選郵件；已有授權不逐片再問。郵件預設關閉，保存 off/Gmail/Outlook 選擇。 / Ask once about platforms, automatic publication and optional email; reuse authorization. Email defaults off; persist the chosen option.
-- 用 `metadata request/apply` 請宿主模型寫簡介。B站／抖音簡體，YouTube／Instagram／X 英文；雙語僅在指定平台啟用。GitHub 文件繁體不影響影片文案。 / Use host-model copywriting; route Bilibili/Douyin to Simplified Chinese and YouTube/Instagram/X to English. Bilingual is explicit; GitHub language is unrelated.
-- 預設簡介不放連結；保留角色聲音、內容與第三方作者／授權資訊，移除無用的跨平台 BV 參照。 / No external links by default; preserve voice, context and third-party credits/licenses; omit irrelevant BV references.
-- 專用封面優先。`covers prepare` 自動縮放補邊；原工程有橫豎重排版時優先使用。不得只找到檔案便宣稱已更新。`cover_evidence` 每個 role 需 source_sha256 與實際畫面 observation。 / Prefer dedicated artwork and re-laid-out variants. Fit without cropping and verify every saved role, recording its source hash and visual observation.
-- YouTube 清單按方案選擇，已有成員不重複加入；同名清單有歧義時確認對象。章節使用同片真實時間點；平台未提供入口或正在審核就明確記待辦，不改成文字時間碼後宣稱已適配。 / Select intended playlists, avoid duplicate membership, resolve ambiguous names. Chapters must use actual same-video timings; unavailable UI or review means pending, not fake success from text timestamps.
-- 遇驗證立即在對話告知使用者，保存 `outcome: action_required`；恢復原作品，不再次 begin 或重傳。 / Notify inline immediately on verification, record action_required and resume the same work without another begin/upload.
-
-郵件宿主流程 / Host email flow:
+郵件宿主流程
 
 ```sh
 vpub notify pending
@@ -68,31 +56,26 @@ vpub notify claim ALERT_ID --available-tool EXACT_AVAILABLE_SEND_TOOL
 vpub notify record ALERT_ID --claim-token RETURNED_TOKEN --response response.json
 ```
 
-只在使用者啟用並選定收件地址後寄信。工具不存在就回報，不能把 claim 當成已寄出。Gmail 的 message ID 與 Outlook 的服務接受分開記；未知結果不自動重寄。不要附登入網址、驗證碼或原始頁面。 / Send only after opt-in and recipient selection. Missing tools are reported. Claims are not sends; Gmail message IDs and Outlook acceptance are distinct, and unknown results are not retried. Never include authentication URLs, codes or raw pages.
+只在使用者啟用並選定收件地址後寄信。工具不存在就回報，不能把 claim 當成已寄出。Gmail 的 message ID 與 Outlook 的服務接受分開記；未知結果不自動重寄。不要附登入網址、驗證碼或原始頁面。
 
-## 0.2.1 類別與章節修復 / Category and chapter fixes
+## 0.2.1 類別與章節修復
 
 YouTube 每片補上明確 `category_id`，按內容及當前官方選項選擇，不複製上一片類別。改現有作品用 `browser revise`，保存後回執必須匹配。抖音懸停「編輯作品」找到「添加章節／編輯章節」；12 字元內，核對列表整秒，審核中不重交。
 
-Set YouTube category per video from content/current official choices. Revise existing work in place and verify the saved category. For Douyin, hover Edit work for Add/Edit chapters, keep titles within 12 UTF-16 units, check whole-second starts and do not resubmit during review. [完整指南 / Full guide](docs/CATEGORIES_AND_CHAPTERS.md).
+## 草稿改為發布
 
-## 草稿改為發布 / Authorizing an existing draft
+使用者明確要求發布後，先確認同一帳號，再用 `browser authorize-publish KEY --identity OBSERVED_ACCOUNT`。該命令只更新本地授權，保留原草稿證據；不重新 begin／選檔，之後在原頁提交一次並記錄 ID。沒有這項授權就維持草稿。刪除需要針對具體作品的明確授權，不能從發布授權推斷。
 
-使用者明確要求發布後，先確認同一帳號，再用 `browser authorize-publish KEY --identity OBSERVED_ACCOUNT`。該命令只更新本地授權，保留原草稿證據；不重新 begin／選檔，之後在原頁提交一次並記錄 ID。沒有這項授權就維持草稿。刪除需要針對具體作品的明確授權，不能從發布授權推斷。 / Only explicit user authorization permits this command. It preserves draft evidence and updates local authorization without uploading. Submit the existing draft once and record its ID. Without authorization, keep draft mode. Deletion requires explicit authorization for the specific work, separate from publication.
+刪除與重發使用 [專用交接](docs/DELETION_AND_COVERS.md)。只驗證刪除不代表重發成功；舊作品 ID 必須保留於歷史。不得對 X、YouTube、抖音或 B站套用 Instagram 刪除命令。
 
-
-刪除與重發使用 [專用交接](docs/DELETION_AND_COVERS.md)。只驗證刪除不代表重發成功；舊作品 ID 必須保留於歷史。不得對 X、YouTube、抖音或 B站套用 Instagram 刪除命令。 / Use the dedicated deletion/repost handoff. Deletion success is not replacement publication success; preserve the old ID in history. The new deletion commands support Instagram only.
-
-## Instagram 預設處理 / Default Instagram preparation
+## Instagram 預設處理
 
 每個 Instagram 任務保留原製作成片，在內置瀏覽器選「原版」上傳並另選封面。`vpub instagram prepare MANIFEST --out instagram-ready.json` 只建立方案與封面交接，不修改影片。手機竪版圖優先重用抖音專用封面的同一檔案；可用 `--mobile-cover PATH` 指定，或由方案的抖音／Instagram portrait 路徑取得。提醒使用者在手機「編輯封面」→「從相機膠卷中添加」選共用圖，檢查網格後保存。
 
-Use original production footage with Original crop and a separate cover. Preparation only creates the manifest/handoff; video bytes remain unchanged. Reuse the exact Douyin portrait file for mobile cover selection, resolved from --mobile-cover or manifest portrait paths. Guide the user through Edit cover → Add from camera roll, then verify grid preview.
-
-0.2.4 的一秒封面插入實驗已撤回。不要再執行此處理，也不要選到留存的實驗衍生片。手機設定是使用者輔助操作，未取得回報前不可聲稱 CLI 已設定完成。[指南 / Guide](README.md#instagram-發布與封面)。
-
-The 0.2.4 one-second-cover experiment is withdrawn. Do not insert artwork or select retained experimental derivatives as the source. Mobile adjustment is user-assisted; never claim completion without evidence.
+0.2.4 的一秒封面插入實驗已撤回。不要再執行此處理，也不要選到留存的實驗衍生片。手機設定是使用者輔助操作，未取得回報前不可聲稱 CLI 已設定完成。[指南](README.md#instagram-發布與封面)。
 
 X 封面使用 Media Studio 原比例圖片；Instagram 也不再插入片頭。Studio 自訂封面與發帖本輪已實測；CLI `revise-cover` 尚未支援此表面，不能繞過其錯誤而偽造既有帖回執。
 
-X uses same-ratio artwork in Media Studio; Instagram no longer inserts a cover lead either. Studio UI upload/cover/publication was tested, but CLI `revise-cover` still lacks this surface. Do not bypass that guard or overwrite an earlier post receipt.
+相關連結：[完整指南](docs/CATEGORIES_AND_CHAPTERS.md)
+
+[返回實驗室首頁](../../README.md)
