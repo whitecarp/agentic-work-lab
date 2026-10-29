@@ -10,7 +10,7 @@ The reference is [bili-cli](https://github.com/kukemc/bili-cli): content underst
 | 跨平台方案與去重 / Plan and dedup | Implemented | Implemented | Implemented | Implemented | Implemented |
 | 內置瀏覽器發布交接 / Native upload handoff | Implemented | Implemented | Implemented | Implemented | Implemented |
 | 獨立發布後端 / Standalone uploader | bili-cli | Optional API | Experimental browser | Not implemented | Not implemented |
-| 真實發片驗收 / Live upload acceptance | Existing work retained | One private native upload verified | One private work; modification under review | Pending | Pending |
+| 真實發片驗收 / Live upload acceptance | Existing work retained | One private native upload verified | One private work; chapter visibility user-confirmed | One status read back; full playback unverified | One reel read back; cover-grid crop unresolved |
 | YouTube 卡片／可點擊片尾 / Cards and clickable end screens | Not applicable | Not implemented | Not applicable | Not applicable | Not applicable |
 | 搜尋／推薦 / Discovery | Existing bili | Planned | Planned | Planned | Planned |
 | 作品／字幕／內容理解 / Content understanding | Existing bili | Planned, platform permitting | Planned, platform permitting | Planned, platform permitting | Planned, platform permitting |
@@ -42,8 +42,12 @@ Next: accept original-video publication on signed-in accounts, integrate works/a
 | 現有作品修改 / Existing-work edits | Metadata/cover changes retain the original work ID; privacy reduction preserved after actual read-back |
 | 播放列表 / Playlists | YouTube native fields and optional API membership operations; Bilibili collections remain upstream |
 | 郵件 / Email | Off by default; host Gmail/Outlook send-tool handoff, claims and durable results; no SMS |
-| 章節 / Chapters | Native handoff schema and explicit pending/unsupported states; live Douyin application pending |
+| 章節 / Chapters | Native handoff; Douyin chapters submitted and mobile visibility user-confirmed |
 
 詳見 [README](../README.md) 與當前 [驗證記錄](VALIDATION.md)，上方早期能力表中的發布驗收以此記錄為準。
 
 See README and current validation for the latest acceptance status; these supersede historical live-upload entries above.
+
+## 0.2.2：草稿與明確發布 / Drafts and explicit publication
+
+Instagram／X 可用 `init --draft-only`，區分預覽與保存草稿；使用者明確改為發布後才用 `browser authorize-publish` 繼續同一份內容，不重傳。X 的草稿及原帖已實測，Instagram 首次提交失敗，重新登入及核對無重複後重試成功；封面網格裁切仍待適配。 / Draft-only mode distinguishes preview from saved drafts. Explicit operator authorization can enable submission of the same draft without reuploading. X draft and status were tested; Instagram succeeded after reauthentication and a rejection/absence-checked retry; profile-cover cropping remains unresolved. See [validation](VALIDATION.md).

@@ -151,7 +151,7 @@ def load_plan(path, selected=None):
         permitted |= {"tid", "expected_uid", "method"} if platform == "bilibili" else set()
         permitted |= {"category_id", "made_for_kids", "expected_channel_id", "method", "playlist_ids", "playlist_titles"} if platform == "youtube" else set()
         permitted |= {"method", "expected_identity"} if platform == "douyin" else set()
-        permitted |= {"method", "expected_identity"} if platform in {"x", "instagram"} else set()
+        permitted |= {"method", "expected_identity", "submission_mode"} if platform in {"x", "instagram"} else set()
         if set(v) - permitted:
             raise VpubError("invalid_manifest", f"Unsupported {platform} options: {sorted(set(v) - permitted)}")
         if v.get("account", "default") != "default":
@@ -180,6 +180,8 @@ def load_plan(path, selected=None):
             raise VpubError("invalid_method", "Bilibili method must be native or cli.")
         if platform in {"x", "instagram"} and v.get("method", "native") != "native":
             raise VpubError("invalid_method", "X/Instagram currently require the host's native browser; official API integration is not implemented.")
+        if platform in {"x", "instagram"} and v.get("submission_mode", "publish") not in {"publish", "draft_only"}:
+            raise VpubError("invalid_submission_mode", "Use publish or draft_only. Draft-only permits media upload/preview, never Share/Post or scheduling.")
         if platform == "x" and v.get("expected_identity") is not None and not re.fullmatch(r"[A-Za-z0-9_]{1,15}", str(v["expected_identity"])):
             raise VpubError("invalid_identity", "Use the X handle without @, as observed in the signed-in profile.")
         if platform == "x" and cover:

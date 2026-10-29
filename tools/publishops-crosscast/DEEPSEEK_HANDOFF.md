@@ -4,6 +4,8 @@
 
 Use the host's supported in-app browser. This workflow does not override user instructions or host permissions.
 
+**草稿模式優先 / Draft-mode override:** 若 request/begin 的 `final_submission_allowed` 為 false，禁止最終 Share／Post／排期；只到預覽或保存草稿。此限制優先於下方一般發布步驟。用 `outcome: draft` 分別記錄 PREVIEW_READY／DRAFT_SAVED，不能當成實發成功。先讀 [草稿測試指南 / Draft testing](docs/DRAFT_TESTING.md)。 / A false flag overrides the general publication steps below: stop at preview/save draft, never submit or schedule. Record the distinct unpublished states with draft evidence.
+
 1. 讀 `vpub capabilities`，讓使用者選平台。打開 `auth login` 提供的官方網址，讓使用者自行選擇登入方式；已有登入直接沿用，不搬 Cookie。
    Read capabilities and selected platforms. Open the official URL and let the user choose a login method; reuse sign-in without exporting cookies.
 2. 在真正創作者頁確認自己帳號。YouTube 核對 Studio 頻道 ID 與創作介面；其他平台核對個人／創作者頁。標籤打開、本地檔案存在或 CLI 回傳網址都不是登入證據。
@@ -73,3 +75,7 @@ vpub notify record ALERT_ID --claim-token RETURNED_TOKEN --response response.jso
 YouTube 每片補上明確 `category_id`，按內容及當前官方選項選擇，不複製上一片類別。改現有作品用 `browser revise`，保存後回執必須匹配。抖音懸停「編輯作品」找到「添加章節／編輯章節」；12 字元內，核對列表整秒，審核中不重交。
 
 Set YouTube category per video from content/current official choices. Revise existing work in place and verify the saved category. For Douyin, hover Edit work for Add/Edit chapters, keep titles within 12 UTF-16 units, check whole-second starts and do not resubmit during review. [完整指南 / Full guide](docs/CATEGORIES_AND_CHAPTERS.md).
+
+## 草稿改為發布 / Authorizing an existing draft
+
+使用者明確要求發布後，先確認同一帳號，再用 `browser authorize-publish KEY --identity OBSERVED_ACCOUNT`。該命令只更新本地授權，保留原草稿證據；不重新 begin／選檔，之後在原頁提交一次並記錄 ID。沒有這項授權就維持草稿。刪除另行處理；本次使用者明確要求暫不刪除。 / Only explicit user authorization permits this command. It preserves draft evidence and updates local authorization without uploading. Submit the existing draft once and record its ID. Without authorization, keep draft mode. Deletion is separate; the current user requested no deletion.

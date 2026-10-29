@@ -2,7 +2,7 @@
 
 ### 跨平台影片發布營運台 / Multi-platform video release operations console
 
-**v0.2.1 alpha · CLI `vpub` · AI 協助開發 / AI-assisted development**
+**v0.2.2 alpha · CLI `vpub` · AI 協助開發 / AI-assisted development**
 
 讓同一支原創影片擁有各平台適用的文案、封面與發布回執。選擇 Bilibili、抖音、YouTube、Instagram、X 的任意組合，在宿主內置瀏覽器開官方網站，登入方式由使用者選。
 
@@ -12,7 +12,7 @@ Prepare platform-specific metadata, covers and publication receipts for one orig
 
 **This alpha is not a fully validated five-platform publisher.** A URL or queue is not success evidence; native-browser execution needs a host agent. X/Instagram APIs, unified comments/analytics, YouTube cards and clickable end screens remain unimplemented. TikTok is suspended.
 
-[功能範圍 / Features](docs/FEATURES.md) · [驗證記錄 / Validation](docs/VALIDATION.md) · [Agent 交接 / Handoff](DEEPSEEK_HANDOFF.md)
+[草稿測試 / Draft testing](docs/DRAFT_TESTING.md) · [功能範圍 / Features](docs/FEATURES.md) · [驗證記錄 / Validation](docs/VALIDATION.md) · [Agent 交接 / Handoff](DEEPSEEK_HANDOFF.md)
 
 ## 安裝與開始 / Install and start
 
@@ -73,7 +73,7 @@ Prefer platform-specific `covers`, then a dedicated portrait, then the shared pr
 | Bilibili | 1600×1000 | CLI / native |
 | YouTube | 1920×1080 | API / Studio; verification may be required |
 | 抖音 / Douyin | 1200×900 + 1080×1440 | Native landscape + portrait |
-| Instagram | 1080×1920 | File generation; live application unverified |
+| Instagram | 1080×1920 | Generated variants; production cover observed in live preview |
 | X | No output | Custom thumbnail unsupported and reported |
 
 這些是工作預設，不是永久平台規格；以當前官方介面為準。保存後逐版讀回，來源 SHA-256 不冒充平台壓縮檔的遠端雜湊。修改現有作品使用下列命令，不重傳影片：

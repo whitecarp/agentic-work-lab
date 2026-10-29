@@ -100,6 +100,100 @@ class WorkflowTests(unittest.TestCase):
         self.video.write_bytes(b"new bytes")
         self.assertNotEqual(old["confirmation"], self.plan()["confirmation"])
 
+    def test_draft_only_preview_and_saved_receipts_never_publish_or_reupload(self):
+        for platform, identity, url in (("instagram", "demo_creator", "https://www.instagram.com/"),
+                                        ("x", "demo_creator", "https://x.com/compose/post")):
+            with self.subTest(platform=platform):
+                self.value["platforms"] = {platform: {"method": "native", "visibility": "account", "ai_generated": True,
+                    "expected_identity": identity, "submission_mode": "draft_only"}}
+                self.save()
+                plan = self.plan()
+                key = self.native_job(platform)
+                self.assertFalse(native_browser.request(key)["final_submission_allowed"])
+                self.assertFalse(native_browser.begin(key, identity)["final_submission_allowed"])
+                evidence = {"outcome": "draft", "identity": identity, "page_url": url,
+                    "post_text": plan["platforms"][platform]["post_text"], "media_preview": True, "draft_saved": False,
+                    "observation": "Synthetic draft fixture only; never a live upload."}
+                path = self.root / "draft.json"
+                for changes, code in (({"outcome": "verified"}, "draft_only"),
+                                      ({"media_preview": False}, "invalid_draft_evidence"),
+                                      ({"draft_saved": "yes"}, "invalid_draft_evidence"),
+                                      ({"post_text": "different"}, "invalid_draft_evidence"),
+                                      ({"id": "123"}, "invalid_draft_evidence"),
+                                      ({"page_url": "https://example.com/"}, "invalid_draft_evidence"),
+                                      ({"identity": "wrong"}, "wrong_account")):
+                    atomic_json(path, {**evidence, **changes})
+                    self.code(code, native_browser.record, key, path)
+                atomic_json(path, evidence)
+                preview = native_browser.record(key, path)
+                self.assertEqual("PREVIEW_READY", preview["state"])
+                self.assertFalse(preview["published"])
+                atomic_json(path, {**evidence, "draft_saved": True})
+                saved = native_browser.record(key, path)
+                self.assertEqual("DRAFT_SAVED", saved["state"])
+                self.assertFalse(saved["published"])
+                self.assertEqual("SKIPPED_EXISTING", cli.publish_plan(plan, plan["confirmation"])["results"][platform]["state"])
+                self.code("wrong_account", native_browser.authorize_publish, key, "wrong")
+                snapshot = native_browser.request(key)["plan"]["video"]
+                authorization = native_browser.authorize_publish(key, identity)
+                self.assertTrue(authorization["final_submission_allowed"])
+                self.assertFalse(authorization["can_begin"])
+                self.assertEqual(0, authorization["platform_writes"])
+                self.assertEqual(snapshot, native_browser.request(key)["plan"]["video"])
+                self.code("authorization_not_allowed", native_browser.authorize_publish, key, identity)
+                self.code("already_started", native_browser.begin, key, identity)
+
+    def test_submission_mode_validation(self):
+        self.value["platforms"] = {"x": {"method": "native", "visibility": "account", "ai_generated": True,
+                                        "submission_mode": "private"}}
+        self.save()
+        self.code("invalid_submission_mode", self.plan)
+        self.value["platforms"] = {"douyin": {"method": "native", "visibility": "private", "ai_generated": True,
+                                             "submission_mode": "draft_only"}}
+        self.save()
+        self.code("invalid_manifest", self.plan)
+
+    def test_init_draft_only_is_explicit_and_scoped(self):
+        output = self.root / "draft-init.json"
+        args = cli.parser().parse_args(["init", "--video", str(self.video), "--out", str(output),
+                                       "--platforms", "instagram,x", "--draft-only"])
+        cli.execute(args)
+        plan = load_plan(output)
+        self.assertTrue(all(o["submission_mode"] == "draft_only" for o in plan["platforms"].values()))
+        args.out = str(self.root / "invalid-init.json")
+        args.platforms = "youtube,x"
+        self.code("invalid_submission_mode", cli.execute, args)
+        self.assertFalse(Path(args.out).exists())
+
+    def test_retry_requires_rejection_and_fresh_matching_absence_evidence(self):
+        self.value["platforms"] = {"instagram": {"method":"native", "visibility":"account", "ai_generated":True, "expected_identity":"demo"}}
+        self.save()
+        key=self.native_job("instagram")
+        native_browser.begin(key,"demo")
+        proof=self.root/"retry.json"
+        atomic_json(proof,{"identity":"demo","page_url":"https://www.instagram.com/demo/","work_absent":True,"observation":"Synthetic profile fixture; matching work absent."})
+        self.code("retry_not_allowed",native_browser.retry_rejected,key,"demo",proof)
+        rejected=self.root/"rejected.json"
+        atomic_json(rejected,{"outcome":"uncertain","identity":"demo","observation":"Synthetic uncertain attempt."})
+        native_browser.record(key,rejected)
+        self.code("retry_not_allowed",native_browser.retry_rejected,key,"demo",proof)
+        atomic_json(rejected,{"outcome":"rejected","identity":"demo","observation":"Synthetic explicit rejection."})
+        native_browser.record(key,rejected)
+        self.code("wrong_account",native_browser.retry_rejected,key,"other",proof)
+        good=read_json(proof)
+        atomic_json(proof,{**good,"work_absent":False})
+        self.code("invalid_retry_evidence",native_browser.retry_rejected,key,"demo",proof)
+        atomic_json(proof,good)
+        result=native_browser.retry_rejected(key,"demo",proof)
+        self.assertEqual("WAITING_FOR_BROWSER",result["state"])
+        self.assertEqual(0,result["platform_writes"])
+        self.assertEqual("BROWSER_IN_PROGRESS",native_browser.begin(key,"demo")["state"])
+        ledger=Ledger()
+        try:
+            self.assertEqual("rejected",ledger.get(key)["data"]["rejected_attempts"][0]["receipt"]["outcome"])
+        finally:
+            ledger.close()
+
     def test_subset_isolation(self):
         self.value["platforms"]["douyin"]["unsupported"] = True
         self.save()

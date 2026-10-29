@@ -1,8 +1,10 @@
 # X（Twitter）適配 / X (Twitter) adapter
 
-本版提供 **內置瀏覽器交接**：登入網址、單一帖文文案、帳號核對、檔案快照、單次提交與回執校驗。Agent 仍須實際操作官方網站；沒有獨立 X API 發布器，也尚未完成 X 真實發片驗收。
+本版提供 **內置瀏覽器交接**：登入網址、單一帖文文案、帳號核對、檔案快照、單次提交與回執校驗。Agent 仍須實際操作官方網站；沒有獨立 X API 發布器；一條原創影片已發布並在登入頁讀回，完整播放尚未驗收。
 
-This release provides **in-app-browser handoff**: sign-in URL, one post body, account checks, media snapshots, single submission and receipt validation. A host agent must operate the official site. A standalone X API publisher and live X publication acceptance are not complete.
+This release provides **in-app-browser handoff**: sign-in URL, one post body, account checks, media snapshots, single submission and receipt validation. A host agent must operate the official site. One X publication has now been read back in the signed-in UI; a standalone API publisher and full-playback acceptance remain incomplete.
+
+**0.2.2 實測 / Live test:** 影片達 Ready，保存到 Unsent posts 並重新開啟，英文文案、影片及 Made with AI 保留。其後依使用者明確授權從同一草稿發布，原帖已讀回，未刪除。僅自己可見的測試使用 `vpub init --platforms x --draft-only`，此時禁止下方一般流程的最終提交。詳見 [草稿指南](DRAFT_TESTING.md)。 / Ready media, English text and AI disclosure survived a saved-draft reopen. The user then explicitly authorized publication; the same draft was submitted and the original status read back. It was not deleted. Self-only tests must use draft-only mode, which forbids final submission until explicit authorization changes the mode.
 
 ```sh
 vpub onboard --platforms x

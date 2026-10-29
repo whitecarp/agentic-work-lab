@@ -195,6 +195,7 @@ def parser():
     q.add_argument("--out", required=True)
     q.add_argument("--language", default="und", help="Content language (e.g. zh-Hans, zh-Hant, en). Preserves supplied text; does not translate video or metadata.")
     q.add_argument("--platforms", default="bilibili,youtube,douyin", help="Explicit selected platforms; adding an account does not enable publication.")
+    q.add_argument("--draft-only", action="store_true", help="Instagram/X only: upload to preview or save an unsent draft; never Share/Post or schedule.")
     c = sub.add_parser("covers", help="Fit production artwork to platform canvases without cropping.").add_subparsers(dest="action", required=True)
     q = c.add_parser("prepare")
     q.add_argument("manifest")
@@ -222,6 +223,13 @@ def parser():
     q.add_argument("--identity", required=True)
     q = b.add_parser("record")
     q.add_argument("key")
+    q.add_argument("--evidence", required=True)
+    q = b.add_parser("authorize-publish", help="After explicit operator authorization, allow submission of the same saved draft/preview; never reupload.")
+    q.add_argument("key")
+    q.add_argument("--identity", required=True)
+    q = b.add_parser("retry-rejected", help="Explicitly recover a rejected Instagram/X upload after fresh same-account absence evidence; uncertain submissions cannot retry.")
+    q.add_argument("key")
+    q.add_argument("--identity", required=True)
     q.add_argument("--evidence", required=True)
     q = b.add_parser("revise", help="Revise metadata for the same browser draft/work; never reupload.")
     q.add_argument("key")
@@ -297,6 +305,10 @@ def execute(args):
             return native_browser.request(args.key)
         if args.action == "begin":
             return native_browser.begin(args.key, args.identity)
+        if args.action == "authorize-publish":
+            return native_browser.authorize_publish(args.key, args.identity)
+        if args.action == "retry-rejected":
+            return native_browser.retry_rejected(args.key, args.identity, args.evidence)
         if args.action == "revise":
             return native_browser.revise(args.key, args.manifest, args.confirm, args.identity)
         if args.action == "cover":
@@ -343,12 +355,17 @@ def execute(args):
         chosen = args.platforms.split(",")
         if not chosen or set(chosen) - set(PLATFORMS) or len(chosen) != len(set(chosen)):
             raise VpubError("invalid_platform", "Choose a unique subset of supported platforms.")
+        if args.draft_only and set(chosen) - {"instagram", "x"}:
+            raise VpubError("invalid_submission_mode", "--draft-only currently supports only Instagram and X. Use an explicit private setting for other supported routes.")
         from .core import language_tag
         value = template(args.video, language_tag(args.language))
         options = value["platforms"]
         options.update(x={"account": "default", "method": "native", "visibility": "account", "ai_generated": True},
                        instagram={"account": "default", "method": "native", "visibility": "account", "ai_generated": True})
         value["platforms"] = {p: options[p] for p in chosen}
+        if args.draft_only:
+            for options in value["platforms"].values():
+                options["submission_mode"] = "draft_only"
         atomic_json(out, value)
         return {"manifest": str(out.resolve()), "next": "Edit titles, declarations and visibility, then run vpub plan."}
     if args.command in {"plan", "publish"}:
@@ -433,11 +450,12 @@ def capabilities():
             "chapters": "Native Bilibili/Douyin/YouTube handoff, timing validation and saved-control evidence. Douyin titles limited to 12 UTF-16 units; four live chapters submitted; user confirmed mobile visibility, full desktop read-back pending.",
             "youtube_category": "Explicit per-video category required; host-model selection, in-place revision and read-back. API validates assignability before upload; no People & Blogs fallback.",
             "playlists": "YouTube native selections or optional API membership with explicit write scope.",
+            "draft_only": "Instagram/X: init --draft-only. Host must stop before Share/Post/scheduling. PREVIEW_READY and DRAFT_SAVED are unpublished observations; CLI does not control browser buttons.",
             "platforms": {p: {"native_login": True,
              "publish_backend": {"bilibili": "bili-cli or native", "douyin": "experimental browser or native", "youtube": "native (default) or optional API"}.get(p, "native host-agent workflow"),
              "standalone_cli_publish": p in {"bilibili", "youtube", "douyin"},
-             "live_upload_verified": p == "youtube"} for p in PLATFORMS},
-            "live_verification_scope": "2026-10-29: one original video saved privately through YouTube Studio, checked by host UI. Not API validation or public playback; other platforms remain pending.",
+            "live_upload_verified": p in {"youtube", "x", "instagram"}} for p in PLATFORMS},
+            "live_verification_scope": "2026-10-29: YouTube private work checked in Studio. X draft saved/reopened, then explicitly authorized and submitted once; original status read back with exact English text, Made with AI and 1:19 embedded video. Full playback/anonymous access not verified. Instagram initial Share failed; after reauthentication and fresh absence evidence, one retry succeeded and exact text/AI label/video were read back. Cover applied but portrait profile-grid cropping remains unresolved. No deletion performed.",
             "native_execution": "The host agent performs real UI actions. A CLI handoff alone is not an executed action or confirmed login.",
             "bili_cli": "Use installed bili directly for its existing search, video, inbox, comment and creator-data commands.",
             "planned_common_commands": ["account", "search", "video", "works", "analytics", "comments", "inbox"],

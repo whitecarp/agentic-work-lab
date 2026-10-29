@@ -39,8 +39,9 @@ def queue(platform, plan, options):
     atomic_json(path, {"key": key, "platform": platform, "created_at": now(),
                        "plan": plan, "options": options})
     return {"state": "WAITING_FOR_BROWSER", "method": "native", "key": key,
+            "final_submission_allowed": options.get("submission_mode") != "draft_only",
             "request_file": str(path), "login_url": URLS[platform],
-            "hint": "No upload has started. Host agent: read the browser request, verify the intended account, run browser begin, then upload through the same built-in browser. Never repeat an uncertain attempt."}
+            "hint": "No upload has started. Host agent: read the browser request, verify the intended account, run browser begin, then upload through the same built-in browser. Never repeat an uncertain attempt. If submission_mode=draft_only, stop at preview/save draft: never Share/Post or schedule."}
 
 
 def request(key):
@@ -70,6 +71,7 @@ def request(key):
         if any(file_sha(a["path"]) != a["sha256"] for a in variants.values()):
             raise VpubError("source_changed", "A platform cover snapshot changed.")
         return {**job, "state": old["state"], "can_begin": old["state"] == "WAITING_FOR_BROWSER",
+                "final_submission_allowed": job["options"].get("submission_mode") != "draft_only",
                 "user_action_required": old["state"] == "WAITING_FOR_USER",
                 "resume_existing_attempt": old["state"] == "WAITING_FOR_USER",
                 "user_action": old["data"].get("receipt", {}).get("observation") if old["state"] == "WAITING_FOR_USER" else None}
@@ -102,7 +104,66 @@ def begin(key, identity):
         finally:
             ledger.close()
         return {**job, "state": "BROWSER_IN_PROGRESS", "identity": identity,
-                "hint": "Use only this job's snapshot and approved metadata. Complete at most one final submission. Persist any video ID even if verification fails."}
+                "hint": "Use only this job's snapshot and approved metadata. If final_submission_allowed is false, stop at preview/save draft; never Share/Post or schedule. Otherwise complete at most one final submission. Persist any video ID even if verification fails."}
+
+
+def retry_rejected(key, identity, evidence_path):
+    """Operator-driven recovery after rejection plus a fresh no-work UI check."""
+    proof = read_json(evidence_path)
+    with publication_lock():
+        job = request(key)
+        ledger = Ledger()
+        try:
+            old = ledger.get(key)
+            data = old["data"]
+            if old["state"] != "PLATFORM_REJECTED" or data.get("receipt", {}).get("id") or old["platform"] not in {"instagram", "x"}:
+                raise VpubError("retry_not_allowed", "Only a clearly rejected X/Instagram attempt without a work ID can be retried; unknown submissions stay blocked.")
+            if identity != data.get("browser_identity"):
+                raise VpubError("wrong_account", "Inspect the original signed-in account before retrying.")
+            expected_url = {"instagram": f"https://www.instagram.com/{identity}/", "x": f"https://x.com/{identity}"}[old["platform"]]
+            if (not isinstance(proof, dict) or set(proof) != {"identity", "page_url", "work_absent", "observation"}
+                    or proof["identity"] != identity or proof["page_url"] != expected_url or proof["work_absent"] is not True
+                    or not isinstance(proof["observation"], str) or not 1 <= len(proof["observation"]) <= 1000):
+                raise VpubError("invalid_retry_evidence", "Fresh same-account profile evidence must establish the rejected work is absent. No cookies or page dumps.")
+            data.setdefault("rejected_attempts", []).append({"at": now(), "receipt": data.get("receipt"), "recovery_evidence": proof})
+            data.pop("receipt", None)
+            data.pop("browser_started_at", None)
+            ledger.save(key, "WAITING_FOR_BROWSER", data)
+            return {"key":key, "state":"WAITING_FOR_BROWSER", "platform_writes":0,
+                    "hint":"Rejection and fresh absence evidence retained. Run browser begin before selecting the same snapshot again. Never use this for an uncertain submission."}
+        finally:
+            ledger.close()
+
+
+def authorize_publish(key, identity):
+    """Explicit operator authorization to submit the existing draft, never reupload."""
+    with publication_lock():
+        job = request(key)
+        if job["state"] not in {"PREVIEW_READY", "DRAFT_SAVED"} or job["options"].get("submission_mode") != "draft_only":
+            raise VpubError("authorization_not_allowed", "Inspect and record a draft first; only an unpublished draft-only attempt can be authorized.")
+        ledger = Ledger()
+        try:
+            old = ledger.get(key)
+            if identity != old["data"].get("browser_identity"):
+                raise VpubError("wrong_account", "Confirm the original account in the current browser first.")
+            data = old["data"]
+            data.setdefault("submission_authorizations", []).append({"at": now(), "identity": identity,
+                "previous_state": old["state"], "previous_plan_hash": data["plan_hash"], "previous_receipt": data.get("receipt")})
+            plan = deepcopy({k:v for k,v in data["approved_plan"].items() if k != "confirmation"})
+            plan["platforms"][old["platform"]]["submission_mode"] = "publish"
+            plan["confirmation"] = digest(plan)
+            opts = plan["platforms"][old["platform"]]
+            data.update(approved_plan=plan, plan_hash=plan["confirmation"], options=opts)
+            job["plan"]["platforms"] = deepcopy(plan["platforms"])
+            job["plan"]["confirmation"] = plan["confirmation"]
+            job["options"] = deepcopy(opts)
+            atomic_json(home() / "browser-jobs" / (key + ".json"), {k:job[k] for k in ("key", "platform", "created_at", "plan", "options")})
+            ledger.save(key, "BROWSER_IN_PROGRESS", data)
+            return {"key":key, "state":"BROWSER_IN_PROGRESS", "final_submission_allowed":True,
+                    "resume_existing_attempt":True, "can_begin":False, "platform_writes":0,
+                    "hint":"Explicit authorization recorded locally. Submit the existing preview/draft once, then read back its ID and settings. Do not select/upload the video again."}
+        finally:
+            ledger.close()
 
 
 def revise(key, manifest, confirmation, identity):
@@ -159,12 +220,12 @@ def revise(key, manifest, confirmation, identity):
 def record(key, evidence_path):
     evidence = read_json(evidence_path)
     allowed = {"id", "page_url", "identity", "title", "description", "tags", "visibility", "made_for_kids",
-               "ai_generated", "observation", "outcome", "post_text", "cover_source_sha256", "cover_observation", "cover_evidence", "playlist_ids", "playlist_titles", "chapters", "chapters_observation", "category_id"}
+               "ai_generated", "observation", "outcome", "post_text", "cover_source_sha256", "cover_observation", "cover_evidence", "playlist_ids", "playlist_titles", "chapters", "chapters_observation", "category_id", "media_preview", "draft_saved"}
     if not isinstance(evidence, dict) or set(evidence) - allowed:
         raise VpubError("invalid_evidence", "Use only documented browser-evidence fields; never include cookies or raw page dumps.")
     outcome = evidence.get("outcome")
-    if outcome not in {"verified", "uncertain", "rejected", "action_required"}:
-        raise VpubError("invalid_evidence", "outcome must be verified, uncertain, rejected or action_required.")
+    if outcome not in {"verified", "uncertain", "rejected", "action_required", "draft"}:
+        raise VpubError("invalid_evidence", "outcome must be verified, uncertain, rejected, action_required or draft.")
     if not isinstance(evidence.get("observation"), str) or not 1 <= len(evidence["observation"]) <= 1000:
         raise VpubError("invalid_evidence", "Supply a short factual UI observation, at most 1000 characters.")
     # Recording an outcome remains possible after STOP: preserving receipts is safe.
@@ -172,9 +233,19 @@ def record(key, evidence_path):
         ledger = Ledger()
         try:
             old = ledger.get(key)
-            if not old or old["state"] not in {"BROWSER_IN_PROGRESS", "METADATA_EDIT_IN_PROGRESS", "WAITING_FOR_USER", "SUBMITTED_UNVERIFIED", "AGENT_REPORTED_VERIFIED"}:
+            if not old or old["state"] not in {"BROWSER_IN_PROGRESS", "METADATA_EDIT_IN_PROGRESS", "WAITING_FOR_USER", "SUBMITTED_UNVERIFIED", "AGENT_REPORTED_VERIFIED", "PREVIEW_READY", "DRAFT_SAVED"}:
                 raise VpubError("not_started", "Begin the native browser request before recording its result.")
             opts = old["data"]["options"]
+            if opts.get("submission_mode") == "draft_only" and outcome == "verified":
+                raise VpubError("draft_only", "A draft-only test cannot be recorded as a verified publication.")
+            if outcome == "draft":
+                u = urlsplit(evidence.get("page_url", ""))
+                host = {"x": "x.com", "instagram": "www.instagram.com"}.get(old["platform"])
+                if (opts.get("submission_mode") != "draft_only" or evidence.get("id")
+                        or u.scheme != "https" or u.netloc != host or u.username or u.password or u.query or u.fragment
+                        or evidence.get("media_preview") is not True or type(evidence.get("draft_saved")) is not bool
+                        or evidence.get("post_text") != opts.get("post_text")):
+                    raise VpubError("invalid_draft_evidence", "Inspect the loaded media and exact caption on the official page; state whether a draft was actually saved. Draft evidence has no published work ID.")
             if evidence.get("identity") != old["data"].get("browser_identity"):
                 raise VpubError("wrong_account", "Observed account differs from the one that began the upload.")
             video_id, page_url = evidence.get("id"), evidence.get("page_url", "")
@@ -233,10 +304,12 @@ def record(key, evidence_path):
             previous = old["data"].get("receipt", {}).get("id")
             if previous and previous != video_id:
                 raise VpubError("receipt_conflict", "An existing video ID cannot be replaced or cleared.")
-            state = {"verified": "AGENT_REPORTED_VERIFIED", "uncertain": "SUBMITTED_UNVERIFIED", "rejected": "PLATFORM_REJECTED", "action_required": "WAITING_FOR_USER"}[outcome]
+            state = ("DRAFT_SAVED" if evidence["draft_saved"] else "PREVIEW_READY") if outcome == "draft" else {"verified": "AGENT_REPORTED_VERIFIED", "uncertain": "SUBMITTED_UNVERIFIED", "rejected": "PLATFORM_REJECTED", "action_required": "WAITING_FOR_USER"}[outcome]
             receipt = {**evidence, "state": state, "method": "native", "url": page_url,
                        "recorded_at": now(), "verification_source": "host_agent_ui_observation",
                        "note": "Host agent supplied UI evidence; CLI did not independently query the platform. Processing/public playback is separate."}
+            if outcome == "draft":
+                receipt["published"] = False
             old["data"]["receipt"] = receipt
             if state == "WAITING_FOR_USER" and old["state"] != state:
                 old["data"]["user_action_episode"] = old["data"].get("user_action_episode", 0) + 1
