@@ -8,13 +8,50 @@ This requirement exists because non-subscribers are limited to **140-second, 512
 
 ### Multi-platform video release operations console
 
-**v0.3.3 alpha · CLI `vpub` · AI-assisted development**
+**v0.4.0 alpha · CLI `vpub` · AI-assisted development**
 
 Prepare platform-specific metadata, covers and publication receipts for one original video. Choose any subset of Bilibili, Douyin, YouTube, Instagram and X. Sign in once; the CLI reuses its own local sessions for later uploads.
 
-Default routes: Bilibili uses bili-cli, YouTube uses its official API, and Douyin/Instagram/X use a dedicated persistent Chrome profile controlled by the CLI in the background. First login and official verification require the user. Explicit `method: native` retains host-browser handoff. This remains alpha; live development tests are documented separately from unattended acceptance. TikTok is suspended. YouTube cards/clickable end screens, standalone X/Instagram APIs and unified comments/analytics remain unimplemented.
+Default routes: Bilibili uses bili-cli, YouTube uses its official API, and Douyin/Instagram/X use a dedicated persistent Chrome profile controlled by the CLI in the background. First login and official verification require the user. Explicit `method: native` retains host-browser handoff. This remains alpha; live development tests are documented separately from unattended acceptance. Comments, work metrics and reports now share CLI commands, with platform-specific validation below. TikTok is suspended; YouTube cards/clickable end screens and standalone X/Instagram APIs remain unimplemented.
 
 [Features](docs/FEATURES_EN.md) · [Validation](docs/VALIDATION_EN.md) · [Agent handoff](DEEPSEEK_HANDOFF_EN.md) · [Draft testing](docs/DRAFT_TESTING_EN.md)
+
+## Comments, work metrics and operations reports
+
+Read a selected work's comments, then let the host conversation model interpret the context and compose a reply. **Reply only in the comment author's language, using one language.** Publication metadata's bilingual policy and the report/account language do not apply. The host identifies languages such as English or French and supplies `--language`; the CLI's script hint is not a complete language detector and does not guess unknown cases.
+
+```sh
+vpub comments list youtube VIDEO_ID --limit 20 --out comments.json
+vpub comments reply youtube VIDEO_ID COMMENT_ID --file reply.txt --language en
+vpub comments verify-reply REPLY_KEY
+vpub stats youtube VIDEO_ID --out stats.json
+vpub preferences --language en
+vpub report --language auto --out report.json
+```
+
+Replace `youtube` with `bilibili`, `douyin`, `instagram` or `x` for the same command interface. Browser operations currently require an existing CrossCast work receipt to verify the account; ownership is never guessed. `comments reply` sends directly without per-comment approval; `--dry-run` is optional. The host model supplies the copy; the CLI does not chat, translate or append a signature itself.
+
+Before sending, the CLI checks the current comment and account, persists its intent and submits once. An uncertain result uses read-only `verify-reply`, never a blind resend. Ordinary replies reject own comments and threads known to contain an owner reply. Reads cover only the returned page or visible list; `complete: false` is not a full-history claim. YouTube and Bilibili return `next_cursor`; browser adapters do not invent pagination tokens.
+
+| Platform | Comments and replies | Work metrics |
+|---|---|---|
+| Bilibili | Upstream bili-cli; thread and reply IDs retained | Views, likes, comments, favorites and other supplied fields; creator completion/watch time when available |
+| YouTube | Official Data API; work, thread, author, text and reply ID checks | Views, likes and comments; completion/watch duration do not yet use Analytics |
+| Douyin | Visible public work comments; Creator Center lists can lag; this round's reply remains unverified | Creator Center's displayed views, likes, comments, shares, favorites and completion metrics |
+| Instagram | Visible comments and Reply; fresh comment ID, author, text and action receipts | Values actually displayed on the work; full Insights is not integrated |
+| X | Visible conversation and Reply; fresh status ID, author, text and action receipts | Post views, replies, reposts and likes; post views are not video plays |
+
+Metrics retain source, observation time and units. Unavailable values stay `null`, not zero. Browser verification records the targeted Reply action and visible result; it does not claim an official API parent relationship. See [validation boundaries](docs/VALIDATION_EN.md).
+
+Reports follow the **user's** language, defaulting to Chinese or English. The host sets `preferences --language zh|en` from the conversation, or uses `report --language zh|en` for one run; an unset preference falls back to the system locale. The output is a natural paragraph based on local execution receipts, counting only read-back replies as completed. Own comments and self-tests are excluded from audience interactions. `--since` accepts a timezone-aware start, and `--notes` accepts sourced findings to follow up. Likes, mentions, private messages and research outcomes are not invented. Reports do not send email automatically.
+
+Only when the user explicitly requests a live test:
+
+```sh
+vpub comments self-test youtube VIDEO_ID --test-id hello-test-01
+```
+
+This posts one “你好” comment and one “你好” reply on your own work. Reusing the test ID retains the attempt; an uncertain result is not resent. It never runs during login/setup and never deletes comments automatically.
 
 ## Install and start
 

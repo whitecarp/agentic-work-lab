@@ -8,13 +8,50 @@
 
 ### 跨平台影片發布營運台
 
-**v0.3.3 alpha · CLI `vpub` · AI 協助開發**
+**v0.4.0 alpha · CLI `vpub` · AI 協助開發**
 
 讓同一支原創影片擁有各平台適用的文案、封面與發布回執。選擇 Bilibili、抖音、YouTube、Instagram、X 的任意組合，首次登入後，CLI 復用本機專用會話完成後續上傳。
 
-預設路徑：B站沿用 bili-cli，YouTube 使用官方 API，抖音／Instagram／X 由 CLI 在背景控制專用 Chrome。首次登入與官方驗證需要使用者協助；明確設定 `method: native` 仍可使用宿主瀏覽器交接。這是 alpha 版本，開發期實測與無人值守驗收分開記錄。TikTok 已暫停，YouTube 卡片／可點擊片尾、X／Instagram 獨立 API、通用評論與數據命令尚未實作。
+預設路徑：B站沿用 bili-cli，YouTube 使用官方 API，抖音／Instagram／X 由 CLI 在背景控制專用 Chrome。首次登入與官方驗證需要使用者協助；明確設定 `method: native` 仍可使用宿主瀏覽器交接。這是 alpha 版本，開發期實測與無人值守驗收分開記錄。已新增評論、作品數據及匯報命令；各站實測範圍見下方。TikTok、YouTube 卡片／可點擊片尾與 X／Instagram 獨立 API 尚未實作。
 
 [功能範圍](docs/FEATURES.md) · [驗證記錄](docs/VALIDATION.md) · [Agent 交接](DEEPSEEK_HANDOFF.md) · [草稿測試](docs/DRAFT_TESTING.md)
+
+## 評論、作品數據與營運匯報
+
+先讀取指定作品的評論，再由宿主聊天模型理解上下文並撰寫回覆。**回覆只使用評論者的語言，單語發送**；不套用影片簡介的雙語規則，也不跟隨帳號或匯報語言。宿主識別英語、法語等語言後傳入 `--language`；CLI 的字元提示不是完整語言識別器，不確定時不猜。
+
+```sh
+vpub comments list youtube VIDEO_ID --limit 20 --out comments.json
+vpub comments reply youtube VIDEO_ID COMMENT_ID --file reply.txt --language zh
+vpub comments verify-reply REPLY_KEY
+vpub stats youtube VIDEO_ID --out stats.json
+vpub preferences --language zh
+vpub report --language auto --out report.json
+```
+
+把 `youtube` 換成 `bilibili`、`douyin`、`instagram` 或 `x` 即可使用相同入口。瀏覽器平台目前要求作品已有 CrossCast 回執，以核對登入帳號；不猜測其他人的作品歸屬。`comments reply` 直接發送，沒有逐條審批；`--dry-run` 僅為可選預覽。文案由宿主模型提供，CLI 不自行聊天、翻譯或追加署名。
+
+發送前重新核對評論與帳號，先寫持久狀態，再提交一次；結果不明時只用 `verify-reply` 讀回，不盲目重送。一般回覆拒絕自己的評論及已知已有作者回覆的串。讀取只涵蓋回傳的頁面／可見列表；`complete: false` 不能當作已讀完所有評論。YouTube 與 B站可用 `next_cursor` 繼續；瀏覽器不捏造分頁游標。
+
+| 平台 | 評論與回覆 | 作品數據 |
+|---|---|---|
+| B站 | 上游 bili-cli；保留串與回覆 ID | 播放、讚、評論、收藏等；創作者完播／觀看時長依上游可用欄位 |
+| YouTube | 官方 Data API；驗證作品、串、作者、正文及回覆 ID | 播放、讚、評論；完播率／觀看時長尚未接入 Analytics |
+| 抖音 | 作品頁可見評論；作者後台列表可能延遲；本輪回覆仍待讀回確認 | 創作者後台顯示的播放、讚、評論、分享、收藏、完播率等 |
+| Instagram | 可見評論及 Reply；以新評論 ID、作者、正文與操作記錄讀回 | 僅作品頁實際顯示的數值，未接入完整 Insights |
+| X | 可見對話及 Reply；以新帖 ID、作者、正文與操作記錄讀回 | 帖文瀏覽、回覆、轉發、讚；帖文瀏覽不等於影片播放 |
+
+各項數據保留來源、採樣時間和單位；缺少的欄位是 `null`，不寫成零。瀏覽器驗證記錄的是指定 Reply 動作及後續可見結果，不冒充官方 API 的父評論關係。詳見[實測邊界](docs/VALIDATION.md)。
+
+匯報跟隨**使用者**語言，預設中文或英文。宿主根據對話設定 `preferences --language zh|en`，也可單次 `report --language zh|en`；未設定時由系統語系決定。它把本機執行回執整理成一段話，只把讀回的回覆算作完成；自己的評論和自測不算真實觀眾互動。`--since` 可指定帶時區的起點，`--notes` 可附有來源 URL 的待跟進發現；不編造點讚、@消息、私信或研究成果。匯報不會自動寄信。
+
+僅在使用者明確要求實發測試時執行：
+
+```sh
+vpub comments self-test youtube VIDEO_ID --test-id hello-test-01
+```
+
+這會在自己的作品下發送一次「你好」並回覆「你好」；同一 test-id 重跑復用記錄，未確認結果不重送。它不會在登入或安裝時執行，也不會自動刪除留言。
 
 ## 安裝與開始
 

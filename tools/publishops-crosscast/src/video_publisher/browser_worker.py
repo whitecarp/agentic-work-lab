@@ -7,7 +7,7 @@ import json
 from pathlib import Path
 import sys
 
-from .core import VpubError, atomic_json, now, read_json, stop_check
+from .core import VpubError, atomic_json, home, now, read_json, stop_check
 from . import browser_runtime as runtime
 
 
@@ -26,8 +26,19 @@ async def run(payload):
                     return {"logged_in": True, "identity": actual, "account": account, "method": "browser"}
                 from .browser_backends import execute
                 try:
+                    if payload['action']=='operations':
+                        from .operations_browser import execute as operate
+                        return await operate(page,platform,actual,payload)
                     return await execute(page, platform, actual, payload)
                 except Exception as exc:
+                    if payload['action']=='operations':
+                        # Local diagnostics only; never included in public reports.
+                        try:
+                            atomic_json(home()/'operations/errors'/(platform+'-last-error.json'),
+                                {'at':now(),'operation':payload.get('operation'),'error':str(exc)[:1800],
+                                 'url':page.url,'text':(await page.locator('body').inner_text())[:18000],
+                                 'editors':await page.locator('textarea,input,[contenteditable=true]').evaluate_all('es=>es.map(e=>e.outerHTML.slice(0,5000))')})
+                        except Exception: pass
                     if payload['action']=='edit':
                         output=Path(payload['edit_receipt_path'])
                         atomic_json(output.with_suffix('.error.json'),{'type':type(exc).__name__, 'message':str(exc)[:1600], 'url':page.url,

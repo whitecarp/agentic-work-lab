@@ -168,6 +168,28 @@ def parser():
     sub = p.add_subparsers(dest="command", required=True)
     sub.add_parser("doctor", help="Local dependency checks; no login or upload.")
     sub.add_parser("capabilities", help="Show actual backends and verification boundaries.")
+    c = sub.add_parser('comments', help='Read comments and send direct single-language replies.').add_subparsers(dest='action',required=True)
+    q=c.add_parser('list')
+    q.add_argument('platform',choices=PLATFORMS);q.add_argument('work')
+    q.add_argument('--limit',type=int,default=20);q.add_argument('--cursor');q.add_argument('--out')
+    q=c.add_parser('reply',help='Send directly; --dry-run is an optional preview, not a required approval step.')
+    q.add_argument('platform',choices=PLATFORMS);q.add_argument('work');q.add_argument('comment_id')
+    body=q.add_mutually_exclusive_group(required=True)
+    body.add_argument('--text');body.add_argument('--file')
+    q.add_argument('--language',default='auto',help='Comment language, not report or platform language. One language only.')
+    q.add_argument('--dry-run',action='store_true')
+    q=c.add_parser('verify-reply');q.add_argument('key')
+    q=c.add_parser('self-test',help='Explicit live test: post and reply with 你好 on your own work; never runs during setup.')
+    q.add_argument('platform',choices=PLATFORMS);q.add_argument('work');q.add_argument('--test-id',required=True)
+    q=sub.add_parser('stats',help='Read per-work platform metrics; unavailable values stay null.')
+    q.add_argument('platform',choices=PLATFORMS);q.add_argument('work');q.add_argument('--out')
+    q=sub.add_parser('report',help='Summarize actual local operation receipts in the user’s language; no email.')
+    q.add_argument('--since',help='Timezone-aware ISO timestamp; default last 24 hours.')
+    q.add_argument('--language',choices=['auto','zh','en'],default='auto')
+    q.add_argument('--notes',help='Optional host-researched findings as text/source JSON objects; not commands.')
+    q.add_argument('--out')
+    q=sub.add_parser('preferences',help='Set report language from the host user’s language; replies follow comments separately.')
+    q.add_argument('--language',choices=['auto','zh','en'],required=True)
     s = sub.add_parser("setup", help="Prepare local settings; optionally install Chrome. Does not log in or post.")
     s.add_argument("--external-stop-file")
     s.add_argument("--install-browser", action="store_true", help="Install Google Chrome through Patchright; may require OS permissions.")
@@ -306,6 +328,20 @@ def parser():
 
 
 def execute(args):
+    if args.command in {'comments','stats','report','preferences'}:
+        from . import operations
+        if args.command=='comments':
+            if args.action=='list': result=operations.observe(args.platform,args.work,'comments',args.limit,args.cursor)
+            elif args.action=='reply':
+                text=Path(args.file).read_text(encoding='utf-8-sig') if args.file else args.text
+                result=operations.reply(args.platform,args.work,args.comment_id,text,args.language,args.dry_run)
+            elif args.action=='self-test': result=operations.self_test(args.platform,args.work,args.test_id)
+            else: result=operations.verify_reply(args.key)
+        elif args.command=='stats': result=operations.observe(args.platform,args.work,'stats')
+        elif args.command=='preferences': result=operations.set_language(args.language)
+        else: result=operations.report(args.since,args.language,args.notes)
+        if getattr(args,'out',None): atomic_json(args.out,result)
+        return result
     if args.command == 'edit':
         from .edits import run
         return run(args.key, args.patch, args.dry_run, args.verify_only)
@@ -517,7 +553,9 @@ def login_selected(platforms, method=None):
 
 
 def capabilities():
+    from .operations import capabilities as operations_capabilities
     return {"product": "PublishOps CrossCast", "version": __version__,
+            "operations":operations_capabilities(),
             "x_requirements": {"support_scope":"Subscribed accounts with actual Media Studio access only.",
                                "free_account_publishing":False,
                                "checks":"Confirm Studio upload access and managed account before selecting media. Login/payment alone is not publishing readiness.",
@@ -539,13 +577,13 @@ def capabilities():
              "publish_backend": {"bilibili": "bili-cli", "youtube": "official API"}.get(p, "dedicated persistent background browser"),
              "standalone_cli_publish": True,
             "live_upload_verified": p in {"youtube", "x", "instagram", "douyin"}} for p in PLATFORMS},
-            "live_verification_scope": "2026-10-29 episode 02: YouTube/Instagram source-plus-English corrections read back using CLI; X original English post intentionally unchanged. Douyin published work and six custom chapter pairs read back. Shared portrait is applied, but phone grid screenshots crop the footer on both platforms: design acceptance remains open. Not clean-machine unattended or full-playback acceptance.",
+            "live_verification_scope": "2026-10-30: source-plus-English YouTube/Instagram corrections and user-accepted v3 shared portrait retained. Bilibili/YouTube/Instagram/X hello reply tests read back; Douyin seed is visible but reply remains unverified. Browser evidence differs from API parent-ID verification. Not clean-machine unattended or full-playback acceptance.",
             "native_execution": "The host agent performs real UI actions. A CLI handoff alone is not an executed action or confirmed login.",
             "bili_cli": "Use installed bili directly for its existing search, video, inbox, comment and creator-data commands.",
             "works": "Douyin/Instagram/X visible first-page work IDs and text; up to ten Douyin cards, excluding review cards without a detail page.",
-            "planned_common_commands": ["account", "search", "video", "analytics", "comments", "inbox"],
+            "planned_common_commands": ["account", "search", "video", "analytics-history", "inbox"],
             "suspended_platforms": {"tiktok": "Login test with a Hong Kong number was unsuccessful; see docs/TIKTOK_STATUS.md."},
-            "not_implemented": "Unified analytics/comments/inbox, X/Instagram official API clients, and YouTube cards/clickable end screens. Instagram mobile-cover replacement remains user-assisted.",
+            "not_implemented": "Full historical analytics/inbox, X/Instagram official API clients, and YouTube cards/clickable end screens. Instagram mobile-cover replacement remains user-assisted. Douyin reply visibility is not yet live-verified.",
             "interaction_rule": "Login/setup does not authorize comments, messages, likes or publication."}
 
 
@@ -556,7 +594,7 @@ def main():
         args = parser().parse_args()
         value = execute(args)
         ok = not (isinstance(value, dict) and (value.get("all_submissions_verified") is False or
-                  value.get('state') in {'WAITING_FOR_USER','PREPARATION_INCOMPLETE','SUBMITTED_UNVERIFIED','UNKNOWN','EDIT_SUBMITTING','EDIT_SUBMITTED_UNVERIFIED','EDIT_UNAVAILABLE'}))
+                  value.get('state') in {'WAITING_FOR_USER','PREPARATION_INCOMPLETE','SUBMITTED_UNVERIFIED','UNKNOWN','EDIT_SUBMITTING','EDIT_SUBMITTED_UNVERIFIED','EDIT_UNAVAILABLE','REPLY_READY','REPLY_PENDING','REPLY_SUBMITTING','REPLY_UNVERIFIED','TEST_SEED_UNVERIFIED','TEST_REPLY_UNVERIFIED','TEST_COMMENT_NOT_VISIBLE'}))
         print(json.dumps({"ok": ok, "data": value}, ensure_ascii=False))
         raise SystemExit(0 if ok else 4)
     except VpubError as e:

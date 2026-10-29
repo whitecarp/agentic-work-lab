@@ -2,7 +2,27 @@
 
 **繁體中文** · [English](VALIDATION_EN.md)
 
-日期：**2026-10-30**，PublishOps CrossCast **0.3.3 alpha**。
+日期：**2026-10-30**，PublishOps CrossCast **0.4.0 alpha**。
+
+## 0.4.0：評論、回覆與營運匯報
+
+使用者明確授權在既有第二期作品發送「你好」並回覆「你好」。沒有改動影片、封面、簡介、可見性或 B站排期；測試留言保留，未自動刪除。
+
+| 平台 | 實測結果與證據邊界 |
+|---|---|
+| B站 | bili-cli 發送測試留言及回覆；讀回作者、原文、父評論和回覆 ID。原有觀眾留言已由作者回覆，沒有再次處理。 |
+| YouTube | 官方 Data API 發送留言及回覆，讀回確認。實測修正：Comment 資源可能沒有 videoId，改以 CommentThread 驗證作品歸屬；不能只核對頻道相同。 |
+| Instagram | CLI 專用會話點擊指定留言的 Reply 並發送；新評論 ID、作者與「@作者 你好」文字讀回。修復相對時間造成定位變動及 Post 按鈕延後出現。平台 API 父評論關係未驗證。 |
+| X | CLI 專用會話發送留言及回覆，新帖 ID、作者和正文讀回。修復延後出現的巢狀對話框及 Draft.js 中文輸入；原影片帖文不變。平台 API 父評論關係未驗證。 |
+| 抖音 | 測試留言已在公開作品頁讀回；創作者後台一度未顯示。回覆提交後尚未讀回確認，保留 REPLY_UNVERIFIED，沒有重送；手機確認仍待使用者回報。 |
+
+五站各有一次作品數據實讀：B站創作者數據、YouTube 基礎 statistics、抖音後台指標、X 帖文計數、Instagram 可見欄位。Instagram 未顯示的數值保留 null；沒有接入完整 Insights。YouTube 完播與觀看時長仍需獨立 Analytics 接入；X 的帖文瀏覽不能當成影片播放。調試訪問與自測留言可能影響平台原始計數，不作自然增長或提效證據。
+
+已生成中文／英文自然段匯報，從真實回執取數並去重；作者留言及自測回覆不計入觀眾互動。不確定發送不算完成。回覆只跟隨評論者語言，匯報另外跟隨使用者語言。
+
+**140 項離線測試通過。** 涵蓋分頁不漏項、作品歸屬、單語路由、直接發送、防重送、父評論核驗、缺值與指標口徑、自測隔離、匯報，以及兩項不訪問平台的 Chrome DOM 測試。實發是在開發中修正後完成，不等於乾淨安裝的一次無人值守驗收；抖音回覆仍是待驗項目。瀏覽器等待非同步提交的修正未新增一次實發測試。
+
+官方介面依據：[YouTube 回覆插入](https://developers.google.com/youtube/data/reference/rest/v3/comments/insert)、[評論串分頁](https://developers.google.com/youtube/data/reference/rest/v3/commentThreads/list)、[影片統計](https://developers.google.com/youtube/data/reference/rest/v3/videos)。原始頁面、觀眾資料、登入資訊與私人回執保留本機，未公開。
 
 
 ## 0.3.3：Instagram 已保存文案核驗與封面確認

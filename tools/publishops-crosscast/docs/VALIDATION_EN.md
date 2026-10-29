@@ -2,7 +2,27 @@
 
 [繁體中文](VALIDATION.md) · **English**
 
-Date: **2026-10-30**, PublishOps CrossCast **0.3.3 alpha**.
+Date: **2026-10-30**, PublishOps CrossCast **0.4.0 alpha**.
+
+## 0.4.0: comments, replies and operations reports
+
+The user explicitly authorized one “你好” comment and one “你好” reply on the existing episode-two works. Video, cover, caption, visibility and Bilibili schedules were unchanged. Test comments are retained, not automatically deleted.
+
+| Platform | Live result and evidence boundary |
+|---|---|
+| Bilibili | Upstream CLI posted the test comment/reply; author, exact text, parent and reply IDs read back. The existing audience comment had already received an owner reply and was left alone. |
+| YouTube | Official Data API posted and verified the comment/reply. A live bug was fixed: Comment resources may omit videoId, so CommentThread now establishes work membership; matching the channel alone is insufficient. |
+| Instagram | The CLI session clicked Reply on the selected comment; a fresh comment ID, author and “@author 你好” text were read back. Relative-time changes and delayed Post-button appearance were fixed. No official API parent relationship was verified. |
+| X | The CLI session posted and read back fresh IDs, author and exact text. Delayed nested dialogs and Draft.js CJK input were fixed; the original video post was preserved. No official API parent relationship was verified. |
+| Douyin | The seed comment was read back on the public work page while Creator Center temporarily omitted it. The submitted reply is still REPLY_UNVERIFIED, was not resent, and awaits the user's phone observation. |
+
+One work per platform was queried: Bilibili creator data, YouTube basic statistics, Douyin creator metrics, X post counters and Instagram visible fields. Missing Instagram values stay null; full Insights is not integrated. YouTube completion/watch duration still needs separate Analytics support. X post views are not video plays. Debug visits and test comments can affect raw counters; these are not organic growth or efficiency evidence.
+
+Chinese and English paragraph reports were generated from deduplicated execution receipts. Own comments and self-test replies do not count as audience interactions; uncertain sends are not completed replies. Reply language follows the commenter, while report language follows the user separately.
+
+**140 offline tests pass.** Coverage includes pagination, ownership, single-language routing, direct send, duplicate suppression, parent verification, missing metrics/units, test isolation, reports and two Chrome DOM tests that never visit platforms. Live development tests required repairs and are not a clean-machine unattended acceptance run. Douyin reply visibility remains open. The asynchronous-send wait fix has not had an additional live write test.
+
+Official references: [YouTube reply insertion](https://developers.google.com/youtube/data/reference/rest/v3/comments/insert), [thread pagination](https://developers.google.com/youtube/data/reference/rest/v3/commentThreads/list), [video statistics](https://developers.google.com/youtube/data/reference/rest/v3/videos). Raw pages, audience data, sign-in information and private receipts stay local and are not published.
 
 
 ## 0.3.3: persisted Instagram caption checks and cover acceptance

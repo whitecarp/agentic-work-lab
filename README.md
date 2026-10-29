@@ -15,11 +15,12 @@
 為同一支原創影片準備不同平台的簡介、封面與發布回執。使用者選擇平台，首次登入後由 CLI 復用本機專用會話。AI 聊天模型協助寫作，CLI 核對素材與帳號、上傳、套用封面並記錄結果；YouTube 使用官方 API，抖音、Instagram、X 使用專用背景瀏覽器。
 
 - 依影片語言保留原文並適配平台：中文內容在 B站／抖音使用簡體，其餘內容加簡體翻譯；非英文內容在 YouTube／Instagram／X 保留原文並加英文。
-- 抖音／Instagram 共用專用直式封面；目前手機網格仍裁掉底部小字，封面美觀與安全區是下一輪重點。
+- 抖音／Instagram 共用專用直式封面；v3 已由使用者確認兩站手機預覽中文字可見，其他版面仍需檢查。
 - X 發布僅面向已訂閱、且帳號實際能進入 Media Studio 的使用者。未訂閱帳號的影片上傳限 140 秒、512 MB，並缺少本工具依賴的 Studio 媒體管理與自訂封面權限；因此 X 後端需要上述存取權。[上傳限制](https://help.x.com/en/using-x/x-videos) · [Studio 權限](https://help.x.com/en/using-x/media-studio)。
 - Instagram 使用原片及原比例，上傳時另設封面；手機可選與抖音共用的直式圖。
+- 新增跨平台評論讀取、按評論者語言單語回覆、作品數據與中／英文營運匯報；各站實測及待驗項目見驗證記錄。
 - 提供專用封面適配、YouTube 播放列表設定與預設關閉、主動開啟的 Gmail 郵件提醒。
-- **0.3.3 alpha，113 項離線測試通過。** 完整五平台發布仍有待驗收項目；已測範圍與限制均有記錄。
+- **0.4.0 alpha，140 項離線測試通過。** 完整五平台發布仍有待驗收項目；已測範圍與限制均有記錄。
 
 [安裝與使用](tools/publishops-crosscast/README.md) · [功能範圍](tools/publishops-crosscast/docs/FEATURES.md) · [驗證記錄](tools/publishops-crosscast/docs/VALIDATION.md)
 

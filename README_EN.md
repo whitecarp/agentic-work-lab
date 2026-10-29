@@ -15,11 +15,12 @@ Explore how AI supports research, content production and operations, then turn p
 Prepare platform-specific descriptions, covers and publication receipts for one original video. Choose platforms, sign in once and let the CLI reuse its own local sessions. The conversation model prepares copy; the CLI checks assets and accounts, uploads, applies covers and records results. YouTube uses its official API; Douyin, Instagram and X use a dedicated background browser.
 
 - Source-aware copy: Chinese content becomes Simplified Chinese on Bilibili/Douyin; other languages retain the original plus Chinese. Non-English content retains the original plus English on YouTube/Instagram/X.
-- Douyin/Instagram share dedicated portrait artwork; phone grids still crop footer text. Cover aesthetics and safe areas are the next iteration priority.
+- Douyin/Instagram share dedicated portrait artwork; the user confirmed readable text in both v3 phone previews. Other layouts still need checking.
 - X publishing supports subscribed users whose accounts can actually access Media Studio. Non-subscribers have a 140-second, 512 MB upload limit and lack the Studio media-management and custom-thumbnail access required by this backend. [Upload limits](https://help.x.com/en/using-x/x-videos) · [Studio access](https://help.x.com/en/using-x/media-studio).
 - Instagram retains the original video and aspect ratio with a separate upload cover. Its mobile editor can use the same portrait artwork as Douyin.
+- Added cross-platform comment reads, single-language replies matching commenters, work metrics and Chinese/English operations reports; tested and pending scopes are documented.
 - Production-cover fitting, YouTube playlist settings and Gmail-only email notifications, off until explicitly enabled.
-- **0.3.3 alpha, with 113 passing offline tests.** Full five-platform publication still has open acceptance items; tested scope and limits are documented.
+- **0.4.0 alpha, with 140 passing offline tests.** Full five-platform publication still has open acceptance items; tested scope and limits are documented.
 
 [Install and use](tools/publishops-crosscast/README_EN.md) · [Feature scope](tools/publishops-crosscast/docs/FEATURES_EN.md) · [Validation](tools/publishops-crosscast/docs/VALIDATION_EN.md)
 
