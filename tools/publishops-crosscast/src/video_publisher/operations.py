@@ -86,6 +86,8 @@ def save_observation(platform, work, action, result):
             result['baseline']=old is None
             atomic_json(path,{'identity':result['identity'],'ids':sorted(ids|set((old or {}).get('ids',[]))),'at':now()})
             atomic_json(home()/'operations/comments'/(digest([platform,work])+'.json'),result)
+            from .operations_inbox import merge
+            merge(platform,work,result)
         elif action=='stats':
             from .operations_sync import metric_changes
             path=home()/'operations/stats'/(digest([platform,result['identity'],work])+'.json')
@@ -125,6 +127,10 @@ def reply(platform, work, comment_id, text, language='auto', dry_run=False, _tes
     if not cache.exists(): raise VpubError('comment_snapshot_required','Read this work’s comments before replying.')
     snapshot=read_json(cache)
     candidates=[c for c in snapshot.get('items',[]) if c['id']==comment_id]
+    if not candidates:
+        from .operations_inbox import find
+        historical=find(platform,snapshot['identity'],work,comment_id)
+        if historical: candidates=[historical]
     if len(candidates)!=1: raise VpubError('comment_not_observed','The comment is absent from the latest collected page; collect its page again.')
     target=candidates[0]
     if _test_key:
@@ -232,7 +238,7 @@ def report(since=None, language='auto', notes=None, _events=None):
     for platform in NAMES:
         selected=[e for e in events if e['platform']==platform and not e['result'].get('test')]
         if not selected: continue
-        comments={};stats={};replies={};engagement={};failed=[];new_comments=set();baselines=set()
+        comments={};stats={};replies={};engagement={};management={};failed=[];new_comments=set();baselines=set()
         for e in selected:
             v=e['result']
             if v.get('state')=='FAILED': failed.append(v);continue
@@ -245,6 +251,7 @@ def report(since=None, language='auto', notes=None, _events=None):
             if e['action']=='stats': stats[e['work_id']]=v
             if e['action'] in {'reply','reply_verify'}: replies[v.get('reply_key',e['event_id'])]=v
             if e['action']=='engagement': engagement[v.get('key',e['event_id'])]=v
+            if e['action']=='comment_management':management[v.get('key',e['event_id'])]=v
         unavailable_stats=sum(not any(m.get('value') is not None for m in v.get('metrics',{}).values()) for v in stats.values())
         collected_stats=len(stats)-unavailable_stats
         confirmed=sum(v.get('state')=='REPLY_VERIFIED' for v in replies.values())
@@ -253,9 +260,13 @@ def report(since=None, language='auto', notes=None, _events=None):
                  for kind in ('like','save') for direction,desired in (('on',True),('off',False))}
         actions_pending=sum(v.get('state') in {'ACTION_SUBMITTING','ACTION_UNVERIFIED'} for v in engagement.values())
         actions_failed=sum(v.get('state')=='ACTION_FAILED' for v in engagement.values())
+        managed=sum(v.get('state')=='COMMENT_VERIFIED' for v in management.values())
+        manage_pending=sum(v.get('state') in {'COMMENT_SUBMITTING','COMMENT_UNVERIFIED'} for v in management.values())
+        manage_failed=sum(v.get('state')=='COMMENT_FAILED' for v in management.values())
         details[platform]={'comments_read':len(comments),'newly_observed_comments':len(new_comments),'baseline_works':len(baselines),'replies_verified':confirmed,'work_metrics':stats,
                            'replies_pending':pending,'works_with_stats':collected_stats,'works_without_visible_metrics':unavailable_stats,'failed_reads':len(failed),
-                           'engagement_verified':actions,'engagement_pending':actions_pending,'engagement_failed':actions_failed}
+                           'engagement_verified':actions,'engagement_pending':actions_pending,'engagement_failed':actions_failed,
+                           'comment_management_verified':managed,'comment_management_pending':manage_pending,'comment_management_failed':manage_failed}
         if lang=='zh':
             pieces=[]
             if any(e['action']=='comments' and e['result'].get('state')!='FAILED' for e in selected): pieces.append(f'读取{len(comments)}条观众评论')
@@ -270,6 +281,9 @@ def report(since=None, language='auto', notes=None, _events=None):
                 if actions[kind]:pieces.append(f'{label}{actions[kind]}次并读回确认')
             if actions_pending:pieces.append(f'{actions_pending}次点赞或保存操作待核验，未重试')
             if actions_failed:pieces.append(f'{actions_failed}次点赞或保存操作在提交前停止')
+            if managed:pieces.append(f'{managed}次评论管理操作已读回确认')
+            if manage_pending:pieces.append(f'{manage_pending}次评论管理操作待核验，未重试')
+            if manage_failed:pieces.append(f'{manage_failed}次评论管理操作在提交前停止')
             if pieces:parts.append(NAMES[platform]+'：'+'，'.join(pieces))
         else:
             pieces=[]
@@ -286,6 +300,9 @@ def report(since=None, language='auto', notes=None, _events=None):
                 if actions[kind]:pieces.append(f'verified {actions[kind]} {label} operations')
             if actions_pending:pieces.append(f'{actions_pending} engagement attempts remain unverified; no retry')
             if actions_failed:pieces.append(f'{actions_failed} engagement attempts stopped before submission')
+            if managed:pieces.append(f'verified {managed} comment-management operations')
+            if manage_pending:pieces.append(f'{manage_pending} comment-management attempts await verification; no retry')
+            if manage_failed:pieces.append(f'{manage_failed} comment-management attempts stopped before submission')
             if pieces:parts.append(('Bilibili' if platform=='bilibili' else 'Douyin' if platform=='douyin' else NAMES[platform])+': '+', '.join(pieces))
     summary=('本轮'+'；'.join(parts)+'。') if lang=='zh' and parts else ('This round — '+'; '.join(parts)+'.') if parts else ('本时段没有可汇报的执行记录。' if lang=='zh' else 'No execution records in this period.')
     findings=read_json(notes) if notes else []
@@ -298,6 +315,9 @@ def report(since=None, language='auto', notes=None, _events=None):
 
 def capabilities():
     return {'collection':'ops watch add/list/remove and ops sync: bounded read-only multi-platform inbox candidates, metrics and per-run report; no scheduler or automatic replies.',
+            'batch_reads':'One CLI-owned browser per group of up to ten watched works on the same platform/account; read-only, stops on failure.',
+            'local_inbox':'inbox list/mark: account-scoped history, unread/read/handled/deferred, changed text reopens; no private messages.',
+            'comment_management':'Bilibili/Instagram/X comment like/unlike; YouTube own-comment edit/delete; exact target and fresh read-back. Douyin comment controls, pins and hiding are not integrated.',
             'works':'Bilibili published pages, YouTube uploads playlist pages, other platforms visible first page.',
             'reply_pages':'comments replies: Bilibili and YouTube roots with next_cursor; browser replies remain bounded.',
             'comments':{'bilibili':'upstream CLI, paged threads','youtube':'official API, paged threads and replies',

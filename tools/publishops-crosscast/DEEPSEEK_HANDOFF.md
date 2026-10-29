@@ -2,6 +2,10 @@
 
 **繁體中文** · [English](DEEPSEEK_HANDOFF_EN.md)
 
+## 0.7.0 巡檢與評論管理
+
+以 `ops sync` 批次讀取，再用 `inbox list` 取得待處理的已觀察評論。處理後在本機標記 handled／deferred，需要重開時用 unread；正文變動會自動重開。核對觀察時間及回覆續頁，不從局部清單推斷刪除或完整收件匣。`comments like --remove` 撤銷確切的 B站／Instagram／X 評論讚；YouTube 的 `comments edit/delete` 僅處理自己作品下自己的評論。先讀當前評論；使用者任務未授權該目標時不刪除。`COMMENT_UNVERIFIED` 只做 `comments verify-action KEY`，不重新修改。測試記錄不列入普通匯報；未支援功能需如實說明。語言、共用封面及 Gmail 預設關閉規則保留。
+
 ## 0.6.0 點讚與收藏
 
 使用者已授權指定互動時，直接使用 `engage like/save PLATFORM WORK_ID`；`--remove` 撤銷，`--dry-run` 可選，不另加逐次審批。先讀 `engage status` 核對帳號與現狀。B站收藏指定收藏夾，YouTube 保存必須指定自己的普通播放列表，其他站使用預設收藏／私人書籤。不要將轉發、投幣、三連或評論點讚當作這些命令的別名。

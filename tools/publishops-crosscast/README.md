@@ -8,7 +8,7 @@
 
 ### 跨平台影片發布營運台
 
-**v0.6.0 alpha · CLI `vpub` · AI 協助開發**
+**v0.7.0 alpha · CLI `vpub` · AI 協助開發**
 
 讓同一支原創影片擁有各平台適用的文案、封面與發布回執。選擇 Bilibili、抖音、YouTube、Instagram、X 的任意組合，首次登入後，CLI 復用本機專用會話完成後續上傳。
 
@@ -120,6 +120,44 @@ vpub comments replies bilibili BV_ID ROOT_COMMENT_ID --limit 20
 ```
 
 這兩站可分頁讀取指定頂層留言下的回覆，核對作品與父留言。`next_cursor` 表示仍有下一頁；`complete` 僅描述目前請求範圍。這不會把 Instagram、X、抖音的可見留言讀取升級為完整歷史匯出，也不會繞過原有發送去重。
+
+## 持久評論收件匣與減少瀏覽器啟動
+
+`ops sync` 將同平台、同帳號最多十條追蹤作品合併到一次 CLI 專用瀏覽器會話。Instagram／X 在同一作品頁讀取評論與數據；抖音仍需切換公開評論頁與創作者數據頁。批次只接受讀取；驗證要求或讀取失敗會停止該平台後續讀取，保留已完成結果，再處理其他平台。這能減少重複啟動，但不是官方直連 API，也不承諾固定速度。
+
+```sh
+vpub ops sync --reply-pages 1 --reply-threads 5 --out round.json
+vpub inbox list --status pending --limit 50
+vpub inbox list --platform youtube --status all --include-own
+vpub inbox mark COMMENT_KEY handled
+vpub inbox mark COMMENT_KEY deferred
+vpub inbox mark COMMENT_KEY unread
+```
+
+本機收件匣按平台、帳號、作品與評論 ID 保存已讀取內容。新增項目為 unread；read／handled／deferred 標記在下次巡檢後保留，正文變更會重新列為未讀。局部分頁沒有出現的評論不會從歷史刪除，使用舊內容前應檢查 `last_seen_at`。`pending` 排除自己的評論、已知回覆過的評論，以及已處理／稍後處理項目；`--cursor` 繼續本機分頁，`--identity` 選擇記錄中的帳號。標記只改本機狀態，不發送回覆或修改平台。
+
+B站／YouTube 可在 `--reply-threads`（每作品預設 5 樓）及 `--reply-pages`（每樓預設 1 頁）範圍內補讀不完整的回覆預覽；任一設為 0 可停用補讀。未完成樓層保留 `reply_continuations`，以 `comments replies` 繼續。瀏覽器平台仍只讀可見項目，不宣稱完整收件匣、@ 通知或私信功能。
+
+## 管理單條評論
+
+```sh
+vpub comments list instagram WORK_ID
+vpub comments status instagram WORK_ID COMMENT_ID
+vpub comments like instagram WORK_ID COMMENT_ID
+vpub comments like instagram WORK_ID COMMENT_ID --remove
+vpub comments edit youtube VIDEO_ID OWN_COMMENT_ID --text "修改後的評論"
+vpub comments delete youtube VIDEO_ID OWN_COMMENT_ID
+vpub comments verify-action RECEIPT_KEY
+```
+
+| 平台 | 新增評論控制 |
+|---|---|
+| B站 | 透過固定版本 bili-cli 點讚／取消讚，讀回確切評論狀態 |
+| Instagram／X | 對確切可見評論點讚／取消讚；愛心控制項不唯一時停止 |
+| YouTube | 透過官方 API 編輯／刪除自己影片下自己發出的評論 |
+| 抖音 | 本版未接入評論管理控制項；既有頂層回覆仍可使用 |
+
+這些指令明確指定單條評論，與影片點讚分開。先讀取評論再操作；不設逐條文案審核，`--dry-run` 為可選預覽。YouTube 編輯使用宿主提供的單語正文，不自行翻譯。提交前核對作者、帳號、作品與當前正文；逾時或未確認的操作會保留回執，阻止再次修改，應以唯讀核驗處理，不自動重送。自測使用 `--test-id`，普通匯報排除這些記錄。刪除只在明確要求時執行且不可復原，登入不會觸發。置頂、隱藏、批量審核與瀏覽器平台評論刪除未實作。
 
 ## 安裝與開始
 

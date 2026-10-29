@@ -22,7 +22,8 @@
 - 新增五站作品列表、追蹤清單與唯讀巡檢：彙整評論候選、同口徑數據變化及本輪匯報；B站／YouTube 可分頁讀取評論樓。
 - 提供專用封面適配、YouTube 播放列表設定與預設關閉、主動開啟的 Gmail 郵件提醒。
 - 新增五站點讚、取消讚、收藏／書籤／指定播放列表保存與移除；先查狀態、提交一次並獨立核驗，重複指令不重複操作。
-- **0.6.0 alpha，193 項離線測試通過。** 完整五平台發布仍有待驗收項目；已測範圍與限制均有記錄。
+- 新增同平台唯讀批次、持久評論收件匣與處理標記；B站／Instagram／X 評論點讚及取消讚、YouTube 自己評論編輯及刪除已實測。
+- **0.7.0 alpha，218 項離線測試通過。** 完整五平台發布仍有待驗收項目；已測範圍與限制均有記錄。
 
 [安裝與使用](tools/publishops-crosscast/README.md) · [功能範圍](tools/publishops-crosscast/docs/FEATURES.md) · [驗證記錄](tools/publishops-crosscast/docs/VALIDATION.md)
 

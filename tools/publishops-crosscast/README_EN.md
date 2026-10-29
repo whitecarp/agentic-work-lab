@@ -8,7 +8,7 @@ This requirement exists because non-subscribers are limited to **140-second, 512
 
 ### Multi-platform video release operations console
 
-**v0.6.0 alpha · CLI `vpub` · AI-assisted development**
+**v0.7.0 alpha · CLI `vpub` · AI-assisted development**
 
 Prepare platform-specific metadata, covers and publication receipts for one original video. Choose any subset of Bilibili, Douyin, YouTube, Instagram and X. Sign in once; the CLI reuses its own local sessions for later uploads.
 
@@ -120,6 +120,44 @@ vpub comments replies bilibili BV_ID ROOT_COMMENT_ID --limit 20
 ```
 
 These two platforms support paged replies to a top-level comment with work and parent checks. `next_cursor` indicates another page; `complete` describes only the requested scope. This does not turn Instagram, X or Douyin visible comments into a complete historical export or bypass reply deduplication.
+
+## Persistent comment inbox and fewer browser starts
+
+`ops sync` groups up to ten watched works for the same platform/account into one CLI-owned browser session. Instagram/X reuse the selected work page for comments and statistics; Douyin still switches between public comments and Creator Center metrics. The batch accepts reads only. A challenge or failed read stops subsequent reads on that platform, preserves completed results and continues with other platforms. This reduces repeated startup; it is not an official API or a fixed speed guarantee.
+
+```sh
+vpub ops sync --reply-pages 1 --reply-threads 5 --out round.json
+vpub inbox list --status pending --limit 50
+vpub inbox list --platform youtube --status all --include-own
+vpub inbox mark COMMENT_KEY handled
+vpub inbox mark COMMENT_KEY deferred
+vpub inbox mark COMMENT_KEY unread
+```
+
+The local inbox retains observed comments by platform, account, work and comment ID. New entries are unread; read/handled/deferred marks survive later syncs. Changed text reopens an item. A missing comment on a partial page is not deleted from history. Read `last_seen_at` before relying on old entries. `pending` excludes own comments, known answered threads and handled/deferred items; `--cursor` continues local results. `--identity` selects one recorded account. Marking an item performs no platform write and does not send a reply.
+
+For Bilibili/YouTube, sync expands incomplete reply previews within `--reply-threads` (default 5 per work) and `--reply-pages` (default 1 per expanded thread). Set either to 0 to disable expansion. Unfinished threads retain `reply_continuations`; use `comments replies` to continue. Browser reads remain limited to visible entries, without complete-inbox, mention-notification or private-message claims.
+
+## Manage individual comments
+
+```sh
+vpub comments list instagram WORK_ID
+vpub comments status instagram WORK_ID COMMENT_ID
+vpub comments like instagram WORK_ID COMMENT_ID
+vpub comments like instagram WORK_ID COMMENT_ID --remove
+vpub comments edit youtube VIDEO_ID OWN_COMMENT_ID --text "Updated comment"
+vpub comments delete youtube VIDEO_ID OWN_COMMENT_ID
+vpub comments verify-action RECEIPT_KEY
+```
+
+| Platform | New comment controls |
+|---|---|
+| Bilibili | Like/unlike through pinned upstream bili-cli; exact comment state read back |
+| Instagram / X | Like/unlike the exact visible comment; an ambiguous heart stops the action |
+| YouTube | Edit/delete your own comment on your own video through the official API |
+| Douyin | No comment-management controls in this release; existing top-level replies remain available |
+
+These are explicit single-comment commands, separate from video likes. Read the comment first. There is no mandatory editorial approval; `--dry-run` is optional. YouTube editing takes the host's single-language text without translating it. Author, account, work and current text are checked before writing. A timed-out or unverified action is retained and blocks another mutation until read-only verification; there is no automatic resend. Test labels use `--test-id` and are excluded from ordinary reports. Deletion is only performed when explicitly requested and is irreversible; login never runs it. Pinning, hiding, bulk moderation and browser comment deletion are not implemented.
 
 ## Install and start
 

@@ -2,6 +2,10 @@
 
 [繁體中文](DEEPSEEK_HANDOFF.md) · **English**
 
+## 0.7.0 collection and comment management
+
+Use `ops sync` for batched reads, then `inbox list` for pending observed comments. Mark handled/deferred locally and use unread to reopen; changed text reopens automatically. Check timestamps and reply continuations, never infer deletion or a complete inbox from a partial list. `comments like --remove` reverses an exact Bilibili/Instagram/X comment like; YouTube `comments edit/delete` is limited to your own comments on your own works. Read current comments first. Do not run deletion without the user's task authorizing that target. `COMMENT_UNVERIFIED` permits only `comments verify-action KEY`, not another mutation. Test-labelled operations are excluded from reports. Unsupported controls must be reported honestly. Language, shared-cover and Gmail-off rules remain.
+
 ## 0.6.0 likes and saves
 
 For interactions the user has authorized, call `engage like/save PLATFORM WORK_ID` directly; `--remove` reverses and `--dry-run` is optional, without another per-action approval. Read `engage status` to confirm account and state. Bilibili saves target a favorite folder; YouTube requires an ordinary owned playlist; other platforms use default saves/private bookmarks. Reposts, coins, triple actions and comment likes are not aliases for these commands.

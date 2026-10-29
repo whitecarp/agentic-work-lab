@@ -2,6 +2,7 @@
 import math
 import re
 import uuid
+import time
 
 from . import adapters, operations as ops
 from .core import VpubError, atomic_json, home, now, platform_check, publication_lock, read_json, stop_check
@@ -81,7 +82,7 @@ def watch(action, platform=None, work=None):
     return {**data,'platform_writes':0}
 
 
-def collect(platform, work, identity, limit, pages):
+def collect(platform, work, identity, limit, pages, reply_pages=0, reply_threads=5):
     cursor=None;seen_cursors=set();rows={};first=None;last=None;complete=True
     for index in range(pages):
         stop_check(platform)
@@ -98,23 +99,86 @@ def collect(platform, work, identity, limit, pages):
     result={**first,'items':list(rows.values()),'next_cursor':cursor,'pages_read':index+1,
             'complete':bool(platform in {'bilibili','youtube'} and complete and not cursor and last.get('complete')),
             'bounded':True,'page_budget':pages}
+    expanded=0;continuations=[]
+    if platform in {'bilibili','youtube'} and reply_pages:
+        for root in list(rows.values()):
+            count=root.get('reply_count')
+            children=[c for c in rows.values() if c.get('parent_id')==root['id']]
+            if root.get('parent_id') or not isinstance(count,int) or count<=len(children):continue
+            if expanded>=reply_threads:
+                continuations.append({'comment_id':root['id'],'next_cursor':None,'reason':'thread_budget'})
+                continue
+            expanded+=1;rc=None;seen=set();complete_replies=False
+            for _ in range(reply_pages):
+                page=ops.backend(platform,'replies',work,comment_id=root['id'],limit=limit,cursor=rc)
+                if page.get('identity')!=identity:raise VpubError('wrong_account','Reply-page account changed.')
+                for c in page['items']:
+                    if c['id']==root['id']:
+                        rows[c['id']]={**root,**c}
+                    elif c.get('parent_id')==root['id']:rows[c['id']]=c
+                    else:raise VpubError('wrong_thread','Reply page contains another thread.')
+                rc=page.get('next_cursor')
+                if not rc:
+                    complete_replies=True;break
+                if rc in seen:raise VpubError('cursor_loop','Reply page cursor repeated.')
+                seen.add(rc)
+            children=[c for c in rows.values() if c.get('parent_id')==root['id']]
+            rows[root['id']]['owner_replied']=True if any(c.get('is_owner') for c in children) else False if complete_replies else None
+            if rc:continuations.append({'comment_id':root['id'],'next_cursor':rc,'reason':'page_budget'})
+        result['items']=list(rows.values())
+    result.update(reply_threads_expanded=expanded,reply_continuations=continuations)
     return ops.save_observation(platform,work,'comments',result)
 
 
-def sync(platforms=None, limit=20, pages=2, language='auto'):
+def browser_batch(targets, limit):
+    """Bind every work to its publication receipt before opening one shared profile."""
+    p=targets[0]['platform'];identities={t['identity'] for t in targets}
+    if len(identities)!=1:raise VpubError('wrong_account','A browser batch must use one watched identity.')
+    identity=identities.pop()
+    for t in targets:
+        ops.work_id(p,t['work_id'])
+        if ops.browser_identity(p,t['work_id'])!=identity:raise VpubError('wrong_account','Publication and watch identities differ.')
+    jobs=[{'operation':a,'work_id':t['work_id'],'limit':limit} for t in targets for a in ('comments','stats')]
+    return adapters.browser_call(p,'operations_batch','default',expected_identity=identity,jobs=jobs)
+
+
+def sync(platforms=None, limit=20, pages=2, language='auto', reply_pages=1, reply_threads=5):
     if not 1<=limit<=100 or not 1<=pages<=10:raise VpubError('invalid_limit','Use limit 1–100 and pages 1–10.')
+    if not 0<=reply_pages<=5 or not 0<=reply_threads<=20:raise VpubError('invalid_limit','Reply pages must be 0–5; reply threads 0–20.')
     selected=platforms.split(',') if platforms else list(ops.NAMES)
     for p in selected:platform_check(p)
     targets=[x for x in watch('list')['items'] if x['platform'] in selected]
     if not targets:raise VpubError('watchlist_empty','Add your works with vpub ops watch add PLATFORM WORK first.')
     run={'run_id':uuid.uuid4().hex,'started_at':now(),'platform_writes':0,'items':[],'errors':[],'inbox':[]}
+    started=time.monotonic();batches={};run['browser_sessions']=0
     events=[]
     for target in targets:
         p,w=target['platform'],target['work_id'];item={**target};run['items'].append(item)
         for action in ('comments','stats'):
             try:
                 stop_check(p)
-                if action=='comments':value=collect(p,w,target['identity'],limit,pages)
+                if p not in {'bilibili','youtube'}:
+                    if p not in batches:
+                        peers=[t for t in targets if t['platform']==p];batches[p]={};failed=False
+                        for offset in range(0,len(peers),10):
+                            group=peers[offset:offset+10]
+                            try:
+                                if failed:raise VpubError('batch_stopped','Earlier batch on this platform failed.')
+                                batch=browser_batch(group,limit)
+                                run['browser_sessions']+=batch['browser_sessions']
+                                for row in batch['results']:
+                                    batches[p][(row['job']['work_id'],row['job']['operation'])]=row
+                                failed=any(not row['ok'] for row in batch['results'])
+                            except Exception as exc:
+                                failed=True;code=exc.code if isinstance(exc,VpubError) else type(exc).__name__
+                                for t in group:
+                                    for a in ('comments','stats'):batches[p][(t['work_id'],a)]={'ok':False,'error':{'code':code}}
+                    row=batches[p][(w,action)]
+                    if not row['ok']:raise VpubError(row['error']['code'],'Read-only browser batch stopped; no alternate route attempted.')
+                    value=row['data']
+                    if value.get('identity')!=target['identity']:raise VpubError('wrong_account','The watched account changed.')
+                    value=ops.save_observation(p,w,action,value)
+                elif action=='comments':value=collect(p,w,target['identity'],limit,pages,reply_pages,reply_threads)
                 else:
                     value=ops.backend(p,'stats',w)
                     if value.get('identity')!=target['identity']:raise VpubError('wrong_account','The watched account changed.')
@@ -124,7 +188,11 @@ def sync(platforms=None, limit=20, pages=2, language='auto'):
                 if action=='comments':
                     for c in value['items']:
                         if c.get('is_owner') or c.get('owner_replied') is True:continue
+                        from .operations_inbox import find_item
+                        saved=find_item(p,target['identity'],w,c['id'])
+                        if saved and saved['status'] in {'handled','deferred'}:continue
                         run['inbox'].append({'platform':p,'work_id':w,'comment':c,
+                            'key':saved['key'] if saved else None,'local_status':saved['status'] if saved else None,
                             'status':'unreplied' if c.get('owner_replied') is False else 'needs_thread_check',
                             'reply_language':c.get('language_hint','und')})
             except Exception as exc:
@@ -136,6 +204,7 @@ def sync(platforms=None, limit=20, pages=2, language='auto'):
                 # Do not retry a challenged account through another operation or route.
                 break
     run.update(completed_at=now(),state='PARTIAL' if run['errors'] else 'COLLECTED',
+               elapsed_seconds=round(time.monotonic()-started,3),
                report=ops.report(since=run['started_at'],language=language,_events=events),
                scope='Watched works only; bounded comments, not a private-message or complete account inbox. No replies, likes or email sent.')
     path=home()/'operations/runs'/(run['run_id']+'.json');atomic_json(path,run)

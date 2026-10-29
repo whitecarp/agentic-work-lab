@@ -70,7 +70,8 @@ class SyncTests(unittest.TestCase):
         def run(p,a,w,**kw):
             if p=='youtube':raise VpubError('oauth_scope_required','Authorization required')
             return deepcopy(self.comments if a=='comments' else self.stats)
-        with patch.object(ops,'backend',side_effect=run):result=sync.sync()
+        batch={'browser_sessions':1,'results':[{'job':{'work_id':'abcde','operation':a},'ok':True,'data':run('instagram',a,'abcde')} for a in ('comments','stats')]}
+        with patch.object(ops,'backend',side_effect=run),patch.object(sync,'browser_batch',return_value=batch):result=sync.sync()
         self.assertEqual('PARTIAL',result['state']);self.assertIn('stats',result['items'][1])
         self.assertEqual(1,len(result['errors']))
 

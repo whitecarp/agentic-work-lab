@@ -32,12 +32,14 @@ def douyin_metrics(text):
     return result
 
 
-async def open_work(page, platform, identity, work, public_comments=False):
+async def open_work(page, platform, identity, work, public_comments=False, reuse_page=False):
     urls={'instagram':f'https://www.instagram.com/p/{work}/',
           'x':f'https://x.com/{identity}/status/{work}',
           'douyin':f'https://creator.douyin.com/creator-micro/work-management/work-detail/{work}'}
     if platform=='douyin' and public_comments: urls['douyin']=f'https://www.douyin.com/video/{work}'
-    await page.goto(urls[platform],wait_until='domcontentloaded',timeout=60000)
+    same = page.url.rstrip('/') == urls[platform].rstrip('/')
+    if not (reuse_page and same):
+        await page.goto(urls[platform],wait_until='domcontentloaded',timeout=60000)
     if platform=='instagram':
         await page.locator('svg[aria-label="More options"]').wait_for(state='visible',timeout=45000)
     elif platform=='x':
@@ -189,7 +191,7 @@ async def comments(page,platform,identity,work,limit):
 
 async def execute(page,platform,identity,payload):
     work=payload['work_id'];action=payload['operation']
-    url=await open_work(page,platform,identity,work,public_comments=platform=='douyin' and action not in {'stats','test_seed','reply'})
+    url=await open_work(page,platform,identity,work,public_comments=platform=='douyin' and action not in {'stats','test_seed','reply'},reuse_page=payload.get('reuse_page',False))
     if platform=='douyin' and action=='reply':
         from .operations_douyin import reply as creator_reply
         return await creator_reply(page,identity,payload)

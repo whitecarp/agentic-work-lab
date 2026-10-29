@@ -15,6 +15,9 @@ async def run(payload):
     from patchright.async_api import async_playwright
     platform, account = payload["platform"], payload.get("account", "default")
     stop_check(platform)
+    if payload['action'] == 'operations_batch':
+        from .operations_batch import validate
+        validate(payload)
     with runtime.profile_lock(platform, account):
         async with async_playwright() as pw:
             if payload["action"] == "login":
@@ -26,12 +29,18 @@ async def run(payload):
                     return {"logged_in": True, "identity": actual, "account": account, "method": "browser"}
                 from .browser_backends import execute
                 try:
+                    if payload['action']=='comment_management':
+                        from .comment_actions_browser import execute as manage_comment
+                        return await manage_comment(page,platform,actual,payload)
                     if payload['action']=='engagement':
                         from .engagement_browser import execute as engage
                         return await engage(page,platform,actual,payload)
                     if payload['action']=='operations':
                         from .operations_browser import execute as operate
                         return await operate(page,platform,actual,payload)
+                    if payload['action']=='operations_batch':
+                        from .operations_batch import execute as batch
+                        return await batch(page,platform,actual,payload)
                     return await execute(page, platform, actual, payload)
                 except Exception as exc:
                     if payload['action']=='operations':

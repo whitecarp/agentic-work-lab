@@ -2,7 +2,25 @@
 
 [繁體中文](VALIDATION.md) · **English**
 
-Date: **2026-10-30**, PublishOps CrossCast **0.6.0 alpha**.
+Date: **2026-10-30**, PublishOps CrossCast **0.7.0 alpha**.
+
+## 0.7.0: batched reads, persistent inbox and comment management
+
+CLI reads succeeded for comments and metrics on the five existing episode-two works. The run took about **76 seconds**, with **3 browser sessions** across the three browser backends and no platform writes. Reads share a context per platform/account; Instagram/X reuse the same work page. This is one development run, not a cross-machine speed guarantee or a controlled before/after timing comparison.
+
+| Live check | Result |
+|---|---|
+| Bilibili, Instagram and X comment likes | Changed state, repeated the command without writing, then restored the original state; independent read-back confirmed each |
+| YouTube own comments | Edited an existing test reply and restored its text; created a separate disposable test comment, deleted it and verified absence by exact ID |
+| Local inbox | A handled mark survived resync, then was restored; the repeated YouTube read found zero new audience comments |
+
+**9 comment-management writes** were verified, plus one disposable test-comment creation. Three repeated like commands returned `NO_CHANGE`. Existing hello threads remain and audience comments were not changed. Instagram initially stopped before writing because text and heart controls are sibling containers; the corrected exact-comment scope passed live testing and cannot climb into the post toolbar. One local lock conflict stopped before submission; testing resumed only after the earlier operation finished.
+
+**218 offline tests pass.** Coverage includes rejecting writes in read batches, stopping on failure while retaining prior results, account isolation, history retention and reopened text, bounded reply expansion and continuations, exact work/author checks, no resend after uncertainty, isolated comment controls and excluding test traffic from reports. Reply-preview expansion was regression-tested; the live sample had no incomplete previews, so large-thread live coverage is not claimed.
+
+Douyin comment management, pinning/hiding, private messages and a complete account inbox remain unimplemented. Browser collection covers visible comments only. This round did not change videos, covers, captions, visibility or schedules. Language rules and Gmail-off defaults remain. Private receipts and page diagnostics are not published.
+
+Official references: [YouTube comment editing](https://developers.google.com/youtube/v3/docs/comments/update), [deletion](https://developers.google.com/youtube/v3/docs/comments/delete), [reading](https://developers.google.com/youtube/v3/docs/comments/list).
 
 ## 0.6.0: likes, saves, reversals and deduplication
 
