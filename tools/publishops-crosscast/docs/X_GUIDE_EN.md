@@ -2,7 +2,9 @@
 
 [繁體中文](X_GUIDE.md) · **English**
 
-**X publishing supports subscribed users whose accounts can actually access Media Studio.** No free-account publishing route is currently provided. Login or payment alone does not establish publishing access; the CLI checks the library entry and managed account before selecting media.
+**X publishing supports subscribed users whose accounts can actually access Media Studio.**
+
+This requirement exists because non-subscribers are limited to **140-second, 512 MB** video uploads and cannot use the Media Studio media-management and custom-thumbnail workflow on which this tool depends. CrossCast uploads videos and sets production thumbnails through Media Studio, so its X backend currently supports subscription accounts with that access. Login or payment alone does not establish access; the CLI checks the library entry and managed account before selecting media. [Official upload limits](https://help.x.com/en/using-x/x-videos) · [Media Studio access](https://help.x.com/en/using-x/media-studio).
 
 **0.3.1 alpha:** `vpub auth login x` opens the official login window once. Later `publish` commands reuse CrossCast's dedicated profile headlessly: check account → upload to Media Studio → apply the production thumbnail → fill exact source-aware post text → submit once → read back the original status. This is a scripted official website workflow, not an X API client.
 

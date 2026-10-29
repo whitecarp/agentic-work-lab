@@ -2,7 +2,9 @@
 
 **繁體中文** · [English](X_GUIDE_EN.md)
 
-**X 發布僅面向已訂閱、且帳號實際能進入 Media Studio 的使用者。** 目前不提供免費帳號發布路徑；登入或付款本身不代表已具備發布權限，上傳前仍會核對媒體庫入口與所選帳號。
+**X 發布僅面向已訂閱、且帳號實際能進入 Media Studio 的使用者。**
+
+原因是未訂閱帳號的影片上傳上限為 **140 秒、512 MB**，且無法使用本工具所依賴的 Media Studio 媒體管理與自訂封面流程。CrossCast 的 X 後端透過 Media Studio 上傳影片並設定製作封面，因此目前僅支援具備此權限的訂閱帳號。登入或付款本身不代表權限已開通，上傳前仍會核對媒體庫入口與所選帳號。[官方上傳限制](https://help.x.com/en/using-x/x-videos) · [Media Studio 權限](https://help.x.com/en/using-x/media-studio)。
 
 **0.3.1 alpha：** 首次 `vpub auth login x` 開啟官方登入視窗。之後 `publish` 在背景復用 CrossCast 專用會話：核對帳號 → 上傳 Media Studio → 套用製作封面 → 填入按原語言規則產生的完整帖文 → 提交一次 → 讀回原帖。這是程式操作官方網站，不是 X API 用戶端。
 
