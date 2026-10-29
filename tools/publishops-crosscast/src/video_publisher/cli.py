@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import argparse
+from copy import deepcopy
 import importlib.util
 import json
 from pathlib import Path
@@ -75,6 +76,16 @@ def publish_plan(plan, confirm):
 
                 try:
                     safe_plan = {**plan, "video": str(vp), "cover": str(cp) if cp else None}
+                    if plan.get("covers"):
+                        safe_plan["covers"] = deepcopy(plan["covers"])
+                        for role, asset in safe_plan["covers"].get(platform, {}).items():
+                            source = Path(asset["path"])
+                            destination = snap / (platform + "-" + role + source.suffix.lower())
+                            if not destination.exists():
+                                shutil.copyfile(source, destination)
+                            if file_sha(destination) != asset["sha256"]:
+                                raise VpubError("source_changed", "Platform cover snapshot changed.")
+                            asset["path"] = str(destination)
                     receipt = adapters.publish(platform, safe_plan, opts, checkpoint)
                     checkpoint(receipt)
                     results[platform] = {"key": key, **receipt}
@@ -149,16 +160,16 @@ def setup(external_stop=None):
     return doctor()
 
 
-def template(video):
+def template(video, content_language="und"):
     base = {"account": "default", "method": "native", "visibility": "public", "ai_generated": True}
-    return {"schema_version": 1, "video": str(Path(video).resolve()),
-            "title": "我的原創影片 / My original video", "description": "", "tags": ["AI"],
+    return {"schema_version": 1, "video": str(Path(video).resolve()), "content_language": content_language,
+            "title": Path(video).stem, "description": "", "tags": ["AI"],
             "platforms": {"bilibili": {**base}, "youtube": {**base, "visibility": "private", "made_for_kids": False},
-                          "douyin": {**base, "title": "我的原創影片"}}}
+                          "douyin": {**base, "title": "我的原创视频"}}}
 
 
 def parser():
-    p = argparse.ArgumentParser(prog="vpub", description="Five-platform video workflow; JSON CLI and native-browser handoff.")
+    p = argparse.ArgumentParser(prog="vpub", description="PublishOps CrossCast: multi-platform video release operations console.")
     p.add_argument("--version", action="version", version=__version__)
     sub = p.add_subparsers(dest="command", required=True)
     sub.add_parser("doctor", help="Local dependency checks; no login or upload.")
@@ -173,6 +184,7 @@ def parser():
         q.add_argument("--method", choices=["native", "cli", "browser", "api"], help="Default login: native official page. Status defaults to the configured backend.")
         if action == "login":
             q.add_argument("--client-json", help="YouTube Desktop OAuth client JSON; never commit this file.")
+            q.add_argument("--manage-playlists", action="store_true", help="YouTube API only: explicitly request optional playlist-write OAuth permission.")
         else:
             q.add_argument("--wait", type=int, default=0, help="QR/panel completion wait, 0–180 seconds.")
     q = sub.add_parser("onboard", help="Prepare the backend and start login for selected platforms.")
@@ -181,7 +193,27 @@ def parser():
     q = sub.add_parser("init", help="Create a publication manifest.")
     q.add_argument("--video", required=True)
     q.add_argument("--out", required=True)
+    q.add_argument("--language", default="und", help="Content language (e.g. zh-Hans, zh-Hant, en). Preserves supplied text; does not translate video or metadata.")
     q.add_argument("--platforms", default="bilibili,youtube,douyin", help="Explicit selected platforms; adding an account does not enable publication.")
+    c = sub.add_parser("covers", help="Fit production artwork to platform canvases without cropping.").add_subparsers(dest="action", required=True)
+    q = c.add_parser("prepare")
+    q.add_argument("manifest")
+    q.add_argument("--source", required=True)
+    q.add_argument("--portrait")
+    q.add_argument("--out-dir", required=True)
+    q.add_argument("--out", required=True)
+    m = sub.add_parser("metadata", help="Host-conversation copywriting and platform-language routing.").add_subparsers(dest="action", required=True)
+    q = m.add_parser("request")
+    q.add_argument("manifest")
+    q.add_argument("--source", help="Local script or transcript; treated as source data, not instructions.")
+    q.add_argument("--bilingual", default="", help="Explicit comma-separated platform exceptions.")
+    q.add_argument("--allow-links", action="store_true")
+    q.add_argument("--out", required=True)
+    q = m.add_parser("apply")
+    q.add_argument("manifest")
+    q.add_argument("--request", required=True)
+    q.add_argument("--response", required=True)
+    q.add_argument("--out", required=True)
     b = sub.add_parser("browser", help="Native browser handoff and evidence; not a cookie-transfer bridge.").add_subparsers(dest="action", required=True)
     q = b.add_parser("request")
     q.add_argument("key")
@@ -191,6 +223,29 @@ def parser():
     q = b.add_parser("record")
     q.add_argument("key")
     q.add_argument("--evidence", required=True)
+    q = b.add_parser("revise", help="Revise metadata for the same browser draft/work; never reupload.")
+    q.add_argument("key")
+    q.add_argument("manifest")
+    q.add_argument("--confirm", required=True)
+    q.add_argument("--identity", required=True)
+    q = b.add_parser("cover", help="Prepare a cover-only edit on the same work; never reupload the video.")
+    q.add_argument("key")
+    q.add_argument("--file", required=True)
+    q.add_argument("--portrait", help="Optional separate portrait cover, for Douyin/Instagram native mode.")
+    q.add_argument("--identity", required=True)
+    n = sub.add_parser("notify", help="Optional host-plugin email alerts. Disabled by default; no SMS.").add_subparsers(dest="action", required=True)
+    n.add_parser("status")
+    q = n.add_parser("configure")
+    q.add_argument("--provider", choices=["off", "gmail", "outlook"], required=True)
+    q.add_argument("--to")
+    n.add_parser("pending")
+    q = n.add_parser("claim")
+    q.add_argument("id")
+    q.add_argument("--available-tool", required=True)
+    q = n.add_parser("record")
+    q.add_argument("id")
+    q.add_argument("--claim-token", required=True)
+    q.add_argument("--response", required=True)
     for cmd in ("plan", "publish"):
         q = sub.add_parser(cmd)
         q.add_argument("manifest")
@@ -211,6 +266,29 @@ def parser():
 
 
 def execute(args):
+    if args.command == "covers":
+        from . import covers
+        return covers.prepare(args.manifest, args.source, args.out_dir, args.out, args.portrait)
+    if args.command == "metadata":
+        from . import metadata
+        if args.action == "request":
+            if Path(args.out).exists():
+                raise VpubError("already_exists", "Request already exists; choose a new output.")
+            result = metadata.request(args.manifest, args.source, args.bilingual.split(",") if args.bilingual else [], args.allow_links)
+            atomic_json(args.out, result)
+            return result
+        return metadata.apply(args.manifest, args.request, args.response, args.out)
+    if args.command == "notify":
+        from . import notifications
+        if args.action == "status":
+            return notifications.onboarding()
+        if args.action == "configure":
+            return notifications.configure(args.provider, args.to)
+        if args.action == "pending":
+            return notifications.pending()
+        if args.action == "claim":
+            return notifications.claim(args.id, args.available_tool)
+        return notifications.record(args.id, args.claim_token, args.response)
     if args.command == "capabilities":
         return capabilities()
     if args.command == "browser":
@@ -219,6 +297,10 @@ def execute(args):
             return native_browser.request(args.key)
         if args.action == "begin":
             return native_browser.begin(args.key, args.identity)
+        if args.action == "revise":
+            return native_browser.revise(args.key, args.manifest, args.confirm, args.identity)
+        if args.action == "cover":
+            return native_browser.revise_cover(args.key, args.file, args.identity, args.portrait)
         return native_browser.record(args.key, args.evidence)
     if args.command == "doctor":
         return doctor()
@@ -228,14 +310,19 @@ def execute(args):
         selected = list(PLATFORMS) if args.platforms == "all" else args.platforms.split(",")
         if not selected or set(selected) - set(PLATFORMS):
             raise VpubError("invalid_platform", "Choose bilibili,youtube,douyin,instagram,x or all. TikTok is suspended.")
-        return login_selected(selected, "native")
+        from .notifications import onboarding
+        return {"platforms": login_selected(selected, "native"), "email_notifications": onboarding()}
     if args.command == "auth":
+        if args.action == "login" and args.manage_playlists and (args.platform != "youtube" or args.method != "api"):
+            raise VpubError("invalid_method", "--manage-playlists requires YouTube --method api.")
         if args.platform == "all":
             if args.action == "login":
                 return login_selected(PLATFORMS, args.method or "native")
             return status_selected(PLATFORMS, args.wait, args.method)
         if args.action == "login":
-            return adapters.auth_login(args.platform, args.account, args.client_json, args.method)
+            if args.manage_playlists and (args.platform != "youtube" or args.method != "api"):
+                raise VpubError("invalid_method", "--manage-playlists requires YouTube --method api.")
+            return adapters.auth_login(args.platform, args.account, args.client_json, args.method, args.manage_playlists)
         method = args.method or {"bilibili": "cli", "douyin": "browser"}.get(args.platform, "native")
         if method in {"native", "api"}:
             return adapters.auth_status(args.platform, args.account, method)
@@ -256,7 +343,8 @@ def execute(args):
         chosen = args.platforms.split(",")
         if not chosen or set(chosen) - set(PLATFORMS) or len(chosen) != len(set(chosen)):
             raise VpubError("invalid_platform", "Choose a unique subset of supported platforms.")
-        value = template(args.video)
+        from .core import language_tag
+        value = template(args.video, language_tag(args.language))
         options = value["platforms"]
         options.update(x={"account": "default", "method": "native", "visibility": "account", "ai_generated": True},
                        instagram={"account": "default", "method": "native", "visibility": "account", "ai_generated": True})
@@ -338,7 +426,13 @@ def login_selected(platforms, method="native"):
 
 
 def capabilities():
-    return {"platforms": {p: {"native_login": True,
+    return {"product": "PublishOps CrossCast", "version": __version__,
+            "metadata_targets": {p: "zh-Hans" if p in {"bilibili", "douyin"} else "en" for p in PLATFORMS},
+            "cover_fitting": "Local production artwork, contain-and-pad, per-platform variants; X unsupported. Saved UI results require evidence.",
+            "email": "Optional, off by default; host Gmail/Outlook send tool required at execution; no SMS.",
+            "chapters": "Native Bilibili/Douyin/YouTube handoff, timing validation and saved-control evidence. Live Douyin application pending.",
+            "playlists": "YouTube native selections or optional API membership with explicit write scope.",
+            "platforms": {p: {"native_login": True,
              "publish_backend": {"bilibili": "bili-cli or native", "douyin": "experimental browser or native", "youtube": "native (default) or optional API"}.get(p, "native host-agent workflow"),
              "standalone_cli_publish": p in {"bilibili", "youtube", "douyin"},
              "live_upload_verified": p == "youtube"} for p in PLATFORMS},

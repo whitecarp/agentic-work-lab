@@ -10,12 +10,12 @@ The reference is [bili-cli](https://github.com/kukemc/bili-cli): content underst
 | 跨平台方案與去重 / Plan and dedup | Implemented | Implemented | Implemented | Implemented | Implemented |
 | 內置瀏覽器發布交接 / Native upload handoff | Implemented | Implemented | Implemented | Implemented | Implemented |
 | 獨立發布後端 / Standalone uploader | bili-cli | Optional API | Experimental browser | Not implemented | Not implemented |
-| 真實發片驗收 / Live upload acceptance | Pending | One private native upload verified | Pending | Pending | Pending |
+| 真實發片驗收 / Live upload acceptance | Existing work retained | One private native upload verified | One private work; modification under review | Pending | Pending |
 | YouTube 卡片／可點擊片尾 / Cards and clickable end screens | Not applicable | Not implemented | Not applicable | Not applicable | Not applicable |
 | 搜尋／推薦 / Discovery | Existing bili | Planned | Planned | Planned | Planned |
 | 作品／字幕／內容理解 / Content understanding | Existing bili | Planned, platform permitting | Planned, platform permitting | Planned, platform permitting | Planned, platform permitting |
 | 評論／收件箱／訊息 / Comments and inbox | Existing bili | Platform-specific adaptation planned | Planned | Planned | Planned |
-| 互動與發布後修改 / Interaction and editing | Existing bili | Planned | Planned | Planned | Planned |
+| 互動與發布後修改 / Interaction and editing | Existing bili | Native metadata/cover edits | Native edits; review pending | Planned | Planned |
 | 創作者數據 / Creator analytics | Existing bili | Planned | Planned | Planned | Planned |
 
 **Native handoff 是需要 Agent 操作網頁的流程，不是 CLI 已取得資料或已上傳的宣告。** B站現有能力使用安裝後的 `bili`；本工具不宣稱重新實作或驗收了它所有命令。
@@ -31,3 +31,19 @@ Adapt platform concepts rather than copying Bilibili coins/triples/danmaku every
 Next: accept original-video publication on signed-in accounts, integrate works/analytics reads, then add explicitly authorized comments/replies. Each needs real read-back, error handling, deduplication and platform-specific tests.
 
 [X 操作說明 / X guide](X_GUIDE.md) · [TikTok 暫停及協助測試 / TikTok suspension and volunteer testing](TIKTOK_STATUS.md)
+
+## 0.2.0：跨平台內容設定 / Cross-platform content settings
+
+| 能力 / Capability | 本版範圍 / This release |
+|---|---|
+| 文案生成 / Copywriting | Host-model request/apply, source-bound validation; no independent model API |
+| 語言 / Language | Bilibili/Douyin → Simplified Chinese; YouTube/Instagram/X → English; bilingual opt-in |
+| 封面 / Covers | Production artwork → platform canvases; no cropping; immutable snapshots and read-back per variant |
+| 現有作品修改 / Existing-work edits | Metadata/cover changes retain the original work ID; privacy reduction preserved after actual read-back |
+| 播放列表 / Playlists | YouTube native fields and optional API membership operations; Bilibili collections remain upstream |
+| 郵件 / Email | Off by default; host Gmail/Outlook send-tool handoff, claims and durable results; no SMS |
+| 章節 / Chapters | Native handoff schema and explicit pending/unsupported states; live Douyin application pending |
+
+詳見 [README](../README.md) 與當前 [驗證記錄](VALIDATION.md)，上方早期能力表中的發布驗收以此記錄為準。
+
+See README and current validation for the latest acceptance status; these supersede historical live-upload entries above.

@@ -19,6 +19,8 @@ if (-not (Test-Path -LiteralPath $venvPython)) {
     & $selectedPython -m venv (Join-Path $runtimeRoot 'venv')
     if ($LASTEXITCODE -ne 0) { throw 'Virtual environment creation failed.' }
 }
+& $venvPython -m pip uninstall -y whitecarp-video-publisher
+if ($LASTEXITCODE -ne 0) { throw 'Legacy package upgrade failed; runtime data was retained.' }
 & $venvPython -m pip install $PSScriptRoot
 if ($LASTEXITCODE -ne 0) { throw 'Package installation failed. No login or publication was attempted.' }
 & $venvPython -m video_publisher doctor

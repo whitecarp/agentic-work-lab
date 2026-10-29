@@ -66,6 +66,34 @@ class WorkflowTests(unittest.TestCase):
             self.code("confirmation_required", cli.publish_plan, new, old["confirmation"])
             upload.assert_not_called()
 
+    def test_douyin_native_identity_guard_before_upload(self):
+        self.value["platforms"]["douyin"]["expected_identity"] = "123456789"
+        self.save()
+        key = self.native_job("douyin")
+        self.code("wrong_account", native_browser.begin, key, "another-account")
+        self.assertTrue(native_browser.request(key)["can_begin"])
+        self.assertEqual("BROWSER_IN_PROGRESS", native_browser.begin(key, "123456789")["state"])
+        self.value["platforms"]["douyin"]["method"] = "browser"
+        self.save()
+        self.code("unsupported_identity_check", self.plan, ["douyin"])
+
+    def test_instagram_caption_readback_includes_ai_disclosure(self):
+        self.value["platforms"] = {"instagram": {"method": "native", "visibility": "account", "ai_generated": True,
+                                                  "expected_identity": "demo_creator"}}
+        self.save()
+        opts = self.plan()["platforms"]["instagram"]
+        self.assertIn("AI-generated", opts["post_text"])
+        key = self.native_job("instagram")
+        native_browser.begin(key, "demo_creator")
+        evidence = {k: opts[k] for k in ("title", "description", "tags", "visibility", "ai_generated", "post_text")}
+        evidence.update(id="Demo123", page_url="https://www.instagram.com/reel/Demo123/", identity="demo_creator",
+                        outcome="verified", observation="Synthetic fixture, not live evidence.")
+        path = self.root / "ig-evidence.json"
+        atomic_json(path, {**evidence, "post_text": "missing disclosure"})
+        self.code("metadata_mismatch", native_browser.record, key, path)
+        atomic_json(path, evidence)
+        self.assertEqual("AGENT_REPORTED_VERIFIED", native_browser.record(key, path)["state"])
+
     def test_changed_video_invalidates_confirmation(self):
         old = self.plan()
         self.video.write_bytes(b"new bytes")
@@ -291,7 +319,7 @@ class WorkflowTests(unittest.TestCase):
         ledger.close()
 
     def x_manifest(self):
-        self.value.update(title="原創短片", description="Original short", tags=["AI"])
+        self.value.update(title="原創短片", description="Original short", tags=["AI"], content_language="zh-Hant")
         self.value["platforms"] = {"x": {"method": "native", "visibility": "account",
                                              "ai_generated": True, "expected_identity": "tester"}}
         self.save()
@@ -311,6 +339,56 @@ class WorkflowTests(unittest.TestCase):
         self.value["platforms"]["x"]["method"] = "api"
         self.save()
         self.code("invalid_method", self.plan)
+
+    def test_language_preserves_input_and_changes_only_disclosure(self):
+        self.x_manifest()
+        self.value.update(title="简体中文标题", description="简介原文", content_language="zh-Hans")
+        self.save()
+        opts = self.plan()["platforms"]["x"]
+        self.assertEqual("简体中文标题", opts["title"])
+        self.assertEqual("简介原文", opts["description"])
+        self.assertIn("AI 生成内容 / AI-generated", opts["post_text"])
+        self.assertNotIn("內容", opts["post_text"])
+        self.value["platforms"]["x"]["content_language"] = "ja"
+        self.value["platforms"]["x"]["title"] = "日本語の動画"
+        self.save()
+        self.assertEqual("日本語の動画", self.plan()["platforms"]["x"]["title"])
+        self.assertTrue(self.plan()["platforms"]["x"]["post_text"].endswith("AI-generated"))
+        self.value["platforms"]["x"]["content_language"] = "../../bad"
+        self.save()
+        self.code("invalid_language", self.plan)
+
+    def test_metadata_revision_preserves_video_id_and_history(self):
+        key = self.native_job()
+        identity = "UC" + "a" * 22
+        native_browser.begin(key, identity)
+        native_browser.record(key, self.evidence())
+        self.value.update(title="简体标题", content_language="zh-Hans")
+        self.save()
+        plan = self.plan(["youtube"])
+        self.code("wrong_account", native_browser.revise, key, self.manifest, plan["confirmation"], "other")
+        self.code("confirmation_required", native_browser.revise, key, self.manifest, "stale", identity)
+        result = native_browser.revise(key, self.manifest, plan["confirmation"], identity)
+        self.assertEqual("METADATA_EDIT_IN_PROGRESS", result["state"])
+        self.assertEqual("abcdefghijk", result["receipt"]["id"])
+        self.code("already_started", native_browser.begin, key, identity)
+        self.assertEqual("AGENT_REPORTED_VERIFIED", native_browser.record(key, self.evidence())["state"])
+        ledger = Ledger()
+        self.assertEqual(1, len(ledger.rows()))
+        self.assertEqual(1, len(ledger.get(key)["data"]["metadata_revisions"]))
+        ledger.close()
+
+    def test_metadata_revision_rejects_replacement_media_and_privacy(self):
+        key = self.native_job()
+        identity = "UC" + "a" * 22
+        native_browser.begin(key, identity)
+        self.value["platforms"]["youtube"]["visibility"] = "public"
+        self.save()
+        self.code("revision_scope_changed", native_browser.revise, key, self.manifest, self.plan(["youtube"])["confirmation"], identity)
+        self.value["platforms"]["youtube"]["visibility"] = "private"
+        self.video.write_bytes(b"different video")
+        self.save()
+        self.code("revision_media_changed", native_browser.revise, key, self.manifest, self.plan(["youtube"])["confirmation"], identity)
 
     def test_x_receipt_binds_author_id_and_exact_caption(self):
         self.x_manifest()

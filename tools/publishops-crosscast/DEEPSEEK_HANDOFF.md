@@ -46,3 +46,24 @@ This is a format example, not evidence. `made_for_kids` is YouTube-only; Instagr
 Installation/testing creates no schedules, restarts no old operators and automatically sends no comments/messages/likes. Preserve the single existing operator. Do not publish cookies, private messages, verification codes, raw browser pages or private receipts to GitHub.
 
 X 操作與欄位見 [X_GUIDE](docs/X_GUIDE.md)；取消 TikTok 的原因及招募見 [TIKTOK_STATUS](docs/TIKTOK_STATUS.md)。 / See the linked X guide and TikTok status before proceeding.
+
+## 0.2.0 必須沿用的設定 / Settings for this version
+
+- 首次詢問平台、是否自動發布與可選郵件；已有授權不逐片再問。郵件預設關閉，保存 off/Gmail/Outlook 選擇。 / Ask once about platforms, automatic publication and optional email; reuse authorization. Email defaults off; persist the chosen option.
+- 用 `metadata request/apply` 請宿主模型寫簡介。B站／抖音簡體，YouTube／Instagram／X 英文；雙語僅在指定平台啟用。GitHub 文件繁體不影響影片文案。 / Use host-model copywriting; route Bilibili/Douyin to Simplified Chinese and YouTube/Instagram/X to English. Bilingual is explicit; GitHub language is unrelated.
+- 預設簡介不放連結；保留角色聲音、內容與第三方作者／授權資訊，移除無用的跨平台 BV 參照。 / No external links by default; preserve voice, context and third-party credits/licenses; omit irrelevant BV references.
+- 專用封面優先。`covers prepare` 自動縮放補邊；原工程有橫豎重排版時優先使用。不得只找到檔案便宣稱已更新。`cover_evidence` 每個 role 需 source_sha256 與實際畫面 observation。 / Prefer dedicated artwork and re-laid-out variants. Fit without cropping and verify every saved role, recording its source hash and visual observation.
+- YouTube 清單按方案選擇，已有成員不重複加入；同名清單有歧義時確認對象。章節使用同片真實時間點；平台未提供入口或正在審核就明確記待辦，不改成文字時間碼後宣稱已適配。 / Select intended playlists, avoid duplicate membership, resolve ambiguous names. Chapters must use actual same-video timings; unavailable UI or review means pending, not fake success from text timestamps.
+- 遇驗證立即在對話告知使用者，保存 `outcome: action_required`；恢復原作品，不再次 begin 或重傳。 / Notify inline immediately on verification, record action_required and resume the same work without another begin/upload.
+
+郵件宿主流程 / Host email flow:
+
+```sh
+vpub notify pending
+vpub notify claim ALERT_ID --available-tool EXACT_AVAILABLE_SEND_TOOL
+# Call the returned tool_name with its arguments through the connected host tool.
+# Save {"tool_name":"ACTUAL_TOOL_NAME","response": ACTUAL_TOOL_RESULT} locally.
+vpub notify record ALERT_ID --claim-token RETURNED_TOKEN --response response.json
+```
+
+只在使用者啟用並選定收件地址後寄信。工具不存在就回報，不能把 claim 當成已寄出。Gmail 的 message ID 與 Outlook 的服務接受分開記；未知結果不自動重寄。不要附登入網址、驗證碼或原始頁面。 / Send only after opt-in and recipient selection. Missing tools are reported. Claims are not sends; Gmail message IDs and Outlook acceptance are distinct, and unknown results are not retried. Never include authentication URLs, codes or raw pages.

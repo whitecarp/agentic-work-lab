@@ -12,6 +12,7 @@ from .core import VpubError, atomic_json, config, home, read_json, stop_check, p
 
 SCOPES = ["https://www.googleapis.com/auth/youtube.upload",
           "https://www.googleapis.com/auth/youtube.readonly"]
+PLAYLIST_SCOPE = "https://www.googleapis.com/auth/youtube.force-ssl"
 
 
 def bili(args, timeout=180):
@@ -39,7 +40,7 @@ def yt_credentials(account):
     path = home() / "accounts" / account / "youtube-token.json"
     if not path.exists():
         raise VpubError("not_logged_in", "YouTube authorization is missing.", "vpub auth login youtube --client-json PATH")
-    creds = Credentials.from_authorized_user_file(str(path), SCOPES)
+    creds = Credentials.from_authorized_user_file(str(path))
     if not creds.valid:
         if not creds.refresh_token:
             raise VpubError("auth_expired", "YouTube needs browser authorization again.")
@@ -56,12 +57,13 @@ def yt_service(account):
     return build("youtube", "v3", credentials=yt_credentials(account), cache_discovery=False)
 
 
-def youtube_login(account, client_json):
+def youtube_login(account, client_json, manage_playlists=False):
     if not client_json:
         raise VpubError("oauth_setup_required", "YouTube requires a Desktop OAuth client JSON on first setup.",
                         "Enable YouTube Data API v3 in Google Cloud; create a Desktop OAuth client. Then run vpub auth login youtube --client-json PATH.")
     from google_auth_oauthlib.flow import InstalledAppFlow
-    flow = InstalledAppFlow.from_client_secrets_file(str(Path(client_json).resolve()), SCOPES,
+    scopes = [*SCOPES, PLAYLIST_SCOPE] if manage_playlists else SCOPES
+    flow = InstalledAppFlow.from_client_secrets_file(str(Path(client_json).resolve()), scopes,
                                                     autogenerate_code_verifier=True)
     # OAuth URLs and progress belong on stderr, never mixed with the JSON result.
     with contextlib.redirect_stdout(sys.stderr):
@@ -112,7 +114,7 @@ def auth_status(platform, account, method=None):
     return dy_worker("status", account)
 
 
-def auth_login(platform, account, client_json=None, method=None):
+def auth_login(platform, account, client_json=None, method=None, manage_playlists=False):
     platform_check(platform)
     stop_check(platform)
     method = method or ("api" if client_json else "native")
@@ -125,7 +127,7 @@ def auth_login(platform, account, client_json=None, method=None):
     if platform == "bilibili":
         return bili(["auth", "login"])
     if platform == "youtube":
-        return youtube_login(account, client_json)
+        return youtube_login(account, client_json, manage_playlists)
     from .auth_jobs import start
     return start("douyin", account)
 
@@ -133,6 +135,10 @@ def auth_login(platform, account, client_json=None, method=None):
 def preflight(platform, options):
     if options.get("method") == "native":
         return {"logged_in": None, "method": "native", "note": "Account must be checked in the built-in browser before browser begin."}
+    if platform == "youtube" and options.get("playlist_ids"):
+        creds = yt_credentials(options["account"])
+        if not any(creds.has_scopes([s]) for s in (PLAYLIST_SCOPE, "https://www.googleapis.com/auth/youtube", "https://www.googleapis.com/auth/youtubepartner")):
+            raise VpubError("playlist_scope_required", "Playlist writes require an additional optional OAuth scope, before uploading.", "Use native mode or explicitly reauthorize with --manage-playlists; existing permissions are not expanded automatically.")
     identity = auth_status(platform, options["account"], options.get("method"))
     expected = options.get("expected_uid") if platform == "bilibili" else options.get("expected_channel_id")
     if expected and str(expected) != identity.get("identity"):
@@ -190,6 +196,8 @@ def publish_youtube(plan, options, checkpoint):
         except Exception:
             receipt["warning"] = "Video exists; thumbnail upload failed. Do not upload the video again."
             checkpoint(receipt)
+    if options.get("playlist_ids"):
+        ensure_youtube_playlists(service, video_id, options["playlist_ids"], receipt, checkpoint)
     verified = verify("youtube", options["account"], receipt)
     actual = verified.get("visibility")
     if actual and actual != options["visibility"]:
@@ -198,10 +206,43 @@ def publish_youtube(plan, options, checkpoint):
     return verified
 
 
+def ensure_youtube_playlists(service, video_id, playlist_ids, receipt, checkpoint):
+    """Add only missing memberships. Persist before each write; never retry it."""
+    results = receipt.setdefault("playlists", {})
+    for playlist_id in playlist_ids:
+        try:
+            items = service.playlistItems().list(part="id", playlistId=playlist_id, videoId=video_id, maxResults=1).execute().get("items", [])
+            if items:
+                results[playlist_id] = {"state": "VERIFIED", "item_id": items[0]["id"]}
+                checkpoint(receipt)
+                continue
+            if playlist_id in results:
+                # An earlier timeout or interrupted insert might still settle.
+                results[playlist_id]["state"] = "UNKNOWN"
+                checkpoint(receipt)
+                continue
+            results[playlist_id] = {"state": "ADDING"}
+            checkpoint(receipt)
+            item = service.playlistItems().insert(part="snippet", body={"snippet": {
+                "playlistId": playlist_id, "resourceId": {"kind": "youtube#video", "videoId": video_id}}}).execute()
+            results[playlist_id] = {"state": "ADDED_UNVERIFIED", "item_id": item.get("id")}
+            checkpoint(receipt)
+            actual = service.playlistItems().list(part="id", playlistId=playlist_id, videoId=video_id, maxResults=1).execute().get("items", [])
+            if actual:
+                results[playlist_id] = {"state": "VERIFIED", "item_id": actual[0]["id"]}
+        except Exception:
+            results[playlist_id] = {**results.get(playlist_id, {}), "state": "UNKNOWN"}
+        checkpoint(receipt)
+    return results
+
+
 def publish(platform, plan, options, checkpoint):
     if options.get("method") == "native":
         from .native_browser import queue
         return queue(platform, plan, options)
+    landscape = plan.get("covers", {}).get(platform, {}).get("landscape")
+    if landscape:
+        plan = {**plan, "cover": landscape["path"], "cover_sha256": landscape["sha256"]}
     if platform == "bilibili":
         return publish_bilibili(plan, options, checkpoint)
     if platform == "youtube":
@@ -227,7 +268,15 @@ def verify(platform, account, receipt):
     item = items[0]
     status = item.get("status", {})
     failed = status.get("uploadStatus") in {"failed", "rejected", "deleted"}
-    return {**receipt, "state": "PLATFORM_REJECTED" if failed else "SUBMISSION_VERIFIED",
+    playlist_results = receipt.get("playlists", {})
+    for playlist_id in playlist_results:
+        try:
+            members = yt_service(account).playlistItems().list(part="id", playlistId=playlist_id, videoId=video_id, maxResults=1).execute().get("items", [])
+            playlist_results[playlist_id] = {"state": "VERIFIED", "item_id": members[0]["id"]} if members else {"state": "UNVERIFIED"}
+        except Exception:
+            playlist_results[playlist_id] = {"state": "UNKNOWN"}
+    incomplete = any(x["state"] != "VERIFIED" for x in playlist_results.values()) or bool(receipt.get("warning"))
+    return {**receipt, "state": "PLATFORM_REJECTED" if failed else "SUBMITTED_UNVERIFIED" if incomplete else "SUBMISSION_VERIFIED",
             "visibility": status.get("privacyStatus"), "upload_status": status.get("uploadStatus"),
             "processing_status": item.get("processingDetails", {}).get("processingStatus"),
             "publish_at": status.get("publishAt"), "channel_id": item.get("snippet", {}).get("channelId"),

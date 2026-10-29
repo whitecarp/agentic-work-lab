@@ -85,11 +85,17 @@ def platform_check(platform):
         raise VpubError("invalid_platform", "Choose " + ", ".join(PLATFORMS))
 
 
-def x_post_text(title, description, tags, ai_generated):
+def language_tag(value):
+    if not isinstance(value, str) or not re.fullmatch(r"[A-Za-z]{2,8}(?:-[A-Za-z0-9]{1,8})*", value):
+        raise VpubError("invalid_language", "Use a language tag such as zh-Hans, zh-Hant, en, ja, or und (unspecified).")
+    return value
+
+
+def x_post_text(title, description, tags, ai_generated, content_language="und"):
     # X has one post body, not separate title/description/tag fields.
     parts = [title, description, " ".join("#" + t.lstrip("#") for t in tags)]
     if ai_generated:
-        parts.append("AI 生成內容 / AI-generated")
+        parts.append({"zh-hans": "AI 生成内容 / AI-generated", "zh-hant": "AI 生成內容 / AI-generated"}.get(content_language.lower(), "AI-generated"))
     return "\n\n".join(p for p in parts if p)
 
 
@@ -119,7 +125,7 @@ def load_plan(path, selected=None):
     m = read_json(path)
     if m.get("schema_version") != 1:
         raise VpubError("invalid_manifest", "schema_version must be 1.")
-    allowed = {"schema_version", "video", "cover", "title", "description", "tags", "platforms"}
+    allowed = {"schema_version", "video", "cover", "covers", "title", "description", "tags", "platforms", "content_language"}
     if set(m) - allowed:
         raise VpubError("invalid_manifest", "Unknown top-level fields: " + ", ".join(sorted(set(m) - allowed)))
     vp = (path.parent / m.get("video", "")).resolve()
@@ -141,10 +147,10 @@ def load_plan(path, selected=None):
         v = entries[platform]
         if not isinstance(v, dict):
             raise VpubError("invalid_manifest", "Each platform needs an object.")
-        permitted = {"account", "title", "description", "tags", "visibility", "ai_generated", "schedule"}
+        permitted = {"account", "title", "description", "tags", "visibility", "ai_generated", "schedule", "content_language", "metadata_language", "metadata_mode", "chapters", "duration_seconds"}
         permitted |= {"tid", "expected_uid", "method"} if platform == "bilibili" else set()
-        permitted |= {"category_id", "made_for_kids", "expected_channel_id", "method"} if platform == "youtube" else set()
-        permitted |= {"method"} if platform == "douyin" else set()
+        permitted |= {"category_id", "made_for_kids", "expected_channel_id", "method", "playlist_ids", "playlist_titles"} if platform == "youtube" else set()
+        permitted |= {"method", "expected_identity"} if platform == "douyin" else set()
         permitted |= {"method", "expected_identity"} if platform in {"x", "instagram"} else set()
         if set(v) - permitted:
             raise VpubError("invalid_manifest", f"Unsupported {platform} options: {sorted(set(v) - permitted)}")
@@ -152,8 +158,22 @@ def load_plan(path, selected=None):
             raise VpubError("unsupported_account", "v0.1 supports one account per platform: default.")
         if platform == "youtube" and v.get("method", "native") not in {"native", "api"}:
             raise VpubError("invalid_method", "YouTube method must be native or api. The screen-relay prototype was retired.")
+        if platform == "youtube":
+            for field in ("playlist_ids", "playlist_titles"):
+                values = v.get(field, [])
+                if not isinstance(values, list) or len(values) > 20 or not all(isinstance(x, str) and x.strip() and len(x) <= 150 for x in values) or len(set(values)) != len(values):
+                    raise VpubError("invalid_playlist", "Use up to 20 unique playlist IDs/titles.")
+            if any(not re.fullmatch(r"PL[A-Za-z0-9_-]{8,148}", x) for x in v.get("playlist_ids", [])):
+                raise VpubError("invalid_playlist", "Use custom playlist IDs copied from YouTube, not video IDs or system lists.")
+            if v.get("method") == "api" and v.get("playlist_titles"):
+                raise VpubError("invalid_playlist", "API mode requires exact playlist_ids; names may be ambiguous.")
         if platform == "douyin" and v.get("method", "browser") not in {"native", "browser"}:
             raise VpubError("invalid_method", "Douyin method must be native or browser.")
+        if platform == "douyin" and "expected_identity" in v:
+            if v.get("method", "browser") != "native":
+                raise VpubError("unsupported_identity_check", "Douyin expected_identity currently requires native mode and a host-observed account ID.")
+            if not isinstance(v["expected_identity"], str) or not re.fullmatch(r"[A-Za-z0-9_.-]{1,64}", v["expected_identity"]):
+                raise VpubError("invalid_identity", "Use the Douyin account ID observed in the creator dashboard, not the display name.")
         if platform == "bilibili" and v.get("method", "cli") not in {"native", "cli"}:
             raise VpubError("invalid_method", "Bilibili method must be native or cli.")
         if platform in {"x", "instagram"} and v.get("method", "native") != "native":
@@ -162,8 +182,8 @@ def load_plan(path, selected=None):
             raise VpubError("invalid_identity", "Use the X handle without @, as observed in the signed-in profile.")
         if platform == "x" and cover:
             raise VpubError("unsupported_cover", "X native alpha uses the video's default thumbnail; shared covers are not implemented.")
-        if platform == "douyin" and cover:
-            raise VpubError("unsupported_cover", "Douyin v0.1 uses the platform's automatic cover. Remove the shared cover or publish Bilibili/YouTube separately with it.")
+        if platform == "douyin" and cover and v.get("method", "browser") != "native":
+            raise VpubError("unsupported_cover", "Douyin custom covers require the native host-browser workflow; the experimental standalone backend cannot set them.")
         title = v.get("title", m.get("title", ""))
         desc = v.get("description", m.get("description", ""))
         tags = v.get("tags", m.get("tags", []))
@@ -181,7 +201,7 @@ def load_plan(path, selected=None):
         if platform == "youtube" and sum(len(t) + 1 for t in tags) > 500:
             raise VpubError("invalid_tags", "YouTube tags exceed the 500-character budget.")
         visibility = v.get("visibility")
-        supported = {"bilibili": {"public", "private"}, "youtube": {"public", "private", "unlisted"}, "douyin": {"public"},
+        supported = {"bilibili": {"public", "private"}, "youtube": {"public", "private", "unlisted"}, "douyin": {"public", "private"} if v.get("method") == "native" else {"public"},
                      "x": {"account"}, "instagram": {"account"}}
         if visibility not in supported[platform]:
             raise VpubError("invalid_visibility", f"Explicit {platform} visibility required: {sorted(supported[platform])}")
@@ -208,24 +228,53 @@ def load_plan(path, selected=None):
             if visibility != "private" and platform == "youtube":
                 raise VpubError("invalid_schedule", "YouTube schedule requires visibility=private.")
         plans[platform] = {**v, "account": account_name(v.get("account", "default")),
-                           "title": title, "description": desc, "tags": tags, "visibility": visibility}
+                           "title": title, "description": desc, "tags": tags, "visibility": visibility,
+                           "content_language": language_tag(v.get("content_language", m.get("content_language", "und")))}
+        if "metadata_language" in v:
+            plans[platform]["metadata_language"] = language_tag(v["metadata_language"])
+        if v.get("metadata_mode", "target_only") not in {"target_only", "bilingual"}:
+            raise VpubError("invalid_metadata_mode", "Choose target_only or bilingual.")
         if platform == "youtube":
             plans[platform]["method"] = v.get("method", "native")
         if platform == "douyin":
             plans[platform]["method"] = v.get("method", "browser")
         if platform in {"x", "instagram"}:
             plans[platform]["method"] = "native"
-        if platform == "x":
+        if platform in {"x", "instagram"}:
             if any(not re.fullmatch(r"#?\w+", t) for t in tags):
-                raise VpubError("invalid_tags", "X hashtags must contain only letters, digits or underscores, without spaces.")
-            plans[platform]["post_text"] = x_post_text(title, desc, tags, v["ai_generated"])
+                raise VpubError("invalid_tags", "Caption hashtags must contain only letters, digits or underscores, without spaces.")
+            plans[platform]["post_text"] = x_post_text(title, desc, tags, v["ai_generated"], plans[platform].get("metadata_language", plans[platform]["content_language"]))
             # The actual website counter (URL/emoji/CJK weights, account plan)
             # is authoritative. Never silently truncate or assume Premium.
         if platform == "bilibili":
             plans[platform]["method"] = v.get("method", "cli")
+        if "chapters" in v:
+            from .chapters import validate
+            validate(v["chapters"], platform, plans[platform]["method"], v.get("duration_seconds"))
+    covers = {}
+    supplied_covers = m.get("covers", {})
+    if not isinstance(supplied_covers, dict) or set(supplied_covers) - set(PLATFORMS):
+        raise VpubError("invalid_cover", "covers maps supported platforms to landscape/portrait files.")
+    for platform in plans:
+        variants = supplied_covers.get(platform, {})
+        if not isinstance(variants, dict) or set(variants) - {"landscape", "portrait"}:
+            raise VpubError("invalid_cover", "Use landscape and/or portrait cover roles.")
+        if variants and (platform == "x" or (platform == "douyin" and plans[platform]["method"] != "native")):
+            raise VpubError("unsupported_cover", "This route cannot set custom covers.")
+        if "portrait" in variants and platform in {"youtube", "bilibili"}:
+            raise VpubError("unsupported_cover", "This platform uses one landscape thumbnail in this workflow.")
+        for role, filename in variants.items():
+            if not isinstance(filename, str):
+                raise VpubError("invalid_cover", "Each cover role needs a local file path.")
+            asset = (path.parent / filename).resolve()
+            if not asset.is_file() or asset.suffix.lower() not in {".jpg", ".jpeg", ".png"} or not asset.stat().st_size:
+                raise VpubError("invalid_cover", "Each cover must be a complete JPG or PNG.")
+            covers.setdefault(platform, {})[role] = {"path": str(asset), "sha256": file_sha(asset)}
     payload = {"schema_version": 1, "video": str(vp), "video_sha256": file_sha(vp),
                "video_bytes": vp.stat().st_size, "cover": str(cover) if cover else None,
                "cover_sha256": file_sha(cover) if cover else None, "platforms": plans}
+    if covers:
+        payload["covers"] = covers
     return {**payload, "confirmation": digest(payload)}
 
 
