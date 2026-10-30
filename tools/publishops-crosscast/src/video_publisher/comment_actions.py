@@ -4,7 +4,7 @@ import uuid
 from . import adapters, operations as ops
 from .core import VpubError, atomic_json, digest, home, now, publication_lock, read_json, stop_check
 
-SUPPORTED = {'bilibili': {'like'}, 'instagram': {'like'}, 'x': {'like'}, 'youtube': {'edit', 'delete'}, 'douyin': set()}
+SUPPORTED = {'bilibili': {'like', 'pin'}, 'instagram': {'like'}, 'x': {'like'}, 'youtube': {'edit', 'delete'}, 'douyin': {'like', 'delete'}}
 PENDING = {'COMMENT_SUBMITTING', 'COMMENT_UNVERIFIED'}
 
 
@@ -46,7 +46,7 @@ def submitting(path):
 
 def matches(request, observed):
     if observed.get('identity') != request['identity']: return False
-    key = {'like': 'liked', 'edit': 'text', 'delete': 'deleted'}[request['kind']]
+    key = {'like': 'liked', 'pin': 'pinned', 'edit': 'text', 'delete': 'deleted'}[request['kind']]
     return observed.get(key) == request['desired'] and (key == 'text' or type(observed.get(key)) is bool)
 
 
@@ -71,7 +71,8 @@ def mutate(platform, work, comment_id, kind, desired=True, dry_run=False, test_i
         before = dispatch(request)
         if matches(request, before): return {'state': 'NO_CHANGE', 'platform_writes': 0, 'observed': before}
         if before.get('deleted'): raise VpubError('comment_missing', 'The comment is no longer present.')
-        if kind == 'like' and type(before.get('liked')) is not bool: raise VpubError('state_unavailable', 'Exact comment like state is unavailable.')
+        if kind in {'like','pin'} and type(before.get({'like':'liked','pin':'pinned'}[kind])) is not bool:
+            raise VpubError('state_unavailable', 'Exact comment action state is unavailable.')
         if before.get('text') != request['comment']['text']:
             raise VpubError('comment_changed', 'The comment text changed; read it again before changing it.')
         if dry_run: return {'state': 'DRY_RUN', 'request': request, 'observed': before, 'platform_writes': 0}

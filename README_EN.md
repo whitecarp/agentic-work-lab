@@ -23,7 +23,8 @@ Prepare platform-specific descriptions, covers and publication receipts for one 
 - Production-cover fitting, YouTube playlist settings and Gmail-only email notifications, off until explicitly enabled.
 - Added five-platform likes/unlikes and favorites, bookmarks or selected-playlist saves/removals; check state, submit once and verify independently, with repeated identical commands becoming no-ops.
 - Added read-only browser batches, persistent comment history and handling marks; live-tested Bilibili/Instagram/X comment likes/unlikes and YouTube own-comment editing/deletion.
-- **0.7.0 alpha, with 218 passing offline tests.** Full five-platform publication still has open acceptance items; tested scope and limits are documented.
+- Added Douyin comment like/unlike/own-comment deletion and single-recipient messaging for Douyin, Instagram and X, with durable receipts, fresh-session read-back and no pending-message resend.
+- **0.8.0 alpha, with 240 passing offline tests.** Full five-platform publication still has open acceptance items; tested scope and limits are documented.
 
 [Install and use](tools/publishops-crosscast/README_EN.md) · [Feature scope](tools/publishops-crosscast/docs/FEATURES_EN.md) · [Validation](tools/publishops-crosscast/docs/VALIDATION_EN.md)
 

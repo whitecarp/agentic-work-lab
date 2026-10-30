@@ -2,7 +2,26 @@
 
 [繁體中文](VALIDATION.md) · **English**
 
-Date: **2026-10-30**, PublishOps CrossCast **0.7.0 alpha**.
+Date: **2026-10-30**, PublishOps CrossCast **0.8.0 alpha**.
+
+## 0.8.0: comment management and direct-message live checks
+
+**240 offline tests pass.** New coverage includes pending-message resend suppression, wrong-account/recipient rejection, outgoing-bubble sender and sent-state checks, truncated results not reducing prior identical-message counts, explicit language, test-traffic exclusion, partial-page absence not proving Douyin deletion, and Bilibili pins never replacing another pinned comment.
+
+| Live check this round | Result |
+|---|---|
+| Douyin comment like/unlike | An existing test comment changed from unliked to liked and was restored; fresh sessions confirmed both states. |
+| Douyin comment deletion | Created one separate, own test comment without replies, deleted it and confirmed absence on the complete comment page. The original hello thread remains. |
+| Douyin text message | One Chinese test message to one public account; a fresh session confirmed the exact recipient and outgoing bubble. |
+| Instagram text message | One English test message to one public account; a fresh session confirmed sender, text and recipient. |
+| X text message | The user completed the official PIN step; a new CLI session reused it. No message went to a closed inbox. One English message went to another public account, followed by fresh You-label and sent-state read-back. |
+| Inbox summaries | All three browser platforms returned visible summaries through the CLI; this is not complete history, total unread count or a private API. |
+
+Exactly one message was sent per platform, with no bulk sending or recipient delivery/read claim. Initially uncertain messages stayed pending; parser repairs used read-only verification without resending. The Douyin delete-dialog button repair also retried only before final confirmation. Messages, raw pages and recipient data remain local and are not published to GitHub.
+
+**No Bilibili live tests this round.** Messaging and comment pins delegate to upstream and were checked offline only. The observed Douyin/Instagram web layouts expose no verified comment pin/hide entry. X hide-reply is not integrated; profile pinning is not comment pinning. Existing YouTube comments remain; no DM or moderation API was added. Videos, covers, captions, schedules, email and other operations agents are outside this change.
+
+The following sections preserve historical validation scopes. Earlier unsupported-feature statements do not override the 0.8.0 results above.
 
 ## 0.7.0: batched reads, persistent inbox and comment management
 

@@ -21,6 +21,18 @@ def execute(request, operation, receipt_path=None):
         observed = {'identity': identity, 'text': (c.get('content') or {}).get('message'), 'deleted': False,
                     'liked': action == 1 if type(action) is int and action in {0, 1} else None,
                     'source': 'bili_cli_raw_comment_action'}
+        if kind == 'pin':
+            if target.get('parent_id'): raise VpubError('root_required', 'Only top-level comments can be pinned.')
+            first = adapters.bili(['comment','list',w,'--page','1','--raw'])
+            if 'upper' not in first and 'top_replies' not in first:
+                raise VpubError('state_unavailable','Pinned-comment state unavailable.')
+            tops = list(first.get('top_replies') or [])
+            upper = (first.get('upper') or {}).get('top')
+            if upper: tops.append(upper)
+            pinned = {str(c.get('rpid')) for c in tops}
+            observed['pinned'] = cid in pinned
+            if request.get('desired') and pinned - {cid}:
+                raise VpubError('another_comment_pinned','Another comment is pinned; this command will not replace it implicitly.')
     else:
         service = adapters.yt_service('default')
         owners = service.channels().list(part='id', mine=True).execute().get('items', [])
@@ -47,14 +59,14 @@ def execute(request, operation, receipt_path=None):
     if operation == 'status': return observed
     if operation != 'set': raise VpubError('unsupported_operation', 'Choose status or set.')
     if observed['text'] != target['text']: raise VpubError('comment_changed', 'The comment changed since it was read.')
-    if p == 'bilibili' and (kind != 'like' or type(observed['liked']) is not bool):
+    if p == 'bilibili' and (kind not in {'like','pin'} or type(observed.get('pinned' if kind=='pin' else 'liked')) is not bool):
         raise VpubError('state_unavailable', 'Exact comment like state is unavailable.')
     if p == 'youtube' and (kind not in {'edit', 'delete'} or not adapters.yt_credentials('default').has_scopes([adapters.PLAYLIST_SCOPE])):
         raise VpubError('oauth_scope_required', 'YouTube comment management requires youtube.force-ssl.')
     from .comment_actions import submitting
     stop_check(p); submitting(receipt_path)
     if p == 'bilibili':
-        adapters.bili(['comment', 'like', w, cid] + ([] if request['desired'] else ['--undo']))
+        adapters.bili(['comment', kind, w, cid] + ([] if request['desired'] else ['--undo']))
     elif kind == 'edit':
         service.comments().update(part='snippet', body={'id': cid, 'snippet': {'textOriginal': request['desired']}}).execute()
     else: service.comments().delete(id=cid).execute()

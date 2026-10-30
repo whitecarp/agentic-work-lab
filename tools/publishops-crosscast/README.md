@@ -8,7 +8,7 @@
 
 ### 跨平台影片發布營運台
 
-**v0.7.0 alpha · CLI `vpub` · AI 協助開發**
+**v0.8.0 alpha · CLI `vpub` · AI 協助開發**
 
 讓同一支原創影片擁有各平台適用的文案、封面與發布回執。選擇 Bilibili、抖音、YouTube、Instagram、X 的任意組合，首次登入後，CLI 復用本機專用會話完成後續上傳。
 
@@ -25,7 +25,7 @@
 | B站 | bili-cli | 指定收藏夾；省略 ID 時使用唯一預設夾，撤銷不影響其他夾 |
 | YouTube | 官方影片評分 API | 指定自己擁有的普通播放列表；不支援「稍後觀看」、喜歡清單或舊版最愛 |
 | 抖音 | 指定影片的點讚按鈕 | 該影片的預設收藏 |
-| Instagram | 作品工具列的 Like | 預設 Saved；未支援命名收藏集或評論點讚 |
+| Instagram | 作品工具列的 Like | 預設 Saved；未支援命名收藏集，評論點讚使用獨立指令 |
 | X | 指定帖文的 Like | 私人 Bookmarks；不是 Lists，也不是書籤資料夾管理 |
 
 ```sh
@@ -147,6 +147,9 @@ vpub comments like instagram WORK_ID COMMENT_ID
 vpub comments like instagram WORK_ID COMMENT_ID --remove
 vpub comments edit youtube VIDEO_ID OWN_COMMENT_ID --text "修改後的評論"
 vpub comments delete youtube VIDEO_ID OWN_COMMENT_ID
+vpub comments like douyin WORK_ID COMMENT_ID
+vpub comments like douyin WORK_ID COMMENT_ID --remove
+vpub comments delete douyin WORK_ID OWN_COMMENT_ID
 vpub comments verify-action RECEIPT_KEY
 ```
 
@@ -155,9 +158,39 @@ vpub comments verify-action RECEIPT_KEY
 | B站 | 透過固定版本 bili-cli 點讚／取消讚，讀回確切評論狀態 |
 | Instagram／X | 對確切可見評論點讚／取消讚；愛心控制項不唯一時停止 |
 | YouTube | 透過官方 API 編輯／刪除自己影片下自己發出的評論 |
-| 抖音 | 本版未接入評論管理控制項；既有頂層回覆仍可使用 |
+| 抖音 | 創作者中心評論點讚／取消讚；刪除自己作品下自己發出且沒有回覆的評論；既有頂層回覆仍可使用 |
 
-這些指令明確指定單條評論，與影片點讚分開。先讀取評論再操作；不設逐條文案審核，`--dry-run` 為可選預覽。YouTube 編輯使用宿主提供的單語正文，不自行翻譯。提交前核對作者、帳號、作品與當前正文；逾時或未確認的操作會保留回執，阻止再次修改，應以唯讀核驗處理，不自動重送。自測使用 `--test-id`，普通匯報排除這些記錄。刪除只在明確要求時執行且不可復原，登入不會觸發。置頂、隱藏、批量審核與瀏覽器平台評論刪除未實作。
+這些指令明確指定單條評論，與影片點讚分開。先讀取評論再操作；不設逐條文案審核，`--dry-run` 為可選預覽。YouTube 編輯使用宿主提供的單語正文，不自行翻譯。提交前核對作者、帳號、作品與當前正文；逾時或未確認的操作會保留回執，阻止再次修改，應以唯讀核驗處理，不自動重送。自測使用 `--test-id`，普通匯報排除這些記錄。刪除只在明確要求時執行且不可復原，登入不會觸發。抖音刪除拒絕有回覆的父評論。置頂／隱藏邊界見下節；批量審核未實作。
+
+## 私信與平台差異
+
+首次登入後，`dm` 使用 CLI 自己保存的會話；抖音、Instagram、X 在背景操作官方網頁，並非獨立私有 API。訊息由宿主 Agent 根據收件者語言撰寫，**只用一種語言**。`--language` 記錄宿主的判斷，不會自動翻譯或判定所有語言。
+
+```sh
+vpub dm list instagram --limit 10
+vpub dm read instagram EXACT_HANDLE --limit 20
+vpub dm send instagram EXACT_HANDLE --file message.txt --language en
+vpub dm send douyin MS4w_PUBLIC_PROFILE_ID --file message.txt --language zh
+vpub dm send x EXACT_HANDLE --file message.txt --language en
+vpub dm verify RECEIPT_KEY
+vpub dm unlock x
+```
+
+| 平台 | 私信範圍與限制 |
+|---|---|
+| 抖音 | 創作者中心的可見會話摘要；透過確切公開主頁開啟、讀取及發送文字私信。收件者使用 `/user/` 後的 `MS4w…` ID，不用暱稱猜測。遵守陌生人訊息數量與收件限制。 |
+| Instagram | 可見收件匣摘要；用確切帳號名稱開啟對話，讀取／發送文字。姓名或搜尋相似結果不能代替帳號。 |
+| X | X Chat 可見收件匣、確切帳號對話及文字發送。官方 PIN 驗證時使用 `dm unlock x`，使用者在專用視窗輸入；CLI 不讀取 PIN。收件匣關閉時停止。 |
+| B站 | 委派既有 bili-cli 的 `dm list/read/send`，保留其新聯絡人限制；本輪未做 B站實測。 |
+| YouTube | 此後端沒有私信功能，使用既有評論回覆。 |
+
+`list/read` 不發訊息，但打開官方會話可能將來訊標成已讀。只讀取當前可見範圍，並非完整歷史匯出。安裝、登入和 `ops sync` 不自動私信；使用者已授權的單條操作可直接執行，`--dry-run` 可選。
+
+提交前保存帳號、收件者、原狀態及回執；只提交一次，再用新的瀏覽器會話讀回發出訊息。`DM_VISIBLE` 代表在發送方會話中確認可見，**不代表對方收到或已讀**。`DM_UNVERIFIED` 使用 `dm verify KEY`，不可重新發送；相同的最近成功訊息也不重送。官方驗證、無法確認收件者或介面變更會停止。私信正文與收件者只保存在本機回執，營運匯報只記錄去重後的狀態與數量；自測用 `--test-id LABEL` 排除。
+
+### 置頂與隱藏的邊界
+
+`vpub comments pin bilibili BV_ID ROOT_COMMENT_ID` 及 `--remove` 委派上游，僅支援頂層評論；已有其他置頂時停止，不暗中替換。本輪只做離線測試。抖音及 Instagram 的已觀察網頁沒有可驗證的評論置頂／隱藏入口，暫未接入；X 的「置頂到個人主頁」不是評論置頂，其隱藏回覆也尚未接入。`comments hide` 保留明確的未支援錯誤，不用刪除、踩或帳號封鎖模擬隱藏。能力以 `vpub capabilities` 為準，不能把某個帳號的網頁限制推廣成平台永遠不支援。
 
 ## 安裝與開始
 

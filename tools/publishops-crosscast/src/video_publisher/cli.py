@@ -177,13 +177,24 @@ def parser():
         q.add_argument('--test-id',help='Explicit test label; retained and excluded from ordinary engagement reports.')
     q=e.add_parser('verify');q.add_argument('key');q.add_argument('--out')
     c = sub.add_parser('comments', help='Read comments and send direct single-language replies.').add_subparsers(dest='action',required=True)
-    for action in ('status','like','edit','delete'):
+    for action in ('status','like','pin','hide','edit','delete'):
         q=c.add_parser(action);q.add_argument('platform',choices=PLATFORMS);q.add_argument('work');q.add_argument('comment_id');q.add_argument('--out')
         if action!='status':q.add_argument('--dry-run',action='store_true');q.add_argument('--test-id')
-        if action=='like':q.add_argument('--remove',action='store_true')
+        if action in {'like','pin','hide'}:q.add_argument('--remove',action='store_true')
         if action=='edit':
             body=q.add_mutually_exclusive_group(required=True);body.add_argument('--text');body.add_argument('--file')
     q=c.add_parser('verify-action');q.add_argument('key');q.add_argument('--out')
+    d=sub.add_parser('dm',help='Explicit single-recipient private messages; no automatic or bulk sends.').add_subparsers(dest='action',required=True)
+    q=d.add_parser('unlock',help='Open the official X Chat window for user-entered PIN; sends nothing.')
+    q.add_argument('platform',choices=['x']);q.add_argument('--out')
+    for action in ('list','read','send'):
+        q=d.add_parser(action);q.add_argument('platform',choices=PLATFORMS);q.add_argument('--out')
+        if action!='list':q.add_argument('recipient')
+        if action!='send':q.add_argument('--limit',type=int,default=20)
+        else:
+            body=q.add_mutually_exclusive_group(required=True);body.add_argument('--text');body.add_argument('--file')
+            q.add_argument('--language',required=True);q.add_argument('--dry-run',action='store_true');q.add_argument('--test-id')
+    q=d.add_parser('verify');q.add_argument('key');q.add_argument('--out')
     q=c.add_parser('list')
     q.add_argument('platform',choices=PLATFORMS);q.add_argument('work')
     q.add_argument('--limit',type=int,default=20);q.add_argument('--cursor');q.add_argument('--out')
@@ -360,6 +371,16 @@ def parser():
 
 
 def execute(args):
+    if args.command=='dm':
+        from . import direct_messages as dm
+        if args.action=='verify':result=dm.verify(args.key)
+        elif args.action=='unlock':result=adapters.browser_call('x','chat_unlock','default',expected_identity=dm.identity('x'))
+        elif args.action=='send':
+            text=Path(args.file).read_text(encoding='utf-8-sig') if args.file else args.text
+            result=dm.send(args.platform,args.recipient,text,args.language,args.dry_run,args.test_id)
+        else:result=dm.read(args.platform,getattr(args,'recipient',None),args.limit)
+        if args.out:atomic_json(args.out,result)
+        return result
     if args.command=='inbox':
         from . import operations_inbox
         result=operations_inbox.mark(args.key,args.status) if args.action=='mark' else operations_inbox.listing(args.platform,args.status,args.limit,args.cursor,args.include_own,args.identity)
@@ -381,7 +402,7 @@ def execute(args):
     if args.command in {'comments','stats','report','preferences'}:
         from . import operations
         if args.command=='comments':
-            if args.action in {'status','like','edit','delete','verify-action'}:
+            if args.action in {'status','like','pin','hide','edit','delete','verify-action'}:
                 from . import comment_actions
                 if args.action=='status':result=comment_actions.status(args.platform,args.work,args.comment_id)
                 elif args.action=='verify-action':result=comment_actions.verify(args.key)
@@ -663,7 +684,7 @@ def main():
         args = parser().parse_args()
         value = execute(args)
         ok = not (isinstance(value, dict) and (value.get("all_submissions_verified") is False or
-                  value.get('state') in {'COMMENT_READY','COMMENT_SUBMITTING','COMMENT_UNVERIFIED','COMMENT_FAILED','ACTION_READY','ACTION_SUBMITTING','ACTION_UNVERIFIED','ACTION_FAILED','PARTIAL','WAITING_FOR_USER','PREPARATION_INCOMPLETE','SUBMITTED_UNVERIFIED','UNKNOWN','EDIT_SUBMITTING','EDIT_SUBMITTED_UNVERIFIED','EDIT_UNAVAILABLE','REPLY_READY','REPLY_PENDING','REPLY_SUBMITTING','REPLY_UNVERIFIED','REPLY_REJECTED','TEST_SEED_UNVERIFIED','TEST_REPLY_UNVERIFIED','TEST_COMMENT_NOT_VISIBLE'}))
+                  value.get('state') in {'DM_READY','DM_SUBMITTING','DM_UNVERIFIED','DM_FAILED','COMMENT_READY','COMMENT_SUBMITTING','COMMENT_UNVERIFIED','COMMENT_FAILED','ACTION_READY','ACTION_SUBMITTING','ACTION_UNVERIFIED','ACTION_FAILED','PARTIAL','WAITING_FOR_USER','PREPARATION_INCOMPLETE','SUBMITTED_UNVERIFIED','UNKNOWN','EDIT_SUBMITTING','EDIT_SUBMITTED_UNVERIFIED','EDIT_UNAVAILABLE','REPLY_READY','REPLY_PENDING','REPLY_SUBMITTING','REPLY_UNVERIFIED','REPLY_REJECTED','TEST_SEED_UNVERIFIED','TEST_REPLY_UNVERIFIED','TEST_COMMENT_NOT_VISIBLE'}))
         print(json.dumps({"ok": ok, "data": value}, ensure_ascii=False))
         raise SystemExit(0 if ok else 4)
     except VpubError as e:

@@ -5,6 +5,9 @@ from .core import VpubError, atomic_json, read_json, stop_check
 
 
 async def execute(page, platform, identity, payload):
+    if platform == 'douyin':
+        from .comment_actions_douyin import execute as douyin
+        return await douyin(page, identity, payload)
     r = payload['request']; target = r['comment']; work = r['work_id']
     if platform not in {'instagram', 'x'} or identity != r['identity']:
         raise VpubError('unsupported_operation', 'Comment likes require the expected Instagram/X account.')

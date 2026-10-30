@@ -22,13 +22,21 @@ async def run(payload):
         async with async_playwright() as pw:
             if payload["action"] == "login":
                 return await runtime.login(pw, payload)
-            context = await runtime.open_context(pw, platform, account)
+            if payload['action']=='chat_unlock' and platform!='x':
+                raise VpubError('unsupported_operation','Chat unlock currently supports X only.')
+            context = await runtime.open_context(pw, platform, account, interactive=payload['action']=='chat_unlock')
             try:
                 page, actual = await runtime.signed_in_page(context, platform, payload.get("expected_identity"))
                 if payload["action"] == "status":
                     return {"logged_in": True, "identity": actual, "account": account, "method": "browser"}
+                if payload['action']=='chat_unlock':
+                    from .direct_messages_x import unlock
+                    return await unlock(page,actual)
                 from .browser_backends import execute
                 try:
+                    if payload['action']=='direct_messages':
+                        from .direct_messages_browser import execute as dm
+                        return await dm(page,platform,actual,payload)
                     if payload['action']=='comment_management':
                         from .comment_actions_browser import execute as manage_comment
                         return await manage_comment(page,platform,actual,payload)

@@ -102,7 +102,7 @@ def browser_call(platform, action, account, **kwargs):
     try:
         cp = subprocess.run([sys.executable, "-m", "video_publisher.browser_worker"],
                             input=json.dumps(payload), capture_output=True, encoding="utf-8",
-                            timeout=1900 if action in {"publish", "resume"} else 600 if action in {'edit','verify','operations_batch'} else 120,
+                            timeout=1900 if action in {"publish", "resume"} else 600 if action in {'edit','verify','operations_batch','chat_unlock'} else 120,
                             env=dict(os.environ, PYTHONIOENCODING="utf-8"))
     except subprocess.TimeoutExpired:
         raise VpubError("browser_timeout", "Browser command timed out; existing receipts are retained.", "Inspect the existing draft/work; do not repeat an upload or final submit.")

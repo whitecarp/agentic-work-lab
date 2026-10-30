@@ -238,7 +238,7 @@ def report(since=None, language='auto', notes=None, _events=None):
     for platform in NAMES:
         selected=[e for e in events if e['platform']==platform and not e['result'].get('test')]
         if not selected: continue
-        comments={};stats={};replies={};engagement={};management={};failed=[];new_comments=set();baselines=set()
+        comments={};stats={};replies={};engagement={};management={};messages={};failed=[];new_comments=set();baselines=set()
         for e in selected:
             v=e['result']
             if v.get('state')=='FAILED': failed.append(v);continue
@@ -252,6 +252,7 @@ def report(since=None, language='auto', notes=None, _events=None):
             if e['action'] in {'reply','reply_verify'}: replies[v.get('reply_key',e['event_id'])]=v
             if e['action']=='engagement': engagement[v.get('key',e['event_id'])]=v
             if e['action']=='comment_management':management[v.get('key',e['event_id'])]=v
+            if e['action']=='direct_message':messages[v.get('key',e['event_id'])]=v
         unavailable_stats=sum(not any(m.get('value') is not None for m in v.get('metrics',{}).values()) for v in stats.values())
         collected_stats=len(stats)-unavailable_stats
         confirmed=sum(v.get('state')=='REPLY_VERIFIED' for v in replies.values())
@@ -263,10 +264,13 @@ def report(since=None, language='auto', notes=None, _events=None):
         managed=sum(v.get('state')=='COMMENT_VERIFIED' for v in management.values())
         manage_pending=sum(v.get('state') in {'COMMENT_SUBMITTING','COMMENT_UNVERIFIED'} for v in management.values())
         manage_failed=sum(v.get('state')=='COMMENT_FAILED' for v in management.values())
+        dm_visible=sum(v.get('state')=='DM_VISIBLE' for v in messages.values())
+        dm_pending=sum(v.get('state') in {'DM_SUBMITTING','DM_UNVERIFIED'} for v in messages.values())
+        dm_failed=sum(v.get('state')=='DM_FAILED' for v in messages.values())
         details[platform]={'comments_read':len(comments),'newly_observed_comments':len(new_comments),'baseline_works':len(baselines),'replies_verified':confirmed,'work_metrics':stats,
                            'replies_pending':pending,'works_with_stats':collected_stats,'works_without_visible_metrics':unavailable_stats,'failed_reads':len(failed),
                            'engagement_verified':actions,'engagement_pending':actions_pending,'engagement_failed':actions_failed,
-                           'comment_management_verified':managed,'comment_management_pending':manage_pending,'comment_management_failed':manage_failed}
+                           'direct_messages_visible':dm_visible,'direct_messages_pending':dm_pending,'direct_messages_failed':dm_failed,'comment_management_verified':managed,'comment_management_pending':manage_pending,'comment_management_failed':manage_failed}
         if lang=='zh':
             pieces=[]
             if any(e['action']=='comments' and e['result'].get('state')!='FAILED' for e in selected): pieces.append(f'读取{len(comments)}条观众评论')
@@ -284,6 +288,9 @@ def report(since=None, language='auto', notes=None, _events=None):
             if managed:pieces.append(f'{managed}次评论管理操作已读回确认')
             if manage_pending:pieces.append(f'{manage_pending}次评论管理操作待核验，未重试')
             if manage_failed:pieces.append(f'{manage_failed}次评论管理操作在提交前停止')
+            if dm_visible:pieces.append(f'{dm_visible}条发出私信已在会话中读回，不代表对方已读')
+            if dm_pending:pieces.append(f'{dm_pending}条私信待核验，未重发')
+            if dm_failed:pieces.append(f'{dm_failed}次私信操作在提交前停止')
             if pieces:parts.append(NAMES[platform]+'：'+'，'.join(pieces))
         else:
             pieces=[]
@@ -303,6 +310,9 @@ def report(since=None, language='auto', notes=None, _events=None):
             if managed:pieces.append(f'verified {managed} comment-management operations')
             if manage_pending:pieces.append(f'{manage_pending} comment-management attempts await verification; no retry')
             if manage_failed:pieces.append(f'{manage_failed} comment-management attempts stopped before submission')
+            if dm_visible:pieces.append(f'{dm_visible} outgoing messages visible in chat; recipient delivery/read not established')
+            if dm_pending:pieces.append(f'{dm_pending} messages remain unverified; no resend')
+            if dm_failed:pieces.append(f'{dm_failed} message attempts stopped before submission')
             if pieces:parts.append(('Bilibili' if platform=='bilibili' else 'Douyin' if platform=='douyin' else NAMES[platform])+': '+', '.join(pieces))
     summary=('本轮'+'；'.join(parts)+'。') if lang=='zh' and parts else ('This round — '+'; '.join(parts)+'.') if parts else ('本时段没有可汇报的执行记录。' if lang=='zh' else 'No execution records in this period.')
     findings=read_json(notes) if notes else []
@@ -317,7 +327,10 @@ def capabilities():
     return {'collection':'ops watch add/list/remove and ops sync: bounded read-only multi-platform inbox candidates, metrics and per-run report; no scheduler or automatic replies.',
             'batch_reads':'One CLI-owned browser per group of up to ten watched works on the same platform/account; read-only, stops on failure.',
             'local_inbox':'inbox list/mark: account-scoped history, unread/read/handled/deferred, changed text reopens; no private messages.',
-            'comment_management':'Bilibili/Instagram/X comment like/unlike; YouTube own-comment edit/delete; exact target and fresh read-back. Douyin comment controls, pins and hiding are not integrated.',
+            'comment_management':'Bilibili/Instagram/X/Douyin comment like/unlike; YouTube/Douyin own-comment delete; YouTube own-comment edit; Bilibili root pin/unpin via upstream (not live-tested this release). Exact targets and fresh read-back.',
+            'comment_controls':{'bilibili':['like','unlike','pin','unpin'],'youtube':['edit-own','delete-own'],'douyin':['like','unlike','delete-own-without-replies'],'instagram':['like','unlike'],'x':['like','unlike']},
+            'moderation_limits':'No verified Douyin/Instagram comment pin/hide control in the observed web layout. X profile pin is not comment pin; hide-reply is not integrated. Unsupported actions stop before network writes.',
+            'direct_messages':'dm list/read/send/verify: exact recipient, one language, CLI-owned Instagram/Douyin/X sessions; Bilibili upstream delegation (no live test this release). X dm unlock opens official PIN UI on explicit request. YouTube has no DM adapter. Visible outgoing messages do not prove recipient delivery/read.',
             'works':'Bilibili published pages, YouTube uploads playlist pages, other platforms visible first page.',
             'reply_pages':'comments replies: Bilibili and YouTube roots with next_cursor; browser replies remain bounded.',
             'comments':{'bilibili':'upstream CLI, paged threads','youtube':'official API, paged threads and replies',
@@ -326,4 +339,4 @@ def capabilities():
             'stats':'Per-work observations with source and timestamp; missing metrics stay null. X post views are not video plays.',
             'report':'Receipt-based natural Chinese/English, selected from host user language or saved report_language; excludes owner comments and self-tests; no automatic email.',
             'live_reply_tests':{'bilibili':'verified','youtube':'verified','instagram':'visible author/text/ID verified; browser reply-action evidence','x':'visible author/text/ID verified; browser reply-action evidence','douyin':'Creator Center reply verified in a fresh session with author/text/new ID and nested parent'},
-            'not_in_this_scope':['private messages','automatic likes','watch/transcribe','hot-topic research','unbounded historical export','Douyin replies to nested replies']}
+            'not_in_this_scope':['automatic/bulk private messages','automatic likes','watch/transcribe','hot-topic research','unbounded historical export','Douyin replies to nested replies','cross-platform hiding and comment pins except Bilibili']}

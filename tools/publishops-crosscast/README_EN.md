@@ -8,7 +8,7 @@ This requirement exists because non-subscribers are limited to **140-second, 512
 
 ### Multi-platform video release operations console
 
-**v0.7.0 alpha · CLI `vpub` · AI-assisted development**
+**v0.8.0 alpha · CLI `vpub` · AI-assisted development**
 
 Prepare platform-specific metadata, covers and publication receipts for one original video. Choose any subset of Bilibili, Douyin, YouTube, Instagram and X. Sign in once; the CLI reuses its own local sessions for later uploads.
 
@@ -25,7 +25,7 @@ After first login, use the same CLI commands for an exact work. Bilibili reuses 
 | Bilibili | bili-cli | Selected favorite folder; a unique default is used if omitted. Removal preserves membership in other folders. |
 | YouTube | Official video rating API | Selected ordinary playlist owned by the account; no Watch Later, Likes-list or legacy Favorites management. |
 | Douyin | Exact video's Like control | Default favorite/save for that video. |
-| Instagram | Post toolbar Like | Default Saved; no named collections or comment likes. |
+| Instagram | Post toolbar Like | Default Saved; no named collections. Comment likes use separate commands. |
 | X | Exact post's Like | Private Bookmarks; not Lists or bookmark-folder management. |
 
 ```sh
@@ -147,6 +147,9 @@ vpub comments like instagram WORK_ID COMMENT_ID
 vpub comments like instagram WORK_ID COMMENT_ID --remove
 vpub comments edit youtube VIDEO_ID OWN_COMMENT_ID --text "Updated comment"
 vpub comments delete youtube VIDEO_ID OWN_COMMENT_ID
+vpub comments like douyin WORK_ID COMMENT_ID
+vpub comments like douyin WORK_ID COMMENT_ID --remove
+vpub comments delete douyin WORK_ID OWN_COMMENT_ID
 vpub comments verify-action RECEIPT_KEY
 ```
 
@@ -155,9 +158,39 @@ vpub comments verify-action RECEIPT_KEY
 | Bilibili | Like/unlike through pinned upstream bili-cli; exact comment state read back |
 | Instagram / X | Like/unlike the exact visible comment; an ambiguous heart stops the action |
 | YouTube | Edit/delete your own comment on your own video through the official API |
-| Douyin | No comment-management controls in this release; existing top-level replies remain available |
+| Douyin | Creator Center comment like/unlike; delete your own comment without replies on your own work; existing top-level replies remain available |
 
-These are explicit single-comment commands, separate from video likes. Read the comment first. There is no mandatory editorial approval; `--dry-run` is optional. YouTube editing takes the host's single-language text without translating it. Author, account, work and current text are checked before writing. A timed-out or unverified action is retained and blocks another mutation until read-only verification; there is no automatic resend. Test labels use `--test-id` and are excluded from ordinary reports. Deletion is only performed when explicitly requested and is irreversible; login never runs it. Pinning, hiding, bulk moderation and browser comment deletion are not implemented.
+These are explicit single-comment commands, separate from video likes. Read the comment first. There is no mandatory editorial approval; `--dry-run` is optional. YouTube editing takes the host's single-language text without translating it. Author, account, work and current text are checked before writing. A timed-out or unverified action is retained and blocks another mutation until read-only verification; there is no automatic resend. Test labels use `--test-id` and are excluded from ordinary reports. Deletion is only performed when explicitly requested and is irreversible; login never runs it. Douyin deletion refuses parent comments with replies. Pinning/hiding boundaries are described below; bulk moderation is not implemented.
+
+## Direct messages and platform differences
+
+After first login, `dm` reuses the CLI's own sessions. Douyin, Instagram and X operate their official websites in the background, not standalone private APIs. The host agent writes **one language matching the recipient**. `--language` records that decision; it does not translate messages or detect every language.
+
+```sh
+vpub dm list instagram --limit 10
+vpub dm read instagram EXACT_HANDLE --limit 20
+vpub dm send instagram EXACT_HANDLE --file message.txt --language en
+vpub dm send douyin MS4w_PUBLIC_PROFILE_ID --file message.txt --language zh
+vpub dm send x EXACT_HANDLE --file message.txt --language en
+vpub dm verify RECEIPT_KEY
+vpub dm unlock x
+```
+
+| Platform | Message scope and limits |
+|---|---|
+| Douyin | Visible Creator Center conversation summaries; open, read and send text through an exact public profile. Supply the `MS4w…` ID after `/user/`, never a guessed nickname. Recipient restrictions and stranger-message limits still apply. |
+| Instagram | Visible inbox summaries; open an exact handle's conversation and read/send text. Display names and similar search results are not recipient identifiers. |
+| X | Visible X Chat inbox, exact-handle conversations and text sends. Use `dm unlock x` for the user to enter an official PIN in the dedicated window; the CLI does not read it. Closed inboxes stop sending. |
+| Bilibili | Delegates to upstream `dm list/read/send`, retaining its new-contact restrictions; no Bilibili live tests in this round. |
+| YouTube | No DM adapter; use the existing comment-reply workflow. |
+
+`list/read` send no messages, but opening an official conversation can mark incoming messages read. Results cover visible entries, not complete history. Installation, login and `ops sync` do not message anyone. Explicit single-message tasks run directly within the user's authorization, with optional `--dry-run`.
+
+The CLI saves account, recipient, preflight state and receipt before one submission, then opens a new session to read back the outgoing message. `DM_VISIBLE` means visible in the sender's conversation, **not recipient delivery or read confirmation**. Resolve `DM_UNVERIFIED` with `dm verify KEY`, never a resend. Repeating the same most-recent successful message also causes no new send. Official challenges, uncertain recipients and changed layouts stop execution. Private message bodies and recipients stay in local receipts; operations reports contain deduplicated states and counts only. Authorized tests use `--test-id LABEL` to stay out of normal reports.
+
+### Pinning and hiding boundaries
+
+`vpub comments pin bilibili BV_ID ROOT_COMMENT_ID` and `--remove` delegate to upstream for top-level comments only. Another pinned comment stops the command instead of being silently replaced; this round covers offline tests only. The observed Douyin and Instagram web layouts exposed no verified comment pin/hide control, so those actions are not integrated. X's profile pin is not comment pinning, and hide-reply is not yet integrated. `comments hide` returns an explicit unsupported error; it never substitutes deletion, dislike or account blocking. Check `vpub capabilities`; one account's observed web limits are not a claim that the entire platform can never support a feature.
 
 ## Install and start
 
