@@ -6,6 +6,7 @@
 
 ## CrossCast 上傳與讀取恢復
 
+- [process_lock.py](../tools/publishops-crosscast/src/video_publisher/process_lock.py)：跨程序互斥與確認程序已退出後的鎖標記回收。
 - [browser_session.py](../tools/publishops-crosscast/src/video_publisher/browser_session.py): 透過私有管道復用瀏覽器環境.
 - [upload_resume.py](../tools/publishops-crosscast/src/video_publisher/upload_resume.py): 保存上傳會話並以伺服器進度續傳.
 - [full_read.py](../tools/publishops-crosscast/src/video_publisher/full_read.py): API 分頁原子檢查點與完整樓中樓讀取.

@@ -2,7 +2,22 @@
 
 [繁體中文](VALIDATION.md) · **English**
 
-Date: **2026-10-30**, PublishOps CrossCast **0.15.0 alpha**.
+Date: **2026-10-30**, PublishOps CrossCast **0.15.1 alpha**.
+
+## 0.15.1: existing-work closeout
+
+**417 offline tests pass, including 15 new tests.** Added coverage includes cross-process exclusion, hard-exit recovery, active/damaged legacy markers, preserved receipts, partial replay retention, pending thumbnail/playlist steps, uncertain thumbnail outcomes without resending and a delayed Instagram edit menu.
+
+| Live check | Result |
+|---|---|
+| YouTube hard interruption | A private excerpt called `os._exit(75)` after 8,388,608 acknowledged bytes. A second process continued that session and called `os._exit(76)` after saving its video ID. A third completed its thumbnail. The same ID was retained; private visibility and successful processing were read back. |
+| Cleanup | Only this private test clip was deleted, with fresh absence confirmation. Original videos, captions, covers and schedules were unchanged. |
+| Captions and chapters | Episode-two YouTube/Instagram captions matched the saved Chinese-plus-English copy. All six custom Douyin chapters were freshly read back. No writes. |
+| Instagram editor | The first check reached the menu before Edit loaded. After a bounded wait was added, a fresh process verified the actual work editor's bilingual caption without saving it again. |
+| Complete reads | Empty Douyin/Instagram/X collection lists had official end markers. A one-page YouTube budget paused and resumed to the end. Large nonempty browser lists remain untested. |
+| Other existing actions | Publishing, comments/replies, likes/saves, moderation/hiding and collection rename/member changes retain the historical live evidence below. This round did not rerun every mutation or add Bilibili tests. |
+
+**Scope is frozen for this closeout.** Multi-account operation and deep historical analytics are not added. Retained limits: no Douyin/Instagram website byte recovery; other browser work/comment/DM histories remain bounded; nonempty Instagram mentions, large lists and sustained unattended operation lack acceptance evidence. The user-accepted mobile cover is retained; the original X episode-two post stays unchanged; Gmail remains optional and off by default. Older pending notes below are historical, not new commitments.
 
 ## 0.15.0: session reuse, resumable upload and full-page reads
 

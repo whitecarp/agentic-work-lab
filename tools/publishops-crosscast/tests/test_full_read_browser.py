@@ -27,13 +27,13 @@ class Page:
 
 
 class BrowserPagingTests(unittest.IsolatedAsyncioTestCase):
-    async def collect(self,values,pages=10):
+    async def collect(self,values,pages=10,**payload):
         page=Page(values[1:])
         async def first(*args):
             await page.listener(Response(values[0]))
             return {'identity':'owner','items':[],'complete':False}
         with patch('video_publisher.collections_browser.execute',side_effect=first),patch.object(f,'risk_check',new=AsyncMock()),patch.object(f,'stop_check'):
-            result=await f.execute(page,'instagram','owner',{'resource':'collection-items','collection_id':'123','max_pages':pages})
+            result=await f.execute(page,'instagram','owner',{'resource':'collection-items','collection_id':'123','max_pages':pages,**payload})
         self.assertIsNone(page.listener)
         return result
 
@@ -58,3 +58,24 @@ class BrowserPagingTests(unittest.IsolatedAsyncioTestCase):
         r=f.extract('douyin','collections',None,'owner',response,{'status_code':0,'mix_list':[],'has_more':False})
         self.assertTrue(r['complete'])
         with self.assertRaises(VpubError):f.extract('douyin','collections',None,'owner',response,{'status_code':0,'mix_list':[]})
+
+    async def test_interrupted_replay_preserves_prior_rows_until_fresh_end(self):
+        from copy import deepcopy
+        run={'platform':'instagram','resource':'collection-items','collection_id':'123','identity':'owner',
+             'items':[{'id':'oldrow'}]}
+        writes=[]
+        with patch('video_publisher.full_read.status',return_value=run),patch('video_publisher.full_read.save',side_effect=lambda r:writes.append(deepcopy(r))):
+            partial=await self.collect([data(['abcdef'],True,'next')],1,read_run_id='test')
+            self.assertEqual({x['id'] for x in partial['items']},{'oldrow','abcdef'})
+            self.assertEqual(partial['retained_previous_items'],1)
+            self.assertFalse(writes[-1]['complete'])
+            fresh=await self.collect([data(['abcdef'],False,None)],1,read_run_id='test')
+            self.assertTrue(fresh['complete'])
+            self.assertEqual([x['id'] for x in fresh['items']],['abcdef'])
+
+    async def test_actual_page_error_keeps_committed_partial_union(self):
+        run={'platform':'instagram','resource':'collection-items','collection_id':'123','identity':'owner','items':[{'id':'oldrow'}]}
+        with patch('video_publisher.full_read.status',return_value=run),patch('video_publisher.full_read.save'):
+            with self.assertRaises(VpubError):
+                await self.collect([data(['abcdef'],True,'next'),{'data':{'fetch__MediaCollection':{'id':'wrong'}}}],read_run_id='test')
+        self.assertEqual({x['id'] for x in run['items']},{'oldrow','abcdef'})

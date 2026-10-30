@@ -229,22 +229,60 @@ def publish_youtube(plan, options, checkpoint, *, max_chunks=None):
     req = service.videos().insert(part="snippet,status", body=body,
                                  media_body=MediaFileUpload(plan["video"], chunksize=8 * 1024 * 1024, resumable=True))
     from .upload_resume import run
-    result = run(req, plan, options['account'], owners[0]['id'], checkpoint, max_chunks=max_chunks)
+    postprocess = {'cover': 'PENDING' if plan.get('cover') else 'NOT_REQUESTED',
+                   'playlist_ids': list(options.get('playlist_ids', []))}
+    def upload_checkpoint(value):
+        checkpoint({**value, 'postprocess': postprocess, 'expected_category_id': category_id})
+    try:
+        result = run(req, plan, options['account'], owners[0]['id'], upload_checkpoint, max_chunks=max_chunks)
+    finally:
+        req.resumable.stream().close()
     if result['state'] == 'UPLOAD_PAUSED':
-        return result
+        return {**result, 'postprocess': postprocess, 'expected_category_id': category_id}
     video_id = result.get("id")
     if not video_id:
         return {"state": "SUBMITTED_UNVERIFIED", "reason": "Upload completed without a video ID."}
-    receipt = {"state": "SUBMITTED", "method": "api", "id": video_id, "url": f"https://www.youtube.com/watch?v={video_id}", "expected_category_id": category_id}
+    receipt = {**result, 'postprocess': postprocess, "state": "SUBMITTED", "method": "api", "id": video_id, "url": f"https://www.youtube.com/watch?v={video_id}", "expected_category_id": category_id}
     checkpoint(receipt)  # persist the video ID before optional cover/verification calls
-    if plan.get("cover"):
+    return finish_youtube(plan, options, receipt, checkpoint)
+
+
+def finish_youtube(plan, options, receipt, checkpoint):
+    """Complete only never-attempted post-upload steps on the same owned video."""
+    from .core import file_sha, stop_check
+    from googleapiclient.http import MediaFileUpload
+    stop_check('youtube')
+    landscape = plan.get('covers', {}).get('youtube', {}).get('landscape')
+    if landscape:
+        plan = {**plan, 'cover': landscape['path'], 'cover_sha256': landscape['sha256']}
+    steps = receipt['postprocess']
+    if steps['cover'] == 'PENDING' and (not plan.get('cover') or file_sha(plan['cover']) != plan.get('cover_sha256')):
+        raise VpubError('source_changed', 'Prepared cover changed; uploaded video retained without another write.')
+    service = yt_service(options['account'])
+    owners = service.channels().list(part='id', mine=True).execute().get('items', [])
+    videos = service.videos().list(part='snippet', id=receipt['id']).execute().get('items', [])
+    if len(owners) != 1 or len(videos) != 1 or videos[0]['snippet'].get('channelId') != owners[0]['id'] or (options.get('expected_channel_id') and options['expected_channel_id'] != owners[0]['id']):
+        raise VpubError('wrong_account', 'Post-upload steps require the original video and channel.')
+    if steps['cover'] == 'PENDING':
+        steps['cover'] = 'SUBMITTING'
+        checkpoint(receipt)
+        media = None
         try:
-            service.thumbnails().set(videoId=video_id, media_body=MediaFileUpload(plan["cover"])).execute()
+            stop_check('youtube')
+            media = MediaFileUpload(plan['cover'])
+            value = service.thumbnails().set(videoId=receipt['id'], media_body=media).execute()
+            steps['cover'] = 'APPLIED' if value.get('items') else 'UNKNOWN'
         except Exception:
-            receipt["warning"] = "Video exists; thumbnail upload failed. Do not upload the video again."
-            checkpoint(receipt)
-    if options.get("playlist_ids"):
-        ensure_youtube_playlists(service, video_id, options["playlist_ids"], receipt, checkpoint)
+            steps['cover'] = 'UNKNOWN'
+        finally:
+            if media is not None:
+                media.stream().close()
+        checkpoint(receipt)
+    if steps['cover'] in {'SUBMITTING', 'UNKNOWN'}:
+        receipt['warning'] = 'Video exists; thumbnail outcome is uncertain. Inspect it; resume will not resend the thumbnail.'
+    if steps.get('playlist_ids'):
+        stop_check('youtube')
+        ensure_youtube_playlists(service, receipt['id'], steps['playlist_ids'], receipt, checkpoint)
     verified = verify("youtube", options["account"], receipt)
     actual = verified.get("visibility")
     if actual and actual != options["visibility"]:
@@ -327,7 +365,10 @@ def verify(platform, account, receipt):
             playlist_results[playlist_id] = {"state": "UNKNOWN"}
     category_id = item.get("snippet", {}).get("categoryId")
     category_mismatch = bool(receipt.get("expected_category_id") and category_id != receipt["expected_category_id"])
-    incomplete = any(x["state"] != "VERIFIED" for x in playlist_results.values()) or bool(receipt.get("warning")) or category_mismatch
+    postprocess = receipt.get('postprocess', {})
+    pending_steps = (postprocess.get('cover', 'NOT_REQUESTED') not in {'APPLIED', 'NOT_REQUESTED'}
+                     or any(playlist_results.get(pid, {}).get('state') != 'VERIFIED' for pid in postprocess.get('playlist_ids', [])))
+    incomplete = pending_steps or any(x["state"] != "VERIFIED" for x in playlist_results.values()) or bool(receipt.get("warning")) or category_mismatch
     return {**receipt, "state": "PLATFORM_REJECTED" if failed else "SUBMITTED_UNVERIFIED" if incomplete else "SUBMISSION_VERIFIED",
             "visibility": status.get("privacyStatus"), "upload_status": status.get("uploadStatus"),
             "processing_status": item.get("processingDetails", {}).get("processingStatus"),

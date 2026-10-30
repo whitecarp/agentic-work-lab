@@ -327,15 +327,6 @@ class Ledger:
 
 @contextlib.contextmanager
 def publication_lock():
-    path = home() / "publisher.lock"
-    try:
-        f = path.open("x", encoding="utf-8")
-    except FileExistsError:
-        raise VpubError("busy", "Another publication is running or a previous process was interrupted.",
-                        "Check the ledger and running processes; never blindly clear this lock.")
-    with f:
-        f.write(json.dumps({"pid": os.getpid(), "created_at": now()}))
-    try:
+    from .process_lock import hold
+    with hold(home() / 'publisher.lock', 'busy', 'Another publication command owns this workspace.'):
         yield
-    finally:
-        path.unlink(missing_ok=True)

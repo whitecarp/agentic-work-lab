@@ -6,7 +6,7 @@
 
 原因是未訂閱帳號的影片上傳上限為 **140 秒、512 MB**，且無法使用本工具所依賴的 Media Studio 媒體管理與自訂封面流程。CrossCast 的 X 後端透過 Media Studio 上傳影片並設定製作封面，因此目前僅支援具備此權限的訂閱帳號。登入或付款本身不代表權限已開通，上傳前仍會核對媒體庫入口與所選帳號。[官方上傳限制](https://help.x.com/en/using-x/x-videos) · [Media Studio 權限](https://help.x.com/en/using-x/media-studio)。
 
-**0.15.0 alpha。** 新方案在首次登入後由 CLI 執行；`method: native` 是明確選用的宿主瀏覽器備援。B站繼續呼叫 [bili-cli](https://github.com/kukemc/bili-cli)。
+**0.15.1 alpha。** 新方案在首次登入後由 CLI 執行；`method: native` 是明確選用的宿主瀏覽器備援。B站繼續呼叫 [bili-cli](https://github.com/kukemc/bili-cli)。
 
 | 能力 | Bilibili | YouTube | 抖音 | X | Instagram |
 |---|---|---|---|---|---|
@@ -29,6 +29,8 @@
 第二期真實上傳及開發限制見[驗證記錄](VALIDATION.md)。背景瀏覽器不是官方直連 API，也沒有速度保證；介面變更、登入過期及驗證可能需要介入。文案寫作／翻譯由宿主聊天模型透過 request/apply 完成，不會翻譯影片本身。
 
 內容語言與平台目標不同時保留原語言＋翻譯；中文的簡繁體在 B站／抖音統一簡體，不重複兩段。抖音自訂章節已接入 CLI 發布／驗證流程。`vpub edit` 支援 YouTube 資料、Instagram 配文、可用的 X 編輯入口及抖音封面／章節；native 交接仍保留。共用 v3 直圖已由使用者在兩站手機畫面確認底部文字可見；不能外推到所有手機版面。郵件僅支援 Gmail、預設關閉，使用者主動要求時才協助安裝／連接插件並開啟。Outlook、QQ、網易及 SMTP 均不支援。評論單語回覆與使用者語言匯報見 [README](../README.md#評論作品數據與營運匯報)。TikTok、自動／批量私信及點讚、完整歷史匯出與 YouTube 卡片／可點擊片尾未實作。
+
+本輪為既有功能的可靠性收尾，未新增平台能力。當前限制以本頁表格及[最新驗證](VALIDATION.md)為準；以下版本記錄不是新的待辦清單。
 
 ## 0.15.0 — 恢復與完整讀取
 

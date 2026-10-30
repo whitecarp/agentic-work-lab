@@ -6,6 +6,7 @@ The project uses human-defined requirements, AI-assisted implementation, tool-ba
 
 ## CrossCast upload and read recovery
 
+- [process_lock.py](../tools/publishops-crosscast/src/video_publisher/process_lock.py): cross-process exclusion and marker recovery only after confirmed process exit.
 - [browser_session.py](../tools/publishops-crosscast/src/video_publisher/browser_session.py): Private pipe-based context reuse.
 - [upload_resume.py](../tools/publishops-crosscast/src/video_publisher/upload_resume.py): Persisted upload sessions and server-offset recovery.
 - [full_read.py](../tools/publishops-crosscast/src/video_publisher/full_read.py): Atomic API page checkpoints and full reply reads.

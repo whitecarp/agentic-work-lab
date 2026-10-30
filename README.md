@@ -29,7 +29,7 @@
 - 新增跨平台並行巡檢、即時進度、訊息續讀與 YouTube 播放列表管理；實測四站 10 項查詢由 55.4 秒降至 27.4 秒，僅代表本次測試。
 - 新增 Instagram 收藏集更名與成員增刪、抖音作品合集管理及 PublishOps CrossCast Codex 技能，操作均保留獨立核驗回執；X 指定書籤夾成員變更仍待補齊。
 - CrossCast 新增合集會話復用、YouTube 上傳中斷恢復及可保存進度的完整分頁讀取；[範圍與實測](tools/publishops-crosscast/docs/VALIDATION.md)。
-- **0.15.0 alpha，402 項離線測試通過。** 完整五平台發布仍有待驗收項目；已測範圍與限制均有記錄。
+- **0.15.1 alpha，417 項離線測試通過。** 本輪停止擴充功能，修復中斷恢復、部分讀取保留與 Instagram 編輯等待；既有功能的實測與平台限制分開記錄。
 
 [安裝與使用](tools/publishops-crosscast/README.md) · [功能範圍](tools/publishops-crosscast/docs/FEATURES.md) · [驗證記錄](tools/publishops-crosscast/docs/VALIDATION.md)
 

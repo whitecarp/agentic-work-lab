@@ -2,6 +2,10 @@
 
 [繁體中文](DEEPSEEK_HANDOFF.md) · **English**
 
+## 0.15.1 closeout constraints
+
+Feature scope is frozen; use existing functions and repairs without adding directions. `resume` may complete never-started YouTube cover/playlist steps; uncertain writes are not resent. Partial browser replays retain earlier rows; completeness still requires a fresh end marker. Lock markers are reclaimed only for confirmed dead processes; active or unknown owners still block. See [validation](docs/VALIDATION_EN.md).
+
 ## 0.15.0 recovery
 
 Use `resume KEY` for new YouTube resumable uploads, never clear the original receipt. `read-all start/resume/status` saves supported API page cursors and deduplicates rows. `COMPLETE` requires end proof; browser resume replays the official page. Keep same-platform work sequential. Collection transactions reuse one browser context, but still perform fresh readback. [Scope and commands](README_EN.md#faster-commands-upload-recovery-and-complete-reads).

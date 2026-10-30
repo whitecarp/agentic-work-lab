@@ -557,15 +557,18 @@ def execute(args):
                 record = row['data']
                 if row['platform'] == 'youtube' and record.get('options', {}).get('method') == 'api':
                     receipt = record.get('receipt', {})
+                    options = {**record['options'], 'expected_channel_id': record['identity']['identity']}
+                    def checkpoint(value):
+                        record['receipt'] = value
+                        ledger.save(args.key, value['state'], record)
                     if receipt.get('id'):
-                        result = adapters.verify('youtube', row['account'], receipt)
+                        if receipt.get('postprocess'):
+                            result = adapters.finish_youtube(record['upload_plan'], options, receipt, checkpoint)
+                        else:
+                            result = adapters.verify('youtube', row['account'], receipt)
                     else:
                         if not receipt.get('upload_session_key'):
                             raise VpubError('invalid_resume', 'This legacy attempt has no durable upload session. Inspect the original work.')
-                        def checkpoint(value):
-                            record['receipt'] = value
-                            ledger.save(args.key, value['state'], record)
-                        options = {**record['options'], 'expected_channel_id': record['identity']['identity']}
                         result = adapters.publish_youtube(record['upload_plan'], options, checkpoint)
                     record['receipt'] = result
                     ledger.save(args.key, result['state'], record)
@@ -809,10 +812,10 @@ def capabilities():
             "works": "Bilibili published-work pages and YouTube upload-playlist pages; Douyin/Instagram/X visible first page only.",
             "work_adoption": "ops discover scans bounded pages; ops adopt freshly verifies ownership and adds existing works to the watchlist without an upload receipt.",
             "resumable_sync": "ops/messages sync use bounded per-platform concurrency, session reuse, durable checkpoints and freshness caches. --workers 1-4; --progress emits body-free JSON to stderr. ops/messages resume skips completed reads; unfinished browser sources restart their page.",
-            "upload_recovery": "New YouTube API uploads persist private resumable sessions and acknowledged offsets. resume queries the server and continues the same account/media/metadata; expired or uncertain sessions are not replaced automatically. X retains saved Studio asset recovery. Douyin/Instagram pre-submit interruptions still need draft inspection.",
-            "full_reads": "read-all start/resume/status: YouTube works, playlists/members and comments including reply pages; Bilibili works/comments via upstream. API checkpoints advance rows and cursor atomically. Browser Douyin/Instagram collections and members, X folder lists follow official controls; explicit server end required. Browser resume replays the page. Other DOM feeds and X folder members remain incomplete/unverified.",
+            "upload_recovery": "New YouTube API uploads persist private resumable sessions and acknowledged offsets. resume queries the server and continues the same account/media/metadata; expired or uncertain sessions are not replaced automatically. Never-started YouTube cover/playlist steps resume against the same owned video; uncertain writes are not repeated. Dead-owner lock markers can be reclaimed without clearing receipts. X retains saved Studio asset recovery. Douyin/Instagram pre-submit interruptions still need draft inspection.",
+            "full_reads": "read-all start/resume/status: YouTube works, playlists/members and comments including reply pages; Bilibili works/comments via upstream. API checkpoints advance rows and cursor atomically. Browser Douyin/Instagram collections and members, X folder lists follow official controls; explicit server end required. Browser resume replays the page and retains prior rows while incomplete; a complete pass replaces them with current observations. Other DOM feeds and X folder members remain incomplete/unverified.",
             "collection_speed": "Collection transactions reuse one command-scoped authenticated browser over private process pipes, while fresh navigation/readback remains mandatory. No persistent listener or browser cookie export.",
-            "planned_common_commands": ["account", "search", "video", "analytics-history", "full-message-history"],
+            "release_scope": "Frozen closeout of existing functionality; no new feature commitments.",
             "suspended_platforms": {"tiktok": "Login test with a Hong Kong number was unsuccessful; see docs/TIKTOK_STATUS.md."},
             "not_implemented": "Full historical analytics/inbox, X/Instagram official API clients, and YouTube cards/clickable end screens. Instagram mobile-cover replacement remains user-assisted. Douyin replies to nested replies are not supported.",
             "interaction_rule": "Login/setup does not authorize comments, messages, likes or publication."}

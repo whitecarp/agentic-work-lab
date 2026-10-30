@@ -64,6 +64,22 @@ class InstagramCaptionTests(unittest.IsolatedAsyncioTestCase):
         self.assertEqual('wrong_work',error.exception.code)
         page.locator.return_value.click.assert_not_called()
 
+    async def test_delayed_edit_menu_waits_before_unique_control_check(self):
+        page=MagicMock();page.url='https://www.instagram.com/p/Reel123/'
+        page.goto=AsyncMock()
+        more=MagicMock();more.wait_for=AsyncMock();more.click=AsyncMock()
+        edit=MagicMock();edit.wait_for=AsyncMock();edit.click=AsyncMock()
+        editor=MagicMock();editor.wait_for=AsyncMock()
+        page.locator.return_value=more
+        page.get_by_role.side_effect=[edit,editor]
+        async def unique(locator,label):
+            if label=='work Edit': edit.wait_for.assert_awaited_once()
+            return locator
+        with patch.object(browser_edits,'unique_visible',new=AsyncMock(side_effect=unique)),patch.object(browser_edits,'risk_check',new=AsyncMock()):
+            result=await browser_edits.instagram_caption_editor(page,'Reel123')
+        self.assertIs(result,editor)
+        edit.click.assert_awaited_once()
+
 
 class EditFreshnessTests(unittest.TestCase):
     def test_old_verified_receipt_does_not_skip_current_platform_read(self):

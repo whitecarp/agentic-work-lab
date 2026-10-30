@@ -70,8 +70,15 @@ async def execute(page, platform, owner, payload):
             await queue.put(exc)
         except Exception:
             await queue.put(VpubError('invalid_page', 'Official collection response could not be parsed.'))
-    page.on('response', capture)
     rows, seen = {}, set()
+    prior = {}
+    if payload.get('read_run_id'):
+        from .full_read import status
+        saved = status(payload['read_run_id'])
+        if (saved['platform'], saved['resource'], saved.get('collection_id')) != (platform, resource, cid) or saved['identity'] not in {None, owner}:
+            raise VpubError('read_conflict', 'Browser checkpoint account/resource changed.')
+        prior = {r['id']: r for r in saved['items']}
+    page.on('response', capture)
     pages = 0
     complete = False
     reason = 'page_budget'
@@ -102,7 +109,7 @@ async def execute(page, platform, owner, payload):
                 run = status(payload['read_run_id'])
                 if (run['platform'],run['resource'],run.get('collection_id')) != (platform,resource,cid) or run['identity'] not in {None,owner}:
                     raise VpubError('read_conflict','Browser checkpoint account/resource changed.')
-                run.update(identity=owner, items=list(rows.values()), pages_read=pages, complete=False,
+                run.update(identity=owner, items=list({**prior, **rows}.values()), pages_read=pages, complete=False,
                            state='READING', resume_mode='replay_official_page')
                 save(run)
             if value['complete']:
@@ -117,8 +124,11 @@ async def execute(page, platform, owner, payload):
             else:
                 await page.evaluate('''() => {for(const e of [document.scrollingElement,...document.querySelectorAll('main,section,div')]){
                     if(e && e.clientHeight>150 && e.scrollHeight>e.clientHeight+8 && (e===document.scrollingElement||/auto|scroll/.test(getComputedStyle(e).overflowY)))e.scrollTop=e.scrollHeight;}}''')
-        return {'identity':owner, 'collection_id':cid, 'items':list(rows.values()), 'pages_read':pages,
+        retained = len(prior.keys() - rows.keys()) if not complete else 0
+        result_rows = rows if complete else {**prior, **rows}
+        return {'identity':owner, 'collection_id':cid, 'items':list(result_rows.values()), 'pages_read':pages,
+                'retained_previous_items':retained,
                 'complete':complete, 'stop_reason':reason, 'source':'official_page_responses',
-                'scope':'Collections loaded by official next/scroll controls; completeness requires the server end marker.', 'platform_writes':0}
+                'scope':'Partial replays retain prior observations. A complete replay uses only the current pass and requires the server end marker.', 'platform_writes':0}
     finally:
         page.remove_listener('response', capture)

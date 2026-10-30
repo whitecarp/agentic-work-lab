@@ -25,18 +25,10 @@ def profile_dir(platform, account="default"):
 
 @contextmanager
 def profile_lock(platform, account):
+    from .process_lock import hold
     path = profile_dir(platform, account).with_suffix(".lock")
-    path.parent.mkdir(parents=True, exist_ok=True)
-    try:
-        f = path.open("x", encoding="utf-8")
-    except FileExistsError:
-        raise VpubError("browser_busy", "This platform's login or browser command is already running.", "Wait for auth status; do not launch a second profile or delete an active lock.")
-    with f:
-        f.write(str(os.getpid()))
-    try:
+    with hold(path, 'browser_busy', "This platform's login or browser command is already running."):
         yield
-    finally:
-        path.unlink(missing_ok=True)
 
 
 async def visible(locator):
