@@ -55,9 +55,13 @@ def browser_identity(platform, work):
         rows=[r for r in ledger.rows() if r['platform']==platform and r['data'].get('receipt',{}).get('id')==work]
         identities={r['data'].get('identity',{}).get('identity') or r['data'].get('receipt',{}).get('identity') for r in rows}
         identities.discard(None)
+        from .work_catalog import binding
+        adopted = binding(platform, work)
+        if adopted:
+            identities.add(adopted['identity'])
         if len(identities)!=1:
             raise VpubError('work_identity_required','Browser operations need an existing work receipt with its verified owner.',
-                            'Use the work ID from a CrossCast publication receipt; no account is guessed.')
+                            'Run vpub ops adopt PLATFORM WORK for a fresh owner check, or use an existing upload receipt.')
         return identities.pop()
     finally: ledger.close()
 
@@ -325,6 +329,8 @@ def report(since=None, language='auto', notes=None, _events=None):
 
 def capabilities():
     return {'collection':'ops watch add/list/remove and ops sync: bounded read-only multi-platform inbox candidates, metrics and per-run report; no scheduler or automatic replies.',
+            'adoption':'ops discover/adopt: bounded account work discovery and fresh ownership checks; separate adoption evidence, no fabricated upload receipt.',
+            'resumption':'ops sync persists completed reads and API pages; 300-second freshness reuse, --full forces bounded reads; ops runs/run/resume inspect and resume. Unfinished browser work restarts from its visible page.',
             'batch_reads':'One CLI-owned browser per group of up to ten watched works on the same platform/account; read-only, stops on failure.',
             'local_inbox':'inbox list/mark: account-scoped history, unread/read/handled/deferred, changed text reopens; no private messages.',
             'unified_messages':'messages sync/list/mark: watched comments, Douyin @ notifications, Instagram Tags & mentions, X visible mentions, and three browser-platform conversation previews. Per-source baselines and partial states; local marks never send. ID-less notification previews may coalesce identical events; no full-history claim. Instagram nonempty mentions await a live fixture.',

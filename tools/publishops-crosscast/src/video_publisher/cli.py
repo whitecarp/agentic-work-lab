@@ -227,6 +227,15 @@ def parser():
     q=o.add_parser('sync');q.add_argument('--platforms');q.add_argument('--limit',type=int,default=20)
     q.add_argument('--pages',type=int,default=2);q.add_argument('--language',choices=['auto','zh','en'],default='auto');q.add_argument('--out')
     q.add_argument('--reply-pages',type=int,default=1);q.add_argument('--reply-threads',type=int,default=5)
+    q.add_argument('--min-interval',type=int,default=300,help='Reuse successful reads younger than this many seconds; 0 always reads.')
+    q.add_argument('--full',action='store_true',help='Bypass freshness cache; still respects page budgets.')
+    for action in ('resume','run'):
+        q=o.add_parser(action);q.add_argument('run_id');q.add_argument('--out')
+    q=o.add_parser('runs');q.add_argument('--limit',type=int,default=20);q.add_argument('--out')
+    q=o.add_parser('discover');q.add_argument('platform',choices=PLATFORMS)
+    q.add_argument('--pages',type=int,default=3);q.add_argument('--limit',type=int,default=50);q.add_argument('--out')
+    q=o.add_parser('adopt');q.add_argument('platform',choices=PLATFORMS);q.add_argument('work')
+    q.add_argument('--pages',type=int,default=3);q.add_argument('--out')
     w=o.add_parser('watch').add_subparsers(dest='watch_action',required=True)
     w.add_parser('list')
     for action in ('add','remove'):
@@ -419,8 +428,14 @@ def execute(args):
         if args.out:atomic_json(args.out,result)
         return result
     if args.command=='ops':
-        from . import operations_sync
-        result=operations_sync.sync(args.platforms,args.limit,args.pages,args.language,args.reply_pages,args.reply_threads) if args.action=='sync' else operations_sync.watch(args.watch_action,getattr(args,'platform',None),getattr(args,'work',None))
+        from . import operations_sync, operations_runs, work_catalog
+        if args.action=='sync':result=operations_runs.sync(args.platforms,args.limit,args.pages,args.language,args.reply_pages,args.reply_threads,args.min_interval,args.full)
+        elif args.action=='resume':result=operations_runs.resume(args.run_id)
+        elif args.action=='run':result=operations_runs.status(args.run_id)
+        elif args.action=='runs':result=operations_runs.listing(args.limit)
+        elif args.action=='discover':result=work_catalog.discover(args.platform,args.limit,args.pages)
+        elif args.action=='adopt':result=work_catalog.adopt(args.platform,args.work,args.pages)
+        else:result=operations_sync.watch(args.watch_action,getattr(args,'platform',None),getattr(args,'work',None))
         if getattr(args,'out',None):atomic_json(args.out,result)
         return result
     if args.command in {'comments','stats','report','preferences'}:
@@ -711,6 +726,8 @@ def capabilities():
             "native_execution": "The host agent performs real UI actions. A CLI handoff alone is not an executed action or confirmed login.",
             "bili_cli": "Use installed bili directly for its existing search, video, inbox, comment and creator-data commands.",
             "works": "Bilibili published-work pages and YouTube upload-playlist pages; Douyin/Instagram/X visible first page only.",
+            "work_adoption": "ops discover scans bounded pages; ops adopt freshly verifies ownership and adds existing works to the watchlist without an upload receipt.",
+            "resumable_sync": "ops sync persists read jobs and API page checkpoints, reuses recent successful reads; ops runs/run/resume inspect or continue. Browser unfinished reads restart the current work, not an invented cursor.",
             "planned_common_commands": ["account", "search", "video", "analytics-history", "full-message-history"],
             "suspended_platforms": {"tiktok": "Login test with a Hong Kong number was unsuccessful; see docs/TIKTOK_STATUS.md."},
             "not_implemented": "Full historical analytics/inbox, X/Instagram official API clients, and YouTube cards/clickable end screens. Instagram mobile-cover replacement remains user-assisted. Douyin replies to nested replies are not supported.",

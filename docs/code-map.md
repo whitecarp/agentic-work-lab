@@ -4,6 +4,13 @@
 
 本專案採用人類提出需求、AI 協助編寫、工具驗證與人類審閱的方式。程式能否重跑、失敗時怎麼處理，比單純列出語言或程式碼行數更重要。
 
+## CrossCast 的作品接管與巡檢
+
+- [work_catalog.py](../tools/publishops-crosscast/src/video_publisher/work_catalog.py)：作品目錄、即時歸屬核驗與接管記錄。
+- [work_discovery_browser.py](../tools/publishops-crosscast/src/video_publisher/work_discovery_browser.py)：官方頁面的有界翻頁／捲動與管理權限核驗。
+- [operations_runs.py](../tools/publishops-crosscast/src/video_publisher/operations_runs.py)：帳號隔離快取、變更清單、API 分頁檢查點及中斷恢復。
+- [test_operations_011.py](../tools/publishops-crosscast/tests/test_operations_011.py)：快取過期、帳號切換、回執衝突、斷點、續頁與跨平台故障隔離測試。
+
 ## 本倉庫可直接執行
 
 | 程式 | 解決的問題 |

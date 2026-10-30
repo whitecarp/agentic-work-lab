@@ -25,7 +25,8 @@
 - 新增同平台唯讀批次、持久評論收件匣與處理標記；B站／Instagram／X 評論點讚及取消讚、YouTube 自己評論編輯及刪除已實測。
 - 新增抖音評論點讚／取消讚／自己評論刪除，以及抖音、Instagram、X 單條私信；保存回執並在新會話讀回，待核驗不重送。
 - 新增統一訊息巡檢、抖音 @ 通知、Instagram 標註與提及、X 提及及三平台私信預覽。YouTube 觀眾評論暫存／批准及 X 隱藏／恢復各完成一組實測；Instagram 非空提及仍待樣本驗證。
-- **0.10.0 alpha，283 項離線測試通過。** 完整五平台發布仍有待驗收項目；已測範圍與限制均有記錄。
+- 新增已有作品接管、成功讀取時效復用與中斷續讀；獨立保存歸屬核驗和執行進度，不重新上傳。
+- **0.11.0 alpha，306 項離線測試通過。** 完整五平台發布仍有待驗收項目；已測範圍與限制均有記錄。
 
 [安裝與使用](tools/publishops-crosscast/README.md) · [功能範圍](tools/publishops-crosscast/docs/FEATURES.md) · [驗證記錄](tools/publishops-crosscast/docs/VALIDATION.md)
 

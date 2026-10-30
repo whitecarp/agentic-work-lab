@@ -2,6 +2,10 @@
 
 **繁體中文** · [English](DEEPSEEK_HANDOFF_EN.md)
 
+## 0.11.0 接管與續讀
+
+先用 `ops discover` 找作品，再用 `ops adopt` 核驗並追蹤。巡檢失敗保留回執，用 `ops runs` 找執行 ID，再 `ops resume`；不可清除回執重跑。`CACHED` 不是即時查詢，核對觀察時間；需要新資料用 `--full`。`changes` 是新觀察／正文變動，不等於新收到。只接管使用者範圍內的作品，不自動發送或修改。詳見 [指令與限制](README.md#已有作品接管與可恢復巡檢)。
+
 ## 0.10.0 通知巡檢與評論管理
 
 使用 `messages sync --platforms douyin,instagram,x --sources mentions,dm_preview`。逐來源檢查狀態、基線、時間與覆蓋範圍；抖音／Instagram 的預覽缺少穩定事件 ID，不能直接拿預覽 key 回覆。Instagram 目前僅入口與空列表實測，非空樣本待驗。不要把預覽正文放入 GitHub。

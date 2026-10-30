@@ -8,13 +8,36 @@
 
 ### 跨平台影片發布營運台
 
-**v0.10.0 alpha · CLI `vpub` · AI 協助開發**
+**v0.11.0 alpha · CLI `vpub` · AI 協助開發**
 
 讓同一支原創影片擁有各平台適用的文案、封面與發布回執。選擇 Bilibili、抖音、YouTube、Instagram、X 的任意組合，首次登入後，CLI 復用本機專用會話完成後續上傳。
 
 預設路徑：B站沿用 bili-cli，YouTube 使用官方 API，抖音／Instagram／X 由 CLI 在背景控制專用 Chrome。首次登入與官方驗證需要使用者協助；明確設定 `method: native` 仍可使用宿主瀏覽器交接。這是 alpha 版本，開發期實測與無人值守驗收分開記錄。已新增評論、作品數據及匯報命令；各站實測範圍見下方。TikTok、YouTube 卡片／可點擊片尾與 X／Instagram 獨立 API 尚未實作。
 
 [功能範圍](docs/FEATURES.md) · [驗證記錄](docs/VALIDATION.md) · [Agent 交接](DEEPSEEK_HANDOFF.md) · [草稿測試](docs/DRAFT_TESTING.md)
+
+## 已有作品接管與可恢復巡檢
+
+```sh
+vpub ops discover instagram --pages 3 --limit 50
+vpub ops adopt instagram WORK_ID
+vpub ops sync --platforms youtube,douyin,instagram,x --out round.json
+vpub ops runs
+vpub ops run RUN_ID
+vpub ops resume RUN_ID --out resumed.json
+vpub ops sync --platforms youtube,douyin,instagram,x --full
+```
+
+`discover` 按頁數、數量預算探索已登入帳號的作品；B站／YouTube 使用原有分頁介面，另外三站使用官方頁面的翻頁或捲動。瀏覽器結果保留 `complete: false` 與停止原因，不把沒有可見續頁當成完整歷史。它只建立本機目錄，不自動接管全部作品。
+
+`adopt` 重新核驗指定作品的歸屬，再加入追蹤清單。YouTube／B站使用原有帳號核驗；抖音核對創作者作品卡與確切詳情 ID；Instagram 核對指定作品的作者編輯入口；X 核對確切帖文連結與作者。可接管以前手動發布的作品，單獨保存接管證據，沒有偽造上傳回執或重新發布。這是評論／數據營運接管，不會自動授權刪除或修改影片。
+
+`ops sync` 預設在 **300 秒**內復用相同帳號、作品、讀取範圍的成功結果。`CACHED` 保留實際觀察時間，不表示剛查過平台；`--min-interval 0` 或 `--full` 強制讀取。`changes` 列出本輪新觀察及正文變動的評論；首次觀察是基線，不代表剛收到。既有評論的處理標記與歷史仍保留。數據比較沿用來源、單位與精確數值檢查。這是有時效的增量巡檢，不是平台推送或完整歷史同步。
+
+每一步完成便落盤。API 評論及樓中樓保存已驗證分頁與續頁 token；瀏覽器批次逐項保存已完成讀取。中斷後可用 `ops runs` 找回執行 ID，再用 `ops resume` 跳過已完成項目；未完成的瀏覽器作品從頁面重新讀起，不捏造可持久化捲動位置。已完成的整輪再次 resume 不會重新讀取。登入驗證、帳號變更或未知結果會停止該平台，保留進度，其他平台可繼續。
+
+`--full` 仍受頁數與數量預算限制。上述續讀屬於 `ops sync` 的作品評論／數據；`messages sync` 的提及與私信預覽仍使用原有來源基線，沒有宣稱可跨程序續讀。巡檢不建立排程、不自動回覆或寄信。原始評論、目錄及回執只存本機。
+
 
 ## 點讚、收藏與撤銷
 
@@ -105,7 +128,7 @@ vpub ops sync --platforms youtube,douyin --out selected-round.json
 vpub ops watch remove youtube VIDEO_ID
 ```
 
-`works` 支援五站：YouTube 從已授權頻道的上傳列表讀取，B站只列已發布稿件，保留定時與審核安排。這兩站用 `--cursor` 翻頁。抖音、Instagram、X 仍只列目前可見的首頁，不把它當成完整作品庫。瀏覽器平台的追蹤作品需要既有 CrossCast 發布回執；API 平台直接核對作品擁有者。
+`works` 支援五站：YouTube 從已授權頻道的上傳列表讀取，B站只列已發布稿件，保留定時與審核安排。這兩站用 `--cursor` 翻頁。抖音、Instagram、X 仍只列目前可見的首頁，不把它當成完整作品庫。瀏覽器平台的追蹤作品需要既有 CrossCast 發布回執，或使用上方 `ops adopt` 新建歸屬核驗記錄；API 平台直接核對作品擁有者。
 
 `ops sync` 僅處理追蹤清單，每部作品最多讀取 `--pages` 頁，每個 API 頁最多 `--limit` 條頂層評論（瀏覽器為結果總上限）；API 回覆預覽可能另外增加項目數。首次讀取建立基線，後續按評論 ID 去重，自己的留言不列入觀眾互動。`inbox` 是已觀察評論的待處理候選清單，不是私訊或全帳號收件箱；`needs_thread_check` 表示尚不能確定是否已回覆，必須讀取上下文。CLI 不會因候選清單而自行發送。
 

@@ -2,6 +2,10 @@
 
 [繁體中文](DEEPSEEK_HANDOFF.md) · **English**
 
+## 0.11.0 adoption and resumption
+
+Discover works with `ops discover`, then freshly verify and track them with `ops adopt`. Retain failed runs, find their IDs with `ops runs` and use `ops resume`; do not clear receipts to restart. `CACHED` is not a live query: check observation time and use `--full` when fresh reads are needed. `changes` means newly observed/edited, not necessarily newly received. Adopt only works within the user’s task; do not automatically send or edit. See [commands and limits](README_EN.md#adopt-existing-works-and-resume-collection).
+
 ## 0.10.0 notifications and comment management
 
 Use `messages sync --platforms douyin,instagram,x --sources mentions,dm_preview`. Inspect each source state, baseline, time and coverage. Douyin/Instagram previews lack stable event IDs; never use preview keys as reply targets. Instagram live coverage is navigation and empty state only; a nonempty fixture remains pending. Keep preview bodies off GitHub.

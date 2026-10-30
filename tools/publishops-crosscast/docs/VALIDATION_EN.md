@@ -2,7 +2,22 @@
 
 [繁體中文](VALIDATION.md) · **English**
 
-Date: **2026-10-30**, PublishOps CrossCast **0.10.0 alpha**.
+Date: **2026-10-30**, PublishOps CrossCast **0.11.0 alpha**.
+
+## 0.11.0: existing-work adoption, incremental collection and resumption
+
+**306 offline tests pass.** The 23 new tests cover freshness caches, scope/account isolation, text changes, API/reply continuations, cursor loops, recovery of completed browser reads, platform failure isolation, process locks and ownership conflicts during adoption.
+
+| Live check | Result |
+|---|---|
+| Work discovery | Instagram returned 6 works; Douyin returned 2; X returned 3 IDs across 3 bounded rounds. All retain an incomplete-history flag. |
+| Existing-work adoption | An old manual Instagram post without a CrossCast upload receipt was verified through its owner Edit control, tracked and successfully read for comments/metrics. Douyin/X episode two also passed fresh adoption checks. |
+| Actual process interruption | The process exited with code 91 after saving the first real YouTube read. A new process resumed and completed 10 reads across four platforms; the first step retained its observation time and was not repeated. |
+| Immediate repeat | All 10 reads reused freshness caches: 0 new platform reads, 0 browser starts and 0 changes. This is a development check on these accounts, not a general speed guarantee. |
+
+Fixed a false missing-Edit result while Instagram's management menu was still loading. No comments, DMs, likes or videos were sent; captions, covers, visibility and schedules were unchanged. Bilibili was not live-tested this round. Raw catalogues, comments, accounts and receipts remain local.
+
+**Limits:** these accounts have short work lists; long-history browsing has not passed live acceptance. API second-page/reply interruption recovery was verified with offline fault injection; the live process interruption occurred after a completed read. Unfinished browser works restart from their page, and `--full` remains bounded. Mention/DM-preview sources do not use this process-resumption system. More devices, accounts, long lists and clean-machine acceptance remain pending.
 
 ## 0.10.0: mentions, viewer moderation and hide/unhide
 

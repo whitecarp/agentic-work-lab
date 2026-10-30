@@ -4,6 +4,13 @@
 
 The project uses human-defined requirements, AI-assisted implementation, tool-based verification, and human review. Reproducibility and failure handling matter more than listing languages or line counts.
 
+## CrossCast work adoption and collection
+
+- [work_catalog.py](../tools/publishops-crosscast/src/video_publisher/work_catalog.py): catalogues, fresh ownership checks and adoption records.
+- [work_discovery_browser.py](../tools/publishops-crosscast/src/video_publisher/work_discovery_browser.py): bounded official-page scrolling/pagination and management checks.
+- [operations_runs.py](../tools/publishops-crosscast/src/video_publisher/operations_runs.py): account-scoped freshness caches, change lists, API page checkpoints and interruption recovery.
+- [test_operations_011.py](../tools/publishops-crosscast/tests/test_operations_011.py): expiry, account switching, receipt conflicts, checkpoints, continuations and platform failure isolation.
+
 ## Runnable in this repository
 
 | Code | Problem solved |

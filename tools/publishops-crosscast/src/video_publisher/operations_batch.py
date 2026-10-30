@@ -1,7 +1,8 @@
 """One bounded read-only batch per CLI-owned browser context; no write fallback."""
 import time
 import asyncio
-from .core import VpubError, stop_check
+from .core import VpubError, stop_check, atomic_json, digest, home
+from pathlib import Path
 
 
 def validate(payload):
@@ -25,6 +26,9 @@ def validate(payload):
 async def execute(page, platform, identity, payload):
     from .operations_browser import execute as read
     jobs = validate(payload)
+    progress=Path(payload['progress_path']).resolve() if payload.get('progress_path') else None
+    if progress and not progress.is_relative_to((home()/'operations/sync-progress').resolve()):
+        raise VpubError('invalid_checkpoint','Batch checkpoints must stay under the local sync-progress directory.')
     if identity != payload['expected_identity']:
         raise VpubError('wrong_account', 'The batch account changed.')
     results = []; failed = False; started = time.monotonic()
@@ -42,5 +46,7 @@ async def execute(page, platform, identity, payload):
             failed = True
             results.append({'job': job, 'ok': False, 'error': {
                 'code': exc.code if isinstance(exc, VpubError) else type(exc).__name__}})
+        if progress:
+            atomic_json(progress,{'identity':identity,'request_hash':digest(jobs),'results':results,'platform_writes':0})
     return {'identity': identity, 'results': results, 'browser_sessions': 1, 'platform_writes': 0,
             'read_seconds': round(time.monotonic() - started, 3)}

@@ -34,6 +34,9 @@ async def run(payload):
                     return await unlock(page,actual)
                 from .browser_backends import execute
                 try:
+                    if payload['action'] in {'discover_works','adopt_work'}:
+                        from .work_discovery_browser import execute as discover
+                        return await discover(page,platform,actual,payload)
                     if payload['action']=='message_sources':
                         from .message_sources import execute as messages
                         return await messages(page,platform,actual,payload)

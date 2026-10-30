@@ -8,13 +8,36 @@ This requirement exists because non-subscribers are limited to **140-second, 512
 
 ### Multi-platform video release operations console
 
-**v0.10.0 alpha · CLI `vpub` · AI-assisted development**
+**v0.11.0 alpha · CLI `vpub` · AI-assisted development**
 
 Prepare platform-specific metadata, covers and publication receipts for one original video. Choose any subset of Bilibili, Douyin, YouTube, Instagram and X. Sign in once; the CLI reuses its own local sessions for later uploads.
 
 Default routes: Bilibili uses bili-cli, YouTube uses its official API, and Douyin/Instagram/X use a dedicated persistent Chrome profile controlled by the CLI in the background. First login and official verification require the user. Explicit `method: native` retains host-browser handoff. This remains alpha; live development tests are documented separately from unattended acceptance. Comments, work metrics and reports now share CLI commands, with platform-specific validation below. TikTok is suspended; YouTube cards/clickable end screens and standalone X/Instagram APIs remain unimplemented.
 
 [Features](docs/FEATURES_EN.md) · [Validation](docs/VALIDATION_EN.md) · [Agent handoff](DEEPSEEK_HANDOFF_EN.md) · [Draft testing](docs/DRAFT_TESTING_EN.md)
+
+## Adopt existing works and resume collection
+
+```sh
+vpub ops discover instagram --pages 3 --limit 50
+vpub ops adopt instagram WORK_ID
+vpub ops sync --platforms youtube,douyin,instagram,x --out round.json
+vpub ops runs
+vpub ops run RUN_ID
+vpub ops resume RUN_ID --out resumed.json
+vpub ops sync --platforms youtube,douyin,instagram,x --full
+```
+
+`discover` explores the signed-in account within page and item budgets. Bilibili/YouTube use their existing pagination; the other platforms use official-page pagination or scrolling. Browser results retain `complete: false` and a stop reason: lack of visible continuation does not prove a complete archive. Discovery saves a local catalogue and does not adopt every result.
+
+`adopt` freshly verifies one work and adds it to the watchlist. YouTube/Bilibili use existing owner checks; Douyin checks an authenticated creator card and exact detail ID; Instagram checks the exact work's owner Edit control; X checks the exact post permalink and author. Previously manual uploads can be adopted with separate ownership evidence, without fabricating an upload receipt or republishing. This enables comment/statistics operations, not automatic deletion or video edits.
+
+`ops sync` reuses successful reads for **300 seconds** when account, work and read scope match. `CACHED` retains the actual observation time, not a claim of a fresh platform read. Use `--min-interval 0` or `--full` to force reads. `changes` contains newly observed or edited comments; first observations establish a baseline, not a new-arrival timestamp. Existing handling marks and history remain. Metric comparisons retain source, unit and exact-value checks. This is freshness-bounded incremental collection, not push delivery or a full historical mirror.
+
+Each completed step is saved. API comments and replies retain validated pages and continuation tokens; browser batches save completed reads individually. After interruption, find the run ID with `ops runs`, then `ops resume` skips finished steps. An unfinished browser work restarts from its page; no durable scroll cursor is invented. Resuming an already completed run performs no reads. Verification challenges, account changes or unknown results stop that platform while retaining progress; other platforms may continue.
+
+`--full` still obeys page/item budgets. This resumption applies to work comments/statistics in `ops sync`; mention/DM-preview sources in `messages sync` keep their existing baselines and do not yet resume across processes. Collection creates no schedule and sends no replies or email. Raw comments, catalogues and receipts remain local.
+
 
 ## Likes, saves and reversals
 
@@ -105,9 +128,9 @@ vpub ops sync --platforms youtube,douyin --out selected-round.json
 vpub ops watch remove youtube VIDEO_ID
 ```
 
-`works` supports all five platforms. YouTube reads the authorized channel uploads playlist; Bilibili lists published submissions and leaves scheduled/reviewing work alone. These two return a `--cursor` for pagination. Douyin, Instagram and X still expose only the visible first page, not a full account archive. Browser-platform watch targets require an existing CrossCast publication receipt; API platforms check work ownership directly.
+`works` supports all five platforms. YouTube reads the authorized channel uploads playlist; Bilibili lists published submissions and leaves scheduled/reviewing work alone. These two return a `--cursor` for pagination. Douyin, Instagram and X still expose only the visible first page, not a full account archive. Browser-platform watch targets require an existing CrossCast publication receipt or fresh ownership evidence from `ops adopt`; API platforms check work ownership directly.
 
-`ops sync` processes only the watchlist, up to `--pages` per work and `--limit` top-level comments per API page (a total result cap for browser collection); API reply previews can add entries. The first read establishes a baseline. Later reads deduplicate by comment ID and exclude own comments from audience interactions. `inbox` contains observed candidates, not private messages or a full account inbox. `needs_thread_check` means reply status is uncertain and context must be read. Candidates never trigger automatic sending.
+`ops sync` processes only the watchlist, up to `--pages` per work and `--limit` top-level comments per API page (a total result cap for browser collection); API reply previews can add entries. The first read establishes a baseline. Later reads deduplicate by comment ID and exclude own comments from audience interactions. The local `inbox` contains observed candidates, not private messages or a full account inbox. `needs_thread_check` means reply status is uncertain and context must be read. Candidates never trigger automatic sending.
 
 Metrics retain historical events and the latest snapshot. `changes.delta` requires exact numbers from the same account, work, source, label and unit. Missing, rounded or changed-source values keep a null delta; percentage changes use percentage points and negative changes are retained. View/play definitions are not added across platforms. A partial failure preserves successful work and returns `PARTIAL` with exit code 4. Challenges or account mismatches are not retried through another route. Each run saves a local receipt and reports only its own events.
 
