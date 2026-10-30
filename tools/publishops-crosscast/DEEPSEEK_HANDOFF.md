@@ -2,9 +2,11 @@
 
 **繁體中文** · [English](DEEPSEEK_HANDOFF_EN.md)
 
-## 0.9.0 巡檢與實驗性審核
+## 0.10.0 通知巡檢與評論管理
 
-以 `messages sync` 明確指定平台與來源；描述新增活動前檢查各來源狀態、首次基線與 last_seen_at。私信預覽不是新增收件數，正文只存本機。`messages mark` 與 `inbox` 共用評論標記，不發送訊息。`comments collect` 限制捲動與展開。X 隱藏／恢復及 YouTube 觀眾評論暫存／批准都須確切目標與新鮮狀態；兩者尚無合資格樣本的成功實測驗收。拒絕自己評論的審核，不將待核驗寫成成功或重送。[目前指令](README.md#統一訊息巡檢與評論補讀)。
+使用 `messages sync --platforms douyin,instagram,x --sources mentions,dm_preview`。逐來源檢查狀態、基線、時間與覆蓋範圍；抖音／Instagram 的預覽缺少穩定事件 ID，不能直接拿預覽 key 回覆。Instagram 目前僅入口與空列表實測，非空樣本待驗。不要把預覽正文放入 GitHub。
+
+YouTube 觀眾留言暫存／批准與 X 隱藏／恢復各有一組成功實測，均已恢復原狀態。先讀確切留言及帳號；待核驗用 `comments verify-action KEY`。只有使用者明確要恢復同一未完成動作時，才用 `comments resume-action KEY`，且須確認仍是原狀態；不得在巡檢中自動重試寫入。不清除回執、不用刪除替代隱藏。遇官方驗證立即停止並請使用者協助。[指令與限制](README.md#統一訊息巡檢與評論補讀)。
 
 ## 0.8.0 私信與抖音評論管理
 

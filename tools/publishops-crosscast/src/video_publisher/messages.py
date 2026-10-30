@@ -24,7 +24,7 @@ def merge(platform, kind, value):
         baseline='observed_at' not in data;added=changed=0;observed=now()
         for item in value.get('items',[]):
             if kind=='mentions':
-                source_id=item['id'];content=item.get('text','');stable=True
+                source_id=item['id'];content=item.get('text','');stable=item.get('stable_source_id',True)
             else:
                 content=stable_preview(item);stable=bool(item.get('conversation_id'))
                 source_id=item.get('conversation_id') or 'preview-'+digest([item.get('name'),content])

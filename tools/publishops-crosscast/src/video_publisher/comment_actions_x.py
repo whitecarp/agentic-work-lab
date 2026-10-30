@@ -21,11 +21,19 @@ async def execute(page,identity,payload):
         named=page.get_by_role('link',name=re.compile(r'^(View )?[Hh]idden replies$'))
         available=[x for x in await named.all() if await x.is_visible()]
         if not available:available=[x for x in await link.all() if await x.is_visible()]
+        if not available:
+            root=await unique_visible(page.locator('main article').filter(has=page.locator(
+                f'a[href="/{identity}/status/{work}"]').filter(has=page.locator('time'))),'owned conversation')
+            await root.locator('[data-testid="caret"]').click()
+            hidden=page.locator(f'a[href="/{identity}/status/{work}/hidden"]')
+            available=[x for x in await hidden.all() if await x.is_visible()]
         if len(available)!=1:raise VpubError('hidden_replies_unavailable','No verified hidden-replies entry for this conversation; absence is not a hide confirmation.')
         href=await available[0].get_attribute('href')
         if not href or not re.fullmatch(r'/[A-Za-z0-9_]+/status/'+re.escape(work)+r'/hidden',href):
             raise VpubError('wrong_thread','Hidden-replies link points outside the requested conversation.')
-        await available[0].click();await page.wait_for_timeout(900)
+        await available[0].click()
+        await page.locator(f'main article a[href="/{target["author"]}/status/{target["id"]}"]').filter(has=page.locator('time')).wait_for(state='visible',timeout=20000)
+        await risk_check(page)
     row=await unique_visible(page.locator('main article').filter(has=page.locator(
         f'a[href="/{target["author"]}/status/{target["id"]}"]').filter(has=page.locator('time'))),'exact reply')
     body=await unique_visible(row.locator('[data-testid="tweetText"]'),'reply text')
@@ -45,11 +53,15 @@ async def execute(page,identity,payload):
     submitting(payload['receipt_path'])
     await (ons or offs)[0].click()
     # The first hide may ask for confirmation; later hides can submit directly.
-    confirm=page.locator('[data-testid="confirmationSheetConfirm"]')
+    confirm=page.get_by_role('button',name='Hide reply',exact=True) if r['desired'] else page.locator('[data-testid="confirmationSheetConfirm"]')
     try:await confirm.wait_for(state='visible',timeout=1500)
     except Exception:pass
     if await confirm.is_visible():
         if (await confirm.inner_text()).strip()!='Hide reply':raise VpubError('unexpected_confirmation','Unexpected action confirmation; inspect before retrying.')
+        dialog=page.get_by_role('dialog').filter(has=confirm)
+        if await dialog.count()!=1 or 'Hiding replies to your posts' not in await dialog.inner_text():
+            raise VpubError('unexpected_confirmation','Unrecognized hide-reply dialog; inspect before retrying.')
         await risk_check(page);stop_check('x');await confirm.click()
+    await page.wait_for_timeout(1200)
     saved=read_json(payload['receipt_path']);saved.update(state='COMMENT_UNVERIFIED',platform_writes=1);atomic_json(payload['receipt_path'],saved)
     return {'state':'COMMENT_UNVERIFIED','platform_writes':1}

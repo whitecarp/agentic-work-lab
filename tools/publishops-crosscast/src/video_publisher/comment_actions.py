@@ -111,6 +111,45 @@ def verify(key):
         after = dispatch({**r, 'verification': True})
         if saved['state'] in PENDING | {'COMMENT_VERIFIED'}:
             saved['state'] = 'COMMENT_VERIFIED' if matches(r, after) else 'COMMENT_UNVERIFIED'
+        if saved['state']=='COMMENT_VERIFIED' and saved.get('error_code'):
+            saved.setdefault('resolved_errors',[]).append({'code':saved.pop('error_code'),'resolved_at':now()})
         saved.update(after=after, verified_at=now()); atomic_json(path, saved)
         ops.record('comment_management', r['platform'], r['work_id'], saved)
         return {**saved, 'platform_writes': 0}
+
+
+def resume(key):
+    """Explicit recovery only for reversible state setters, never an automatic retry."""
+    if not re.fullmatch(r'[a-f0-9]{32}',key):raise VpubError('invalid_receipt','Use a comment action key.')
+    path=home()/'operations/comment-actions'/(key+'.json')
+    if not path.exists():raise VpubError('receipt_required','Comment action receipt not found.')
+    with publication_lock():
+        saved=read_json(path);r=saved['request']
+        if r['kind'] not in {'hide','moderate'} or saved['state'] not in PENDING:
+            raise VpubError('resume_unavailable','Only a pending hide/moderation state change can be explicitly resumed.')
+        index=home()/'operations/comment-targets'/(digest([r['platform'],r['identity'],r['work_id'],r['comment']['id']])+'.json')
+        if not index.exists() or read_json(index)['key']!=key:
+            raise VpubError('stale_receipt','This is no longer the current action for the comment.')
+        current=dispatch({**r,'verification':True})
+        if matches(r,current):
+            saved.update(state='COMMENT_VERIFIED',after=current,verified_at=now());atomic_json(path,saved)
+            return {**saved,'platform_writes':0}
+        field='hidden' if r['kind']=='hide' else 'moderation_status'
+        if (current.get('identity')!=r['identity'] or current.get('text')!=r['comment']['text']
+            or current.get(field) is None or current.get(field)!=saved['before'].get(field)):
+            raise VpubError('state_unavailable','Cannot establish the exact original state; no retry was made.')
+        saved.setdefault('recovery_attempts',[]).append({'at':now(),'before':current,'previous_error':saved.get('error_code'),
+                                                       'previous_platform_writes':saved.get('platform_writes')})
+        saved.update(state='COMMENT_READY',platform_writes=0);saved.pop('error_code',None);atomic_json(path,saved)
+        try:
+            result=dispatch(r,'set',path)
+            saved={**read_json(path),**result}
+            after=dispatch({**r,'verification':True})
+            saved.update(after=after,state='COMMENT_VERIFIED' if matches(r,after) else 'COMMENT_UNVERIFIED')
+        except Exception as exc:
+            saved=read_json(path)
+            saved.update(state='COMMENT_UNVERIFIED' if saved['state'] in PENDING else 'COMMENT_FAILED',
+                         error_code=exc.code if isinstance(exc,VpubError) else type(exc).__name__)
+            saved['platform_writes']=None if saved['state']=='COMMENT_UNVERIFIED' else 0
+        atomic_json(path,saved)
+        return ops.record('comment_management',r['platform'],r['work_id'],saved)

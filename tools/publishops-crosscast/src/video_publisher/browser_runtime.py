@@ -54,7 +54,8 @@ async def unique_visible(locator, label):
 
 
 async def risk_check(page):
-    if await visible(page.get_by_text(HUMAN_LABELS)):
+    challenge=page.locator('iframe[src*="/verifycenter/captcha/"]')
+    if await visible(challenge) or await visible(page.get_by_text(HUMAN_LABELS)):
         raise VpubError("human_verification_required", "The platform requires human verification.", "Run auth login for this platform and complete the official verification; inspect any existing draft before retrying.")
 
 

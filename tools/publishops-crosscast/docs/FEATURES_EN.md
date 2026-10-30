@@ -6,7 +6,7 @@
 
 This requirement exists because non-subscribers are limited to **140-second, 512 MB** video uploads and cannot use the Media Studio media-management and custom-thumbnail workflow on which this tool depends. CrossCast uploads videos and sets production thumbnails through Media Studio, so its X backend currently supports subscription accounts with that access. Login or payment alone does not establish access; the CLI checks the library entry and managed account before selecting media. [Official upload limits](https://help.x.com/en/using-x/x-videos) · [Media Studio access](https://help.x.com/en/using-x/media-studio).
 
-**0.9.0 alpha.** New manifests use CLI execution after first login; `method: native` is an explicit host-browser fallback. Bilibili continues to call [bili-cli](https://github.com/kukemc/bili-cli).
+**0.10.0 alpha.** New manifests use CLI execution after first login; `method: native` is an explicit host-browser fallback. Bilibili continues to call [bili-cli](https://github.com/kukemc/bili-cli).
 
 | Capability | Bilibili | YouTube | Douyin | X | Instagram |
 |---|---|---|---|---|---|
@@ -21,6 +21,8 @@ This requirement exists because non-subscribers are limited to **140-second, 512
 | Like / unlike | Upstream CLI | Rating API | Video controls | Post controls | Post toolbar |
 | Private text messages | Upstream (not live-tested this round) | No adapter | CLI official UI | CLI X Chat | CLI official UI |
 | Save / remove | Selected favorite folder | Selected ordinary playlist | Default saved items | Private bookmarks | Default Saved |
+| Mentions | Upstream | Not integrated | Visible previews | Mentions | Tags/mentions; nonempty fixture pending |
+| Moderation / hiding | Upstream | Viewer hold/approve | Not integrated | Hide/unhide other-author replies | Not integrated |
 
 Shared: exact-source plans, per-platform account checks, immutable upload snapshots, local receipts and no blind retry after final submission. Browser `works` is limited to the visible first page (up to ten Douyin cards). Review cards without detail IDs remain pending.
 
@@ -28,9 +30,13 @@ Real episode-two uploads and their development limitations are recorded in [vali
 
 When the source language differs, retain source plus translation; Chinese scripts become Simplified Chinese only on Bilibili/Douyin. Douyin custom chapters are integrated into CLI publication/verification. `vpub edit` handles YouTube metadata, Instagram captions, an available X Edit action and Douyin covers/chapters; native handoffs remain. The user confirmed the shared v3 portrait and visible footer in both supplied phone views; this is not all-device acceptance. Email supports Gmail only, remains off by default and offers plugin setup assistance only after an explicit enable request. Outlook, QQ, NetEase and SMTP are unsupported. Single-language replies and user-language reports are described in the [README](../README_EN.md#comments-work-metrics-and-operations-reports). TikTok, automatic/bulk messages and likes, full-history exports and YouTube cards/clickable end screens are not implemented.
 
+## 0.10.0 — Mention collection and live moderation
+
+Douyin @ notifications and Instagram tags/mentions join `messages sync` with independent baselines and local marks. Douyin nonempty reads/deduplication passed; Instagram live coverage is navigation and empty state only. One YouTube viewer root-comment hold/approve and one X other-author hide/unhide round trip passed fresh verification, with visibility restored. Explicit pending-receipt recovery refuses unknown state. See [validation](VALIDATION_EN.md).
+
 ## 0.9.0 — Unified message collection
 
-Shared local comment/mention/DM-preview lists and handling marks; independent source baselines, bounded browser comment expansion and explicit partial coverage. X mentions and three browser-platform previews were read live. YouTube review queues are available; viewer hold/approve and X hide/unhide remain experimental, with no completed eligible live transition. See [commands and limits](../README_EN.md#unified-messages-and-bounded-comment-collection).
+Shared local comment/mention/DM-preview lists and handling marks; independent source baselines, bounded browser comment expansion and explicit partial coverage. X mentions and three browser-platform previews were read live. YouTube review queues are available; viewer hold/approve and X hide/unhide remain experimental, without an eligible live fixture at that version; see 0.10.0 above for subsequent validation. See [commands and limits](../README_EN.md#unified-messages-and-bounded-comment-collection).
 
 ## 0.8.0 — Douyin comment management and single-recipient messaging
 

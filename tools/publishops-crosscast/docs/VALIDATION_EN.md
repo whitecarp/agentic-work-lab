@@ -2,7 +2,20 @@
 
 [繁體中文](VALIDATION.md) · **English**
 
-Date: **2026-10-30**, PublishOps CrossCast **0.9.0 alpha**.
+Date: **2026-10-30**, PublishOps CrossCast **0.10.0 alpha**.
+
+## 0.10.0: mentions, viewer moderation and hide/unhide
+
+**283 offline tests pass.** New coverage includes notification/feed isolation, relative-time deduplication, CAPTCHA iframe detection, review-queue reads when held comments disappear, unknown/conflicting states, explicit receipt recovery and X first-use confirmation/hidden-reply navigation.
+
+| Item | Observed result |
+|---|---|
+| Douyin @ mentions | The CLI read one real test mention from the user's second account. A fresh repeated read retained the same entry with zero new observations. Returning to Creator Center for DM previews also passed. |
+| Instagram tags/mentions | Two CLI runs opened Tags & mentions and read an explicit empty state. No second account was available; nonempty parsing has offline tests only, not full live acceptance. |
+| YouTube viewer moderation | One top-level test comment completed published → held → published; owner-review and public-state reads confirmed both transitions. Restored. |
+| X hide/unhide | One other-author test reply completed visible → hidden → restored. First-use confirmation, the owned post's hidden-replies entry and exact menu-state reads passed. |
+
+Notification previews lack event IDs and identical content may coalesce; bounded visible coverage is not full history. These checks cover specific accounts/pages/fixtures. No new DMs, Bilibili tests, video/cover/schedule edits or Gmail changes occurred. Diagnostic pages, comment bodies and test-account data remain local. Earlier-version records follow.
 
 ## 0.9.0: unified messages, bounded collection and experimental moderation
 

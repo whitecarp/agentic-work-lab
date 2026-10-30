@@ -24,8 +24,8 @@ Prepare platform-specific descriptions, covers and publication receipts for one 
 - Added five-platform likes/unlikes and favorites, bookmarks or selected-playlist saves/removals; check state, submit once and verify independently, with repeated identical commands becoming no-ops.
 - Added read-only browser batches, persistent comment history and handling marks; live-tested Bilibili/Instagram/X comment likes/unlikes and YouTube own-comment editing/deletion.
 - Added Douyin comment like/unlike/own-comment deletion and single-recipient messaging for Douyin, Instagram and X, with durable receipts, fresh-session read-back and no pending-message resend.
-- Added unified local message collection, X mentions, three-platform conversation previews and bounded comment expansion. Viewer moderation and X hide/unhide remain experimental; see validation.
-- **0.9.0 alpha, with 263 passing offline tests.** Full five-platform publication still has open acceptance items; tested scope and limits are documented.
+- Added unified messages with Douyin @ notifications, Instagram tags/mentions, X mentions and three-platform conversation previews. YouTube viewer hold/approve and X hide/unhide each passed one live round trip; nonempty Instagram mentions still need a live fixture.
+- **0.10.0 alpha, with 283 passing offline tests.** Full five-platform publication still has open acceptance items; tested scope and limits are documented.
 
 [Install and use](tools/publishops-crosscast/README_EN.md) · [Feature scope](tools/publishops-crosscast/docs/FEATURES_EN.md) · [Validation](tools/publishops-crosscast/docs/VALIDATION_EN.md)
 

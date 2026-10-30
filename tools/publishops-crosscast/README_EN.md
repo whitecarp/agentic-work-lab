@@ -8,7 +8,7 @@ This requirement exists because non-subscribers are limited to **140-second, 512
 
 ### Multi-platform video release operations console
 
-**v0.9.0 alpha · CLI `vpub` · AI-assisted development**
+**v0.10.0 alpha · CLI `vpub` · AI-assisted development**
 
 Prepare platform-specific metadata, covers and publication receipts for one original video. Choose any subset of Bilibili, Douyin, YouTube, Instagram and X. Sign in once; the CLI reuses its own local sessions for later uploads.
 
@@ -125,20 +125,20 @@ These two platforms support paged replies to a top-level comment with work and p
 
 ```sh
 vpub messages sync --platforms douyin,instagram,x --sources comments,dm_preview --language en --out messages.json
-vpub messages sync --platforms x --sources mentions,dm_preview
+vpub messages sync --platforms douyin,instagram,x --sources mentions,dm_preview
 vpub messages list --status pending --limit 50
 vpub messages list --kind dm_preview --identity ACCOUNT_ID
 vpub messages mark MESSAGE_KEY handled
 vpub comments collect douyin WORK_ID --pages 3 --reply-pages 1 --limit 50
 ```
 
-Comments use the existing `ops watch` list and share history and handling marks with `inbox`. X reads its visible Mentions tab; Douyin, Instagram and X read conversation previews. Each source establishes its own first-read baseline, then deduplicates observations and preserves local marks. Changed preview text reopens a stable conversation ID. Where Instagram/Douyin expose no stable ID, entries are content snapshots, not incoming-message counts or recipient identities. Relative-time labels alone do not create new messages.
+Comments use the existing `ops watch` list and share history and handling marks with `inbox`. Douyin reads Notifications → @ mentions, Instagram reads Notifications → Tags & mentions, and X reads Mentions. All three also read conversation previews. Douyin checks the account on both Creator Center and its public profile. Each source establishes its own first-read baseline, then deduplicates observations and preserves local marks. Changed preview text reopens a stable conversation ID. Where Instagram/Douyin expose no stable ID, entries are content snapshots, not incoming-message counts or recipient identities. Relative-time labels alone do not create new messages.
 
-`messages sync` only collects and reports in the user's language; it creates no schedule and sends nothing. Private bodies stay local and are excluded from reports and GitHub. Opening platform inboxes may change platform read badges; `messages mark` changes only local state. Baselines are not new arrivals, and missing rows on a partial page are never removed. Failed, unsupported and unconfigured sources make the run `PARTIAL`, not zero messages. YouTube DMs, Douyin/Instagram mention feeds and a unified Bilibili message source are not integrated; existing Bilibili upstream commands remain available.
+`messages sync` only collects and reports in the user's language; it creates no schedule and sends nothing. Private bodies stay local and are excluded from reports and GitHub. Opening platform inboxes may change platform read badges; `messages mark` changes only local state. Baselines are not new arrivals, and missing rows on a partial page are never removed. Failed, unsupported and unconfigured sources make the run `PARTIAL`, not zero messages. Douyin/Instagram notification coverage is limited to loaded visible entries. Without an exposed event ID, `stable_source_id: false` marks a content snapshot; identical notifications may coalesce, and preview keys are not reply targets or exact incoming-event counts. A real Douyin mention and repeat-read deduplication passed. Instagram navigation and explicit empty state passed; nonempty mentions still need a live fixture. YouTube DMs and a unified Bilibili message source are not integrated; upstream Bilibili commands remain available.
 
 `comments collect` and browser `ops sync` add bounded scrolling and visible reply expansion, retaining the union of observed IDs and an explicit stop reason. `--pages` bounds read rounds, `--limit` caps browser results in total, and each `--reply-pages` unit permits up to five visible expansion controls; 0 disables deliberate expansion. No complete history, unknown parent relationships or cursors are fabricated. Bilibili/YouTube retain their API page and thread budgets.
 
-### Moderation and hiding: experimental
+### YouTube moderation and X hide/unhide
 
 ```sh
 vpub comments review youtube VIDEO_ID --status heldForReview
@@ -149,9 +149,11 @@ vpub comments hide x WORK_ID REPLY_ID --remove
 vpub comments verify-action ACTION_KEY
 ```
 
-Omit `--dry-run` to submit the explicitly selected action directly. YouTube uses `youtube.force-ssl` and only observed viewer comments on owned videos; rejection and author bans are not included. ID-filtered reads omit moderation state, so bounded review queues provide independent evidence. If replies make root/child state ambiguous, the command stops. In the self-comment probe the API accepted a hold request but read-back remained published. That temporary comment was removed; live viewer-comment transitions remain unverified. [Moderation API](https://developers.google.com/youtube/data/reference/rest/v3/comments/setModerationStatus) · [Status-field limits](https://developers.google.com/youtube/data/reference/rest/v3/comments).
+Omit `--dry-run` to submit the explicitly selected action directly. YouTube uses `youtube.force-ssl` and only observed viewer comments on owned videos; rejection and author bans are not included. ID-filtered reads omit moderation state, so bounded review queues provide independent evidence. If replies make root/child state ambiguous, the command stops. On 2026-10-30, one viewer test comment completed published → heldForReview → published with fresh read-back. Held comments can disappear from `comments.list(id)`, so the owner queue verifies the exact comment, video and state; absence is not deletion. This covers one top-level comment, not every reply level or account. [Moderation API](https://developers.google.com/youtube/data/reference/rest/v3/comments/setModerationStatus) · [Status-field limits](https://developers.google.com/youtube/data/reference/rest/v3/comments).
 
-X provides an experimental exact-reply hide/unhide route for another author's reply under an owned post. Menu-state read-back is required; disappearance, deletion and blocking are not substitutes. This run had only own-reply fixtures, so live hide/unhide is not accepted yet. Hidden replies remain accessible through X's hidden-replies entry. [Official explanation](https://help.x.com/en/using-x/mentions-and-replies).
+X hides/unhides an exact other-author reply under an owned post. One user-supplied comment completed visible → hidden → restored, verified through the exact reply menu. The CLI handles first-use confirmation and the original post's hidden-replies menu entry; disappearance, deletion and blocking are not verification substitutes. Hidden replies remain accessible through X's hidden-replies entry. [Official explanation](https://help.x.com/en/using-x/mentions-and-replies).
+
+For a pending action, first run `comments verify-action ACTION_KEY`; it only reads. If the exact original state is confirmed, explicitly use `comments resume-action ACTION_KEY` to retry once. Only pending hide/moderation receipts qualify, after checking the account, text, original state and current receipt. Unknown states, stale receipts, deletion and editing are rejected. Collection never retries writes automatically.
 
 ## Persistent comment inbox and fewer browser starts
 
@@ -222,7 +224,7 @@ The CLI saves account, recipient, preflight state and receipt before one submiss
 
 ### Pinning and hiding boundaries
 
-`vpub comments pin bilibili BV_ID ROOT_COMMENT_ID` and `--remove` delegate to upstream for top-level comments only. Another pinned comment stops the command instead of being silently replaced; this round covers offline tests only. The observed Douyin and Instagram web layouts exposed no verified comment pin/hide control, so those actions are not integrated. X's profile pin is not comment pinning. Its experimental hide/unhide route and live-test limits are described above. Other unsupported hide actions never substitute deletion, dislike or account blocking. Check `vpub capabilities`; one account's observed web limits are not a claim that the entire platform can never support a feature.
+`vpub comments pin bilibili BV_ID ROOT_COMMENT_ID` and `--remove` delegate to upstream for top-level comments only. Another pinned comment stops the command instead of being silently replaced; this round covers offline tests only. The observed Douyin and Instagram web layouts exposed no verified comment pin/hide control, so those actions are not integrated. X's profile pin is not comment pinning. Its hide/unhide route and live-test limits are described above. Other unsupported hide actions never substitute deletion, dislike or account blocking. Check `vpub capabilities`; one account's observed web limits are not a claim that the entire platform can never support a feature.
 
 ## Install and start
 

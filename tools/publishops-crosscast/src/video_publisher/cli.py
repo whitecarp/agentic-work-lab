@@ -193,6 +193,7 @@ def parser():
         if action=='edit':
             body=q.add_mutually_exclusive_group(required=True);body.add_argument('--text');body.add_argument('--file')
     q=c.add_parser('verify-action');q.add_argument('key');q.add_argument('--out')
+    q=c.add_parser('resume-action',help='Explicitly retry a pending hide/moderation receipt only after confirming its unchanged original state.');q.add_argument('key');q.add_argument('--out')
     d=sub.add_parser('dm',help='Explicit single-recipient private messages; no automatic or bulk sends.').add_subparsers(dest='action',required=True)
     q=d.add_parser('unlock',help='Open the official X Chat window for user-entered PIN; sends nothing.')
     q.add_argument('platform',choices=['x']);q.add_argument('--out')
@@ -425,10 +426,11 @@ def execute(args):
     if args.command in {'comments','stats','report','preferences'}:
         from . import operations
         if args.command=='comments':
-            if args.action in {'status','like','pin','hide','edit','delete','verify-action','moderate'}:
+            if args.action in {'status','like','pin','hide','edit','delete','verify-action','resume-action','moderate'}:
                 from . import comment_actions
                 if args.action=='status':result=comment_actions.status(args.platform,args.work,args.comment_id)
                 elif args.action=='verify-action':result=comment_actions.verify(args.key)
+                elif args.action=='resume-action':result=comment_actions.resume(args.key)
                 else:
                     desired=args.status if args.action=='moderate' else (Path(args.file).read_text(encoding='utf-8-sig') if args.file else args.text) if args.action=='edit' else not getattr(args,'remove',False)
                     result=comment_actions.mutate(args.platform,args.work,args.comment_id,args.action,desired,args.dry_run,args.test_id)

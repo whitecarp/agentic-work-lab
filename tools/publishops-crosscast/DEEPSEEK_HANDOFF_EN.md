@@ -2,9 +2,11 @@
 
 [繁體中文](DEEPSEEK_HANDOFF.md) · **English**
 
-## 0.9.0 collection and experimental moderation
+## 0.10.0 notifications and comment management
 
-Use `messages sync` with explicit platforms/sources; inspect per-source state, baseline and last_seen_at before describing new activity. DM previews are not incoming-message counts and their bodies stay local. `messages mark` shares comment marks with `inbox`; it sends nothing. `comments collect` bounds scrolling/expansion. For X hide/unhide and YouTube viewer hold/approve, require an exact observed target and fresh state; both still lack eligible successful live-transition acceptance. Own-comment moderation is rejected. Never reinterpret a pending action as successful or resend it. [Current commands](README_EN.md#unified-messages-and-bounded-comment-collection).
+Use `messages sync --platforms douyin,instagram,x --sources mentions,dm_preview`. Inspect each source state, baseline, time and coverage. Douyin/Instagram previews lack stable event IDs; never use preview keys as reply targets. Instagram live coverage is navigation and empty state only; a nonempty fixture remains pending. Keep preview bodies off GitHub.
+
+YouTube viewer hold/approve and X hide/unhide each passed one live round trip, with original visibility restored. Read the exact comment and account first; use `comments verify-action KEY` for pending actions. Only explicitly requested recovery of the same pending action may use `comments resume-action KEY`, after proving the unchanged original state. Never retry writes during collection, clear receipts or substitute deletion for hiding. Stop at official verification and ask the user to complete it. [Commands and limits](README_EN.md#unified-messages-and-bounded-comment-collection).
 
 ## 0.8.0 messaging and Douyin comment management
 

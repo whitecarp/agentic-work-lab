@@ -8,7 +8,7 @@
 
 ### 跨平台影片發布營運台
 
-**v0.9.0 alpha · CLI `vpub` · AI 協助開發**
+**v0.10.0 alpha · CLI `vpub` · AI 協助開發**
 
 讓同一支原創影片擁有各平台適用的文案、封面與發布回執。選擇 Bilibili、抖音、YouTube、Instagram、X 的任意組合，首次登入後，CLI 復用本機專用會話完成後續上傳。
 
@@ -125,20 +125,20 @@ vpub comments replies bilibili BV_ID ROOT_COMMENT_ID --limit 20
 
 ```sh
 vpub messages sync --platforms douyin,instagram,x --sources comments,dm_preview --language zh --out messages.json
-vpub messages sync --platforms x --sources mentions,dm_preview
+vpub messages sync --platforms douyin,instagram,x --sources mentions,dm_preview
 vpub messages list --status pending --limit 50
 vpub messages list --kind dm_preview --identity ACCOUNT_ID
 vpub messages mark MESSAGE_KEY handled
 vpub comments collect douyin WORK_ID --pages 3 --reply-pages 1 --limit 50
 ```
 
-評論來源沿用 `ops watch` 追蹤清單；同一份評論歷史與處理標記同時供 `inbox` 和 `messages` 使用。X 可讀取可見的 Mentions 頁；抖音、Instagram、X 可讀取私信會話預覽。每個來源獨立建立首次基線，之後去重並保留處理標記；穩定會話 ID 的預覽正文改變會重新列為未讀。Instagram／抖音未提供穩定 ID 時，保存的是內容預覽快照，不能當作新收件訊息數，也不能用暱稱推斷收件人。相對時間標籤改變不算新訊息。
+評論來源沿用 `ops watch` 追蹤清單；同一份評論歷史與處理標記同時供 `inbox` 和 `messages` 使用。抖音讀取「通知 → @我的」，Instagram 讀取「Notifications → Tags & mentions」，X 讀取 Mentions；三站亦可讀取私信會話預覽。抖音會同時核對創作者中心與公開個人頁的帳號。每個來源獨立建立首次基線，之後去重並保留處理標記；穩定會話 ID 的預覽正文改變會重新列為未讀。Instagram／抖音未提供穩定 ID 時，保存的是內容預覽快照，不能當作新收件訊息數，也不能用暱稱推斷收件人。相對時間標籤改變不算新訊息。
 
-`messages sync` 只讀取並產生使用者語言的匯報，不建立排程或自動發送。私信正文只存本機，不放入匯報或 GitHub。開啟平台通知頁可能改變平台的已讀標示；`messages mark` 只改本機狀態。首次基線不代表新收到訊息，部分頁面沒有出現的舊項目不會刪除。來源回傳 `FAILED`／`UNSUPPORTED`／`NOT_CONFIGURED` 時，整輪明確標為 `PARTIAL`，不當成零訊息。YouTube 私信、抖音／Instagram 的 @ 通知，以及 B站訊息的統一來源尚未接入；B站既有上游指令仍可用。
+`messages sync` 只讀取並產生使用者語言的匯報，不建立排程或自動發送。私信正文只存本機，不放入匯報或 GitHub。開啟平台通知頁可能改變平台的已讀標示；`messages mark` 只改本機狀態。首次基線不代表新收到訊息，部分頁面沒有出現的舊項目不會刪除。來源回傳 `FAILED`／`UNSUPPORTED`／`NOT_CONFIGURED` 時，整輪明確標為 `PARTIAL`，不當成零訊息。抖音與 Instagram 的通知只覆蓋已載入可見區域；沒有穩定事件 ID 的項目標為 `stable_source_id: false`，完全相同的通知可能合併，不能作為精確新增數或回覆目標。抖音真實 @ 留言及再次讀取去重已測；Instagram 已測入口與明確空列表，非空提及仍待驗證。YouTube 私信及 B站訊息的統一來源尚未接入；B站既有上游指令仍可用。
 
 `comments collect` 及瀏覽器 `ops sync` 加入有界捲動與可見回覆展開，保留跨頁 ID 聯集及停止原因。`--pages` 為讀取輪數，`--limit` 為瀏覽器結果總上限，`--reply-pages` 每單位最多展開五個可見回覆控制項；0 表示不主動展開。完整歷史、未知父子關係與頁碼不會被推測。B站／YouTube 繼續使用原有 API 分頁和樓層預算。
 
-### 審核與隱藏：實驗性功能
+### YouTube 審核與 X 隱藏／恢復
 
 ```sh
 vpub comments review youtube VIDEO_ID --status heldForReview
@@ -149,9 +149,11 @@ vpub comments hide x WORK_ID REPLY_ID --remove
 vpub comments verify-action ACTION_KEY
 ```
 
-移除 `--dry-run` 就會直接提交已明確指定的動作。YouTube 使用官方 `youtube.force-ssl` 權限，只處理自己影片上已觀察的觀眾評論；不拒絕評論、不封鎖作者。按 ID 讀取不會提供審核狀態，因此另以有界審核隊列確認；若執行緒有回覆而無法區分父評論與子評論的狀態，停止提交。自評論測試中，官方接口接受暫存要求，但讀回仍是公開；臨時測試評論已清除，觀眾評論的實際狀態切換仍待驗證，不能宣稱已通過。[官方審核介面](https://developers.google.com/youtube/data/reference/rest/v3/comments/setModerationStatus) · [狀態欄位限制](https://developers.google.com/youtube/data/reference/rest/v3/comments)。
+移除 `--dry-run` 就會直接提交已明確指定的動作。YouTube 使用官方 `youtube.force-ssl` 權限，只處理自己影片上已觀察的觀眾評論；不拒絕評論、不封鎖作者。按 ID 讀取不會提供審核狀態，因此另以有界審核隊列確認；若執行緒有回覆而無法區分父評論與子評論的狀態，停止提交。2026-10-30 使用另一帳號的測試留言，完成「公開 → 待審 → 公開」並讀回確認。待審留言可能從 `comments.list(id)` 消失，因此改以擁有者審核隊列中的精確留言 ID、影片 ID 與狀態核驗；缺席本身不等於刪除。這是一組頂層留言實測，不代表所有回覆層級及帳號均已驗收。[官方審核介面](https://developers.google.com/youtube/data/reference/rest/v3/comments/setModerationStatus) · [狀態欄位限制](https://developers.google.com/youtube/data/reference/rest/v3/comments)。
 
-X 僅對自己原帖下、其他作者的確切回覆提供實驗性隱藏／恢復入口；核對選單狀態，不能以回覆消失當成功，也不以刪除或封鎖替代。本輪只有自己回覆的測試樣本，實際隱藏／恢復尚未驗收。隱藏的回覆仍可從 X 的隱藏回覆入口查看。[官方說明](https://help.x.com/en/using-x/mentions-and-replies)。
+X 僅對自己原帖下、其他作者的確切回覆提供隱藏／恢復；已實測一條使用者提供的留言，完成「顯示 → 隱藏 → 恢復」並讀回選單狀態。CLI 處理首次隱藏確認，並從原帖選單進入隱藏回覆頁；不以消失、刪除或封鎖代替驗證。隱藏的回覆仍可從 X 的隱藏回覆入口查看。[官方說明](https://help.x.com/en/using-x/mentions-and-replies)。
+
+待核驗時先執行 `comments verify-action ACTION_KEY`，只讀取、不重送。若已查明仍為原狀態，可明確執行 `comments resume-action ACTION_KEY`；只支援待核驗的隱藏／審核回執，重新核對帳號、正文、原狀態及目前回執後才重試一次。狀態未知、舊回執、刪除或編輯不接受此恢復命令。它不是巡檢中的自動重試。
 
 ## 持久評論收件匣與減少瀏覽器啟動
 
@@ -222,7 +224,7 @@ vpub dm unlock x
 
 ### 置頂與隱藏的邊界
 
-`vpub comments pin bilibili BV_ID ROOT_COMMENT_ID` 及 `--remove` 委派上游，僅支援頂層評論；已有其他置頂時停止，不暗中替換。本輪只做離線測試。抖音及 Instagram 的已觀察網頁沒有可驗證的評論置頂／隱藏入口，暫未接入；X 的「置頂到個人主頁」不是評論置頂；實驗性隱藏／恢復入口與實測限制見上節。其他未支援動作不用刪除、踩或帳號封鎖模擬。能力以 `vpub capabilities` 為準，不能把某個帳號的網頁限制推廣成平台永遠不支援。
+`vpub comments pin bilibili BV_ID ROOT_COMMENT_ID` 及 `--remove` 委派上游，僅支援頂層評論；已有其他置頂時停止，不暗中替換。本輪只做離線測試。抖音及 Instagram 的已觀察網頁沒有可驗證的評論置頂／隱藏入口，暫未接入；X 的「置頂到個人主頁」不是評論置頂；隱藏／恢復入口與實測限制見上節。其他未支援動作不用刪除、踩或帳號封鎖模擬。能力以 `vpub capabilities` 為準，不能把某個帳號的網頁限制推廣成平台永遠不支援。
 
 ## 安裝與開始
 

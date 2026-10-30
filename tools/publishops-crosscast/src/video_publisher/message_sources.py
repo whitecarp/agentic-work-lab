@@ -37,11 +37,18 @@ async def execute(page, platform, identity, payload):
     # Mentions first: X Chat is a separate shadow-DOM application.
     for source in sorted(set(sources),reverse=True):
         stop_check(platform)
-        if source=='mentions' and platform!='x':
+        if source=='mentions' and platform not in {'x','instagram','douyin'}:
             result[source]={'state':'UNSUPPORTED','reason':'No verified mention-inbox adapter on this platform.'};continue
         try:
-            if source=='mentions':value=await x_mentions(page,identity,limit)
+            if source=='mentions':
+                if platform=='x':value=await x_mentions(page,identity,limit)
+                else:
+                    from .mentions_browser import instagram_mentions, douyin_mentions
+                    value=await (instagram_mentions if platform=='instagram' else douyin_mentions)(page,identity,limit)
             else:
+                if platform=='douyin' and 'mentions' in result:
+                    from .browser_runtime import signed_in_page
+                    page,_=await signed_in_page(page.context,platform,identity)
                 from .direct_messages_browser import execute as dm
                 value=await dm(page,platform,identity,{'operation':'list','limit':limit})
             result[source]={'state':'OBSERVED',**value}
