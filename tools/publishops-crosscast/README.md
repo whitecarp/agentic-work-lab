@@ -8,7 +8,7 @@
 
 ### 跨平台影片發布營運台
 
-**v0.13.0 alpha · CLI `vpub` · AI 協助開發**
+**v0.14.0 alpha · CLI `vpub` · AI 協助開發**
 
 讓同一支原創影片擁有各平台適用的文案、封面與發布回執。選擇 Bilibili、抖音、YouTube、Instagram、X 的任意組合，首次登入後，CLI 復用本機專用會話完成後續上傳。
 
@@ -16,33 +16,38 @@
 
 [功能範圍](docs/FEATURES.md) · [驗證記錄](docs/VALIDATION.md) · [Agent 交接](DEEPSEEK_HANDOFF.md) · [草稿測試](docs/DRAFT_TESTING.md)
 
+## 在 Codex 中作為技能使用
+
+倉庫附帶 `skills/publishops-crosscast/SKILL.md` 與 `agents/openai.yaml`，顯示名稱為 **PublishOps CrossCast**。將整個 `publishops-crosscast` 資料夾複製到個人的 `.agents/skills` 目錄；若尚未出現在列表，重新整理技能或開啟新對話，再以 `$publishops-crosscast` 呼叫已安裝的 `vpub`。
+
+進度提示由 Codex 決定。技能有自己的名稱，但不保證逐字顯示「正在讀取 PublishOps CrossCast 技能」。安裝技能不會自動完成 CLI 安裝或平台登入。
+
 ## 私人收藏集與平台差異
 
-`vpub collection` 管理的是各平台不同的集合。Instagram Saved 與 X 書籤資料夾屬於私人收藏，不會建立公開影片合集；YouTube 繼續使用 `playlist`，B站收藏夾委派上游 bili-cli。
+`vpub collection` 使用確切 ID 與持久回執管理集合。Instagram Saved 與 X 書籤夾屬於私人收藏；抖音作品合集整理已發布作品，可能進入平台審核。YouTube 使用 `playlist`；B站沿用上游 bili-cli。
 
-| 平台 | 本版範圍 | 仍有的限制 |
+| 平台 | 已提供 | 限制 |
 |---|---|---|
-| X | 列出、建立、重新命名、刪除私人書籤資料夾 | 需帳號實際具有資料夾入口；項目讀取遇到平台錯誤會失敗，不把錯誤頁當空清單。尚未接入指定資料夾的加入／移除。 |
-| Instagram | 列出、建立、刪除私人收藏集；有界項目讀取 | 重新命名在實測中未能持久保存，已停用。非空項目清單仍待驗收；尚未接入收藏集成員變更。 |
-| 抖音 | 檢查作品合集入口與空清單 | 本帳號實測為空；非空清單解析及建立／修改／刪除尚未開放。建立頁要求合集封面與作品，不能用私人收藏替代。 |
+| Instagram | 列出、項目、建立、更名、加入、移除、刪除 | 加入前作品須已收藏，且出現在本次載入的 Saved 選擇器；成員讀取不完整時不修改。 |
+| 抖音 | 列出、項目、帶封面建立、更名、加入、移除、刪除 | 仍受帳號資格及平台審核限制；不可加入的作品直接回報。作品合集不等於私人收藏夾。 |
+| X | 列出、建立、更名、刪除及有界項目讀取 | 指定書籤夾成員增刪尚未開放；不把錯誤頁當空清單。 |
 
 ```sh
-vpub collection list x
-vpub collection create x --title "Research" --request-id research-create-01
-vpub collection rename x COLLECTION_ID --title "Ideas" --request-id research-rename-01
 vpub collection list instagram
-vpub collection create instagram --title "Inspiration" --request-id inspiration-create-01
+vpub collection rename instagram COLLECTION_ID --title "靈感" --request-id rename-01
 vpub collection items instagram COLLECTION_ID
-vpub collection delete instagram COLLECTION_ID --request-id inspiration-delete-01
+vpub collection add instagram COLLECTION_ID WORK_CODE --request-id add-01
+vpub collection remove instagram COLLECTION_ID WORK_CODE --request-id remove-01
+vpub collection create douyin --title "系列" --cover collection.jpg --description "系列簡介" --request-id create-01
+vpub collection add douyin COLLECTION_ID WORK_ID --request-id add-02
+vpub collection remove douyin COLLECTION_ID WORK_ID --request-id remove-02
+vpub collection delete douyin COLLECTION_ID --request-id delete-01
 vpub collection verify RECEIPT_KEY
-vpub collection list douyin
 ```
 
-`COLLECTION_ID` 使用清單回傳的數字 ID，不能填名稱或網址。X 刪除使用同樣的 `collection delete x`。每個新意圖使用新的 `--request-id`；中斷後重複原命令只回傳本機回執，不開瀏覽器、不重送。`verify` 只讀回，帳號不符時停止。建立後必須保留平台回傳的確切 ID；回應遺失時不靠同名猜測、不自動再建立。
+使用 CLI 讀回的 ID，不填名稱或猜測網址。新意圖使用新的 request ID；重複原請求只回傳既有回執，不重送。核驗另行讀取；成員變更要求完整基線，且其他成員必須全部保留。集合分頁續讀與成員搬移尚待補齊；有界讀取不能證明某項不存在。
 
-刪除收藏集／資料夾不刪影片，也不清空預設 Saved／All Bookmarks。`complete: false` 表示有界或未完整讀取，不能以「這頁沒看到」判定刪除成功。Instagram 刪除後若尚有其他收藏集且只取得部分清單，回執可能保留 `UNVERIFIED`。本版未提供集合分頁續讀或成員搬移，`engage save --collection` 仍只適用 B站／YouTube。X 清單讀取使用官方頁面自身產生的回應，寫入使用官方控制項，不重放私人 API 請求。
-
-以上操作使用 CLI 專用登入狀態，不接管宿主瀏覽器、不啟用巡檢或郵件。實測及未完成項目見[驗證記錄](docs/VALIDATION.md)。
+刪除集合不刪原影片，也不清空 Saved／All Bookmarks。Instagram 編輯視窗在實測中卡住，因此更名與成員操作使用官方頁面本身的集合用戶端；CLI 不匯出登入 Cookie、不硬編碼重放私人請求。抖音使用官方控制項並觀察回應。這些仍是背景瀏覽器操作，不是獨立公開 API。[實測結果](docs/VALIDATION.md)。
 
 ## 更快的巡檢與統一續讀
 

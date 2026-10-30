@@ -6,6 +6,12 @@
 
 ## CrossCast 私人收藏集
 
+- `collections_instagram.py`：官方頁面用戶端的持久更名與成員變更。
+- `collections_douyin.py`：創作者合集、封面上傳與精確作品增刪。
+- `test_collection_members.py`：完整基線、其他成員保留、去重與回應檢查。
+- `skills/publishops-crosscast/`：具名 Codex 技能入口。
+
+
 - [collections.py](../tools/publishops-crosscast/src/video_publisher/collections.py)：帳號與 ID 綁定、持久請求、禁止重送及獨立讀回。
 - [collections_browser.py](../tools/publishops-crosscast/src/video_publisher/collections_browser.py)：官方頁面集合控制項、有界觀察及未支援操作的明確回報。
 - [test_collections.py](../tools/publishops-crosscast/tests/test_collections.py)：帳號不符、部分清單、回應遺失與重複請求保護。

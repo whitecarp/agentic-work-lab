@@ -211,14 +211,17 @@ def parser():
     q=c.add_parser('replies',help='Read a Bilibili/YouTube reply page; retain continuation cursor.')
     q.add_argument('platform',choices=['bilibili','youtube']);q.add_argument('work');q.add_argument('comment_id')
     q.add_argument('--limit',type=int,default=20);q.add_argument('--cursor');q.add_argument('--out')
-    cl=sub.add_parser('collection',help='Private Instagram/X collections and Douyin work-collection reads.').add_subparsers(dest='action',required=True)
+    cl=sub.add_parser('collection',help='Instagram/X private collections and Douyin work collections.').add_subparsers(dest='action',required=True)
     for action in ('list','items','create','rename','delete'):
         q=cl.add_parser(action);q.add_argument('platform',choices=['instagram','x','douyin'])
         if action in ('items','rename','delete'):q.add_argument('collection')
         if action in ('create','rename'):q.add_argument('--title',required=True)
+        if action=='create':q.add_argument('--cover');q.add_argument('--description')
         if action in ('create','rename','delete'):q.add_argument('--request-id',required=True)
         q.add_argument('--out')
     q=cl.add_parser('verify');q.add_argument('key');q.add_argument('--out')
+    for action in ('add','remove'):
+        q=cl.add_parser(action);q.add_argument('platform',choices=['douyin','instagram','x']);q.add_argument('collection');q.add_argument('work');q.add_argument('--request-id',required=True);q.add_argument('--out')
     pl=sub.add_parser('playlist',help='Owned YouTube playlists via official API.').add_subparsers(dest='action',required=True)
     for action in ('list','items'):
         q=pl.add_parser(action)
@@ -437,7 +440,8 @@ def execute(args):
         from . import collections
         if args.action in {'list','items'}:result=collections.listing(args.platform,getattr(args,'collection',None))
         elif args.action=='verify':result=collections.verify(args.key)
-        else:result=collections.change(args.platform,args.action,getattr(args,'collection',None),getattr(args,'title',None),args.request_id)
+        elif args.action in {'add','remove'}:result=collections.membership(args.platform,args.action,args.collection,args.work,args.request_id)
+        else:result=collections.change(args.platform,args.action,getattr(args,'collection',None),getattr(args,'title',None),args.request_id,getattr(args,'cover',None),getattr(args,'description',None))
         if args.out:atomic_json(args.out,result)
         return result
     if args.command=='playlist':
@@ -739,7 +743,7 @@ def capabilities():
                 "bilibili":"bili-cli likes and explicit favorite-folder membership; read membership through the pinned upstream helper.",
                 "youtube":"Official API rating and selected owned playlist membership; no Watch Later, Likes-list or legacy Favorites management.",
                 "douyin":"Exact video Like/Save controls; account state read from the official page's own detail response in a fresh session, never from static tooltip text.",
-                "instagram":"engage uses post toolbar Like/Save; collection manages private named collections separately. Membership changes and rename are not supported.",
+                "instagram":"engage uses post toolbar Like/Save; collection manages private named collections separately. collection rename/add/remove use the official page client and independent readback.",
                 "x":"Exact post Like/Bookmark controls; private bookmarks, not X Lists or bookmark folders.",
                 "verification":"Durable single attempt; current state checked before action and in an independent read after it. Uncertain attempts require read-only verify, never blind retries.",
                 "report":"Verified operations, reversals and unresolved attempts; --test-id traffic is excluded. No automatic or bulk engagement."},
@@ -759,7 +763,7 @@ def capabilities():
             "youtube_initial_permissions": "Upload, read and video/playlist management scopes are requested together; user approves in Google. Old limited tokens require reauthorization.",
             "youtube_category": "Explicit per-video category required; host-model selection, in-place revision and read-back. API validates assignability before upload; no People & Blogs fallback.",
             "playlists": "YouTube playlist list/items/create/update/add/remove/move/delete/verify: ordinary owned playlists, durable request IDs, no write retries; default private creation.",
-            "collections": "collection list/items/create/rename/delete/verify: X private folders support CRUD; Instagram rename is disabled after failed readback. Named membership writes and Douyin work-collection writes remain unsupported. All reads are bounded; partial pages cannot prove absence.",
+            "collections": "collection list/items/create/rename/add/remove/delete/verify: Instagram and Douyin support exact-ID membership and collection management; X supports folder CRUD but not named membership. Writes require complete member baselines; pagination is bounded and incomplete pages never prove absence.",
             "draft_only": "Instagram/X: init --draft-only stops CLI before Share/Post. PREVIEW_READY is not a guaranteed persistent draft after closing the browser.",
             "platforms": {p: {"native_login": True,
              "publish_backend": {"bilibili": "bili-cli", "youtube": "official API"}.get(p, "dedicated persistent background browser"),

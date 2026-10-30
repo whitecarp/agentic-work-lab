@@ -2,9 +2,9 @@
 
 [繁體中文](DEEPSEEK_HANDOFF.md) · **English**
 
-## 0.13.0 private collections
+## 0.14.0 collections and skill
 
-Use `collection list` to obtain exact IDs. Only X rename is enabled; Instagram rename failed live readback. Douyin writes and named membership changes are unavailable. Repeat the original request ID after interruption; verify rather than resubmit unknown writes. Do not infer a new ID from a matching title or deletion from a partial list. Do not expand a private-folder test into clearing All Bookmarks or deleting videos. [Scope](README_EN.md#private-collections-and-platform-differences).
+Read `collection list/items` for exact IDs and complete member baselines. Instagram rename/add/remove and Douyin collection management now use the CLI. Preserve other members and default Saved state. Use stable request IDs and verify uncertain results; do not resubmit automatically. X named membership is still unsupported. Use the bundled PublishOps CrossCast skill when installed. [Commands](README_EN.md#private-collections-and-platform-differences).
 
 ## 0.12.0 speed, messages and playlists
 

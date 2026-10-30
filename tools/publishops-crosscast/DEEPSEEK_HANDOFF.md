@@ -2,9 +2,9 @@
 
 **繁體中文** · [English](DEEPSEEK_HANDOFF_EN.md)
 
-## 0.13.0 私人收藏集
+## 0.14.0 合集與技能
 
-使用 `collection list` 取得確切 ID。更名只開放 X；Instagram 更名實測未通過。抖音寫入與具名成員變更尚未支援。中斷後沿用原 request ID，未知結果僅讀回；不得依同名猜測新 ID，也不得以部分清單證明刪除。私人資料夾測試不擴大為清空全部書籤或刪影片。[範圍](README.md#私人收藏集與平台差異)。
+先以 `collection list/items` 取得確切 ID 與完整成員基線。Instagram 更名／加入／移除及抖音合集管理現在由 CLI 執行；保留其他成員與預設收藏狀態。使用持久 request ID，未知結果只核驗，不自動重送。X 指定書籤夾成員變更仍未開放。安裝後可使用附帶的 PublishOps CrossCast 技能。[指令](README.md#私人收藏集與平台差異)。
 
 ## 0.12.0 速度、訊息與播放列表
 

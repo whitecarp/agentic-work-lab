@@ -6,6 +6,12 @@ The project uses human-defined requirements, AI-assisted implementation, tool-ba
 
 ## CrossCast private collections
 
+- `collections_instagram.py`: official page client for persistent rename and membership changes.
+- `collections_douyin.py`: creator collections, cover upload and exact-work membership controls.
+- `test_collection_members.py`: full-baseline checks, preservation, deduplication and response validation.
+- `skills/publishops-crosscast/`: named Codex skill entry.
+
+
 - [collections.py](../tools/publishops-crosscast/src/video_publisher/collections.py): account-bound IDs, durable request intents, no resubmission and readback.
 - [collections_browser.py](../tools/publishops-crosscast/src/video_publisher/collections_browser.py): official-page collection controls, bounded observations and explicit unsupported operations.
 - [test_collections.py](../tools/publishops-crosscast/tests/test_collections.py): wrong-account, partial-page, lost-response and duplicate-request guards.

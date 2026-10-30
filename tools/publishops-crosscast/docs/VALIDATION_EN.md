@@ -2,7 +2,23 @@
 
 [繁體中文](VALIDATION.md) · **English**
 
-Date: **2026-10-30**, PublishOps CrossCast **0.13.0 alpha**.
+Date: **2026-10-30**, PublishOps CrossCast **0.14.0 alpha**.
+
+## 0.14.0: collection membership, rename and named skill
+
+**377 offline tests pass, including 16 new tests.** New checks cover complete member baselines, preservation of other members, no-op/repeated requests, receipt tampering, account and collection binding, pagination, default Saved exclusion and schema failures.
+
+| Live check | Result |
+|---|---|
+| Instagram rename | The website modal stalled without saving. The official page's own collection client successfully renamed the temporary collection; a fresh browser read confirmed the new name. |
+| Instagram membership | Removed an existing saved work, independently confirmed an empty collection, added that same work through the CLI and read back the exact shortcode and numeric media ID. |
+| Douyin collections | CLI create, repeated-create deduplication, rename, add/remove an existing work and delete were independently read back. A prior add completed despite a response timeout; `verify` confirmed it without another add. |
+| Cleanup | Temporary collections removed; the two deliberately saved test posts restored to their original unsaved state. Original videos, comments, captions, covers and schedules were not deleted or edited. Bilibili was not tested. |
+| Agent skill | Bundled `SKILL.md` and `agents/openai.yaml` validated and installed locally as PublishOps CrossCast. Exact Codex progress wording remains client-controlled. |
+
+These tests used small collections on the operator's accounts. They do not establish large-list pagination, all account variants, or sustained unattended operation. X named-folder membership remains unverified and disabled; its normal bookmark control does not establish folder membership. Instagram adds require an already-saved work visible in the loaded picker. Incomplete lists block membership writes. Browser startup and independent readback still take time; no new speed benchmark is claimed.
+
+Earlier sections below describe historical versions; their unsupported statements do not override the current scope.
 
 ## 0.13.0: private collections and bookmark folders
 

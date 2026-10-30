@@ -101,9 +101,7 @@ class CollectionTests(unittest.TestCase):
         self.assertEqual(self.calls,[])
 
     def test_unverified_features_rejected_before_login(self):
-        for args in (('instagram','rename','123'),('douyin','create',None)):
-            with self.assertRaises(VpubError):c.change(*args,title='Test',request_id='t')
-        with self.assertRaises(VpubError):c.listing('douyin','123')
+        with self.assertRaises(VpubError):c.change('douyin','create',title='Test',request_id='t')
         self.assertEqual(self.calls,[])
 
     def test_receipt_cannot_be_submitted_twice(self):

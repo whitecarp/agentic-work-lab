@@ -8,7 +8,7 @@ This requirement exists because non-subscribers are limited to **140-second, 512
 
 ### Multi-platform video release operations console
 
-**v0.13.0 alpha · CLI `vpub` · AI-assisted development**
+**v0.14.0 alpha · CLI `vpub` · AI-assisted development**
 
 Prepare platform-specific metadata, covers and publication receipts for one original video. Choose any subset of Bilibili, Douyin, YouTube, Instagram and X. Sign in once; the CLI reuses its own local sessions for later uploads.
 
@@ -16,33 +16,38 @@ Default routes: Bilibili uses bili-cli, YouTube uses its official API, and Douyi
 
 [Features](docs/FEATURES_EN.md) · [Validation](docs/VALIDATION_EN.md) · [Agent handoff](DEEPSEEK_HANDOFF_EN.md) · [Draft testing](docs/DRAFT_TESTING_EN.md)
 
+## Use as a Codex skill
+
+The repository includes `skills/publishops-crosscast/SKILL.md` and `agents/openai.yaml`, with display name **PublishOps CrossCast**. Copy the whole `publishops-crosscast` folder into your personal `.agents/skills` directory. Refresh skills or start a new chat if it is not listed yet; invoke `$publishops-crosscast` to use the installed `vpub` CLI.
+
+Codex chooses its progress wording. The skill has its own name, but an exact sentence such as “Reading PublishOps CrossCast skill” is not guaranteed. Installing a skill does not install the CLI or sign in to platforms.
+
 ## Private collections and platform differences
 
-`vpub collection` respects each platform's collection model. Instagram Saved collections and X bookmark folders are private, not public video series. YouTube continues to use `playlist`; Bilibili favorite folders remain delegated to bili-cli.
+`vpub collection` manages exact-ID collections with durable receipts. Instagram Saved and X bookmark folders are private; Douyin work collections group published works and may enter platform review. YouTube uses `playlist`; Bilibili uses upstream bili-cli.
 
-| Platform | This release | Limits |
+| Platform | Available | Limits |
 |---|---|---|
-| X | List, create, rename and delete private bookmark folders | The account must actually expose the folder controls. Item reads fail on platform errors instead of reporting an empty list. Adding/removing named-folder members is not integrated. |
-| Instagram | List, create and delete private collections; bounded item reads | Rename did not persist in live tests and is disabled. Nonempty item lists still need acceptance; collection membership changes are not integrated. |
-| Douyin | Inspect the work-collection entry and explicit empty list | This account's list was empty. Nonempty-list parsing and create/update/delete remain unavailable. Creation requires a collection cover and works; private saves are not substitutes. |
+| Instagram | List, items, create, rename, add, remove, delete | Add requires the work to already appear in the loaded Saved picker. Incomplete member reads block changes. |
+| Douyin | List, items, create with cover, rename, add, remove, delete | Account eligibility and platform review still apply. Ineligible works are rejected. A collection is distinct from a private favorite folder. |
+| X | List, create, rename, delete; bounded items | Named-folder membership is still unavailable. An error page is never treated as an empty folder. |
 
 ```sh
-vpub collection list x
-vpub collection create x --title "Research" --request-id research-create-01
-vpub collection rename x COLLECTION_ID --title "Ideas" --request-id research-rename-01
 vpub collection list instagram
-vpub collection create instagram --title "Inspiration" --request-id inspiration-create-01
+vpub collection rename instagram COLLECTION_ID --title "Ideas" --request-id rename-01
 vpub collection items instagram COLLECTION_ID
-vpub collection delete instagram COLLECTION_ID --request-id inspiration-delete-01
+vpub collection add instagram COLLECTION_ID WORK_CODE --request-id add-01
+vpub collection remove instagram COLLECTION_ID WORK_CODE --request-id remove-01
+vpub collection create douyin --title "Series" --cover collection.jpg --description "Series description" --request-id create-01
+vpub collection add douyin COLLECTION_ID WORK_ID --request-id add-02
+vpub collection remove douyin COLLECTION_ID WORK_ID --request-id remove-02
+vpub collection delete douyin COLLECTION_ID --request-id delete-01
 vpub collection verify RECEIPT_KEY
-vpub collection list douyin
 ```
 
-Use the numeric `COLLECTION_ID` returned by listing, not a title or URL. X deletion uses `collection delete x` with the same arguments. Use a new `--request-id` per intended change; repeating the original command after interruption only returns its local receipt, without a browser or another submit. `verify` only reads and stops on account mismatch. Creation must retain the exact ID returned by the platform; a lost response is not recovered by guessing from matching names or creating again.
+Use IDs returned by CLI reads, not names or guessed URLs. Each new intent gets a new request ID; repeating it returns the existing receipt without resubmitting. Verification reads independently. Member changes require a complete baseline and must preserve every other member. Pagination/resumption and member moves remain pending; bounded reads do not prove absence.
 
-Deleting a collection/folder does not delete videos or clear default Saved/All Bookmarks. `complete: false` indicates bounded or incomplete coverage: absence on that page cannot prove deletion. Instagram deletion may remain `UNVERIFIED` when other collections remain and only a partial list is available. Collection pagination/resumption and member moves are not provided in this release; `engage save --collection` still applies only to Bilibili/YouTube. X listing consumes the response generated by its official page; writes use official controls, without replaying private API requests.
-
-These operations use CLI-owned login sessions, without taking over the host browser or enabling schedules/email. See [validation](docs/VALIDATION_EN.md) for tested and pending scope.
+Deleting a collection does not delete its videos or clear Saved/All Bookmarks. Instagram renaming and membership use the official page's own collection client because its edit dialog stalled in testing; the CLI does not export session cookies or hardcode/replay private request templates. Douyin uses official controls and observes their responses. These are background browser operations, not standalone public APIs. [Live results](docs/VALIDATION_EN.md).
 
 ## Faster collection and unified resumption
 
