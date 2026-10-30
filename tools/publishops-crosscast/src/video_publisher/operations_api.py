@@ -37,6 +37,24 @@ def youtube_context(action,work):
     return service,identity,cache['works'][work]
 
 
+def youtube_account():
+    cache = getattr(_READ, 'cache', None)
+    if cache is None:
+        cache = {}
+    if 'service' not in cache:
+        service = adapters.yt_service('default')
+        owners = service.channels().list(part='id,contentDetails',mine=True).execute().get('items',[])
+        if len(owners) != 1:
+            raise VpubError('channel_required','Expected one authorized YouTube channel.')
+        cache.update(service=service,identity=owners[0]['id'],works={},channel=owners[0])
+    if 'channel' not in cache:
+        owners=cache['service'].channels().list(part='id,contentDetails',mine=True).execute().get('items',[])
+        if len(owners)!=1 or owners[0]['id']!=cache['identity']:
+            raise VpubError('wrong_account','YouTube account changed during pagination.')
+        cache['channel']=owners[0]
+    return cache['service'],cache['channel']
+
+
 def metric(value, label, unit='count'):
     return {'value':value,'label':label,'unit':unit,'availability':'observed' if value is not None else 'unavailable'}
 

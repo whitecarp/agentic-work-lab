@@ -21,6 +21,10 @@ Use the installed `vpub` CLI. Read `vpub --help`, `vpub capabilities`, and the r
 - Use the production cover for the correct episode. Douyin and Instagram share the approved portrait cover; respect safe areas. Preserve Instagram's original video aspect ratio; do not insert a cover frame or force a portrait canvas. Explain any remaining mobile cover adjustment.
 - Gmail notifications are optional, off by default, and require an explicit user request and a connected Gmail tool. Do not substitute Outlook, SMTP or SMS.
 
+## Recovery and complete reads
+
+Use `resume KEY` for new YouTube API upload sessions; never recreate an uncertain upload. Use `read-all start/resume/status` for supported API lists and official collection pagination. Preserve partial checkpoints, distinguish explicit end proof from a stalled page, and retain bounded-history limits on other browser feeds. Browser collection transactions reuse a command-scoped context; do not start a second process on the same profile.
+
 ## Receipts and verification
 
 - Use exact platform/work/comment/collection IDs from reads. A matching title alone is insufficient. Distinguish private saved collections from public work series.

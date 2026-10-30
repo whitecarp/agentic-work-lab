@@ -4,6 +4,13 @@
 
 本專案採用人類提出需求、AI 協助編寫、工具驗證與人類審閱的方式。程式能否重跑、失敗時怎麼處理，比單純列出語言或程式碼行數更重要。
 
+## CrossCast 上傳與讀取恢復
+
+- [browser_session.py](../tools/publishops-crosscast/src/video_publisher/browser_session.py): 透過私有管道復用瀏覽器環境.
+- [upload_resume.py](../tools/publishops-crosscast/src/video_publisher/upload_resume.py): 保存上傳會話並以伺服器進度續傳.
+- [full_read.py](../tools/publishops-crosscast/src/video_publisher/full_read.py): API 分頁原子檢查點與完整樓中樓讀取.
+- [full_read_browser.py](../tools/publishops-crosscast/src/video_publisher/full_read_browser.py): 官方分頁控制與明確結束標記.
+
 ## CrossCast 私人收藏集
 
 - `collections_instagram.py`：官方頁面用戶端的持久更名與成員變更。

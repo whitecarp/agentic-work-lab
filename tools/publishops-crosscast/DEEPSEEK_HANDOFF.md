@@ -2,6 +2,10 @@
 
 **繁體中文** · [English](DEEPSEEK_HANDOFF_EN.md)
 
+## 0.15.0 恢復
+
+新的 YouTube 續傳會話用 `resume KEY`，不可清除原回執。`read-all start/resume/status` 保存支援的 API 分頁游標並去重；必須有結束證據才算 COMPLETE，瀏覽器恢復會重走官方頁面。同平台維持循序，合集操作復用一個環境但仍重新讀回。[範圍與指令](README.md#指令提速上傳恢復與完整讀取)。
+
 ## 0.14.0 合集與技能
 
 先以 `collection list/items` 取得確切 ID 與完整成員基線。Instagram 更名／加入／移除及抖音合集管理現在由 CLI 執行；保留其他成員與預設收藏狀態。使用持久 request ID，未知結果只核驗，不自動重送。X 指定書籤夾成員變更仍未開放。安裝後可使用附帶的 PublishOps CrossCast 技能。[指令](README.md#私人收藏集與平台差異)。

@@ -2,7 +2,24 @@
 
 [繁體中文](VALIDATION.md) · **English**
 
-Date: **2026-10-30**, PublishOps CrossCast **0.14.0 alpha**.
+Date: **2026-10-30**, PublishOps CrossCast **0.15.0 alpha**.
+
+## 0.15.0: session reuse, resumable upload and full-page reads
+
+**402 offline tests pass, including 25 new tests.** Coverage adds lost chunk/final responses, expired sessions without a second upload, changed account/media/metadata, URL validation, durable page cursors, repeated cursors, overlapping rows, missing replies, server end markers and unrelated GraphQL responses.
+
+| Live check | Observed result |
+|---|---|
+| Browser latency | Three fresh Instagram collection reads: 37.312 s with three contexts, 17.297 s with one. Identical results; no platform writes. One machine/account sample only. |
+| Process interruption | An EP02 excerpt uploaded privately to YouTube. The test process exited after 8,388,608 bytes were acknowledged. A separate `vpub resume` process completed the same upload and read back its ID and private state. The temporary video was deleted and a later fresh read confirmed absence; originals stayed unchanged. |
+| YouTube pages | Page size 1 read two existing videos in two pages. EP02 comments/replies required three pages and returned three unique comment records. Page budgets paused and resumed from committed cursors. |
+| YouTube playlists | Two unique playlists across four size-1 pages (including overlapping results); one playlist had one member, the other five members across five pages. Reads only; no playlist changes. |
+| Browser end markers | Douyin, Instagram and X empty collection lists returned explicit server end markers. A temporary Instagram collection's items returned a confirmed complete empty list. Large/nonempty multi-page browser lists are not live-accepted. |
+| Reused-session writes | Temporary Instagram create/rename/delete persisted. The first delete readback was uncertain; a later read-only verify confirmed deletion without a second delete. All temporary collections were removed. |
+
+The first YouTube initiation exposed the current `youtube.googleapis.com` upload host, in addition to the documented `www.googleapis.com` host. The allowlist was corrected before successful testing; that initial attempt sent no video bytes and its uncertain receipt is retained. Session URLs are private. Browser parsing was also corrected to ignore unrelated null GraphQL results; malformed relevant pages still fail.
+
+No new Bilibili live test, public repost, interaction message or existing cover/metadata change was made. Full browser work/comment/DM history, browser byte recovery, forced-kill lock recovery and sustained unattended/large-account validation remain open. Earlier version sections below are historical.
 
 ## 0.14.0: collection membership, rename and named skill
 

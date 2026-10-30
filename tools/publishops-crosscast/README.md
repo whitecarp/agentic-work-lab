@@ -8,13 +8,36 @@
 
 ### 跨平台影片發布營運台
 
-**v0.14.0 alpha · CLI `vpub` · AI 協助開發**
+**v0.15.0 alpha · CLI `vpub` · AI 協助開發**
 
 讓同一支原創影片擁有各平台適用的文案、封面與發布回執。選擇 Bilibili、抖音、YouTube、Instagram、X 的任意組合，首次登入後，CLI 復用本機專用會話完成後續上傳。
 
 預設路徑：B站沿用 bili-cli，YouTube 使用官方 API，抖音／Instagram／X 由 CLI 在背景控制專用 Chrome。首次登入與官方驗證需要使用者協助；明確設定 `method: native` 仍可使用宿主瀏覽器交接。這是 alpha 版本，開發期實測與無人值守驗收分開記錄。已新增評論、作品數據及匯報命令；各站實測範圍見下方。TikTok、YouTube 卡片／可點擊片尾與 X／Instagram 獨立 API 尚未實作。
 
 [功能範圍](docs/FEATURES.md) · [驗證記錄](docs/VALIDATION.md) · [Agent 交接](DEEPSEEK_HANDOFF.md) · [草稿測試](docs/DRAFT_TESTING.md)
+
+## 指令提速、上傳恢復與完整讀取
+
+合集建立、更名、增刪成員與刪除，現在於同一個專用瀏覽器環境完成前置檢查、操作與重新讀回。本機三次相同的 Instagram 合集讀取由 **37.312 秒降至 17.297 秒**，耗時減少約 **54%**，瀏覽器啟動由三次減至一次。這是單次開發樣本，不是速度保證；仍會重新載入頁面核驗，不會自動重送不確定的寫入。
+
+```sh
+vpub resume UPLOAD_RECEIPT_KEY
+vpub read-all start youtube works --page-size 50 --max-pages 100 --out works.json
+vpub read-all start youtube comments --work VIDEO_ID --out comments.json
+vpub read-all start youtube collections --out playlists.json
+vpub read-all start youtube collection-items --collection PLAYLIST_ID --out items.json
+vpub read-all start douyin collections --out collections.json
+vpub read-all start instagram collection-items --collection COLLECTION_ID --out saved.json
+vpub read-all resume RUN_ID --max-pages 100 --out continued.json
+vpub read-all status RUN_ID
+```
+
+- **YouTube 位元組續傳：**新的 API 上傳會先在本機保存續傳會話，再傳送影片，逐塊保存伺服器確認進度。`resume` 核對原帳號、影片雜湊與文案，查詢伺服器已接收位置後接續原會話。影片 ID 先落盤，再處理封面與播放列表。過期或建立結果不明時不會偷偷另建上傳；沒有會話的舊回執需檢查。會話網址只存本機，不出現在 CLI 回傳資料。
+- **完整 API 讀取：**YouTube 作品、播放列表、列表成員、頂層評論及各樓全部回覆；B站作品與評論委派上游。每頁將去重資料與下一頁游標一起保存。達到頁數預算會暫停，不會丟掉尾頁；恢復時跳過已提交的分頁。無法讀取的項目或回覆不足時不標記完整。平台資料持續變動，並非凍結的歷史快照。
+- **瀏覽器合集：**抖音／Instagram 合集清單與成員透過官方下一頁或捲動控制讀取；X 書籤夾清單也可讀。只有伺服器明確表示結束才標記完整，每頁保存局部成果。瀏覽器恢復會重新開啟並重走官方頁面，尚無可持久化捲動游標。大型瀏覽器清單與 X 書籤夾成員分頁仍待實測；其他瀏覽器作品、評論與私信仍為有界讀取。
+- **各站恢復邊界：**X 可接續已存於 Studio 的素材。抖音／Instagram 在最終提交前中斷上傳，仍需檢查原草稿，本版不宣稱這兩站支援位元組續傳。最終提交不明時只核驗原作品，保留既有抖音待辦章節處理。強制終止程序可能留下鎖檔，須先核對程序與回執，不可刪除仍使用中的鎖。
+
+繼續遵守影片來源語言、專用封面、Instagram 原片比例、X 權限條件與選用 Gmail 設定。[實測證據](docs/VALIDATION.md)。YouTube 依照[官方續傳協定](https://developers.google.com/youtube/v3/guides/using_resumable_upload_protocol)。
 
 ## 在 Codex 中作為技能使用
 
@@ -45,7 +68,7 @@ vpub collection delete douyin COLLECTION_ID --request-id delete-01
 vpub collection verify RECEIPT_KEY
 ```
 
-使用 CLI 讀回的 ID，不填名稱或猜測網址。新意圖使用新的 request ID；重複原請求只回傳既有回執，不重送。核驗另行讀取；成員變更要求完整基線，且其他成員必須全部保留。集合分頁續讀與成員搬移尚待補齊；有界讀取不能證明某項不存在。
+使用 CLI 讀回的 ID，不填名稱或猜測網址。新意圖使用新的 request ID；重複原請求只回傳既有回執，不重送。核驗另行讀取；成員變更要求完整基線，且其他成員必須全部保留。支援的合集分頁使用 read-all；成員搬移仍待補齊。有界讀取不能證明某項不存在。
 
 刪除集合不刪原影片，也不清空 Saved／All Bookmarks。Instagram 編輯視窗在實測中卡住，因此更名與成員操作使用官方頁面本身的集合用戶端；CLI 不匯出登入 Cookie、不硬編碼重放私人請求。抖音使用官方控制項並觀察回應。這些仍是背景瀏覽器操作，不是獨立公開 API。[實測結果](docs/VALIDATION.md)。
 

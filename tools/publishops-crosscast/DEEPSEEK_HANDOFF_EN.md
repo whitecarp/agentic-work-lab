@@ -2,6 +2,10 @@
 
 [繁體中文](DEEPSEEK_HANDOFF.md) · **English**
 
+## 0.15.0 recovery
+
+Use `resume KEY` for new YouTube resumable uploads, never clear the original receipt. `read-all start/resume/status` saves supported API page cursors and deduplicates rows. `COMPLETE` requires end proof; browser resume replays the official page. Keep same-platform work sequential. Collection transactions reuse one browser context, but still perform fresh readback. [Scope and commands](README_EN.md#faster-commands-upload-recovery-and-complete-reads).
+
 ## 0.14.0 collections and skill
 
 Read `collection list/items` for exact IDs and complete member baselines. Instagram rename/add/remove and Douyin collection management now use the CLI. Preserve other members and default Saved state. Use stable request IDs and verify uncertain results; do not resubmit automatically. X named membership is still unsupported. Use the bundled PublishOps CrossCast skill when installed. [Commands](README_EN.md#private-collections-and-platform-differences).

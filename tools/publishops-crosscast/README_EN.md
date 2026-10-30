@@ -8,13 +8,36 @@ This requirement exists because non-subscribers are limited to **140-second, 512
 
 ### Multi-platform video release operations console
 
-**v0.14.0 alpha · CLI `vpub` · AI-assisted development**
+**v0.15.0 alpha · CLI `vpub` · AI-assisted development**
 
 Prepare platform-specific metadata, covers and publication receipts for one original video. Choose any subset of Bilibili, Douyin, YouTube, Instagram and X. Sign in once; the CLI reuses its own local sessions for later uploads.
 
 Default routes: Bilibili uses bili-cli, YouTube uses its official API, and Douyin/Instagram/X use a dedicated persistent Chrome profile controlled by the CLI in the background. First login and official verification require the user. Explicit `method: native` retains host-browser handoff. This remains alpha; live development tests are documented separately from unattended acceptance. Comments, work metrics and reports now share CLI commands, with platform-specific validation below. TikTok is suspended; YouTube cards/clickable end screens and standalone X/Instagram APIs remain unimplemented.
 
 [Features](docs/FEATURES_EN.md) · [Validation](docs/VALIDATION_EN.md) · [Agent handoff](DEEPSEEK_HANDOFF_EN.md) · [Draft testing](docs/DRAFT_TESTING_EN.md)
+
+## Faster commands, upload recovery and complete reads
+
+Collection create/rename/add/remove/delete now reuse one dedicated browser context for preflight, action and fresh readback. Three identical Instagram collection reads took **37.312 s → 17.297 s** on the test machine: about **54% less elapsed time**, with three browser launches reduced to one. This is one development sample, not a latency guarantee. Reads still navigate afresh; uncertain writes are never repeated automatically.
+
+```sh
+vpub resume UPLOAD_RECEIPT_KEY
+vpub read-all start youtube works --page-size 50 --max-pages 100 --out works.json
+vpub read-all start youtube comments --work VIDEO_ID --out comments.json
+vpub read-all start youtube collections --out playlists.json
+vpub read-all start youtube collection-items --collection PLAYLIST_ID --out items.json
+vpub read-all start douyin collections --out collections.json
+vpub read-all start instagram collection-items --collection COLLECTION_ID --out saved.json
+vpub read-all resume RUN_ID --max-pages 100 --out continued.json
+vpub read-all status RUN_ID
+```
+
+- **YouTube byte recovery:** new API uploads save the resumable session privately before sending video bytes and checkpoint each acknowledged chunk. `resume` checks the original account, source hash and metadata, queries the server offset, and continues that session. A returned video ID is saved before optional thumbnail/playlist work. Expired or uncertain initiation sessions are not silently replaced. Legacy attempts without a session need inspection. Session URLs stay local and are omitted from CLI receipts.
+- **Complete API reads:** YouTube works, playlists, playlist items, top-level comments and all reply pages; Bilibili works/comments delegate to upstream. Each page atomically saves deduplicated rows and its next cursor. The page budget pauses a run instead of dropping its tail. Resume skips committed pages; unavailable rows or missing replies prevent a complete claim. Live data is not a frozen historical snapshot.
+- **Browser collections:** Douyin/Instagram collection lists and members follow official next/scroll controls; X folder lists are also readable. Only the server's explicit end marker establishes completeness. Partial results are saved per page. Browser resume reopens and replays the official page, because a persistent scroll cursor is not established. Large browser lists and X folder-member pagination remain unverified; other browser work/comment/message feeds remain bounded.
+- **Platform boundary:** X can continue an already-saved Studio asset. Douyin/Instagram uploads interrupted before final submission still require inspection of the original draft; this release does not claim byte recovery for those websites. Final-submit uncertainty remains verification-only, with existing pending Douyin chapter handling preserved. A hard-killed process may leave a lock requiring process/receipt inspection; never delete an active lock.
+
+The source-language rules, dedicated covers, original Instagram aspect ratio, X access requirement and optional Gmail setting remain in force. [Test evidence](docs/VALIDATION_EN.md). YouTube follows the [official resumable upload protocol](https://developers.google.com/youtube/v3/guides/using_resumable_upload_protocol).
 
 ## Use as a Codex skill
 
@@ -45,7 +68,7 @@ vpub collection delete douyin COLLECTION_ID --request-id delete-01
 vpub collection verify RECEIPT_KEY
 ```
 
-Use IDs returned by CLI reads, not names or guessed URLs. Each new intent gets a new request ID; repeating it returns the existing receipt without resubmitting. Verification reads independently. Member changes require a complete baseline and must preserve every other member. Pagination/resumption and member moves remain pending; bounded reads do not prove absence.
+Use IDs returned by CLI reads, not names or guessed URLs. Each new intent gets a new request ID; repeating it returns the existing receipt without resubmitting. Verification reads independently. Member changes require a complete baseline and must preserve every other member. Use read-all for supported collection pagination; member moves remain pending. Bounded reads do not prove absence.
 
 Deleting a collection does not delete its videos or clear Saved/All Bookmarks. Instagram renaming and membership use the official page's own collection client because its edit dialog stalled in testing; the CLI does not export session cookies or hardcode/replay private request templates. Douyin uses official controls and observes their responses. These are background browser operations, not standalone public APIs. [Live results](docs/VALIDATION_EN.md).
 

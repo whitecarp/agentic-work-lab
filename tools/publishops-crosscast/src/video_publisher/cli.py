@@ -94,6 +94,8 @@ def publish_plan(plan, confirm):
                             if file_sha(destination) != asset["sha256"]:
                                 raise VpubError("source_changed", "Platform cover snapshot changed.")
                             asset["path"] = str(destination)
+                    record['upload_plan'] = safe_plan
+                    ledger.save(key, 'IN_PROGRESS', record)
                     receipt = adapters.publish(platform, safe_plan, opts, checkpoint)
                     checkpoint(receipt)
                     if receipt["state"] == "WAITING_FOR_USER":
@@ -168,6 +170,14 @@ def parser():
     sub = p.add_subparsers(dest="command", required=True)
     sub.add_parser("doctor", help="Local dependency checks; no login or upload.")
     sub.add_parser("capabilities", help="Show actual backends and verification boundaries.")
+    full = sub.add_parser('read-all', help='Complete supported paginated reads with durable API cursors.').add_subparsers(dest='action', required=True)
+    q=full.add_parser('start');q.add_argument('platform',choices=PLATFORMS)
+    q.add_argument('resource',choices=['works','comments','collections','collection-items'])
+    q.add_argument('--work');q.add_argument('--collection');q.add_argument('--page-size',type=int,default=50)
+    q.add_argument('--max-pages',type=int,default=100);q.add_argument('--out')
+    for action in ('resume','status'):
+        q=full.add_parser(action);q.add_argument('run_id');q.add_argument('--out')
+        if action=='resume':q.add_argument('--max-pages',type=int,default=100)
     e=sub.add_parser('engage',help='Explicit work likes and saves; no automatic or bulk engagement.').add_subparsers(dest='action',required=True)
     q=e.add_parser('status');q.add_argument('platform',choices=PLATFORMS);q.add_argument('work');q.add_argument('--collection');q.add_argument('--out')
     q=e.add_parser('collections');q.add_argument('platform',choices=PLATFORMS);q.add_argument('--cursor');q.add_argument('--out')
@@ -407,7 +417,7 @@ def parser():
     q.add_argument("--account", choices=["default"], default="default")
     q.add_argument('--limit',type=int,default=20);q.add_argument('--cursor');q.add_argument('--out')
     sub.add_parser("receipts", help="Read the local publication ledger.")
-    q = sub.add_parser("resume", help="Resume an existing browser attempt without repeating an upload or final submit.")
+    q = sub.add_parser("resume", help="Resume a saved YouTube upload session or inspect an existing browser attempt; never blindly resubmit.")
     q.add_argument("key")
     q = sub.add_parser("verify", help="Verify an existing work and complete its pending Douyin chapter step; never upload.")
     q.add_argument("key")
@@ -434,6 +444,13 @@ def execute(args):
             text=Path(args.file).read_text(encoding='utf-8-sig') if args.file else args.text
             result=dm.send(args.platform,args.recipient,text,args.language,args.dry_run,args.test_id)
         else:result=dm.read(args.platform,getattr(args,'recipient',None),args.limit)
+        if args.out:atomic_json(args.out,result)
+        return result
+    if args.command=='read-all':
+        from . import full_read
+        if args.action=='start':result=full_read.start(args.platform,args.resource,args.work,args.page_size,args.max_pages,args.collection)
+        elif args.action=='resume':result=full_read.resume(args.run_id,args.max_pages)
+        else:result=full_read.status(args.run_id)
         if args.out:atomic_json(args.out,result)
         return result
     if args.command=='collection':
@@ -535,10 +552,27 @@ def execute(args):
             ledger = Ledger()
             try:
                 row = ledger.get(args.key)
-                if not row or row['data'].get('options', {}).get('method') != 'browser':
-                    raise VpubError('invalid_resume', 'Use a receipt key from an independent browser attempt.')
+                if not row:
+                    raise VpubError('invalid_resume', 'Use an existing upload receipt key.')
                 record = row['data']
-                plan, opts = record['approved_plan'], record['options']
+                if row['platform'] == 'youtube' and record.get('options', {}).get('method') == 'api':
+                    receipt = record.get('receipt', {})
+                    if receipt.get('id'):
+                        result = adapters.verify('youtube', row['account'], receipt)
+                    else:
+                        if not receipt.get('upload_session_key'):
+                            raise VpubError('invalid_resume', 'This legacy attempt has no durable upload session. Inspect the original work.')
+                        def checkpoint(value):
+                            record['receipt'] = value
+                            ledger.save(args.key, value['state'], record)
+                        options = {**record['options'], 'expected_channel_id': record['identity']['identity']}
+                        result = adapters.publish_youtube(record['upload_plan'], options, checkpoint)
+                    record['receipt'] = result
+                    ledger.save(args.key, result['state'], record)
+                    return {'key': args.key, **result}
+                if record.get('options', {}).get('method') != 'browser':
+                    raise VpubError('invalid_resume', 'This backend has no automatic resumable session.')
+                plan, opts = record.get('upload_plan', record['approved_plan']), record['options']
                 if file_sha(plan['video']) != plan['video_sha256']:
                     raise VpubError('source_changed', 'Source no longer matches this attempt.')
                 result = adapters.browser_call(row['platform'], 'resume', row['account'],
@@ -775,6 +809,9 @@ def capabilities():
             "works": "Bilibili published-work pages and YouTube upload-playlist pages; Douyin/Instagram/X visible first page only.",
             "work_adoption": "ops discover scans bounded pages; ops adopt freshly verifies ownership and adds existing works to the watchlist without an upload receipt.",
             "resumable_sync": "ops/messages sync use bounded per-platform concurrency, session reuse, durable checkpoints and freshness caches. --workers 1-4; --progress emits body-free JSON to stderr. ops/messages resume skips completed reads; unfinished browser sources restart their page.",
+            "upload_recovery": "New YouTube API uploads persist private resumable sessions and acknowledged offsets. resume queries the server and continues the same account/media/metadata; expired or uncertain sessions are not replaced automatically. X retains saved Studio asset recovery. Douyin/Instagram pre-submit interruptions still need draft inspection.",
+            "full_reads": "read-all start/resume/status: YouTube works, playlists/members and comments including reply pages; Bilibili works/comments via upstream. API checkpoints advance rows and cursor atomically. Browser Douyin/Instagram collections and members, X folder lists follow official controls; explicit server end required. Browser resume replays the page. Other DOM feeds and X folder members remain incomplete/unverified.",
+            "collection_speed": "Collection transactions reuse one command-scoped authenticated browser over private process pipes, while fresh navigation/readback remains mandatory. No persistent listener or browser cookie export.",
             "planned_common_commands": ["account", "search", "video", "analytics-history", "full-message-history"],
             "suspended_platforms": {"tiktok": "Login test with a Hong Kong number was unsuccessful; see docs/TIKTOK_STATUS.md."},
             "not_implemented": "Full historical analytics/inbox, X/Instagram official API clients, and YouTube cards/clickable end screens. Instagram mobile-cover replacement remains user-assisted. Douyin replies to nested replies are not supported.",
@@ -788,6 +825,7 @@ def main():
         args = parser().parse_args()
         value = execute(args)
         ok = not (isinstance(value, dict) and (value.get("all_submissions_verified") is False or
+                  value.get('state') in {'INCOMPLETE','INTERRUPTED','UPLOAD_PAUSED','UPLOAD_INITIATING','UPLOAD_SESSION_CHECK','UPLOADING','UPLOAD_INTERRUPTED','UPLOAD_EXPIRED','UPLOAD_UNVERIFIED'} or
                   value.get('state') in {'DM_READY','DM_SUBMITTING','DM_UNVERIFIED','DM_FAILED','COMMENT_READY','COMMENT_SUBMITTING','COMMENT_UNVERIFIED','COMMENT_FAILED','ACTION_READY','ACTION_SUBMITTING','ACTION_UNVERIFIED','ACTION_FAILED','PARTIAL','WAITING_FOR_USER','PREPARATION_INCOMPLETE','SUBMITTED_UNVERIFIED','UNKNOWN','EDIT_SUBMITTING','EDIT_SUBMITTED_UNVERIFIED','EDIT_UNAVAILABLE','REPLY_READY','REPLY_PENDING','REPLY_SUBMITTING','REPLY_UNVERIFIED','REPLY_REJECTED','TEST_SEED_UNVERIFIED','TEST_REPLY_UNVERIFIED','TEST_COMMENT_NOT_VISIBLE'}))
         print(json.dumps({"ok": ok, "data": value}, ensure_ascii=False))
         raise SystemExit(0 if ok else 4)

@@ -53,6 +53,18 @@ async def detail(page, owner, cid):
     return item
 
 
+def member_rows(data, owner, cid):
+    if data.get('status_code') != 0 or not isinstance(data.get('aweme_list'),list) or type(data.get('has_more')) is not bool:
+        raise VpubError('read_failed','Collection members were not confirmed.')
+    items=[]
+    for item in data['aweme_list']:
+        wid=str(item.get('aweme_id',''))
+        if not re.fullmatch(r'\d{1,40}',wid):raise VpubError('layout_changed','Invalid collection member ID.')
+        items.append({'id':wid,'title':item.get('desc','')})
+    if len({r['id'] for r in items})!=len(items):raise VpubError('layout_changed','Duplicate collection member IDs.')
+    return {'identity':owner,'collection_id':cid,'items':items,'complete':not data['has_more'],'coverage':'official_page_response','platform_writes':0}
+
+
 async def execute(page, owner, payload):
     from .collections_browser import click
     op=payload['operation'];cid=payload.get('collection_id')

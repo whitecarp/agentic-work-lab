@@ -28,7 +28,8 @@ Prepare platform-specific descriptions, covers and publication receipts for one 
 - Added existing-work adoption, freshness-based read reuse and interruption recovery; ownership evidence and progress are stored without reuploading.
 - Added parallel platform reads, incremental progress, message resumption and YouTube playlist management; 10 reads across four platforms took 27.4 seconds versus 55.4 in one development comparison.
 - Added Instagram collection rename and member changes, Douyin work-collection management and the PublishOps CrossCast Codex skill, with independently verified receipts. X named-folder membership remains pending.
-- **0.14.0 alpha, with 377 passing offline tests.** Full five-platform publication still has open acceptance items; tested scope and limits are documented.
+- CrossCast now reuses collection browser sessions, recovers new YouTube uploads after interruption, and reads supported paginated lists with durable progress; [scope and live results](tools/publishops-crosscast/docs/VALIDATION_EN.md).
+- **0.15.0 alpha, with 402 passing offline tests.** Full five-platform publication still has open acceptance items; tested scope and limits are documented.
 
 [Install and use](tools/publishops-crosscast/README_EN.md) · [Feature scope](tools/publishops-crosscast/docs/FEATURES_EN.md) · [Validation](tools/publishops-crosscast/docs/VALIDATION_EN.md)
 

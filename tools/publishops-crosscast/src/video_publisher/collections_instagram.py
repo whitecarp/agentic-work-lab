@@ -22,6 +22,7 @@ def members(data, cid):
         rows.append({'id':code,'media_id':pk})
     if len({r['id'] for r in rows})!=len(rows):raise VpubError('layout_changed','Duplicate saved media IDs.')
     return {'collection_id':cid,'items':rows,'complete':not info['has_next_page'],
+            'cursor':info.get('end_cursor'),
             'coverage':'official_page_response','platform_writes':0}
 
 

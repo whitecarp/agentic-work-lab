@@ -99,10 +99,14 @@ def default_method(platform):
 
 def browser_call(platform, action, account, **kwargs):
     payload = {"platform": platform, "action": action, "account": account, **kwargs}
+    from .browser_session import current
+    session = current()
+    if session is not None:
+        return session.call(payload)
     try:
         cp = subprocess.run([sys.executable, "-m", "video_publisher.browser_worker"],
                             input=json.dumps(payload), capture_output=True, encoding="utf-8",
-                            timeout=1900 if action in {"publish", "resume"} else 600 if action in {'edit','verify','operations_batch','chat_unlock','message_sources','discover_works','adopt_work'} else 120,
+                            timeout=1900 if action in {"publish", "resume", "read_all"} else 600 if action in {'edit','verify','operations_batch','chat_unlock','message_sources','discover_works','adopt_work'} else 120,
                             env=dict(os.environ, PYTHONIOENCODING="utf-8"))
     except subprocess.TimeoutExpired:
         raise VpubError("browser_timeout", "Browser command timed out; existing receipts are retained.", "Inspect the existing draft/work; do not repeat an upload or final submit.")
@@ -197,11 +201,21 @@ def publish_bilibili(plan, options, checkpoint):
     return verify("bilibili", options["account"], receipt)
 
 
-def publish_youtube(plan, options, checkpoint):
+def publish_youtube(plan, options, checkpoint, *, max_chunks=None):
+    landscape = plan.get('covers', {}).get('youtube', {}).get('landscape')
+    if landscape:
+        plan = {**plan, 'cover':landscape['path'], 'cover_sha256':landscape['sha256']}
+    if plan.get('cover'):
+        from .core import file_sha
+        if file_sha(plan['cover']) != plan.get('cover_sha256'):
+            raise VpubError('source_changed', 'The prepared cover changed; no upload or thumbnail write attempted.')
     from .categories import validate_youtube
     category_id = validate_youtube(options.get("category_id"))
     from googleapiclient.http import MediaFileUpload
     service = yt_service(options["account"])
+    owners = service.channels().list(part='id', mine=True).execute().get('items', [])
+    if len(owners) != 1 or (options.get('expected_channel_id') and options['expected_channel_id'] != owners[0]['id']):
+        raise VpubError('wrong_account', 'YouTube upload account does not match the prepared channel.')
     categories = service.videoCategories().list(part="snippet", id=category_id).execute().get("items", [])
     if not any(c.get("id") == category_id and c.get("snippet", {}).get("assignable") is True for c in categories):
         raise VpubError("invalid_category", "YouTube does not currently allow the selected category; no video was uploaded.")
@@ -214,11 +228,10 @@ def publish_youtube(plan, options, checkpoint):
                         "tags": options["tags"], "categoryId": category_id}, "status": status}
     req = service.videos().insert(part="snippet,status", body=body,
                                  media_body=MediaFileUpload(plan["video"], chunksize=8 * 1024 * 1024, resumable=True))
-    result = None
-    while result is None:
-        progress, result = req.next_chunk(num_retries=3)
-        if progress:
-            print(f"YouTube upload: {int(progress.progress() * 100)}%", file=sys.stderr, flush=True)
+    from .upload_resume import run
+    result = run(req, plan, options['account'], owners[0]['id'], checkpoint, max_chunks=max_chunks)
+    if result['state'] == 'UPLOAD_PAUSED':
+        return result
     video_id = result.get("id")
     if not video_id:
         return {"state": "SUBMITTED_UNVERIFIED", "reason": "Upload completed without a video ID."}

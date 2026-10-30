@@ -4,6 +4,13 @@
 
 The project uses human-defined requirements, AI-assisted implementation, tool-based verification, and human review. Reproducibility and failure handling matter more than listing languages or line counts.
 
+## CrossCast upload and read recovery
+
+- [browser_session.py](../tools/publishops-crosscast/src/video_publisher/browser_session.py): Private pipe-based context reuse.
+- [upload_resume.py](../tools/publishops-crosscast/src/video_publisher/upload_resume.py): Persisted upload sessions and server-offset recovery.
+- [full_read.py](../tools/publishops-crosscast/src/video_publisher/full_read.py): Atomic API page checkpoints and full reply reads.
+- [full_read_browser.py](../tools/publishops-crosscast/src/video_publisher/full_read_browser.py): Official pagination and explicit end markers.
+
 ## CrossCast private collections
 
 - `collections_instagram.py`: official page client for persistent rename and membership changes.

@@ -29,10 +29,9 @@ def works(platform, limit=20, cursor=None):
     if not 1<=limit<=50: raise VpubError('invalid_limit','Work limit must be 1–50.')
     if cursor and (not isinstance(cursor,str) or len(cursor)>1000): raise VpubError('invalid_cursor','Invalid cursor.')
     if platform=='youtube':
-        service=adapters.yt_service('default')
-        channels=service.channels().list(part='id,contentDetails',mine=True).execute().get('items',[])
-        if len(channels)!=1: raise VpubError('channel_required','Expected one authorized channel.')
-        owner=channels[0]['id'];playlist=channels[0].get('contentDetails',{}).get('relatedPlaylists',{}).get('uploads')
+        from .operations_api import youtube_account
+        service, channel = youtube_account()
+        owner=channel['id'];playlist=channel.get('contentDetails',{}).get('relatedPlaylists',{}).get('uploads')
         if not playlist: raise VpubError('uploads_unavailable','The channel did not expose an uploads playlist.')
         args={'part':'snippet,contentDetails','playlistId':playlist,'maxResults':limit}
         if cursor: args['pageToken']=cursor
