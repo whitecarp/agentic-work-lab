@@ -8,13 +8,52 @@ This requirement exists because non-subscribers are limited to **140-second, 512
 
 ### Multi-platform video release operations console
 
-**v0.11.0 alpha · CLI `vpub` · AI-assisted development**
+**v0.12.0 alpha · CLI `vpub` · AI-assisted development**
 
 Prepare platform-specific metadata, covers and publication receipts for one original video. Choose any subset of Bilibili, Douyin, YouTube, Instagram and X. Sign in once; the CLI reuses its own local sessions for later uploads.
 
 Default routes: Bilibili uses bili-cli, YouTube uses its official API, and Douyin/Instagram/X use a dedicated persistent Chrome profile controlled by the CLI in the background. First login and official verification require the user. Explicit `method: native` retains host-browser handoff. This remains alpha; live development tests are documented separately from unattended acceptance. Comments, work metrics and reports now share CLI commands, with platform-specific validation below. TikTok is suspended; YouTube cards/clickable end screens and standalone X/Instagram APIs remain unimplemented.
 
 [Features](docs/FEATURES_EN.md) · [Validation](docs/VALIDATION_EN.md) · [Agent handoff](DEEPSEEK_HANDOFF_EN.md) · [Draft testing](docs/DRAFT_TESTING_EN.md)
+
+## Faster collection and unified resumption
+
+Different platforms use **3 workers** by default, adjustable with `--workers 1–4`. Reads on one platform stay sequential. Browser batches reuse the dedicated signed-in context; YouTube reuses its connection, channel and work-ownership reads within one run. Each platform has an independent checkpoint journal; local observation merges are serialized. `--progress` emits body-free JSON progress to stderr, leaving stdout as the final JSON result.
+
+```sh
+vpub ops sync --platforms youtube,douyin,instagram,x --workers 3 --progress
+vpub messages sync --platforms douyin,instagram,x --sources comments,mentions,dm_preview --progress
+vpub messages resume RUN_ID --progress
+vpub ops runs
+```
+
+Comments, mentions and conversation previews now share bounded collection, 300-second successful-read caches and resumable runs. `messages resume` skips completed items; unfinished browser sources restart from their page. `--full` bypasses freshness caches but retains item limits. `sources` distinguishes OBSERVED, CACHED, FAILED and UNSUPPORTED. Unsupported or unconfigured sources retain PARTIAL status; they are not a claim of complete account coverage. YouTube mentions/DMs are not integrated.
+
+Sync reports exclude private bodies; use `messages list` to inspect locally observed content. Preview counts are not new-DM counts, and opening platform inboxes may mark platform notifications read. These commands do not reply, email or create schedules. `account_health` describes this run's reads only; cached data does not establish a current login.
+
+One same-machine, same-account comparison of 10 forced reads across four platforms took **55.446 seconds** on 0.11 and **27.398 seconds** on 0.12, with the first saved result at about **3 seconds**. This is a development sample, not a throughput or latency guarantee. Cached results are not counted as faster live queries.
+
+## YouTube playlist management
+
+Use the official API for ordinary playlists owned by the signed-in channel: create, rename, change description/privacy, add/remove videos, reorder and delete. Creation defaults to private. Renaming preserves description, language and privacy. Move/remove use the exact **ITEM_ID** from `playlist items`, not VIDEO_ID; positions are zero-based.
+
+```sh
+vpub playlist list
+vpub playlist create --title "My series" --privacy private --request-id series-create-01
+vpub playlist update PLAYLIST_ID --title "New series title" --request-id series-rename-01
+vpub playlist items PLAYLIST_ID
+vpub playlist add PLAYLIST_ID VIDEO_ID --request-id series-add-01
+vpub playlist move PLAYLIST_ID ITEM_ID --position 0 --request-id series-move-01
+vpub playlist remove PLAYLIST_ID ITEM_ID --request-id series-remove-01
+vpub playlist verify RECEIPT_KEY
+```
+
+Delete a playlist with `vpub playlist delete PLAYLIST_ID --request-id series-delete-01`; this does not delete its videos. Use a new request ID for each intended new change and reuse the original after interruptions. The CLI never resubmits an existing request. For `UNVERIFIED`, use `playlist verify`, not another write. A lost creation response without a playlist ID remains unresolved; a matching title is not enough to adopt a result. Post-write checks retry reads within a short bound, never writes.
+
+These commands require `youtube.force-ssl`, included in the default first-login authorization. If the API returns `manualSortRequired`, set that playlist's ordering to Manual in YouTube; the CLI does not change the sorting mode. Official references: [playlist updates](https://developers.google.com/youtube/v3/docs/playlists/update), [item ordering](https://developers.google.com/youtube/v3/docs/playlistItems/update).
+
+Bilibili continues to delegate favorite-folder operations upstream. Douyin work-collection management, named Instagram collections and X bookmark folders remain unimplemented. Private saves, public work collections and YouTube playlists are distinct capabilities.
+
 
 ## Adopt existing works and resume collection
 
@@ -36,7 +75,7 @@ vpub ops sync --platforms youtube,douyin,instagram,x --full
 
 Each completed step is saved. API comments and replies retain validated pages and continuation tokens; browser batches save completed reads individually. After interruption, find the run ID with `ops runs`, then `ops resume` skips finished steps. An unfinished browser work restarts from its page; no durable scroll cursor is invented. Resuming an already completed run performs no reads. Verification challenges, account changes or unknown results stop that platform while retaining progress; other platforms may continue.
 
-`--full` still obeys page/item budgets. This resumption applies to work comments/statistics in `ops sync`; mention/DM-preview sources in `messages sync` keep their existing baselines and do not yet resume across processes. Collection creates no schedule and sends no replies or email. Raw comments, catalogues and receipts remain local.
+`--full` still obeys page/item budgets. Work and message sources now share resumable runs as described above. Collection creates no schedule and sends no replies or email. Raw comments, catalogues and receipts remain local.
 
 
 ## Likes, saves and reversals

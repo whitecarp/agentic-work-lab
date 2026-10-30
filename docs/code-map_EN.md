@@ -4,6 +4,12 @@
 
 The project uses human-defined requirements, AI-assisted implementation, tool-based verification, and human review. Reproducibility and failure handling matter more than listing languages or line counts.
 
+## CrossCast speed and playlist operations
+
+- [read_scheduler.py](../tools/publishops-crosscast/src/video_publisher/read_scheduler.py): bounded platform concurrency, independent checkpoints and incremental progress.
+- [playlists.py](../tools/publishops-crosscast/src/video_publisher/playlists.py): YouTube playlist CRUD, membership/order, request deduplication and readback.
+- [test_operations_012.py](../tools/publishops-crosscast/tests/test_operations_012.py): concurrency isolation, message recovery, connection reuse, playlist ownership and uncertain writes.
+
 ## CrossCast work adoption and collection
 
 - [work_catalog.py](../tools/publishops-crosscast/src/video_publisher/work_catalog.py): catalogues, fresh ownership checks and adoption records.

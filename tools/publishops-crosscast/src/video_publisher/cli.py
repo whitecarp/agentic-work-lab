@@ -211,10 +211,27 @@ def parser():
     q=c.add_parser('replies',help='Read a Bilibili/YouTube reply page; retain continuation cursor.')
     q.add_argument('platform',choices=['bilibili','youtube']);q.add_argument('work');q.add_argument('comment_id')
     q.add_argument('--limit',type=int,default=20);q.add_argument('--cursor');q.add_argument('--out')
+    pl=sub.add_parser('playlist',help='Owned YouTube playlists via official API.').add_subparsers(dest='action',required=True)
+    for action in ('list','items'):
+        q=pl.add_parser(action)
+        if action=='items':q.add_argument('playlist')
+        q.add_argument('--cursor');q.add_argument('--limit',type=int,default=50);q.add_argument('--out')
+    q=pl.add_parser('verify');q.add_argument('key');q.add_argument('--out')
+    for action in ('create','update','delete','add','remove','move'):
+        q=pl.add_parser(action)
+        if action!='create':q.add_argument('playlist')
+        if action in ('create','update'):
+            q.add_argument('--title',required=action=='create');q.add_argument('--description');q.add_argument('--privacy',choices=['private','unlisted','public'])
+        if action=='add':q.add_argument('video')
+        if action in ('remove','move'):q.add_argument('item')
+        if action=='move':q.add_argument('--position',type=int,required=True)
+        q.add_argument('--request-id',required=True);q.add_argument('--out')
     o=sub.add_parser('ops',help='Read-only watchlists and multi-platform collection.').add_subparsers(dest='action',required=True)
     m=sub.add_parser('messages',help='Unified local comments, mentions and DM previews; no automatic replies.').add_subparsers(dest='action',required=True)
     q=m.add_parser('sync');q.add_argument('--platforms',required=True);q.add_argument('--sources',default='comments,mentions,dm_preview')
     q.add_argument('--limit',type=int,default=20);q.add_argument('--pages',type=int,default=2);q.add_argument('--language',choices=['auto','zh','en'],default='auto');q.add_argument('--out')
+    q.add_argument('--workers',type=int,default=3);q.add_argument('--progress',action='store_true');q.add_argument('--min-interval',type=int,default=300);q.add_argument('--full',action='store_true')
+    q=m.add_parser('resume');q.add_argument('run_id');q.add_argument('--progress',action='store_true');q.add_argument('--out')
     q=m.add_parser('list');q.add_argument('--platform',choices=PLATFORMS);q.add_argument('--kind',choices=['comments','mentions','dm_preview']);q.add_argument('--identity')
     q.add_argument('--status',choices=['pending','all','unread','read','handled','deferred'],default='pending');q.add_argument('--limit',type=int,default=50)
     q.add_argument('--cursor');q.add_argument('--include-own',action='store_true');q.add_argument('--out')
@@ -229,8 +246,9 @@ def parser():
     q.add_argument('--reply-pages',type=int,default=1);q.add_argument('--reply-threads',type=int,default=5)
     q.add_argument('--min-interval',type=int,default=300,help='Reuse successful reads younger than this many seconds; 0 always reads.')
     q.add_argument('--full',action='store_true',help='Bypass freshness cache; still respects page budgets.')
+    q.add_argument('--workers',type=int,default=3);q.add_argument('--progress',action='store_true')
     for action in ('resume','run'):
-        q=o.add_parser(action);q.add_argument('run_id');q.add_argument('--out')
+        q=o.add_parser(action);q.add_argument('run_id');q.add_argument('--out');q.add_argument('--progress',action='store_true')
     q=o.add_parser('runs');q.add_argument('--limit',type=int,default=20);q.add_argument('--out')
     q=o.add_parser('discover');q.add_argument('platform',choices=PLATFORMS)
     q.add_argument('--pages',type=int,default=3);q.add_argument('--limit',type=int,default=50);q.add_argument('--out')
@@ -407,9 +425,18 @@ def execute(args):
         else:result=dm.read(args.platform,getattr(args,'recipient',None),args.limit)
         if args.out:atomic_json(args.out,result)
         return result
+    if args.command=='playlist':
+        from . import playlists
+        if args.action in {'list','items'}:result=playlists.listing(getattr(args,'playlist',None),args.cursor,args.limit)
+        elif args.action=='verify':result=playlists.verify(args.key)
+        else:result=playlists.change(args.action,**{k:getattr(args,k,None) for k in ('playlist','title','description','privacy','video','item','position','request_id')})
+        if args.out:atomic_json(args.out,result)
+        return result
     if args.command=='messages':
         from . import messages
-        if args.action=='sync':result=messages.sync(args.platforms,args.sources,args.limit,args.pages,args.language)
+        if args.action=='sync':result=messages.sync(args.platforms,args.sources,args.limit,args.pages,args.language,args.min_interval,args.full,args.workers,args.progress)
+        elif args.action=='resume':
+            result=messages.resume(args.run_id,args.progress)
         elif args.action=='mark':result=messages.mark(args.key,args.status)
         else:result=messages.listing(args.platform,args.kind,args.status,args.limit,args.cursor,args.identity,args.include_own)
         if args.out:atomic_json(args.out,result)
@@ -429,8 +456,8 @@ def execute(args):
         return result
     if args.command=='ops':
         from . import operations_sync, operations_runs, work_catalog
-        if args.action=='sync':result=operations_runs.sync(args.platforms,args.limit,args.pages,args.language,args.reply_pages,args.reply_threads,args.min_interval,args.full)
-        elif args.action=='resume':result=operations_runs.resume(args.run_id)
+        if args.action=='sync':result=operations_runs.sync(args.platforms,args.limit,args.pages,args.language,args.reply_pages,args.reply_threads,args.min_interval,args.full,args.workers,args.progress)
+        elif args.action=='resume':result=operations_runs.resume(args.run_id,args.progress)
         elif args.action=='run':result=operations_runs.status(args.run_id)
         elif args.action=='runs':result=operations_runs.listing(args.limit)
         elif args.action=='discover':result=work_catalog.discover(args.platform,args.limit,args.pages)
@@ -716,7 +743,7 @@ def capabilities():
             "existing_work_edits": "vpub edit: YouTube API metadata, Instagram captions, available X Edit action, Douyin portrait and chapters. One field group per request; verify-only never saves. X edit availability is platform-controlled; no automatic repost.",
             "youtube_initial_permissions": "Upload, read and video/playlist management scopes are requested together; user approves in Google. Old limited tokens require reauthorization.",
             "youtube_category": "Explicit per-video category required; host-model selection, in-place revision and read-back. API validates assignability before upload; no People & Blogs fallback.",
-            "playlists": "YouTube native selections or optional API membership with explicit write scope.",
+            "playlists": "YouTube playlist list/items/create/update/add/remove/move/delete/verify: ordinary owned playlists, durable request IDs, no write retries; default private creation.",
             "draft_only": "Instagram/X: init --draft-only stops CLI before Share/Post. PREVIEW_READY is not a guaranteed persistent draft after closing the browser.",
             "platforms": {p: {"native_login": True,
              "publish_backend": {"bilibili": "bili-cli", "youtube": "official API"}.get(p, "dedicated persistent background browser"),
@@ -727,7 +754,7 @@ def capabilities():
             "bili_cli": "Use installed bili directly for its existing search, video, inbox, comment and creator-data commands.",
             "works": "Bilibili published-work pages and YouTube upload-playlist pages; Douyin/Instagram/X visible first page only.",
             "work_adoption": "ops discover scans bounded pages; ops adopt freshly verifies ownership and adds existing works to the watchlist without an upload receipt.",
-            "resumable_sync": "ops sync persists read jobs and API page checkpoints, reuses recent successful reads; ops runs/run/resume inspect or continue. Browser unfinished reads restart the current work, not an invented cursor.",
+            "resumable_sync": "ops/messages sync use bounded per-platform concurrency, session reuse, durable checkpoints and freshness caches. --workers 1-4; --progress emits body-free JSON to stderr. ops/messages resume skips completed reads; unfinished browser sources restart their page.",
             "planned_common_commands": ["account", "search", "video", "analytics-history", "full-message-history"],
             "suspended_platforms": {"tiktok": "Login test with a Hong Kong number was unsuccessful; see docs/TIKTOK_STATUS.md."},
             "not_implemented": "Full historical analytics/inbox, X/Instagram official API clients, and YouTube cards/clickable end screens. Instagram mobile-cover replacement remains user-assisted. Douyin replies to nested replies are not supported.",

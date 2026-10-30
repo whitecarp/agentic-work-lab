@@ -2,6 +2,12 @@
 
 **繁體中文** · [English](DEEPSEEK_HANDOFF_EN.md)
 
+## 0.12.0 速度、訊息與播放列表
+
+優先用 `ops sync --progress`／`messages sync --progress`，預設三平台並行。同站保持循序；不要另外啟動同一登入環境。以 `ops runs` 找執行 ID，`messages resume RUN_ID` 或 `ops resume RUN_ID` 繼續原輪；不要清除回執。快取時間不是即時登入證明，UNSUPPORTED 不是成功讀取。
+
+YouTube 列表使用 `playlist` 命令。首次建立預設私密；修改、排序和刪除限使用者指定範圍。每個新意圖用新 request ID，未知結果只 verify，不重送。`playlist remove` 移除列表項目；`playlist delete` 刪除整個列表，均不刪影片。不要將測試範圍擴展到既有公開列表。私信正文只留本機，進度與公開報告不得攜帶內容。見 [命令](README.md#youtube-播放列表管理)。
+
 ## 0.11.0 接管與續讀
 
 先用 `ops discover` 找作品，再用 `ops adopt` 核驗並追蹤。巡檢失敗保留回執，用 `ops runs` 找執行 ID，再 `ops resume`；不可清除回執重跑。`CACHED` 不是即時查詢，核對觀察時間；需要新資料用 `--full`。`changes` 是新觀察／正文變動，不等於新收到。只接管使用者範圍內的作品，不自動發送或修改。詳見 [指令與限制](README.md#已有作品接管與可恢復巡檢)。

@@ -4,6 +4,12 @@
 
 本專案採用人類提出需求、AI 協助編寫、工具驗證與人類審閱的方式。程式能否重跑、失敗時怎麼處理，比單純列出語言或程式碼行數更重要。
 
+## CrossCast 的速度與播放列表
+
+- [read_scheduler.py](../tools/publishops-crosscast/src/video_publisher/read_scheduler.py)：有界平台並行、獨立檢查點及逐步進度。
+- [playlists.py](../tools/publishops-crosscast/src/video_publisher/playlists.py)：YouTube 列表 CRUD、成員排序、請求去重及讀回。
+- [test_operations_012.py](../tools/publishops-crosscast/tests/test_operations_012.py)：並行隔離、訊息恢復、連線復用、列表歸屬及不確定寫入測試。
+
 ## CrossCast 的作品接管與巡檢
 
 - [work_catalog.py](../tools/publishops-crosscast/src/video_publisher/work_catalog.py)：作品目錄、即時歸屬核驗與接管記錄。

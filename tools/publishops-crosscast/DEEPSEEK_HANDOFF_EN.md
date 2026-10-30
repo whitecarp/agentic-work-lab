@@ -2,6 +2,12 @@
 
 [繁體中文](DEEPSEEK_HANDOFF.md) · **English**
 
+## 0.12.0 speed, messages and playlists
+
+Prefer `ops sync --progress` / `messages sync --progress`, with three platform workers by default. Keep one platform sequential; do not launch another process on the same profile. Find run IDs with `ops runs`; continue with `messages resume RUN_ID` or `ops resume RUN_ID`. Never clear receipts. A cached timestamp does not prove a current login; UNSUPPORTED is not an observed read.
+
+Use `playlist` for YouTube collections. New lists default to private; changes, moves and deletion must stay within the user's requested scope. Use a new request ID per intended change and only verify unknown results. `playlist remove` removes an item and `playlist delete` deletes the list; neither deletes videos. Do not expand a test to existing public playlists. Keep private bodies local and out of progress/public reports. [Commands](README_EN.md#youtube-playlist-management).
+
 ## 0.11.0 adoption and resumption
 
 Discover works with `ops discover`, then freshly verify and track them with `ops adopt`. Retain failed runs, find their IDs with `ops runs` and use `ops resume`; do not clear receipts to restart. `CACHED` is not a live query: check observation time and use `--full` when fresh reads are needed. `changes` means newly observed/edited, not necessarily newly received. Adopt only works within the user’s task; do not automatically send or edit. See [commands and limits](README_EN.md#adopt-existing-works-and-resume-collection).

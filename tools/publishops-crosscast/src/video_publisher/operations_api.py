@@ -4,6 +4,38 @@ import re
 from . import adapters
 from .core import VpubError, atomic_json, read_json, stop_check
 
+from contextlib import contextmanager
+from threading import local
+
+_READ = local()
+
+@contextmanager
+def read_session():
+    previous=getattr(_READ,'cache',None)
+    _READ.cache={}
+    try:yield
+    finally:
+        service=_READ.cache.get('service')
+        if service is not None and hasattr(service,'close'):service.close()
+        _READ.cache=previous
+
+
+def youtube_context(action,work):
+    cache=getattr(_READ,'cache',None) if action in {'comments','stats','replies'} else None
+    cache=cache if cache is not None else {}
+    if 'service' not in cache:
+        service=adapters.yt_service('default')
+        owners=service.channels().list(part='id',mine=True).execute().get('items',[])
+        if len(owners)!=1:raise VpubError('channel_required','Expected one authorized YouTube channel.')
+        cache.update(service=service,identity=owners[0]['id'],works={})
+    service,identity=cache['service'],cache['identity']
+    if work not in cache['works']:
+        works=service.videos().list(part='snippet,statistics,status',id=work).execute().get('items',[])
+        if len(works)!=1 or works[0]['snippet']['channelId']!=identity:
+            raise VpubError('wrong_work','This work does not belong to the signed-in YouTube channel.')
+        cache['works'][work]=works[0]
+    return service,identity,cache['works'][work]
+
 
 def metric(value, label, unit='count'):
     return {'value':value,'label':label,'unit':unit,'availability':'observed' if value is not None else 'unavailable'}
@@ -26,14 +58,7 @@ def _bili_comment(c, owner):
 
 def execute(platform, action, work, **kw):
     if platform=='bilibili': return bilibili(action,work,**kw)
-    service=adapters.yt_service('default')
-    owners=service.channels().list(part='id',mine=True).execute().get('items',[])
-    if len(owners)!=1: raise VpubError('channel_required','Expected one authorized YouTube channel.')
-    identity=owners[0]['id']
-    works=service.videos().list(part='snippet,statistics,status',id=work).execute().get('items',[])
-    if len(works)!=1 or works[0]['snippet']['channelId']!=identity:
-        raise VpubError('wrong_work','This work does not belong to the signed-in YouTube channel.')
-    video=works[0]
+    service,identity,video=youtube_context(action,work)
     if action in {'test_seed','test_seed_verify'}:
         test=kw['test_request']
         if identity!=test['identity']: raise VpubError('wrong_account','Test account changed.')

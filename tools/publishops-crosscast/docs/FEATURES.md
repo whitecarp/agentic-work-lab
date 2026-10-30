@@ -6,7 +6,7 @@
 
 原因是未訂閱帳號的影片上傳上限為 **140 秒、512 MB**，且無法使用本工具所依賴的 Media Studio 媒體管理與自訂封面流程。CrossCast 的 X 後端透過 Media Studio 上傳影片並設定製作封面，因此目前僅支援具備此權限的訂閱帳號。登入或付款本身不代表權限已開通，上傳前仍會核對媒體庫入口與所選帳號。[官方上傳限制](https://help.x.com/en/using-x/x-videos) · [Media Studio 權限](https://help.x.com/en/using-x/media-studio)。
 
-**0.11.0 alpha。** 新方案在首次登入後由 CLI 執行；`method: native` 是明確選用的宿主瀏覽器備援。B站繼續呼叫 [bili-cli](https://github.com/kukemc/bili-cli)。
+**0.12.0 alpha。** 新方案在首次登入後由 CLI 執行；`method: native` 是明確選用的宿主瀏覽器備援。B站繼續呼叫 [bili-cli](https://github.com/kukemc/bili-cli)。
 
 | 能力 | Bilibili | YouTube | 抖音 | X | Instagram |
 |---|---|---|---|---|---|
@@ -30,9 +30,13 @@
 
 內容語言與平台目標不同時保留原語言＋翻譯；中文的簡繁體在 B站／抖音統一簡體，不重複兩段。抖音自訂章節已接入 CLI 發布／驗證流程。`vpub edit` 支援 YouTube 資料、Instagram 配文、可用的 X 編輯入口及抖音封面／章節；native 交接仍保留。共用 v3 直圖已由使用者在兩站手機畫面確認底部文字可見；不能外推到所有手機版面。郵件僅支援 Gmail、預設關閉，使用者主動要求時才協助安裝／連接插件並開啟。Outlook、QQ、網易及 SMTP 均不支援。評論單語回覆與使用者語言匯報見 [README](../README.md#評論作品數據與營運匯報)。TikTok、自動／批量私信及點讚、完整歷史匯出與 YouTube 卡片／可點擊片尾未實作。
 
+## 0.12.0 — 並行讀取、訊息續讀與播放列表
+
+預設三個平台並行、同站共用連線／瀏覽器；獨立檢查點、合併鎖、stderr 進度。評論、提及與會話預覽共用快取及 `messages resume`。YouTube 新增 `playlist list/items/create/update/add/remove/move/delete/verify`，只管理本帳號的一般列表，單次提交並獨立讀回。[用法與限制](../README.md#更快的巡檢與統一續讀)。
+
 ## 0.11.0 — 已有作品、增量巡檢與續讀
 
-新增 `ops discover/adopt`，以有界目錄及重新核驗的歸屬接管手動發布作品；接管記錄與上傳回執分開。`ops sync` 支援 300 秒成功讀取復用、變更清單、逐步落盤及 `ops runs/run/resume`。API 保留分頁進度；未完成的瀏覽器作品重新讀取目前頁面，已完成項目不重讀。快取及部分覆蓋明確標示。提及／私信來源尚未加入這套程序續讀。[用法與限制](../README.md#已有作品接管與可恢復巡檢)。
+新增 `ops discover/adopt`，以有界目錄及重新核驗的歸屬接管手動發布作品；接管記錄與上傳回執分開。`ops sync` 支援 300 秒成功讀取復用、變更清單、逐步落盤及 `ops runs/run/resume`。API 保留分頁進度；未完成的瀏覽器作品重新讀取目前頁面，已完成項目不重讀。快取及部分覆蓋明確標示。0.11 當時未接入提及／私信續讀；0.12 已補齊。[用法與限制](../README.md#已有作品接管與可恢復巡檢)。
 
 ## 0.10.0 — 提及通知與審核實測
 

@@ -2,7 +2,27 @@
 
 [繁體中文](VALIDATION.md) · **English**
 
-Date: **2026-10-30**, PublishOps CrossCast **0.11.0 alpha**.
+Date: **2026-10-30**, PublishOps CrossCast **0.12.0 alpha**.
+
+## 0.12.0: speed, unified message resumption and YouTube playlists
+
+**331 offline tests pass, including 25 new tests.** Coverage includes overlapping reads, platform isolation, child-journal recovery, message caches/private reports, YouTube connection/ownership reuse, playlist ownership, field preservation, ordering, request deduplication and uncertain writes.
+
+| Live check | Result |
+|---|---|
+| 10 live reads across four platforms | Same watchlist and page budgets: 55.446 seconds on 0.11 versus 27.398 seconds with three platform workers on 0.12; first saved result at about 3 seconds. Both completed 10 reads using 3 browser contexts. One comparison, not a sustained latency guarantee. |
+| YouTube playlists | Created a private test list, renamed it, added two existing videos, moved the second item to position 0, removed one item and deleted the test list. All 7 changes were independently read back. Existing public playlists and videos were not deleted or changed. |
+| Post-write visibility | An immediate read missed the newly created list. Its returned ID was saved and a later verify confirmed it. Bounded readback retries were added; creation was not repeated. |
+| Unified message sources | Read watched comments on four platforms plus mentions and conversation previews on Douyin/Instagram/X. Instagram mentions remained explicitly empty; a nonempty fixture is still pending. X returned 1 visible mention this round. YouTube mentions/DMs remain UNSUPPORTED. |
+| Windows checkpoint concurrency | Found a file-sharing race between status reads and atomic replacement; added a process-local read/write lock. Resumption completed the remaining 3 jobs after 8 had finished, without repeating completed work. |
+| Actual forced interruption | The Douyin worker had saved both source results; the parent was forcibly exited after merging the first mention source. A new process recovered the second source, preserving the first observation time, with 0 new browsers and 0 platform writes. This validates source-level recovery, not a persistent browser scroll cursor. |
+| Immediate repeat | All 11 successful reads reused caches: 0 new queries and 0 browser contexts. Cached observations are not live reads. |
+
+No comments, DMs, likes or videos were sent this round; covers, captions, schedules and Gmail settings were unchanged. Bilibili was not live-tested. Accounts, message bodies, receipts and diagnostic details remain local.
+
+Pending: live long-history/large-comment acceptance, nonempty Instagram mentions, clean-machine and sustained unattended acceptance. See [usage](../README_EN.md#youtube-playlist-management) for playlist authorization, special-list and manual-ordering limits. Douyin work collections, named Instagram collections and X bookmark folders are not integrated.
+
+Historical validation follows; earlier unsupported statements do not override this release.
 
 ## 0.11.0: existing-work adoption, incremental collection and resumption
 

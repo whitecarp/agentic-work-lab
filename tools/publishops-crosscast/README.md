@@ -8,13 +8,52 @@
 
 ### 跨平台影片發布營運台
 
-**v0.11.0 alpha · CLI `vpub` · AI 協助開發**
+**v0.12.0 alpha · CLI `vpub` · AI 協助開發**
 
 讓同一支原創影片擁有各平台適用的文案、封面與發布回執。選擇 Bilibili、抖音、YouTube、Instagram、X 的任意組合，首次登入後，CLI 復用本機專用會話完成後續上傳。
 
 預設路徑：B站沿用 bili-cli，YouTube 使用官方 API，抖音／Instagram／X 由 CLI 在背景控制專用 Chrome。首次登入與官方驗證需要使用者協助；明確設定 `method: native` 仍可使用宿主瀏覽器交接。這是 alpha 版本，開發期實測與無人值守驗收分開記錄。已新增評論、作品數據及匯報命令；各站實測範圍見下方。TikTok、YouTube 卡片／可點擊片尾與 X／Instagram 獨立 API 尚未實作。
 
 [功能範圍](docs/FEATURES.md) · [驗證記錄](docs/VALIDATION.md) · [Agent 交接](DEEPSEEK_HANDOFF.md) · [草稿測試](docs/DRAFT_TESTING.md)
+
+## 更快的巡檢與統一續讀
+
+不同平台預設以 **3 個工作執行緒**並行，`--workers 1–4` 可調整；同平台仍循序讀取，瀏覽器批次共用專用登入環境，YouTube 在同輪復用連線、頻道及作品歸屬查詢。各平台獨立保存檢查點，合併本機觀察時循序寫入。`--progress` 在 stderr 輸出不含留言正文的 JSON 進度；stdout 保持完整結果 JSON。
+
+```sh
+vpub ops sync --platforms youtube,douyin,instagram,x --workers 3 --progress
+vpub messages sync --platforms douyin,instagram,x --sources comments,mentions,dm_preview --progress
+vpub messages resume RUN_ID --progress
+vpub ops runs
+```
+
+評論、@ 提及、私信會話預覽共用有界讀取、300 秒成功快取及可恢復執行。`messages resume` 不重讀已完成項目，未完成頁面仍從該來源重新讀起；`--full` 強制查詢但保留數量上限。`sources` 分清 OBSERVED、CACHED、FAILED、UNSUPPORTED；不支援或未設定的來源保留 PARTIAL，不冒充整個帳號均已讀完。YouTube 的提及／私信沒有接入。
+
+訊息報告不包含私信正文；需查看已觀察內容時使用 `messages list`。預覽數不是新私信數，平台通知可能因開啟而標記已讀。這些命令不回覆、不寄信、不建立排程。`account_health` 僅描述本輪來源讀取；快取不能證明當下仍登入。
+
+實測同樣的四平台 10 項強制查詢：0.11 為 **55.446 秒**，0.12 為 **27.398 秒**，首項結果約 **3 秒**。這是一組同機、同帳號的開發測試，不是穩定吞吐量或延遲保證；不以快取命中冒充查詢加速。
+
+## YouTube 播放列表管理
+
+使用官方 API 管理本帳號的一般播放列表：建立、改名、修改說明／可見性、添加／移除影片、調整順序和刪除列表。建立預設私密；改名保留原說明、語言及可見性。移動／移除使用 `playlist items` 返回的精確 **ITEM_ID**，不是 VIDEO_ID；排序位置從 0 開始。
+
+```sh
+vpub playlist list
+vpub playlist create --title "My series" --privacy private --request-id series-create-01
+vpub playlist update PLAYLIST_ID --title "New series title" --request-id series-rename-01
+vpub playlist items PLAYLIST_ID
+vpub playlist add PLAYLIST_ID VIDEO_ID --request-id series-add-01
+vpub playlist move PLAYLIST_ID ITEM_ID --position 0 --request-id series-move-01
+vpub playlist remove PLAYLIST_ID ITEM_ID --request-id series-remove-01
+vpub playlist verify RECEIPT_KEY
+```
+
+刪除列表使用 `vpub playlist delete PLAYLIST_ID --request-id series-delete-01`；不刪除列表中的影片。每次有意的新變更使用新的 request ID，中斷或不確定時沿用原 ID，CLI 不會重送。`UNVERIFIED` 使用 `playlist verify` 讀回，不靠再次提交補救；若建立回應遺失且未取得列表 ID，保留待核驗，不依同名猜測歸屬。寫入後只有限時重讀，沒有寫入重試。
+
+這組命令需要首次登入授權包含 `youtube.force-ssl`；目前預設已列入。若 API 回報 `manualSortRequired`，需先在 YouTube 將該列表排序設成手動；CLI 不改排序模式。官方文件：[列表修改](https://developers.google.com/youtube/v3/docs/playlists/update)、[項目排序](https://developers.google.com/youtube/v3/docs/playlistItems/update)。
+
+B站繼續委派上游收藏夾功能；抖音作品合集管理、Instagram 具名收藏集、X 書籤資料夾尚未接入。它們與公開作品合集／YouTube 播放列表不同，不宣稱跨平台完全等價。
+
 
 ## 已有作品接管與可恢復巡檢
 
@@ -36,7 +75,7 @@ vpub ops sync --platforms youtube,douyin,instagram,x --full
 
 每一步完成便落盤。API 評論及樓中樓保存已驗證分頁與續頁 token；瀏覽器批次逐項保存已完成讀取。中斷後可用 `ops runs` 找回執行 ID，再用 `ops resume` 跳過已完成項目；未完成的瀏覽器作品從頁面重新讀起，不捏造可持久化捲動位置。已完成的整輪再次 resume 不會重新讀取。登入驗證、帳號變更或未知結果會停止該平台，保留進度，其他平台可繼續。
 
-`--full` 仍受頁數與數量預算限制。上述續讀屬於 `ops sync` 的作品評論／數據；`messages sync` 的提及與私信預覽仍使用原有來源基線，沒有宣稱可跨程序續讀。巡檢不建立排程、不自動回覆或寄信。原始評論、目錄及回執只存本機。
+`--full` 仍受頁數與數量預算限制。作品與訊息來源現已共用上述可恢復執行。巡檢不建立排程、不自動回覆或寄信。原始評論、目錄及回執只存本機。
 
 
 ## 點讚、收藏與撤銷

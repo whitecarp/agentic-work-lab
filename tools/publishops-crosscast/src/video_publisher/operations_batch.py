@@ -13,9 +13,13 @@ def validate(payload):
     for job in jobs:
         required={'operation','work_id','limit'}
         allowed=required | ({'pages','reply_pages'} if job.get('operation')=='comments' else set())
-        if not required <= set(job) or not set(job) <= allowed or job['operation'] not in {'comments', 'stats'}:
-            raise VpubError('read_only_batch', 'Only comment and statistics reads are allowed in this batch.')
-        work_id(payload['platform'], job['work_id'])
+        if not required <= set(job) or not set(job) <= allowed or job['operation'] not in {'comments', 'stats', 'mentions', 'dm_preview'}:
+            raise VpubError('read_only_batch', 'Only comments, statistics, mentions and conversation-preview reads are allowed.')
+        if job['operation'] in {'mentions','dm_preview'}:
+            if job['work_id']!='@account' or job['limit']>50:
+                raise VpubError('invalid_batch','Account reads require @account and limit 1–50.')
+        else:
+            work_id(payload['platform'], job['work_id'])
         if type(job['limit']) is not int or not 1 <= job['limit'] <= 100:
             raise VpubError('invalid_limit', 'Batch limit must be 1–100.')
         from .comment_collection import budgets
@@ -40,7 +44,20 @@ async def execute(page, platform, identity, payload):
             stop_check(platform)
             remaining = 480 - (time.monotonic() - started)
             if remaining <= 0: raise VpubError('batch_time_budget', 'The read-only batch exhausted its time budget.')
-            value = await asyncio.wait_for(read(page, platform, identity, {**job, 'reuse_page': True}), timeout=min(90, remaining))
+            async def perform():
+                nonlocal page
+                if job['operation'] in {'mentions','dm_preview'}:
+                    from .browser_runtime import signed_in_page
+                    from .message_sources import execute as sources
+                    page, owner = await signed_in_page(page.context,platform,identity)
+                    if owner!=identity:raise VpubError('wrong_account','Account changed before message inspection.')
+                    result=await sources(page,platform,identity,{'sources':[job['operation']],'limit':job['limit']})
+                    value=result['sources'][job['operation']]
+                    if value.get('state')!='OBSERVED':
+                        raise VpubError(value.get('code','source_not_observed'),'Message source was not read successfully.')
+                    return value
+                return await read(page,platform,identity,{**job,'reuse_page':True})
+            value = await asyncio.wait_for(perform(), timeout=min(90, remaining))
             results.append({'job': job, 'ok': True, 'data': value})
         except Exception as exc:
             failed = True

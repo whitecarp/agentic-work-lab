@@ -61,9 +61,10 @@ class InboxTests(unittest.TestCase):
         self.assertFalse((home()/'operations/messages').exists())
 
     def test_summary_has_no_private_message_content(self):
-        response={'identity':'owner','sources':{'dm_preview':{'state':'OBSERVED',**self.value}}}
+        response={'identity':'owner','results':[{'job':{'operation':'dm_preview','work_id':'@account','limit':20},'ok':True,'data':self.value}]}
         with patch.object(messages.direct_messages,'identity',return_value='owner'),patch.object(messages.adapters,'browser_call',return_value=response):
             run=messages.sync('x','dm_preview')
+        self.assertEqual('COLLECTED',run['state']);self.assertEqual('OBSERVED',run['sources'][0]['state'])
         self.assertNotIn('Contact',str(run));self.assertNotIn('Hello',str(run));self.assertEqual(0,run['platform_writes'])
 
     def test_local_pagination_and_filters(self):
