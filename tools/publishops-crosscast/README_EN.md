@@ -8,7 +8,7 @@ This requirement exists because non-subscribers are limited to **140-second, 512
 
 ### Multi-platform video release operations console
 
-**v0.8.0 alpha · CLI `vpub` · AI-assisted development**
+**v0.9.0 alpha · CLI `vpub` · AI-assisted development**
 
 Prepare platform-specific metadata, covers and publication receipts for one original video. Choose any subset of Bilibili, Douyin, YouTube, Instagram and X. Sign in once; the CLI reuses its own local sessions for later uploads.
 
@@ -107,7 +107,7 @@ vpub ops watch remove youtube VIDEO_ID
 
 `works` supports all five platforms. YouTube reads the authorized channel uploads playlist; Bilibili lists published submissions and leaves scheduled/reviewing work alone. These two return a `--cursor` for pagination. Douyin, Instagram and X still expose only the visible first page, not a full account archive. Browser-platform watch targets require an existing CrossCast publication receipt; API platforms check work ownership directly.
 
-`ops sync` processes only the watchlist, up to `--pages` per work and `--limit` top-level comments per page; API reply previews can add entries. The first read establishes a baseline. Later reads deduplicate by comment ID and exclude own comments from audience interactions. `inbox` contains observed candidates, not private messages or a full account inbox. `needs_thread_check` means reply status is uncertain and context must be read. Candidates never trigger automatic sending.
+`ops sync` processes only the watchlist, up to `--pages` per work and `--limit` top-level comments per API page (a total result cap for browser collection); API reply previews can add entries. The first read establishes a baseline. Later reads deduplicate by comment ID and exclude own comments from audience interactions. `inbox` contains observed candidates, not private messages or a full account inbox. `needs_thread_check` means reply status is uncertain and context must be read. Candidates never trigger automatic sending.
 
 Metrics retain historical events and the latest snapshot. `changes.delta` requires exact numbers from the same account, work, source, label and unit. Missing, rounded or changed-source values keep a null delta; percentage changes use percentage points and negative changes are retained. View/play definitions are not added across platforms. A partial failure preserves successful work and returns `PARTIAL` with exit code 4. Challenges or account mismatches are not retried through another route. Each run saves a local receipt and reports only its own events.
 
@@ -120,6 +120,38 @@ vpub comments replies bilibili BV_ID ROOT_COMMENT_ID --limit 20
 ```
 
 These two platforms support paged replies to a top-level comment with work and parent checks. `next_cursor` indicates another page; `complete` describes only the requested scope. This does not turn Instagram, X or Douyin visible comments into a complete historical export or bypass reply deduplication.
+
+## Unified messages and bounded comment collection
+
+```sh
+vpub messages sync --platforms douyin,instagram,x --sources comments,dm_preview --language en --out messages.json
+vpub messages sync --platforms x --sources mentions,dm_preview
+vpub messages list --status pending --limit 50
+vpub messages list --kind dm_preview --identity ACCOUNT_ID
+vpub messages mark MESSAGE_KEY handled
+vpub comments collect douyin WORK_ID --pages 3 --reply-pages 1 --limit 50
+```
+
+Comments use the existing `ops watch` list and share history and handling marks with `inbox`. X reads its visible Mentions tab; Douyin, Instagram and X read conversation previews. Each source establishes its own first-read baseline, then deduplicates observations and preserves local marks. Changed preview text reopens a stable conversation ID. Where Instagram/Douyin expose no stable ID, entries are content snapshots, not incoming-message counts or recipient identities. Relative-time labels alone do not create new messages.
+
+`messages sync` only collects and reports in the user's language; it creates no schedule and sends nothing. Private bodies stay local and are excluded from reports and GitHub. Opening platform inboxes may change platform read badges; `messages mark` changes only local state. Baselines are not new arrivals, and missing rows on a partial page are never removed. Failed, unsupported and unconfigured sources make the run `PARTIAL`, not zero messages. YouTube DMs, Douyin/Instagram mention feeds and a unified Bilibili message source are not integrated; existing Bilibili upstream commands remain available.
+
+`comments collect` and browser `ops sync` add bounded scrolling and visible reply expansion, retaining the union of observed IDs and an explicit stop reason. `--pages` bounds read rounds, `--limit` caps browser results in total, and each `--reply-pages` unit permits up to five visible expansion controls; 0 disables deliberate expansion. No complete history, unknown parent relationships or cursors are fabricated. Bilibili/YouTube retain their API page and thread budgets.
+
+### Moderation and hiding: experimental
+
+```sh
+vpub comments review youtube VIDEO_ID --status heldForReview
+vpub comments moderate youtube VIDEO_ID COMMENT_ID --status heldForReview --dry-run
+vpub comments moderate youtube VIDEO_ID COMMENT_ID --status published
+vpub comments hide x WORK_ID REPLY_ID --dry-run
+vpub comments hide x WORK_ID REPLY_ID --remove
+vpub comments verify-action ACTION_KEY
+```
+
+Omit `--dry-run` to submit the explicitly selected action directly. YouTube uses `youtube.force-ssl` and only observed viewer comments on owned videos; rejection and author bans are not included. ID-filtered reads omit moderation state, so bounded review queues provide independent evidence. If replies make root/child state ambiguous, the command stops. In the self-comment probe the API accepted a hold request but read-back remained published. That temporary comment was removed; live viewer-comment transitions remain unverified. [Moderation API](https://developers.google.com/youtube/data/reference/rest/v3/comments/setModerationStatus) · [Status-field limits](https://developers.google.com/youtube/data/reference/rest/v3/comments).
+
+X provides an experimental exact-reply hide/unhide route for another author's reply under an owned post. Menu-state read-back is required; disappearance, deletion and blocking are not substitutes. This run had only own-reply fixtures, so live hide/unhide is not accepted yet. Hidden replies remain accessible through X's hidden-replies entry. [Official explanation](https://help.x.com/en/using-x/mentions-and-replies).
 
 ## Persistent comment inbox and fewer browser starts
 
@@ -136,7 +168,7 @@ vpub inbox mark COMMENT_KEY unread
 
 The local inbox retains observed comments by platform, account, work and comment ID. New entries are unread; read/handled/deferred marks survive later syncs. Changed text reopens an item. A missing comment on a partial page is not deleted from history. Read `last_seen_at` before relying on old entries. `pending` excludes own comments, known answered threads and handled/deferred items; `--cursor` continues local results. `--identity` selects one recorded account. Marking an item performs no platform write and does not send a reply.
 
-For Bilibili/YouTube, sync expands incomplete reply previews within `--reply-threads` (default 5 per work) and `--reply-pages` (default 1 per expanded thread). Set either to 0 to disable expansion. Unfinished threads retain `reply_continuations`; use `comments replies` to continue. Browser reads remain limited to visible entries, without complete-inbox, mention-notification or private-message claims.
+For Bilibili/YouTube, sync expands incomplete reply previews within `--reply-threads` (default 5 per work) and `--reply-pages` (default 1 per expanded thread). Set either to 0 to disable expansion. Unfinished threads retain `reply_continuations`; use `comments replies` to continue. Browser reads now support bounded expansion; the unified-message section above defines the separate mention/preview coverage.
 
 ## Manage individual comments
 
@@ -190,7 +222,7 @@ The CLI saves account, recipient, preflight state and receipt before one submiss
 
 ### Pinning and hiding boundaries
 
-`vpub comments pin bilibili BV_ID ROOT_COMMENT_ID` and `--remove` delegate to upstream for top-level comments only. Another pinned comment stops the command instead of being silently replaced; this round covers offline tests only. The observed Douyin and Instagram web layouts exposed no verified comment pin/hide control, so those actions are not integrated. X's profile pin is not comment pinning, and hide-reply is not yet integrated. `comments hide` returns an explicit unsupported error; it never substitutes deletion, dislike or account blocking. Check `vpub capabilities`; one account's observed web limits are not a claim that the entire platform can never support a feature.
+`vpub comments pin bilibili BV_ID ROOT_COMMENT_ID` and `--remove` delegate to upstream for top-level comments only. Another pinned comment stops the command instead of being silently replaced; this round covers offline tests only. The observed Douyin and Instagram web layouts exposed no verified comment pin/hide control, so those actions are not integrated. X's profile pin is not comment pinning. Its experimental hide/unhide route and live-test limits are described above. Other unsupported hide actions never substitute deletion, dislike or account blocking. Check `vpub capabilities`; one account's observed web limits are not a claim that the entire platform can never support a feature.
 
 ## Install and start
 

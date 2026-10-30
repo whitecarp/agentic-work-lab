@@ -10,11 +10,15 @@ def validate(payload):
     if not isinstance(jobs, list) or not 1 <= len(jobs) <= 20 or not payload.get('expected_identity'):
         raise VpubError('invalid_batch', 'Provide 1–20 reads and an expected account identity.')
     for job in jobs:
-        if set(job) != {'operation', 'work_id', 'limit'} or job['operation'] not in {'comments', 'stats'}:
+        required={'operation','work_id','limit'}
+        allowed=required | ({'pages','reply_pages'} if job.get('operation')=='comments' else set())
+        if not required <= set(job) or not set(job) <= allowed or job['operation'] not in {'comments', 'stats'}:
             raise VpubError('read_only_batch', 'Only comment and statistics reads are allowed in this batch.')
         work_id(payload['platform'], job['work_id'])
         if type(job['limit']) is not int or not 1 <= job['limit'] <= 100:
             raise VpubError('invalid_limit', 'Batch limit must be 1–100.')
+        from .comment_collection import budgets
+        budgets(job['limit'],job.get('pages',1),job.get('reply_pages',0))
     return jobs
 
 

@@ -52,23 +52,32 @@ def execute(request, operation, receipt_path=None):
         threads = service.commentThreads().list(part='snippet', id=target.get('thread_id') or root).execute().get('items', [])
         if len(threads) != 1 or threads[0]['snippet'].get('videoId') != w or threads[0]['snippet']['topLevelComment']['id'] != root:
             raise VpubError('wrong_work', 'Exact comment thread does not belong to this work.')
-        if s.get('authorChannelId', {}).get('value') != identity:
+        if kind != 'moderate' and s.get('authorChannelId', {}).get('value') != identity:
             raise VpubError('own_comment_required', 'Only your own comments can be edited/deleted.')
-        observed = {'identity': identity, 'deleted': False, 'text': s.get('textOriginal'), 'source': 'youtube_comments_list'}
+        observed = {'identity': identity, 'deleted': False, 'text': s.get('textOriginal',s.get('textDisplay')),
+                    'moderation_status':s.get('moderationStatus'), 'source': 'youtube_comments_list'}
+        if kind=='moderate' and not observed['moderation_status']:
+            from .youtube_moderation import state
+            observed['moderation_status']=state(service,w,cid,s.get('parentId'))
+            observed['source']='youtube_exact_comment_and_bounded_owner_review_queue'
     if identity != expected: raise VpubError('wrong_account', 'The signed-in account changed.')
     if operation == 'status': return observed
     if operation != 'set': raise VpubError('unsupported_operation', 'Choose status or set.')
     if observed['text'] != target['text']: raise VpubError('comment_changed', 'The comment changed since it was read.')
     if p == 'bilibili' and (kind not in {'like','pin'} or type(observed.get('pinned' if kind=='pin' else 'liked')) is not bool):
         raise VpubError('state_unavailable', 'Exact comment like state is unavailable.')
-    if p == 'youtube' and (kind not in {'edit', 'delete'} or not adapters.yt_credentials('default').has_scopes([adapters.PLAYLIST_SCOPE])):
+    if p == 'youtube' and (kind not in {'edit', 'delete','moderate'} or not adapters.yt_credentials('default').has_scopes([adapters.PLAYLIST_SCOPE])):
         raise VpubError('oauth_scope_required', 'YouTube comment management requires youtube.force-ssl.')
+    if kind=='moderate' and (request['desired'] not in {'published','heldForReview'} or observed.get('moderation_status') not in {'published','heldForReview'}):
+        raise VpubError('state_unavailable','Only observed published/heldForReview states can be changed.')
     from .comment_actions import submitting
     stop_check(p); submitting(receipt_path)
     if p == 'bilibili':
         adapters.bili(['comment', kind, w, cid] + ([] if request['desired'] else ['--undo']))
     elif kind == 'edit':
         service.comments().update(part='snippet', body={'id': cid, 'snippet': {'textOriginal': request['desired']}}).execute()
+    elif kind == 'moderate':
+        service.comments().setModerationStatus(id=cid,moderationStatus=request['desired']).execute()
     else: service.comments().delete(id=cid).execute()
     saved = read_json(receipt_path); saved.update(state='COMMENT_UNVERIFIED', platform_writes=1); atomic_json(receipt_path, saved)
     return {'state': 'COMMENT_UNVERIFIED', 'platform_writes': 1}

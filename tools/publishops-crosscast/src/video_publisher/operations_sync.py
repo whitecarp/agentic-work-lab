@@ -130,7 +130,7 @@ def collect(platform, work, identity, limit, pages, reply_pages=0, reply_threads
     return ops.save_observation(platform,work,'comments',result)
 
 
-def browser_batch(targets, limit):
+def browser_batch(targets, limit, pages=2, reply_pages=1):
     """Bind every work to its publication receipt before opening one shared profile."""
     p=targets[0]['platform'];identities={t['identity'] for t in targets}
     if len(identities)!=1:raise VpubError('wrong_account','A browser batch must use one watched identity.')
@@ -139,6 +139,8 @@ def browser_batch(targets, limit):
         ops.work_id(p,t['work_id'])
         if ops.browser_identity(p,t['work_id'])!=identity:raise VpubError('wrong_account','Publication and watch identities differ.')
     jobs=[{'operation':a,'work_id':t['work_id'],'limit':limit} for t in targets for a in ('comments','stats')]
+    for job in jobs:
+        if job['operation']=='comments':job.update(pages=pages,reply_pages=reply_pages)
     return adapters.browser_call(p,'operations_batch','default',expected_identity=identity,jobs=jobs)
 
 
@@ -164,7 +166,7 @@ def sync(platforms=None, limit=20, pages=2, language='auto', reply_pages=1, repl
                             group=peers[offset:offset+10]
                             try:
                                 if failed:raise VpubError('batch_stopped','Earlier batch on this platform failed.')
-                                batch=browser_batch(group,limit)
+                                batch=browser_batch(group,limit,pages,reply_pages)
                                 run['browser_sessions']+=batch['browser_sessions']
                                 for row in batch['results']:
                                     batches[p][(row['job']['work_id'],row['job']['operation'])]=row

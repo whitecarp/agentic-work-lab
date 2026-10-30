@@ -177,6 +177,15 @@ def parser():
         q.add_argument('--test-id',help='Explicit test label; retained and excluded from ordinary engagement reports.')
     q=e.add_parser('verify');q.add_argument('key');q.add_argument('--out')
     c = sub.add_parser('comments', help='Read comments and send direct single-language replies.').add_subparsers(dest='action',required=True)
+    q=c.add_parser('collect',help='Bounded comment pages and visible reply expansion; no complete-history claim.')
+    q.add_argument('platform',choices=PLATFORMS);q.add_argument('work');q.add_argument('--limit',type=int,default=50)
+    q.add_argument('--pages',type=int,default=3);q.add_argument('--reply-pages',type=int,default=1);q.add_argument('--out')
+    q=c.add_parser('review',help='YouTube owner review queue; not a full account inbox.')
+    q.add_argument('platform',choices=['youtube']);q.add_argument('work');q.add_argument('--status',choices=['heldForReview','published'],default='heldForReview')
+    q.add_argument('--limit',type=int,default=20);q.add_argument('--cursor');q.add_argument('--out')
+    q=c.add_parser('moderate',help='Hold/approve an observed YouTube comment, without banning its author.')
+    q.add_argument('platform',choices=['youtube']);q.add_argument('work');q.add_argument('comment_id')
+    q.add_argument('--status',required=True,choices=['heldForReview','published']);q.add_argument('--dry-run',action='store_true');q.add_argument('--test-id');q.add_argument('--out')
     for action in ('status','like','pin','hide','edit','delete'):
         q=c.add_parser(action);q.add_argument('platform',choices=PLATFORMS);q.add_argument('work');q.add_argument('comment_id');q.add_argument('--out')
         if action!='status':q.add_argument('--dry-run',action='store_true');q.add_argument('--test-id')
@@ -202,6 +211,13 @@ def parser():
     q.add_argument('platform',choices=['bilibili','youtube']);q.add_argument('work');q.add_argument('comment_id')
     q.add_argument('--limit',type=int,default=20);q.add_argument('--cursor');q.add_argument('--out')
     o=sub.add_parser('ops',help='Read-only watchlists and multi-platform collection.').add_subparsers(dest='action',required=True)
+    m=sub.add_parser('messages',help='Unified local comments, mentions and DM previews; no automatic replies.').add_subparsers(dest='action',required=True)
+    q=m.add_parser('sync');q.add_argument('--platforms',required=True);q.add_argument('--sources',default='comments,mentions,dm_preview')
+    q.add_argument('--limit',type=int,default=20);q.add_argument('--pages',type=int,default=2);q.add_argument('--language',choices=['auto','zh','en'],default='auto');q.add_argument('--out')
+    q=m.add_parser('list');q.add_argument('--platform',choices=PLATFORMS);q.add_argument('--kind',choices=['comments','mentions','dm_preview']);q.add_argument('--identity')
+    q.add_argument('--status',choices=['pending','all','unread','read','handled','deferred'],default='pending');q.add_argument('--limit',type=int,default=50)
+    q.add_argument('--cursor');q.add_argument('--include-own',action='store_true');q.add_argument('--out')
+    q=m.add_parser('mark');q.add_argument('key');q.add_argument('status',choices=['unread','read','handled','deferred']);q.add_argument('--out')
     inbox=sub.add_parser('inbox',help='Local observed comments; no private messages or automatic replies.').add_subparsers(dest='action',required=True)
     q=inbox.add_parser('list');q.add_argument('--platform',choices=PLATFORMS);q.add_argument('--identity')
     q.add_argument('--status',choices=['pending','all','unread','read','handled','deferred'],default='pending')
@@ -381,6 +397,13 @@ def execute(args):
         else:result=dm.read(args.platform,getattr(args,'recipient',None),args.limit)
         if args.out:atomic_json(args.out,result)
         return result
+    if args.command=='messages':
+        from . import messages
+        if args.action=='sync':result=messages.sync(args.platforms,args.sources,args.limit,args.pages,args.language)
+        elif args.action=='mark':result=messages.mark(args.key,args.status)
+        else:result=messages.listing(args.platform,args.kind,args.status,args.limit,args.cursor,args.identity,args.include_own)
+        if args.out:atomic_json(args.out,result)
+        return result
     if args.command=='inbox':
         from . import operations_inbox
         result=operations_inbox.mark(args.key,args.status) if args.action=='mark' else operations_inbox.listing(args.platform,args.status,args.limit,args.cursor,args.include_own,args.identity)
@@ -402,13 +425,28 @@ def execute(args):
     if args.command in {'comments','stats','report','preferences'}:
         from . import operations
         if args.command=='comments':
-            if args.action in {'status','like','pin','hide','edit','delete','verify-action'}:
+            if args.action in {'status','like','pin','hide','edit','delete','verify-action','moderate'}:
                 from . import comment_actions
                 if args.action=='status':result=comment_actions.status(args.platform,args.work,args.comment_id)
                 elif args.action=='verify-action':result=comment_actions.verify(args.key)
                 else:
-                    desired=(Path(args.file).read_text(encoding='utf-8-sig') if args.file else args.text) if args.action=='edit' else not getattr(args,'remove',False)
+                    desired=args.status if args.action=='moderate' else (Path(args.file).read_text(encoding='utf-8-sig') if args.file else args.text) if args.action=='edit' else not getattr(args,'remove',False)
                     result=comment_actions.mutate(args.platform,args.work,args.comment_id,args.action,desired,args.dry_run,args.test_id)
+            elif args.action=='collect':
+                from .comment_collection import budgets
+                from .operations_sync import collect
+                budgets(args.limit,args.pages,args.reply_pages);operations.work_id(args.platform,args.work)
+                if args.platform in {'bilibili','youtube'}:
+                    identity=operations.backend(args.platform,'stats',args.work)['identity']
+                    result=collect(args.platform,args.work,identity,args.limit,args.pages,args.reply_pages)
+                else:
+                    value=operations.backend(args.platform,'comments',args.work,limit=args.limit,pages=args.pages,reply_pages=args.reply_pages)
+                    result=operations.save_observation(args.platform,args.work,'comments',value)
+            elif args.action=='review':
+                operations.work_id(args.platform,args.work)
+                if not 1<=args.limit<=100 or args.cursor and len(args.cursor)>1000:raise VpubError('invalid_limit','Invalid review page limit/cursor.')
+                value=operations.backend(args.platform,'comments',args.work,limit=args.limit,cursor=args.cursor,moderation_status=args.status)
+                result=operations.save_observation(args.platform,args.work,'comments',value)
             elif args.action=='list': result=operations.observe(args.platform,args.work,'comments',args.limit,args.cursor)
             elif args.action=='replies':result=operations.observe(args.platform,args.work,'replies',args.limit,args.cursor,args.comment_id)
             elif args.action=='reply':
@@ -671,7 +709,7 @@ def capabilities():
             "native_execution": "The host agent performs real UI actions. A CLI handoff alone is not an executed action or confirmed login.",
             "bili_cli": "Use installed bili directly for its existing search, video, inbox, comment and creator-data commands.",
             "works": "Bilibili published-work pages and YouTube upload-playlist pages; Douyin/Instagram/X visible first page only.",
-            "planned_common_commands": ["account", "search", "video", "analytics-history", "private-message-inbox"],
+            "planned_common_commands": ["account", "search", "video", "analytics-history", "full-message-history"],
             "suspended_platforms": {"tiktok": "Login test with a Hong Kong number was unsuccessful; see docs/TIKTOK_STATUS.md."},
             "not_implemented": "Full historical analytics/inbox, X/Instagram official API clients, and YouTube cards/clickable end screens. Instagram mobile-cover replacement remains user-assisted. Douyin replies to nested replies are not supported.",
             "interaction_rule": "Login/setup does not authorize comments, messages, likes or publication."}

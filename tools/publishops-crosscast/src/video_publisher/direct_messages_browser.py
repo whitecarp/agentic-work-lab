@@ -62,7 +62,8 @@ async def execute(page, platform, identity, payload):
             return await douyin(page,identity,payload)
         await page.get_by_text('私信管理', exact=True).click(timeout=30000)
         await page.get_by_text('朋友私信', exact=True).wait_for(timeout=30000)
-        await page.wait_for_timeout(1500); await risk_check(page)
+        await page.wait_for_function('''() => document.body.innerText.includes('还没有收到私信') || [...document.querySelectorAll('[role="tab-panel"][aria-hidden="false"] li[role="list-item"]')].some(e=>e.querySelector('[class^="item-header-name-"]')?.textContent?.trim())''',timeout=20000)
+        await risk_check(page)
         empty = await page.get_by_text('还没有收到私信', exact=True).is_visible()
         if action == 'list' and empty:
             return {'identity':identity,'items':[],'platform_writes':0,'scope':'Creator Center all-conversations tab; empty inbox observed.',
@@ -80,6 +81,7 @@ async def execute(page, platform, identity, payload):
         await page.wait_for_timeout(1500); await risk_check(page)
         # Summaries are local only and not used as recipient identifiers.
         rows = await page.locator('[data-pagelet="IGDInboxThreadListScrollableAreaPagelet"] [role=button]').evaluate_all(INBOX_SUMMARIES)
+        if not rows:raise VpubError('dm_surface_unverified','No verified conversation previews; an empty DOM is not an empty-history confirmation.')
         return {'identity':identity,'items':[{'summary':s} for s in rows[:limit]],'platform_writes':0,
                 'scope':'Visible conversation summaries only; use an exact handle for dm read/send.'}
     area, editor = await instagram_chat(page, who)

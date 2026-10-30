@@ -2,7 +2,24 @@
 
 [繁體中文](VALIDATION.md) · **English**
 
-Date: **2026-10-30**, PublishOps CrossCast **0.8.0 alpha**.
+Date: **2026-10-30**, PublishOps CrossCast **0.9.0 alpha**.
+
+## 0.9.0: unified messages, bounded collection and experimental moderation
+
+**263 offline tests pass.** Added coverage includes per-source baselines/deduplication, relative-time changes, account isolation, handling marks, private bodies excluded from reports, partial-page absence preserving history, bounded cross-page unions, root/child moderation ambiguity, unknown states and own-reply safeguards.
+
+| Live check this round | Result |
+|---|---|
+| Douyin/Instagram/X comment collection | Each existing work returned two test comments/replies; IDs were retained across bounded rounds. No full-history claim. Large-list coverage still lacks a live fixture. |
+| Unified message collection | Watched comments read successfully on four platforms, with conversation previews on Douyin/Instagram/X. Repeated previews produced no new or changed entries. Unsupported YouTube DMs correctly made the combined result PARTIAL. |
+| X mentions | Explicit empty Mentions state matched on two reads; no nonempty mention fixture yet. |
+| Douyin inbox loading | Replaced the early shell check with a wait for actual rows or an explicit empty state. |
+| YouTube review queue | Published queue read successfully. A separate own childless test comment received an accepted hold request, but fresh state remained published: not a verified transition. The temporary comment was deleted and absence confirmed; the original test thread remains. Viewer-comment transitions await validation. |
+| X hiding | Own-reply dry-run stopped without mutation. No eligible viewer-reply fixture, so live hide/unhide is not accepted. |
+
+No new DMs, Bilibili live tests, video/cover/schedule edits or email-setting changes occurred in this round. Raw messages, pages and test-account data remain local. New moderation/hiding routes are experimental; offline tests and accepted requests do not establish live platform state.
+
+Historical validation scopes follow; current behavior is defined above and in the README.
 
 ## 0.8.0: comment management and direct-message live checks
 

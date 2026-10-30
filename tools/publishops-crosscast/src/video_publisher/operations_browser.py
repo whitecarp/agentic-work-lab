@@ -129,11 +129,11 @@ DOUYIN_PUBLIC_ROWS=r'''limit => [...document.querySelectorAll('[data-e2e="commen
 }).filter(Boolean)'''
 
 
-async def comments(page,platform,identity,work,limit):
+async def comments(page,platform,identity,work,limit,expand_replies=True):
     if platform=='douyin' and urlsplit(page.url).hostname=='www.douyin.com':
         await page.wait_for_function("() => document.querySelector('[data-e2e=comment-item]') || /暂无评论|暂时没有更多评论/.test(document.body.innerText)",timeout=20000)
         expand=page.locator('[data-e2e="comment-list"]').get_by_text(re.compile(r'^展开\s*\d+\s*条回复'))
-        for button in (await expand.all())[:10]:
+        for button in (await expand.all())[:10 if expand_replies else 0]:
             if await button.is_visible(): await button.click()
         rows=await page.evaluate(DOUYIN_PUBLIC_ROWS,limit)
         body=await page.locator('[data-e2e="comment-list"]').inner_text() if await page.locator('[data-e2e="comment-list"]').count() else ''
@@ -146,6 +146,8 @@ async def comments(page,platform,identity,work,limit):
         # bounded DOM collection a complete API conversation export.
         items=[]
         for article in await page.locator('main article').all():
+            if await article.evaluate('''e => [...document.querySelectorAll('main h2, main span')].some(n=>['Discover more','More posts','More for you'].includes(n.textContent.trim()) && Boolean(n.compareDocumentPosition(e)&Node.DOCUMENT_POSITION_FOLLOWING))'''):
+                break
             anchor=article.locator('a[href*="/status/"]').filter(has=page.locator('time'))
             if await anchor.count()!=1: continue
             href=await anchor.get_attribute('href');m=re.fullmatch(r'/([A-Za-z0-9_]+)/status/(\d+)',href or '')
@@ -212,6 +214,10 @@ async def execute(page,platform,identity,payload):
         return {'state':'OBSERVED','identity':identity,'url':url,'source':'official_page_dom','metrics':metrics}
     if action=='comments':
         if payload.get('cursor'): raise VpubError('cursor_unsupported','Browser comments expose the visible page only; no fabricated page cursor.')
+        if 'pages' in payload:
+            from .comment_collection import collect
+            return {'state':'OBSERVED','identity':identity,'url':url,
+                    **await collect(page,platform,identity,work,payload['limit'],payload['pages'],payload.get('reply_pages',1))}
         return {'state':'OBSERVED','identity':identity,'url':url,'source':'official_page_dom',
                 **await comments(page,platform,identity,work,payload['limit'])}
     if action in {'test_seed','test_seed_verify'}:

@@ -4,7 +4,7 @@ import uuid
 from . import adapters, operations as ops
 from .core import VpubError, atomic_json, digest, home, now, publication_lock, read_json, stop_check
 
-SUPPORTED = {'bilibili': {'like', 'pin'}, 'instagram': {'like'}, 'x': {'like'}, 'youtube': {'edit', 'delete'}, 'douyin': {'like', 'delete'}}
+SUPPORTED = {'bilibili': {'like', 'pin'}, 'instagram': {'like'}, 'x': {'like','hide'}, 'youtube': {'edit', 'delete','moderate'}, 'douyin': {'like', 'delete'}}
 PENDING = {'COMMENT_SUBMITTING', 'COMMENT_UNVERIFIED'}
 
 
@@ -46,20 +46,24 @@ def submitting(path):
 
 def matches(request, observed):
     if observed.get('identity') != request['identity']: return False
-    key = {'like': 'liked', 'pin': 'pinned', 'edit': 'text', 'delete': 'deleted'}[request['kind']]
-    return observed.get(key) == request['desired'] and (key == 'text' or type(observed.get(key)) is bool)
+    key = {'like': 'liked', 'pin': 'pinned', 'hide':'hidden', 'moderate':'moderation_status', 'edit': 'text', 'delete': 'deleted'}[request['kind']]
+    return observed.get(key) == request['desired'] and (key in {'text','moderation_status'} or type(observed.get(key)) is bool)
 
 
 def mutate(platform, work, comment_id, kind, desired=True, dry_run=False, test_id=None):
     if kind not in SUPPORTED.get(platform, set()):
         raise VpubError('unsupported_operation', 'This comment action is not supported on this platform.')
-    if kind == 'edit':
+    if kind=='moderate':
+        if desired not in {'published','heldForReview'}:raise VpubError('invalid_action','Choose published or heldForReview. Rejection/author bans are not implicit actions.')
+    elif kind == 'edit':
         if not isinstance(desired, str) or not desired.strip() or len(desired) > 2000 or '\x00' in desired:
             raise VpubError('invalid_text', 'Supply nonempty comment text of at most 2000 characters.')
     elif type(desired) is not bool or (kind == 'delete' and not desired):
         raise VpubError('invalid_action', 'Invalid target state.')
     if test_id and not re.fullmatch(r'[A-Za-z0-9_-]{1,80}', test_id): raise VpubError('invalid_test_id', 'Use a short test label.')
     request = {**target(platform, work, comment_id), 'kind': kind, 'desired': desired}
+    if kind=='moderate' and request['comment'].get('is_owner'):
+        raise VpubError('other_author_required','Use a viewer comment for moderation. The live self-comment probe did not change state.')
     if kind in {'edit', 'delete'} and not request['comment'].get('is_owner'):
         raise VpubError('own_comment_required', 'Editing/deleting is restricted to your own comments on your own work.')
     with publication_lock():
@@ -71,8 +75,10 @@ def mutate(platform, work, comment_id, kind, desired=True, dry_run=False, test_i
         before = dispatch(request)
         if matches(request, before): return {'state': 'NO_CHANGE', 'platform_writes': 0, 'observed': before}
         if before.get('deleted'): raise VpubError('comment_missing', 'The comment is no longer present.')
-        if kind in {'like','pin'} and type(before.get({'like':'liked','pin':'pinned'}[kind])) is not bool:
+        if kind in {'like','pin','hide'} and type(before.get({'like':'liked','pin':'pinned','hide':'hidden'}[kind])) is not bool:
             raise VpubError('state_unavailable', 'Exact comment action state is unavailable.')
+        if kind=='moderate' and before.get('moderation_status') not in {'published','heldForReview'}:
+            raise VpubError('state_unavailable','Exact moderation status is unavailable; no write attempted.')
         if before.get('text') != request['comment']['text']:
             raise VpubError('comment_changed', 'The comment text changed; read it again before changing it.')
         if dry_run: return {'state': 'DRY_RUN', 'request': request, 'observed': before, 'platform_writes': 0}

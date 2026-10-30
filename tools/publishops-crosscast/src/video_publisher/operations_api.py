@@ -13,7 +13,7 @@ def _yt_comment(c, owner, parent=None):
     s=c['snippet'];author=s.get('authorChannelId',{}).get('value')
     return {'id':c['id'],'parent_id':s.get('parentId') or parent,'text':s.get('textOriginal',s.get('textDisplay','')),
             'author':s.get('authorDisplayName'),'author_id':author,'published_at':s.get('publishedAt'),
-            'likes':s.get('likeCount'),'is_owner':author==owner,'owner_replied':None}
+            'likes':s.get('likeCount'),'is_owner':author==owner,'owner_replied':None,'moderation_status':s.get('moderationStatus')}
 
 
 def _bili_comment(c, owner):
@@ -84,6 +84,9 @@ def execute(platform, action, work, **kw):
                 'scope':'One page of replies to this root, with its root comment; not other video threads.'}
     if action=='comments':
         args={'part':'snippet,replies','videoId':work,'maxResults':kw['limit'],'order':'time','textFormat':'plainText'}
+        if kw.get('moderation_status'):
+            if kw['moderation_status'] not in {'heldForReview','published'}:raise VpubError('invalid_moderation','Unknown review filter.')
+            args['moderationStatus']=kw['moderation_status']
         if kw.get('cursor'): args['pageToken']=kw['cursor']
         try: data=service.commentThreads().list(**args).execute()
         except Exception as exc:
@@ -103,7 +106,7 @@ def execute(platform, action, work, **kw):
                 'scope':'One API page of top-level threads, with the API-provided reply preview; not a full reply export.',
                 'complete':not data.get('nextPageToken') and all(t['snippet'].get('totalReplyCount',0)==len(t.get('replies',{}).get('comments',[])) for t in data.get('items',[])),
                 'replies_complete':all(t['snippet'].get('totalReplyCount',0)==len(t.get('replies',{}).get('comments',[])) for t in data.get('items',[])),
-                'source':'youtube_data_api'}
+                'source':'youtube_data_api','moderation_filter':kw.get('moderation_status','published')}
     request=kw['reply_request'];target=request['comment']
     if identity!=request['expected_identity']: raise VpubError('wrong_account','The authorized channel changed since the comment was read.')
     matches=service.comments().list(part='snippet',id=target['id'],textFormat='plainText').execute().get('items',[])

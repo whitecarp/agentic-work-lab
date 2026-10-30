@@ -69,7 +69,8 @@ class LocalTests(unittest.TestCase):
     def test_sync_groups_two_works_one_browser_session(self):
         targets=[{'platform':'x','identity':'owner','work_id':w} for w in ('123456789','234567890')]
         atomic_json(home()/'operations/watchlist.json',{'items':targets})
-        def run(ts,limit):
+        def run(ts,limit,pages,reply_pages):
+            self.assertEqual((2,1),(pages,reply_pages))
             return {'browser_sessions':1,'results':[{'job':{'work_id':t['work_id'],'operation':a},'ok':True,
                 'data':deepcopy(self.observation if a=='comments' else {'identity':'owner','metrics':{},'source':'dom'})} for t in ts for a in ('comments','stats')]}
         with patch.object(sync,'browser_batch',side_effect=run) as called:

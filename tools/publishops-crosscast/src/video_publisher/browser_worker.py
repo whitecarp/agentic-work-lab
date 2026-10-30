@@ -34,6 +34,9 @@ async def run(payload):
                     return await unlock(page,actual)
                 from .browser_backends import execute
                 try:
+                    if payload['action']=='message_sources':
+                        from .message_sources import execute as messages
+                        return await messages(page,platform,actual,payload)
                     if payload['action']=='direct_messages':
                         from .direct_messages_browser import execute as dm
                         return await dm(page,platform,actual,payload)
