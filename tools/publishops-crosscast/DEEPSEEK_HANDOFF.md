@@ -2,6 +2,10 @@
 
 **繁體中文** · [English](DEEPSEEK_HANDOFF_EN.md)
 
+## 0.13.0 私人收藏集
+
+使用 `collection list` 取得確切 ID。更名只開放 X；Instagram 更名實測未通過。抖音寫入與具名成員變更尚未支援。中斷後沿用原 request ID，未知結果僅讀回；不得依同名猜測新 ID，也不得以部分清單證明刪除。私人資料夾測試不擴大為清空全部書籤或刪影片。[範圍](README.md#私人收藏集與平台差異)。
+
 ## 0.12.0 速度、訊息與播放列表
 
 優先用 `ops sync --progress`／`messages sync --progress`，預設三平台並行。同站保持循序；不要另外啟動同一登入環境。以 `ops runs` 找執行 ID，`messages resume RUN_ID` 或 `ops resume RUN_ID` 繼續原輪；不要清除回執。快取時間不是即時登入證明，UNSUPPORTED 不是成功讀取。

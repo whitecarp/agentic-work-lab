@@ -4,6 +4,12 @@
 
 本專案採用人類提出需求、AI 協助編寫、工具驗證與人類審閱的方式。程式能否重跑、失敗時怎麼處理，比單純列出語言或程式碼行數更重要。
 
+## CrossCast 私人收藏集
+
+- [collections.py](../tools/publishops-crosscast/src/video_publisher/collections.py)：帳號與 ID 綁定、持久請求、禁止重送及獨立讀回。
+- [collections_browser.py](../tools/publishops-crosscast/src/video_publisher/collections_browser.py)：官方頁面集合控制項、有界觀察及未支援操作的明確回報。
+- [test_collections.py](../tools/publishops-crosscast/tests/test_collections.py)：帳號不符、部分清單、回應遺失與重複請求保護。
+
 ## CrossCast 的速度與播放列表
 
 - [read_scheduler.py](../tools/publishops-crosscast/src/video_publisher/read_scheduler.py)：有界平台並行、獨立檢查點及逐步進度。

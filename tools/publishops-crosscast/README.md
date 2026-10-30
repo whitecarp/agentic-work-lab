@@ -8,13 +8,41 @@
 
 ### 跨平台影片發布營運台
 
-**v0.12.0 alpha · CLI `vpub` · AI 協助開發**
+**v0.13.0 alpha · CLI `vpub` · AI 協助開發**
 
 讓同一支原創影片擁有各平台適用的文案、封面與發布回執。選擇 Bilibili、抖音、YouTube、Instagram、X 的任意組合，首次登入後，CLI 復用本機專用會話完成後續上傳。
 
 預設路徑：B站沿用 bili-cli，YouTube 使用官方 API，抖音／Instagram／X 由 CLI 在背景控制專用 Chrome。首次登入與官方驗證需要使用者協助；明確設定 `method: native` 仍可使用宿主瀏覽器交接。這是 alpha 版本，開發期實測與無人值守驗收分開記錄。已新增評論、作品數據及匯報命令；各站實測範圍見下方。TikTok、YouTube 卡片／可點擊片尾與 X／Instagram 獨立 API 尚未實作。
 
 [功能範圍](docs/FEATURES.md) · [驗證記錄](docs/VALIDATION.md) · [Agent 交接](DEEPSEEK_HANDOFF.md) · [草稿測試](docs/DRAFT_TESTING.md)
+
+## 私人收藏集與平台差異
+
+`vpub collection` 管理的是各平台不同的集合。Instagram Saved 與 X 書籤資料夾屬於私人收藏，不會建立公開影片合集；YouTube 繼續使用 `playlist`，B站收藏夾委派上游 bili-cli。
+
+| 平台 | 本版範圍 | 仍有的限制 |
+|---|---|---|
+| X | 列出、建立、重新命名、刪除私人書籤資料夾 | 需帳號實際具有資料夾入口；項目讀取遇到平台錯誤會失敗，不把錯誤頁當空清單。尚未接入指定資料夾的加入／移除。 |
+| Instagram | 列出、建立、刪除私人收藏集；有界項目讀取 | 重新命名在實測中未能持久保存，已停用。非空項目清單仍待驗收；尚未接入收藏集成員變更。 |
+| 抖音 | 檢查作品合集入口與空清單 | 本帳號實測為空；非空清單解析及建立／修改／刪除尚未開放。建立頁要求合集封面與作品，不能用私人收藏替代。 |
+
+```sh
+vpub collection list x
+vpub collection create x --title "Research" --request-id research-create-01
+vpub collection rename x COLLECTION_ID --title "Ideas" --request-id research-rename-01
+vpub collection list instagram
+vpub collection create instagram --title "Inspiration" --request-id inspiration-create-01
+vpub collection items instagram COLLECTION_ID
+vpub collection delete instagram COLLECTION_ID --request-id inspiration-delete-01
+vpub collection verify RECEIPT_KEY
+vpub collection list douyin
+```
+
+`COLLECTION_ID` 使用清單回傳的數字 ID，不能填名稱或網址。X 刪除使用同樣的 `collection delete x`。每個新意圖使用新的 `--request-id`；中斷後重複原命令只回傳本機回執，不開瀏覽器、不重送。`verify` 只讀回，帳號不符時停止。建立後必須保留平台回傳的確切 ID；回應遺失時不靠同名猜測、不自動再建立。
+
+刪除收藏集／資料夾不刪影片，也不清空預設 Saved／All Bookmarks。`complete: false` 表示有界或未完整讀取，不能以「這頁沒看到」判定刪除成功。Instagram 刪除後若尚有其他收藏集且只取得部分清單，回執可能保留 `UNVERIFIED`。本版未提供集合分頁續讀或成員搬移，`engage save --collection` 仍只適用 B站／YouTube。X 清單讀取使用官方頁面自身產生的回應，寫入使用官方控制項，不重放私人 API 請求。
+
+以上操作使用 CLI 專用登入狀態，不接管宿主瀏覽器、不啟用巡檢或郵件。實測及未完成項目見[驗證記錄](docs/VALIDATION.md)。
 
 ## 更快的巡檢與統一續讀
 
@@ -52,7 +80,7 @@ vpub playlist verify RECEIPT_KEY
 
 這組命令需要首次登入授權包含 `youtube.force-ssl`；目前預設已列入。若 API 回報 `manualSortRequired`，需先在 YouTube 將該列表排序設成手動；CLI 不改排序模式。官方文件：[列表修改](https://developers.google.com/youtube/v3/docs/playlists/update)、[項目排序](https://developers.google.com/youtube/v3/docs/playlistItems/update)。
 
-B站繼續委派上游收藏夾功能；抖音作品合集管理、Instagram 具名收藏集、X 書籤資料夾尚未接入。它們與公開作品合集／YouTube 播放列表不同，不宣稱跨平台完全等價。
+私人收藏集使用上方獨立的 `collection` 指令；不宣稱與公開影片合集完全等價。
 
 
 ## 已有作品接管與可恢復巡檢
@@ -87,8 +115,8 @@ vpub ops sync --platforms youtube,douyin,instagram,x --full
 | B站 | bili-cli | 指定收藏夾；省略 ID 時使用唯一預設夾，撤銷不影響其他夾 |
 | YouTube | 官方影片評分 API | 指定自己擁有的普通播放列表；不支援「稍後觀看」、喜歡清單或舊版最愛 |
 | 抖音 | 指定影片的點讚按鈕 | 該影片的預設收藏 |
-| Instagram | 作品工具列的 Like | 預設 Saved；未支援命名收藏集，評論點讚使用獨立指令 |
-| X | 指定帖文的 Like | 私人 Bookmarks；不是 Lists，也不是書籤資料夾管理 |
+| Instagram | 作品工具列的 Like | 預設 Saved；具名容器使用 `collection`，評論點讚使用獨立指令 |
+| X | 指定帖文的 Like | 預設私人 Bookmarks；具名容器使用 `collection`，X Lists 為不同功能 |
 
 ```sh
 vpub engage status instagram WORK_ID

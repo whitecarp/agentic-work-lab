@@ -2,7 +2,21 @@
 
 [繁體中文](VALIDATION.md) · **English**
 
-Date: **2026-10-30**, PublishOps CrossCast **0.12.0 alpha**.
+Date: **2026-10-30**, PublishOps CrossCast **0.13.0 alpha**.
+
+## 0.13.0: private collections and bookmark folders
+
+**361 offline tests pass, including 30 new tests.** Coverage includes account/exact-ID binding, request deduplication, lost creations not adopted by title, partial lists not proving deletion, pre-submit receipts, response-schema changes and retrying only read-only navigation while X's menu initializes.
+
+| Live check | Result |
+|---|---|
+| X private folders | Temporary-folder create, rename and delete independently read back; cleanup restored the empty list. |
+| Instagram private collections | Temporary create/delete and empty-collection item reads tested. Rename did not persist, so this operation is disabled. |
+| Douyin work collections | Explicit empty collection list read; creation requires a cover and works. No public test collection was submitted. Nonempty lists and writes remain pending. |
+| X item reads | The platform displayed an error; the CLI returned `read_failed` instead of treating the accompanying empty-state text as success. Nonempty items remain unverified. |
+| Uncertain submissions and network loss | Submitted requests without an exact returned ID remain unverified, without title-based success claims or automatic resubmission. Test folders were cleaned up using exact IDs from listing. |
+
+No videos, comments or DMs were sent, no default saved items changed, and Bilibili was not tested. Private accounts, collection names/IDs and diagnostics remain local. Create/rename/delete still launch several independent browser contexts for readback; they are not instant direct-API operations, and this release makes no new speedup claim. Pending: named membership changes, collection pagination, Instagram rename, full Douyin work collections and clean-machine/long-running acceptance.
 
 ## 0.12.0: speed, unified message resumption and YouTube playlists
 

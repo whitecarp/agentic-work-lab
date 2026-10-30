@@ -49,6 +49,9 @@ async def run(payload):
                     if payload['action']=='engagement':
                         from .engagement_browser import execute as engage
                         return await engage(page,platform,actual,payload)
+                    if payload['action']=='collections':
+                        from .collections_browser import execute as collections
+                        return await collections(page,platform,actual,payload)
                     if payload['action']=='operations':
                         from .operations_browser import execute as operate
                         return await operate(page,platform,actual,payload)
@@ -57,7 +60,7 @@ async def run(payload):
                         return await batch(page,platform,actual,payload)
                     return await execute(page, platform, actual, payload)
                 except Exception as exc:
-                    if payload['action']=='operations':
+                    if payload['action'] in {'operations','collections'}:
                         # Local diagnostics only; never included in public reports.
                         try:
                             atomic_json(home()/'operations/errors'/(platform+'-last-error.json'),

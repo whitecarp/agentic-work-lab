@@ -27,7 +27,8 @@ Prepare platform-specific descriptions, covers and publication receipts for one 
 - Added unified messages with Douyin @ notifications, Instagram tags/mentions, X mentions and three-platform conversation previews. YouTube viewer hold/approve and X hide/unhide each passed one live round trip; nonempty Instagram mentions still need a live fixture.
 - Added existing-work adoption, freshness-based read reuse and interruption recovery; ownership evidence and progress are stored without reuploading.
 - Added parallel platform reads, incremental progress, message resumption and YouTube playlist management; 10 reads across four platforms took 27.4 seconds versus 55.4 in one development comparison.
-- **0.12.0 alpha, with 331 passing offline tests.** Full five-platform publication still has open acceptance items; tested scope and limits are documented.
+- Added private X folder management and Instagram collection create/delete, with exact-ID receipts and explicit limits for unverified features.
+- **0.13.0 alpha, with 361 passing offline tests.** Full five-platform publication still has open acceptance items; tested scope and limits are documented.
 
 [Install and use](tools/publishops-crosscast/README_EN.md) · [Feature scope](tools/publishops-crosscast/docs/FEATURES_EN.md) · [Validation](tools/publishops-crosscast/docs/VALIDATION_EN.md)
 

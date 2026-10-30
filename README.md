@@ -27,7 +27,8 @@
 - 新增統一訊息巡檢、抖音 @ 通知、Instagram 標註與提及、X 提及及三平台私信預覽。YouTube 觀眾評論暫存／批准及 X 隱藏／恢復各完成一組實測；Instagram 非空提及仍待樣本驗證。
 - 新增已有作品接管、成功讀取時效復用與中斷續讀；獨立保存歸屬核驗和執行進度，不重新上傳。
 - 新增跨平台並行巡檢、即時進度、訊息續讀與 YouTube 播放列表管理；實測四站 10 項查詢由 55.4 秒降至 27.4 秒，僅代表本次測試。
-- **0.12.0 alpha，331 項離線測試通過。** 完整五平台發布仍有待驗收項目；已測範圍與限制均有記錄。
+- 新增 X 私人書籤資料夾管理與 Instagram 收藏集建立／刪除，保留確切 ID 回執並明示未驗證功能。
+- **0.13.0 alpha，361 項離線測試通過。** 完整五平台發布仍有待驗收項目；已測範圍與限制均有記錄。
 
 [安裝與使用](tools/publishops-crosscast/README.md) · [功能範圍](tools/publishops-crosscast/docs/FEATURES.md) · [驗證記錄](tools/publishops-crosscast/docs/VALIDATION.md)
 

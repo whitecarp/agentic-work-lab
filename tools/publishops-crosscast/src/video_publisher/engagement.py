@@ -29,7 +29,8 @@ def collections(platform,cursor=None):
     operations.platform_check(platform);stop_check(platform)
     if cursor and (platform!='youtube' or len(cursor)>1000):raise VpubError('invalid_cursor','Collection pagination is supported on YouTube only.')
     if platform not in {'bilibili','youtube'}:
-        return {'platform':platform,'items':[],'scope':'Default Save/Bookmark only; named collection management is not implemented.'}
+        from .collections import listing
+        return listing(platform)
     return dispatch(platform,'collections',cursor=cursor)
 
 

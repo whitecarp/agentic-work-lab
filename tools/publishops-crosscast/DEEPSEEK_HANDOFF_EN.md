@@ -2,6 +2,10 @@
 
 [繁體中文](DEEPSEEK_HANDOFF.md) · **English**
 
+## 0.13.0 private collections
+
+Use `collection list` to obtain exact IDs. Only X rename is enabled; Instagram rename failed live readback. Douyin writes and named membership changes are unavailable. Repeat the original request ID after interruption; verify rather than resubmit unknown writes. Do not infer a new ID from a matching title or deletion from a partial list. Do not expand a private-folder test into clearing All Bookmarks or deleting videos. [Scope](README_EN.md#private-collections-and-platform-differences).
+
 ## 0.12.0 speed, messages and playlists
 
 Prefer `ops sync --progress` / `messages sync --progress`, with three platform workers by default. Keep one platform sequential; do not launch another process on the same profile. Find run IDs with `ops runs`; continue with `messages resume RUN_ID` or `ops resume RUN_ID`. Never clear receipts. A cached timestamp does not prove a current login; UNSUPPORTED is not an observed read.

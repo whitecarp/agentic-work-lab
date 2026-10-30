@@ -4,6 +4,12 @@
 
 The project uses human-defined requirements, AI-assisted implementation, tool-based verification, and human review. Reproducibility and failure handling matter more than listing languages or line counts.
 
+## CrossCast private collections
+
+- [collections.py](../tools/publishops-crosscast/src/video_publisher/collections.py): account-bound IDs, durable request intents, no resubmission and readback.
+- [collections_browser.py](../tools/publishops-crosscast/src/video_publisher/collections_browser.py): official-page collection controls, bounded observations and explicit unsupported operations.
+- [test_collections.py](../tools/publishops-crosscast/tests/test_collections.py): wrong-account, partial-page, lost-response and duplicate-request guards.
+
 ## CrossCast speed and playlist operations
 
 - [read_scheduler.py](../tools/publishops-crosscast/src/video_publisher/read_scheduler.py): bounded platform concurrency, independent checkpoints and incremental progress.
