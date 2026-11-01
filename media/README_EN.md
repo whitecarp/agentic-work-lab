@@ -2,23 +2,21 @@
 
 [繁體中文](README.md) · **English**
 
-Updated: 2026-10-29 evening · **21** video versions · **1.34 GiB**
+2026-11-01 · **25** video versions · **1.73 GiB**
 
-[Two episode-six films](https://github.com/whitecarp/agentic-work-lab/releases/tag/update-2026-10-29-evening) · [Previous three versions](https://github.com/whitecarp/agentic-work-lab/releases/tag/update-2026-10-28-evening) · [Original 16 files](https://github.com/whitecarp/agentic-work-lab/releases/tag/archive-2026-10-28) · [Checksums](SHA256SUMS.txt) · [Manifest](manifest.json)
+All 25 remote sizes and SHA-256 digests match the manifest. Versions are not episode counts. Original sample dates and historical Bilibili states remain in the index; old scheduled times are not treated as proof of publication. Complete experimental exports are not claims of full user acceptance.
 
-All 21 video sizes and SHA-256 digests match GitHub asset metadata. Versions are not distinct episodes. Older review and experimental copies are retained. The table gives the latest recorded Bilibili state per file; each observation date and original state remain in the manifest. The two new episode-six files are complete exports that passed Bilibili review and await their scheduled publication. Technical checks and sampled-frame review do not establish continuous human viewing or listening.
+[Checksums](SHA256SUMS.txt) · [Manifest](manifest.json) · [New research and limits](../docs/updates/2026-11-01_EN.md)
 
-GitHub publication does not change Bilibili schedules. Original historical human-led video files are absent from this workspace; their [metrics and platform links](../data/human-led-history.csv) remain available.
-
-| File | Title | Recorded Bilibili status | MiB |
-| --- | --- | --- | ---: |
+| File | Work | Recorded Bilibili state | MiB |
+|---|---|---|---:|
 | [gpt-log-01.mp4](https://github.com/whitecarp/agentic-work-lab/releases/download/archive-2026-10-28/gpt-log-01.mp4) | GPT Duty Log 01 | published | 153.01 |
 | [gpt-log-02.mp4](https://github.com/whitecarp/agentic-work-lab/releases/download/archive-2026-10-28/gpt-log-02.mp4) | GPT Duty Log 02 | published | 164.55 |
 | [gpt-log-03.mp4](https://github.com/whitecarp/agentic-work-lab/releases/download/archive-2026-10-28/gpt-log-03.mp4) | GPT Duty Log 03 | published | 42.38 |
 | [whale-log-01.mp4](https://github.com/whitecarp/agentic-work-lab/releases/download/archive-2026-10-28/whale-log-01.mp4) | Whale Girl Shift Log 01 | published | 40.21 |
 | [whale-log-02.mp4](https://github.com/whitecarp/agentic-work-lab/releases/download/archive-2026-10-28/whale-log-02.mp4) | Whale Girl Shift Log 02 | published | 33.70 |
 | [whale-log-03.mp4](https://github.com/whitecarp/agentic-work-lab/releases/download/archive-2026-10-28/whale-log-03.mp4) | Whale Girl Shift Log 03 | published | 23.84 |
-| [gpt-log-04.mp4](https://github.com/whitecarp/agentic-work-lab/releases/download/archive-2026-10-28/gpt-log-04.mp4) | GPT Duty Log 04: production tutorial | scheduled_on_bilibili | 157.70 |
+| [gpt-log-04.mp4](https://github.com/whitecarp/agentic-work-lab/releases/download/archive-2026-10-28/gpt-log-04.mp4) | GPT Duty Log 04: production tutorial | published | 157.70 |
 | [gpt-log-05-review.mp4](https://github.com/whitecarp/agentic-work-lab/releases/download/archive-2026-10-28/gpt-log-05-review.mp4) | GPT Episode 05: Seedance beginner tutorial (review copy) | ready_for_review | 105.48 |
 | [archive-episode03-candidate.mp4](https://github.com/whitecarp/agentic-work-lab/releases/download/archive-2026-10-28/archive-episode03-candidate.mp4) | Earlier local episode 03 candidate (not the released episode) | unpublished_experiment | 169.51 |
 | [archive-episode04-story-v4.mp4](https://github.com/whitecarp/agentic-work-lab/releases/download/archive-2026-10-28/archive-episode04-story-v4.mp4) | Earlier local episode 04 story cut (not the released episode) | unpublished_experiment | 67.51 |
@@ -33,5 +31,11 @@ GitHub publication does not change Bilibili schedules. Original historical human
 | [gpt-log-05-v3-antiflash-20261028.mp4](https://github.com/whitecarp/agentic-work-lab/releases/download/update-2026-10-28-evening/gpt-log-05-v3-antiflash-20261028.mp4) | GPT Duty Log 05: Seedance tutorial (flash correction) | scheduled_on_bilibili | 83.52 |
 | [gpt-log-06-v2-20261029.mp4](https://github.com/whitecarp/agentic-work-lab/releases/download/update-2026-10-29-evening/gpt-log-06-v2-20261029.mp4) | GPT Duty Log 06: Step by step, getting DeepSeek to help with my work (v2) | scheduled_on_bilibili | 42.23 |
 | [whale-log-06-v2-20261029.mp4](https://github.com/whitecarp/agentic-work-lab/releases/download/update-2026-10-29-evening/whale-log-06-v2-20261029.mp4) | Whale Girl Shift Log 06: AI does the automation; I pretend to be human (v2) | scheduled_on_bilibili | 13.88 |
+| [study-whale-transformation-v3-20261030.mp4](https://github.com/whitecarp/agentic-work-lab/releases/download/update-2026-10-30-evening/study-whale-transformation-v3-20261030.mp4) | Whale Girl transformation study v3 (earlier delivery) | unpublished_experiment | 85.84 |
+| [study-whale-transformation-v4-20261030.mp4](https://github.com/whitecarp/agentic-work-lab/releases/download/update-2026-10-30-evening/study-whale-transformation-v4-20261030.mp4) | Whale Girl transformation study v4 (targeted repair) | unpublished_experiment | 98.33 |
+| [study-whale-color-heels-r5-20261031.mp4](https://github.com/whitecarp/agentic-work-lab/releases/download/update-2026-11-01-studies/study-whale-color-heels-r5-20261031.mp4) | Whale Girl study: local colour and heel-sound revision 5 | not_verified | 108.10 |
+| [study-whale-motion-r7-20261101.mp4](https://github.com/whitecarp/agentic-work-lab/releases/download/update-2026-11-01-studies/study-whale-motion-r7-20261101.mp4) | Whale Girl study: motion-timing revision 7 | not_verified | 103.48 |
+
+GitHub archival publication does not change Bilibili schedules. Technical checks are distinct from full subjective viewing/listening. Historical human-led originals are not available locally; their [data and platform links](../data/human-led-history.csv) remain available.
 
 [Back to the lab](../README_EN.md)

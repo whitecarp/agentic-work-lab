@@ -1,0 +1,83 @@
+{
+  "sampled_at": "2026-10-30T12:58:08.002Z",
+  "source": "Local production delivery and dated operations receipts; no new platform queries or actions.",
+  "completed_local_deliveries": [
+    {
+      "file": "study-whale-transformation-v3-20261030.mp4",
+      "title_zh_hant": "鯨魚娘變身實驗 v3（較早交付）",
+      "title_en": "Whale Girl transformation study v3 (earlier delivery)",
+      "version": "v3",
+      "bytes": 90012465,
+      "sha256": "60f03a12439c0c05d9125ea455ed66f194b51695155a1c1bfce9f9ca07486c25",
+      "duration_seconds": 67.0,
+      "frames": 2010,
+      "bilibili_state_at_snapshot": "unpublished_experiment",
+      "bvid": null,
+      "bilibili_current_state": "unpublished_experiment",
+      "github_asset_status": "published_verified",
+      "state_verified_at": "2026-10-30T20:39:25+08:00",
+      "acceptance": "technical_delivery_not_full_user_acceptance",
+      "github_asset_url": "https://github.com/whitecarp/agentic-work-lab/releases/download/update-2026-10-30-evening/study-whale-transformation-v3-20261030.mp4"
+    },
+    {
+      "file": "study-whale-transformation-v4-20261030.mp4",
+      "title_zh_hant": "鯨魚娘變身實驗 v4（定向修正）",
+      "title_en": "Whale Girl transformation study v4 (targeted repair)",
+      "version": "v4",
+      "bytes": 103106107,
+      "sha256": "3b209af916b128f63ff1e0e9daae5a7a613b0def7ace11610bb318556448a99c",
+      "duration_seconds": 75.23333333333333,
+      "frames": 2257,
+      "bilibili_state_at_snapshot": "unpublished_experiment",
+      "bvid": null,
+      "bilibili_current_state": "unpublished_experiment",
+      "github_asset_status": "published_verified",
+      "state_verified_at": "2026-10-30T20:39:25+08:00",
+      "acceptance": "technical_delivery_not_full_user_acceptance",
+      "github_asset_url": "https://github.com/whitecarp/agentic-work-lab/releases/download/update-2026-10-30-evening/study-whale-transformation-v4-20261030.mp4"
+    }
+  ],
+  "github_media_upload": "PUBLISHED_AND_VERIFIED",
+  "gpt_duty04": {
+    "bvid": "BV1xFx764EjN",
+    "state": "published",
+    "actual_public_time": "2026-10-30T12:00:00+08:00",
+    "checked_at": "2026-10-30T13:00:00+08:00",
+    "chapters_count": 8,
+    "chapters_state": "SET_READBACK_CONFIRMED_PENDING_AUDIT",
+    "personalized_components": "FOLLOW_VOTE_LINK_RATING_READBACK_CONFIRMED",
+    "collection_readback": "STALE_OR_DELAYED"
+  },
+  "v4_technical_evidence": {
+    "resolution": "1080x1920",
+    "fps": 30,
+    "frames": 2257,
+    "full_decode": "passed",
+    "clipped_samples": 0,
+    "peak_sample_dbfs": -1.6361967778880953,
+    "silence_window_seconds": [
+      50.763333333333335,
+      62.50333333333334
+    ],
+    "full_black_at_seconds": 61.5,
+    "picture_stream_bit_identical_after_audio_mix": true,
+    "human_continuous_watch": false,
+    "human_full_listening": false
+  },
+  "crosscast": {
+    "version": "0.15.1",
+    "verified_commit": "91615aa71e250ae0ec027d00c310d3e016ad35d4",
+    "historical_offline_tests": 417,
+    "tests_rerun_this_update": false
+  },
+  "analytics_scope": "No newer full-channel/24-hour sample was found; previous dated observations retained, no zero-fill or extrapolation.",
+  "excluded": [
+    "raw screen recordings",
+    "third-party reference originals",
+    "private account logs and messages",
+    "intermediate segment renders",
+    "unrelated personal materials"
+  ],
+  "historical_snapshots_preserved": true,
+  "github_published_verified_at": "2026-11-01T13:11:05.166937+00:00"
+}

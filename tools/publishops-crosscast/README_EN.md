@@ -2,6 +2,8 @@
 
 [繁體中文](README.md) · **English**
 
+> This directory preserves the historical 0.15.1 snapshot. Later development and installation are in the [standalone repository](https://github.com/whitecarp/publishops-crosscast); the [latest validation summary](../../docs/updates/2026-11-01_EN.md) separates passing and unresolved checks.
+
 **X publishing supports subscribed users whose accounts can actually access Media Studio.**
 
 This requirement exists because non-subscribers are limited to **140-second, 512 MB** video uploads and cannot use the Media Studio media-management and custom-thumbnail workflow on which this tool depends. CrossCast uploads videos and sets production thumbnails through Media Studio, so its X backend currently supports subscription accounts with that access. Login or payment alone does not establish access; the CLI checks the library entry and managed account before selecting media. [Official upload limits](https://help.x.com/en/using-x/x-videos) · [Media Studio access](https://help.x.com/en/using-x/media-studio).

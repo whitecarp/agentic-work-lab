@@ -27,4 +27,13 @@ The earlier 52-record snapshot and its metrics remain in the [archive](../data/s
 
 [Whale Girl 02](../data/whale-log02-24h-2026-10-29.json), sampled at 2026-10-29 19:33 UTC+8, recorded 308 views, 24 likes, five favourites, 51 replies, 36.63% completion and 42 seconds average watch time on a 117-second video. The sample is three minutes after the 24-hour checkpoint. Replies are not unique viewers. Different durations and topics prevent treating a comparison with [GPT03](../data/episode03-24h-2026-10-28.json) as a model-performance or efficiency test.
 
+## 2026-10-30 state update
+
+[This record](../data/production-update-2026-10-30-evening.json) adds two local experimental deliveries and GPT04 public state, without refreshing full-channel traffic or day-one metrics. Existing totals and human-led/AI-series populations retain their original sample date; partial records from another date are not merged into them.
+
 [Back to the lab](../README_EN.md)
+
+
+## 2026-11-01 delivery and validation update
+
+The [new record](../data/production-update-2026-11-01.json) covers four video attachments and commit-scoped engineering checks. No traffic sample was added; historical human-led/AI comparisons retain their original scope.

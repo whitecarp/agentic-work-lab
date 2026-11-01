@@ -8,7 +8,11 @@ Explore how AI supports research, content production and operations, then turn p
 
 🎬 [Bilibili channel · UID 10706217](https://space.bilibili.com/10706217) · 📦 [Video downloads](https://github.com/whitecarp/agentic-work-lab/releases) · [Video catalogue](media/README_EN.md) · [Operations data](data/README_EN.md)
 
+**2026-11-01 update:** Four complete study exports uploaded and hash-verified, **25 video versions** in total; development/independent-validation methods and unresolved checks documented. [Read the update](docs/updates/2026-11-01_EN.md).
+
 ## PublishOps CrossCast
+
+> The section below and this repository's code are a **historical 0.15.1 snapshot**. See the [standalone repository](https://github.com/whitecarp/publishops-crosscast) for later development; the current candidate has outstanding live checks. Read the [current validation scope](docs/updates/2026-11-01_EN.md).
 
 **Multi-platform video release operations console**, available through the `vpub` CLI.
 
@@ -32,6 +36,8 @@ Prepare platform-specific descriptions, covers and publication receipts for one 
 - **0.15.1 alpha, with 417 passing offline tests.** This release freezes feature scope and repairs interruption recovery, partial-read retention and Instagram editor timing. Existing validation and platform limits are documented separately.
 
 [Install and use](tools/publishops-crosscast/README_EN.md) · [Feature scope](tools/publishops-crosscast/docs/FEATURES_EN.md) · [Validation](tools/publishops-crosscast/docs/VALIDATION_EN.md)
+
+**2026-10-30 update (uploads completed 1 November):** Transformation-study v3/v4 technical checks and the dated GPT04 publication record. [Research record](docs/updates/2026-10-30-evening_EN.md).
 
 **2026-10-29 update:** two episode-six films archived, **21 downloadable versions** in total; Whale Girl 03 public status and Whale Girl 02 day-one metrics recorded. [What changed](docs/updates/2026-10-29-evening_EN.md).
 
@@ -105,4 +111,4 @@ Data is provided as CSV/JSON, with downloadable video files and SHA-256 checksum
 
 The archive contains research notes, videos, aggregate and per-video channel data and de-identified operations records. Credentials, private messages, viewer personal data and unrelated private documents are excluded. Third-party material appearing in videos remains with its respective rights holders; public access does not grant reuse rights to that material.
 
-First edition: 2026-10-28. Homepage and CrossCast documentation updated: 2026-10-29.
+First edition: 2026-10-28. Homepage research updated: 2026-11-01; the historical CrossCast snapshot is preserved.

@@ -38,4 +38,13 @@ The dataset excludes viewer lists, comment text, private messages, credentials, 
 
 [Whale Girl 02 day-one metrics](whale-log02-24h-2026-10-29.json) and [two episode-six delivery and schedule records](production-update-2026-10-29-evening.json) are added separately. The full-channel snapshot above remains dated 2026-10-28; this is not a new census of the channel.
 
+## 2026-10-30 state update
+
+[This record](production-update-2026-10-30-evening.json) adds two local experimental deliveries and GPT04 public state, without refreshing full-channel traffic or day-one metrics. Existing totals and human-led/AI-series populations retain their original sample date; partial records from another date are not merged into them.
+
 [Back to the lab](../README_EN.md)
+
+
+## 2026-11-01 delivery and validation update
+
+The [new record](production-update-2026-11-01.json) covers four video attachments and commit-scoped engineering checks. No traffic sample was added; historical human-led/AI comparisons retain their original scope.

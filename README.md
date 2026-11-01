@@ -8,7 +8,11 @@
 
 🎬 [Bilibili：穿睡衣的小白白](https://space.bilibili.com/10706217) · 📦 [影片下載](https://github.com/whitecarp/agentic-work-lab/releases) · [影片目錄](media/README.md) · [營運資料](data/README.md)
 
+**2026-11-01 更新：** 四個完整實驗交付已上傳並核對雜湊，累計 **25 個影片版本**；補充開發與獨立驗證方法及未通過項目。[查看更新](docs/updates/2026-11-01.md)。
+
 ## PublishOps CrossCast
+
+> 下節與本倉庫程式碼為 **0.15.1 歷史快照**。後續開發請見[獨立倉庫](https://github.com/whitecarp/publishops-crosscast)；目前候選版尚未完成全部實測，請閱讀[本輪驗證範圍](docs/updates/2026-11-01.md)。
 
 **跨平台影片發布營運台**，CLI 指令為 `vpub`。
 
@@ -32,6 +36,8 @@
 - **0.15.1 alpha，417 項離線測試通過。** 本輪停止擴充功能，修復中斷恢復、部分讀取保留與 Instagram 編輯等待；既有功能的實測與平台限制分開記錄。
 
 [安裝與使用](tools/publishops-crosscast/README.md) · [功能範圍](tools/publishops-crosscast/docs/FEATURES.md) · [驗證記錄](tools/publishops-crosscast/docs/VALIDATION.md)
+
+**2026-10-30 更新（11月1日補完成附件）：** 變身實驗 v3／v4 與技術檢查、GPT04 公開狀態。[研究記錄](docs/updates/2026-10-30-evening.md)。
 
 **2026-10-29 更新：** 新增兩部第六期成片，累計 **21 個可下載版本**；補充鯨魚娘03 公開狀態與鯨魚娘02 首日數據。[查看更新](docs/updates/2026-10-29-evening.md)。
 
@@ -105,4 +111,4 @@ npm test         # 流程檢查
 
 本倉庫公開研究說明、影片、帳號整體及單片數據、去識別的營運紀錄。登入憑證、私人訊息、觀眾個人資料及不相關的私人文件不屬於公開資料。作品中引用的第三方素材仍屬各自權利人；公開展示不代表授予第三方素材的再利用授權。
 
-首次整理：2026-10-28。首頁與 CrossCast 文件更新：2026-10-29。
+首次整理：2026-10-28。首頁研究更新：2026-11-01；CrossCast 歷史快照保留。
