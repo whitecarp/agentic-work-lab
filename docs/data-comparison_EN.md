@@ -37,3 +37,7 @@ The earlier 52-record snapshot and its metrics remain in the [archive](../data/s
 ## 2026-11-01 delivery and validation update
 
 The [new record](../data/production-update-2026-11-01.json) covers four video attachments and commit-scoped engineering checks. No traffic sample was added; historical human-led/AI comparisons retain their original scope.
+
+## 2026-11-02 production evidence
+
+The [new record](../data/production-update-2026-11-02.json) adds episode 07 and its portrait cuts, historical scheduling receipts and scoped CrossCast results. It adds no traffic sample and does not change the earlier human-led/AI-series population or sampling date.

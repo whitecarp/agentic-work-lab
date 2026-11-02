@@ -2,11 +2,11 @@
 
 [繁體中文](README.md) · **English**
 
-2026-11-01 · **25** video versions · **1.73 GiB**
+2026-11-02 · **29** video versions · **1.79 GiB**
 
-All 25 remote sizes and SHA-256 digests match the manifest. Versions are not episode counts. Original sample dates and historical Bilibili states remain in the index; old scheduled times are not treated as proof of publication. Complete experimental exports are not claims of full user acceptance.
+All 29 remote sizes and SHA-256 digests match the manifest. Versions are not episode counts. Original sample dates and historical Bilibili states remain in the index; old scheduled times are not treated as proof of publication. Complete experimental exports are not claims of full user acceptance.
 
-[Checksums](SHA256SUMS.txt) · [Manifest](manifest.json) · [New research and limits](../docs/updates/2026-11-01_EN.md)
+[Checksums](SHA256SUMS.txt) · [Manifest](manifest.json) · [New research and limits](../docs/updates/2026-11-02_EN.md)
 
 | File | Work | Recorded Bilibili state | MiB |
 |---|---|---|---:|
@@ -35,6 +35,10 @@ All 25 remote sizes and SHA-256 digests match the manifest. Versions are not epi
 | [study-whale-transformation-v4-20261030.mp4](https://github.com/whitecarp/agentic-work-lab/releases/download/update-2026-10-30-evening/study-whale-transformation-v4-20261030.mp4) | Whale Girl transformation study v4 (targeted repair) | unpublished_experiment | 98.33 |
 | [study-whale-color-heels-r5-20261031.mp4](https://github.com/whitecarp/agentic-work-lab/releases/download/update-2026-11-01-studies/study-whale-color-heels-r5-20261031.mp4) | Whale Girl study: local colour and heel-sound revision 5 | not_verified | 108.10 |
 | [study-whale-motion-r7-20261101.mp4](https://github.com/whitecarp/agentic-work-lab/releases/download/update-2026-11-01-studies/study-whale-motion-r7-20261101.mp4) | Whale Girl study: motion-timing revision 7 | not_verified | 103.48 |
+| [whale-log-07-v3-20261101.mp4](https://github.com/whitecarp/agentic-work-lab/releases/download/update-2026-11-02-episode07/whale-log-07-v3-20261101.mp4) | Whale Girl Shift Log 07: duty simulator (v3) | Scheduled submission recorded; not refreshed | 47.02 |
+| [whale-log-07-cut-a-v3-20261101.mp4](https://github.com/whitecarp/agentic-work-lab/releases/download/update-2026-11-02-episode07/whale-log-07-cut-a-v3-20261101.mp4) | Episode 07 portrait cut A: running out of resources | Scheduled submission recorded; not refreshed | 7.50 |
+| [whale-log-07-cut-b-v3-20261101.mp4](https://github.com/whitecarp/agentic-work-lab/releases/download/update-2026-11-02-episode07/whale-log-07-cut-b-v3-20261101.mp4) | Episode 07 portrait cut B: refusing every request | Scheduled submission recorded; not refreshed | 7.81 |
+| [whale-log-07-cut-c-v3-20261101.mp4](https://github.com/whitecarp/agentic-work-lab/releases/download/update-2026-11-02-episode07/whale-log-07-cut-c-v3-20261101.mp4) | Episode 07 portrait cut C: bluffing through the shift | Scheduled submission recorded; not refreshed | 7.19 |
 
 GitHub archival publication does not change Bilibili schedules. Technical checks are distinct from full subjective viewing/listening. Historical human-led originals are not available locally; their [data and platform links](../data/human-led-history.csv) remain available.
 

@@ -1,0 +1,186 @@
+{
+  "snapshot_at": "2026-11-02T03:37:13.846Z",
+  "source_window_start": "2026-11-01T13:02:52.315Z",
+  "source": "Completed production files, production QA notes and existing local upload receipts; no platform refresh",
+  "new_media": [
+    {
+      "file": "whale-log-07-v3-20261101.mp4",
+      "title_zh_hant": "鯨魚娘代班日誌07：值班模擬器（v3）",
+      "title_en": "Whale Girl Shift Log 07: duty simulator (v3)",
+      "bytes": 49307630,
+      "sha256": "e37285ee4f8c9fc4fac70978e06638e40203f8337bc286344ddb5731a8814ca6",
+      "duration_seconds": 179.76666666666668,
+      "frames": 5393,
+      "width": 1920,
+      "height": 1080,
+      "fps": 30,
+      "bvid": "BV1aPxt6eEDR",
+      "bilibili_state_at_snapshot": "scheduled_submission_recorded",
+      "bilibili_current_state": "not_refreshed",
+      "scheduled_time": "2026-11-03T12:00:00+08:00",
+      "state_verified_at": "2026-11-01T17:01:29.519773+00:00",
+      "state_source": "local_publishing_receipt_not_live_refresh",
+      "bilibili_part": null,
+      "github_asset_status": "published_verified",
+      "acceptance": "landscape_delivery_user_overall_review_recorded",
+      "validation": {
+        "sha256_matches_delivery_receipt": true,
+        "full_decode_errors": 0,
+        "h264_aac": true
+      },
+      "github_asset_url": "https://github.com/whitecarp/agentic-work-lab/releases/download/update-2026-11-02-episode07/whale-log-07-v3-20261101.mp4",
+      "github_verified_at": "2026-11-02T03:49:24.540068+00:00"
+    },
+    {
+      "file": "whale-log-07-cut-a-v3-20261101.mp4",
+      "title_zh_hant": "第七期直式切片A：斷糧代班人",
+      "title_en": "Episode 07 portrait cut A: running out of resources",
+      "bytes": 7861825,
+      "sha256": "8429157c4fe4446d24d7b74a2ab354d1e3552b79329a5a52bdcbb12cad09a80e",
+      "duration_seconds": 28.1,
+      "frames": 843,
+      "width": 1080,
+      "height": 1920,
+      "fps": 30,
+      "bvid": "BV1gexh6rEZM",
+      "bilibili_state_at_snapshot": "scheduled_submission_recorded",
+      "bilibili_current_state": "not_refreshed",
+      "scheduled_time": "2026-11-03T19:30:00+08:00",
+      "state_verified_at": "2026-11-02T02:53:32.197090+00:00",
+      "state_source": "local_publishing_receipt_not_live_refresh",
+      "bilibili_part": 3,
+      "github_asset_status": "published_verified",
+      "acceptance": "complete_portrait_cut_pending_full_motion_and_audio_review",
+      "validation": {
+        "sha256_matches_delivery_receipt": true,
+        "full_decode_errors": 0,
+        "h264_aac": true
+      },
+      "github_asset_url": "https://github.com/whitecarp/agentic-work-lab/releases/download/update-2026-11-02-episode07/whale-log-07-cut-a-v3-20261101.mp4",
+      "github_verified_at": "2026-11-02T03:49:24.540068+00:00"
+    },
+    {
+      "file": "whale-log-07-cut-b-v3-20261101.mp4",
+      "title_zh_hant": "第七期直式切片B：差評製造機",
+      "title_en": "Episode 07 portrait cut B: refusing every request",
+      "bytes": 8185740,
+      "sha256": "1e436aff188953b42e9d648d5c2e0a73fb32b849a6b9983b6b1a11be939c33bd",
+      "duration_seconds": 29.9,
+      "frames": 897,
+      "width": 1080,
+      "height": 1920,
+      "fps": 30,
+      "bvid": "BV1gexh6rEZM",
+      "bilibili_state_at_snapshot": "scheduled_submission_recorded",
+      "bilibili_current_state": "not_refreshed",
+      "scheduled_time": "2026-11-03T19:30:00+08:00",
+      "state_verified_at": "2026-11-02T02:53:32.197090+00:00",
+      "state_source": "local_publishing_receipt_not_live_refresh",
+      "bilibili_part": 1,
+      "github_asset_status": "published_verified",
+      "acceptance": "complete_portrait_cut_pending_full_motion_and_audio_review",
+      "validation": {
+        "sha256_matches_delivery_receipt": true,
+        "full_decode_errors": 0,
+        "h264_aac": true
+      },
+      "github_asset_url": "https://github.com/whitecarp/agentic-work-lab/releases/download/update-2026-11-02-episode07/whale-log-07-cut-b-v3-20261101.mp4",
+      "github_verified_at": "2026-11-02T03:49:24.540068+00:00"
+    },
+    {
+      "file": "whale-log-07-cut-c-v3-20261101.mp4",
+      "title_zh_hant": "第七期直式切片C：幻覺藝術家",
+      "title_en": "Episode 07 portrait cut C: bluffing through the shift",
+      "bytes": 7536390,
+      "sha256": "e7ba91f7e903e27e35ac40b57d2ea8d8c40a910ce5025fb01a35e1151f8892a3",
+      "duration_seconds": 29.966666666666665,
+      "frames": 899,
+      "width": 1080,
+      "height": 1920,
+      "fps": 30,
+      "bvid": "BV1gexh6rEZM",
+      "bilibili_state_at_snapshot": "scheduled_submission_recorded",
+      "bilibili_current_state": "not_refreshed",
+      "scheduled_time": "2026-11-03T19:30:00+08:00",
+      "state_verified_at": "2026-11-02T02:53:32.197090+00:00",
+      "state_source": "local_publishing_receipt_not_live_refresh",
+      "bilibili_part": 2,
+      "github_asset_status": "published_verified",
+      "acceptance": "complete_portrait_cut_pending_full_motion_and_audio_review",
+      "validation": {
+        "sha256_matches_delivery_receipt": true,
+        "full_decode_errors": 0,
+        "h264_aac": true
+      },
+      "github_asset_url": "https://github.com/whitecarp/agentic-work-lab/releases/download/update-2026-11-02-episode07/whale-log-07-cut-c-v3-20261101.mp4",
+      "github_verified_at": "2026-11-02T03:49:24.540068+00:00"
+    }
+  ],
+  "verified_public_video_versions": 29,
+  "new_analytics_sample": false,
+  "historical_metrics_unchanged": true,
+  "bilibili_receipt_note": "Submission and scheduled time are historical receipt fields, not current-publication verification. B/C/A multipart files are deduplicated by SHA-256.",
+  "historical_standalone_b_submission": {
+    "bvid": "BV1F5xh6sE82",
+    "recorded_at": "2026-11-02T02:23:01.059508+00:00",
+    "current_state": "not_refreshed"
+  },
+  "crosscast": {
+    "portfolio_code_snapshot": "0.15.1",
+    "tested_commit": "2d54c8fe485ed58a81b7bdd049cd8d258b7e453f",
+    "ci": {
+      "commit": "2d54c8fe485ed58a81b7bdd049cd8d258b7e453f",
+      "url": "https://github.com/whitecarp/publishops-crosscast/actions/runs/41380631557",
+      "conclusion": "success",
+      "jobs": [
+        {
+          "name": "Python 3.12",
+          "conclusion": "success"
+        },
+        {
+          "name": "Python 3.11",
+          "conclusion": "success"
+        },
+        {
+          "name": "Python 3.10",
+          "conclusion": "success"
+        }
+      ]
+    },
+    "pr_state_at_check": "open",
+    "pr_head_at_check": "7114451abb51e3446afdffa14feb532a63ab56db",
+    "merged": false,
+    "candidate_code_imported": false,
+    "targeted_offline_checks": 16,
+    "x_fresh_upload_preview": "passed_and_media_removed_without_public_post",
+    "x_scheduled_submission": "independent_row_observed_and_cancelled_with_media_cleanup",
+    "x_cli_receipt": "SUBMITTED_UNVERIFIED",
+    "x_durable_media_pairing": "not_proven",
+    "x_future_publication": "not_tested",
+    "douyin_private_caption": "exact_card_and_editor_no_stray_stars",
+    "douyin_edit": "blocked_by_platform_review_before_typing_or_saving",
+    "douyin_test_cleanup": "pending_at_snapshot",
+    "acceptance": "scoped_results_not_full_release_acceptance"
+  },
+  "production_limits": [
+    "portrait_full_playback_listening_and_device_overlay_checks_pending",
+    "landscape_stamp_timing_measurements_disagree",
+    "fictional_game_cases_selected_not_average_results"
+  ],
+  "pending_source_groups": [
+    {
+      "group": "portrait cuts",
+      "reason": "complete exports archived, continuous playback/listening and phone overlay acceptance still pending"
+    }
+  ],
+  "excluded": [
+    "raw_screen_recordings",
+    "unfinished_assets",
+    "unrelated_personal_or_client_work",
+    "credentials",
+    "private_messages",
+    "viewer_personal_data",
+    "raw_client_logs"
+  ],
+  "github_assets_verified_at": "2026-11-02T03:49:24.540068+00:00"
+}

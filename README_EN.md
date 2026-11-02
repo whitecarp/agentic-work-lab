@@ -8,11 +8,13 @@ Explore how AI supports research, content production and operations, then turn p
 
 🎬 [Bilibili channel · UID 10706217](https://space.bilibili.com/10706217) · 📦 [Video downloads](https://github.com/whitecarp/agentic-work-lab/releases) · [Video catalogue](media/README_EN.md) · [Operations data](data/README_EN.md)
 
+**2026-11-02 update:** Episode 07 and three portrait cuts are archived, **29 video versions** in total. New notes cover layout adaptation and commit-scoped CrossCast checks. [Read the update](docs/updates/2026-11-02_EN.md).
+
 **2026-11-01 update:** Four complete study exports uploaded and hash-verified, **25 video versions** in total; development/independent-validation methods and unresolved checks documented. [Read the update](docs/updates/2026-11-01_EN.md).
 
 ## PublishOps CrossCast
 
-> The section below and this repository's code are a **historical 0.15.1 snapshot**. See the [standalone repository](https://github.com/whitecarp/publishops-crosscast) for later development; the current candidate has outstanding live checks. Read the [current validation scope](docs/updates/2026-11-01_EN.md).
+> The section below and this repository's code are a **historical 0.15.1 snapshot**. See the [standalone repository](https://github.com/whitecarp/publishops-crosscast) for later development; the current candidate has outstanding live checks. Read the [current validation scope](docs/updates/2026-11-02_EN.md).
 
 **Multi-platform video release operations console**, available through the `vpub` CLI.
 

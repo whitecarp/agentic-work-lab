@@ -2,7 +2,7 @@
 
 **繁體中文** · [English](README_EN.md)
 
-> 此目錄保留 0.15.1 歷史快照。後續開發與安裝入口在[獨立倉庫](https://github.com/whitecarp/publishops-crosscast)；[最新驗證摘要](../../docs/updates/2026-11-01.md)區分已通過與待修項目。
+> 此目錄保留 0.15.1 歷史快照。後續開發與安裝入口在[獨立倉庫](https://github.com/whitecarp/publishops-crosscast)；[最新驗證摘要](../../docs/updates/2026-11-02.md)區分已通過與待修項目。
 
 **X 發布僅面向已訂閱、且帳號實際能進入 Media Studio 的使用者。**
 

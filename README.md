@@ -8,11 +8,13 @@
 
 🎬 [Bilibili：穿睡衣的小白白](https://space.bilibili.com/10706217) · 📦 [影片下載](https://github.com/whitecarp/agentic-work-lab/releases) · [影片目錄](media/README.md) · [營運資料](data/README.md)
 
+**2026-11-02 更新：** 第七期成片與三條直式切片已存檔，累計 **29 個影片版本**；新增畫面適配方法及 CrossCast 分項驗證。[查看更新](docs/updates/2026-11-02.md)。
+
 **2026-11-01 更新：** 四個完整實驗交付已上傳並核對雜湊，累計 **25 個影片版本**；補充開發與獨立驗證方法及未通過項目。[查看更新](docs/updates/2026-11-01.md)。
 
 ## PublishOps CrossCast
 
-> 下節與本倉庫程式碼為 **0.15.1 歷史快照**。後續開發請見[獨立倉庫](https://github.com/whitecarp/publishops-crosscast)；目前候選版尚未完成全部實測，請閱讀[本輪驗證範圍](docs/updates/2026-11-01.md)。
+> 下節與本倉庫程式碼為 **0.15.1 歷史快照**。後續開發請見[獨立倉庫](https://github.com/whitecarp/publishops-crosscast)；目前候選版尚未完成全部實測，請閱讀[本輪驗證範圍](docs/updates/2026-11-02.md)。
 
 **跨平台影片發布營運台**，CLI 指令為 `vpub`。
 
