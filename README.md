@@ -41,7 +41,7 @@ v0.16.0 已公開；後續主分支已縮短能力清單並改善首次使用與
 | 分配研究、製作與檢查工作 | [GPT／DeepSeek 協作紀錄](docs/model-workflow.md) |
 | 將重複步驟整理成程式 | [程式導覽](docs/code-map.md) · [可執行示例](scripts) |
 | 比較營運數據並檢查結論 | [數據對比與限制](docs/data-comparison.md) |
-| 保存工作脈絡，方便團隊接手 | [商戶簡報範本](templates/merchant-brief.md) · [營運檢查表](templates/operations-checklist.md) |
+| 保存工作脈絡，方便團隊接手 | [商戶簡報範本](templates/merchant-brief.md)（[填寫示例](examples/merchant-brief-demo-cafe-a.md)） · [營運檢查表](templates/operations-checklist.md)（[填寫示例](examples/operations-checklist-2026-10-28.md)） |
 
 **2026-10-28 資料快照：** 55 筆稿件資料、69 筆去識別營運事件、19 個已公開影片版本、4 個流程示例腳本／模組，以及 10 項流程測試。這組統計不包含後續 CrossCast 程式與測試。商戶示例使用虛構資料，沒有把模擬結果寫成真實簽約或團隊提效業績。
 

@@ -41,7 +41,7 @@ Start with concrete tasks: document where AI can help, where human judgment is n
 | Coordinate research, production and review | [GPT/DeepSeek workflow evidence](docs/model-workflow_EN.md) |
 | Turn repeated steps into reusable code | [Code map](docs/code-map_EN.md) · [Runnable examples](scripts) |
 | Compare operations data and check conclusions | [Data comparison and limits](docs/data-comparison_EN.md) |
-| Preserve context for team handoffs | [Merchant brief](templates/merchant-brief_EN.md) · [Operations checklist](templates/operations-checklist_EN.md) |
+| Preserve context for team handoffs | [Merchant brief](templates/merchant-brief_EN.md) ([example](examples/merchant-brief-demo-cafe-a_EN.md)) · [Operations checklist](templates/operations-checklist_EN.md) ([example](examples/operations-checklist-2026-10-28_EN.md)) |
 
 **2026-10-28 snapshot:** 55 upload records, 69 de-identified operations events, 19 publicly downloadable video versions, four workflow scripts/modules and ten workflow tests. These counts exclude subsequent CrossCast code and tests. The merchant example uses fictional data; simulated results are not presented as real partnerships or measured team-efficiency gains.
 
