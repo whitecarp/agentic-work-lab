@@ -2,6 +2,8 @@
 
 [繁體中文](code-map.md) · **English**
 
+Current CrossCast development lives in the [standalone repository](https://github.com/whitecarp/publishops-crosscast). The code links below preserve the 0.15.1 snapshot. See the [3 November update](updates/2026-11-03_EN.md) for first-run and publication-check improvements.
+
 The project uses human-defined requirements, AI-assisted implementation, tool-based verification, and human review. Reproducibility and failure handling matter more than listing languages or line counts.
 
 ## CrossCast upload and read recovery

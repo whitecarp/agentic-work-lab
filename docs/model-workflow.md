@@ -2,6 +2,8 @@
 
 **繁體中文** · [English](model-workflow_EN.md)
 
+**後續工程協作：** Claude 協助構建與介面，Codex 主導後端複核及最終 GitHub 更新；真實發布計時、已交付與待交付功能見[11 月 3 日記錄](updates/2026-11-03.md)。以下 GPT／DeepSeek 案例仍保留當時的證據範圍。
+
 ## 已做過什麼
 
 | 面向 | GPT／Codex 工作流 | DeepSeek 營運工作流 |

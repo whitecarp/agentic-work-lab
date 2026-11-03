@@ -2,6 +2,8 @@
 
 [繁體中文](model-workflow.md) · **English**
 
+**Subsequent engineering collaboration:** Claude supports construction and interfaces; Codex leads backend review and final GitHub updates. See the [3 November record](updates/2026-11-03_EN.md) for real publication timing and shipped versus pending work. The GPT/DeepSeek case below retains its original evidence scope.
+
 ## What was actually done
 
 | Area | GPT/Codex workflow | DeepSeek operations workflow |

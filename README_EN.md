@@ -8,36 +8,23 @@ Explore how AI supports research, content production and operations, then turn p
 
 🎬 [Bilibili channel · UID 10706217](https://space.bilibili.com/10706217) · 📦 [Video downloads](https://github.com/whitecarp/agentic-work-lab/releases) · [Video catalogue](media/README_EN.md) · [Operations data](data/README_EN.md)
 
+**2026-11-03 update:** *I Watched It For You* is archived, bringing the catalogue to **30 video versions**. New notes cover publication evidence across five platforms, one Instagram upload timing and CrossCast software progress. [Read the update](docs/updates/2026-11-03_EN.md).
+
 **2026-11-02 update:** Episode 07 and three portrait cuts are archived, **29 video versions** in total. New notes cover layout adaptation and commit-scoped CrossCast checks. [Read the update](docs/updates/2026-11-02_EN.md).
 
 **2026-11-01 update:** Four complete study exports uploaded and hash-verified, **25 video versions** in total; development/independent-validation methods and unresolved checks documented. [Read the update](docs/updates/2026-11-01_EN.md).
 
 ## PublishOps CrossCast
 
-> The section below and this repository's code are a **historical 0.15.1 snapshot**. See the [standalone repository](https://github.com/whitecarp/publishops-crosscast) for later development; the current candidate has outstanding live checks. Read the [current validation scope](docs/updates/2026-11-02_EN.md).
+**Multi-platform video release operations console**, available through the `vpub` CLI. All five platforms have real publication records.
 
-**Multi-platform video release operations console**, available through the `vpub` CLI.
+Bring video, platform-specific copy, production covers and receipts into one workflow. Local sessions are reused after initial sign-in, with user assistance when a platform requests verification. Uncertain submissions retain their original records so the work can be checked before deciding what happens next.
 
-Prepare platform-specific descriptions, covers and publication receipts for one original video. Choose platforms, sign in once and let the CLI reuse its own local sessions. The conversation model prepares copy; the CLI checks assets and accounts, uploads, applies covers and records results. YouTube uses its official API; Douyin, Instagram and X use a dedicated background browser.
+[Standalone repository and installation](https://github.com/whitecarp/publishops-crosscast/blob/main/README_EN.md) · [v0.16.0 release](https://github.com/whitecarp/publishops-crosscast/releases/tag/v0.16.0) · [Current work and limits](docs/updates/2026-11-03_EN.md)
 
-- Source-aware copy: Chinese content becomes Simplified Chinese on Bilibili/Douyin; other languages retain the original plus Chinese. Non-English content retains the original plus English on YouTube/Instagram/X.
-- Douyin/Instagram share dedicated portrait artwork; the user confirmed readable text in both v3 phone previews. Other layouts still need checking.
-- X publishing supports subscribed users whose accounts can actually access Media Studio. Non-subscribers have a 140-second, 512 MB upload limit and lack the Studio media-management and custom-thumbnail access required by this backend. [Upload limits](https://help.x.com/en/using-x/x-videos) · [Studio access](https://help.x.com/en/using-x/media-studio).
-- Instagram retains the original video and aspect ratio with a separate upload cover. Its mobile editor can use the same portrait artwork as Douyin.
-- Added cross-platform comment reads, single-language replies matching commenters, work metrics and Chinese/English operations reports; tested and pending scopes are documented.
-- Added five-platform work listing, watchlists and read-only collection: comment candidates, comparable metric changes and per-run reports; paged Bilibili/YouTube thread replies.
-- Production-cover fitting, YouTube playlist settings and Gmail-only email notifications, off until explicitly enabled.
-- Added five-platform likes/unlikes and favorites, bookmarks or selected-playlist saves/removals; check state, submit once and verify independently, with repeated identical commands becoming no-ops.
-- Added read-only browser batches, persistent comment history and handling marks; live-tested Bilibili/Instagram/X comment likes/unlikes and YouTube own-comment editing/deletion.
-- Added Douyin comment like/unlike/own-comment deletion and single-recipient messaging for Douyin, Instagram and X, with durable receipts, fresh-session read-back and no pending-message resend.
-- Added unified messages with Douyin @ notifications, Instagram tags/mentions, X mentions and three-platform conversation previews. YouTube viewer hold/approve and X hide/unhide each passed one live round trip; nonempty Instagram mentions still need a live fixture.
-- Added existing-work adoption, freshness-based read reuse and interruption recovery; ownership evidence and progress are stored without reuploading.
-- Added parallel platform reads, incremental progress, message resumption and YouTube playlist management; 10 reads across four platforms took 27.4 seconds versus 55.4 in one development comparison.
-- Added Instagram collection rename and member changes, Douyin work-collection management and the PublishOps CrossCast Codex skill, with independently verified receipts. X named-folder membership remains pending.
-- CrossCast now reuses collection browser sessions, recovers new YouTube uploads after interruption, and reads supported paginated lists with durable progress; [scope and live results](tools/publishops-crosscast/docs/VALIDATION_EN.md).
-- **0.15.1 alpha, with 417 passing offline tests.** This release freezes feature scope and repairs interruption recovery, partial-read retention and Instagram editor timing. Existing validation and platform limits are documented separately.
+v0.16.0 is public. Subsequent main-branch work shortens the capability list and improves first-run guidance and publication checks. At this snapshot, the two-command flow and concurrent publication still await delivery; local tests are not claimed as measured live speedups. The update distinguishes release assets from main.
 
-[Install and use](tools/publishops-crosscast/README_EN.md) · [Feature scope](tools/publishops-crosscast/docs/FEATURES_EN.md) · [Validation](tools/publishops-crosscast/docs/VALIDATION_EN.md)
+The [0.15.1 code and guide](tools/publishops-crosscast/README_EN.md) inside this lab preserve a historical implementation and its validation. Use the standalone repository for a new installation.
 
 **2026-10-30 update (uploads completed 1 November):** Transformation-study v3/v4 technical checks and the dated GPT04 publication record. [Research record](docs/updates/2026-10-30-evening_EN.md).
 
@@ -113,4 +100,4 @@ Data is provided as CSV/JSON, with downloadable video files and SHA-256 checksum
 
 The archive contains research notes, videos, aggregate and per-video channel data and de-identified operations records. Credentials, private messages, viewer personal data and unrelated private documents are excluded. Third-party material appearing in videos remains with its respective rights holders; public access does not grant reuse rights to that material.
 
-First edition: 2026-10-28. Homepage research updated: 2026-11-01; the historical CrossCast snapshot is preserved.
+First edition: 2026-10-28. Homepage research updated: 2026-11-03; the historical CrossCast snapshot is preserved.

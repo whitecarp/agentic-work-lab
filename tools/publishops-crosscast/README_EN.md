@@ -2,7 +2,9 @@
 
 [繁體中文](README.md) · **English**
 
-> This directory preserves the historical 0.15.1 snapshot. Later development and installation are in the [standalone repository](https://github.com/whitecarp/publishops-crosscast); the [latest validation summary](../../docs/updates/2026-11-02_EN.md) separates passing and unresolved checks.
+**Current version:** [v0.16.0 is public in the standalone repository](https://github.com/whitecarp/publishops-crosscast/releases/tag/v0.16.0). The rest of this page documents historical 0.15.1, not current installation, features or pricing boundaries.
+
+> This directory preserves the historical 0.15.1 snapshot. Later development and installation are in the [standalone repository](https://github.com/whitecarp/publishops-crosscast); the [latest validation summary](../../docs/updates/2026-11-03_EN.md) separates passing and unresolved checks.
 
 **X publishing supports subscribed users whose accounts can actually access Media Studio.**
 

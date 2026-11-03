@@ -2,6 +2,8 @@
 
 **繁體中文** · [English](code-map_EN.md)
 
+目前 CrossCast 的實作位於[獨立倉庫](https://github.com/whitecarp/publishops-crosscast)；以下程式連結保留 0.15.1 歷史快照。新增的首次使用與發布前檢查見[11 月 3 日更新](updates/2026-11-03.md)。
+
 本專案採用人類提出需求、AI 協助編寫、工具驗證與人類審閱的方式。程式能否重跑、失敗時怎麼處理，比單純列出語言或程式碼行數更重要。
 
 ## CrossCast 上傳與讀取恢復

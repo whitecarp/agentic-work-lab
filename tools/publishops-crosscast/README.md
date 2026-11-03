@@ -2,7 +2,9 @@
 
 **繁體中文** · [English](README_EN.md)
 
-> 此目錄保留 0.15.1 歷史快照。後續開發與安裝入口在[獨立倉庫](https://github.com/whitecarp/publishops-crosscast)；[最新驗證摘要](../../docs/updates/2026-11-02.md)區分已通過與待修項目。
+**目前版本：** [v0.16.0 已在獨立倉庫公開](https://github.com/whitecarp/publishops-crosscast/releases/tag/v0.16.0)。本頁以下僅記錄歷史 0.15.1，不代表目前的安裝方式、功能或收費範圍。
+
+> 此目錄保留 0.15.1 歷史快照。後續開發與安裝入口在[獨立倉庫](https://github.com/whitecarp/publishops-crosscast)；[最新驗證摘要](../../docs/updates/2026-11-03.md)區分已通過與待修項目。
 
 **X 發布僅面向已訂閱、且帳號實際能進入 Media Studio 的使用者。**
 

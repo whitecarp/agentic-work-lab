@@ -470,17 +470,46 @@
       },
       "github_asset_url": "https://github.com/whitecarp/agentic-work-lab/releases/download/update-2026-11-02-episode07/whale-log-07-cut-c-v3-20261101.mp4",
       "github_verified_at": "2026-11-02T03:49:24.540068+00:00"
+    },
+    {
+      "file": "i-watched-it-for-you-v3-20261102.mp4",
+      "title_zh_hant": "我替你看過了（v3）",
+      "title_en": "I Watched It For You (v3)",
+      "bytes": 285855005,
+      "sha256": "7d6fd76090f7a93b2711e15db4bb924f741d3a904a01fc4b7628fc2130dbafdc",
+      "duration_seconds": 176.4,
+      "width": 1920,
+      "height": 1080,
+      "fps": 30,
+      "bvid": "BV15B4F6hEYr",
+      "bilibili_state_at_snapshot": "public_reported_by_production_session",
+      "bilibili_current_state": "not_refreshed",
+      "state_source": "existing_production_handoff_not_new_platform_query",
+      "state_verified_at": "2026-11-02T21:01:21+08:00",
+      "github_asset_status": "published_verified",
+      "github_asset_url": "https://github.com/whitecarp/agentic-work-lab/releases/download/update-2026-11-03-film/i-watched-it-for-you-v3-20261102.mp4",
+      "acceptance": "published_fictional_short; subjective_audio_and_mobile_subtitle_review_not_fully_established",
+      "validation": {
+        "metadata_source": "production_review",
+        "production_full_decode_errors": 0,
+        "production_sampled_frames": 37,
+        "source_and_staged_sha256_match": true,
+        "historical_local_read_discrepancy_resolved": false
+      },
+      "github_verified_at": "2026-11-03T04:25:41.625026+00:00"
     }
   ],
   "release_url": "https://github.com/whitecarp/agentic-work-lab/releases/tag/archive-2026-10-28",
-  "github_verified_at": "2026-11-01T13:11:05.166937+00:00",
-  "latest_release_url": "https://github.com/whitecarp/agentic-work-lab/releases/tag/update-2026-11-01-studies",
+  "github_verified_at": "2026-11-03T04:25:41.625026+00:00",
+  "latest_release_url": "https://github.com/whitecarp/agentic-work-lab/releases/tag/update-2026-11-03-film",
   "release_urls": [
+    "https://github.com/whitecarp/agentic-work-lab/releases/tag/update-2026-11-03-film",
+    "https://github.com/whitecarp/agentic-work-lab/releases/tag/update-2026-11-02-episode07",
     "https://github.com/whitecarp/agentic-work-lab/releases/tag/update-2026-11-01-studies",
     "https://github.com/whitecarp/agentic-work-lab/releases/tag/update-2026-10-30-evening",
     "https://github.com/whitecarp/agentic-work-lab/releases/tag/update-2026-10-29-evening",
     "https://github.com/whitecarp/agentic-work-lab/releases/tag/update-2026-10-28-evening",
     "https://github.com/whitecarp/agentic-work-lab/releases/tag/archive-2026-10-28"
   ],
-  "last_updated_at": "2026-11-02T03:37:13.846Z"
+  "last_updated_at": "2026-11-03T04:16:22.732Z"
 }

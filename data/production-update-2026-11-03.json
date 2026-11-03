@@ -1,0 +1,114 @@
+{
+  "snapshot_at": "2026-11-03T04:16:22.732Z",
+  "source_window_start": "2026-11-02T03:37:13.846Z",
+  "source": "Completed film, production review, existing publication records, user confirmations and GitHub release/PR metadata; no platform refresh",
+  "new_media": [
+    {
+      "file": "i-watched-it-for-you-v3-20261102.mp4",
+      "title_zh_hant": "我替你看過了（v3）",
+      "title_en": "I Watched It For You (v3)",
+      "bytes": 285855005,
+      "sha256": "7d6fd76090f7a93b2711e15db4bb924f741d3a904a01fc4b7628fc2130dbafdc",
+      "duration_seconds": 176.4,
+      "width": 1920,
+      "height": 1080,
+      "fps": 30,
+      "bvid": "BV15B4F6hEYr",
+      "bilibili_state_at_snapshot": "public_reported_by_production_session",
+      "bilibili_current_state": "not_refreshed",
+      "state_source": "existing_production_handoff_not_new_platform_query",
+      "state_verified_at": "2026-11-02T21:01:21+08:00",
+      "github_asset_status": "published_verified",
+      "github_asset_url": "https://github.com/whitecarp/agentic-work-lab/releases/download/update-2026-11-03-film/i-watched-it-for-you-v3-20261102.mp4",
+      "acceptance": "published_fictional_short; subjective_audio_and_mobile_subtitle_review_not_fully_established",
+      "validation": {
+        "metadata_source": "production_review",
+        "production_full_decode_errors": 0,
+        "production_sampled_frames": 37,
+        "source_and_staged_sha256_match": true,
+        "historical_local_read_discrepancy_resolved": false
+      },
+      "github_verified_at": "2026-11-03T04:25:41.625026+00:00"
+    }
+  ],
+  "film_platforms": {
+    "bilibili": {
+      "url": "https://www.bilibili.com/video/BV15B4F6hEYr",
+      "evidence": "production_session_report",
+      "fresh_check": false
+    },
+    "youtube": {
+      "url": "https://www.youtube.com/watch?v=AzW6vr8nvDM",
+      "state": "PUBLIC_VERIFIED",
+      "native_state": "SUBMISSION_VERIFIED"
+    },
+    "x": {
+      "url": "https://x.com/White_Carp2000/status/2117261340633161838",
+      "state": "PUBLIC_VERIFIED",
+      "native_state": "SUBMISSION_VERIFIED",
+      "stored_resolution_verified": false
+    },
+    "douyin": {
+      "state": "USER_CONFIRMED_VISIBLE_NATIVE_VERIFY_BLOCKED",
+      "native_state": "UNKNOWN",
+      "url": null,
+      "cover": "user_phone_confirmation"
+    },
+    "instagram": {
+      "url": "https://www.instagram.com/reel/DfQ9iCiCWYN/",
+      "native_state": "SUBMISSION_VERIFIED",
+      "one_upload_one_share": true,
+      "metadata_readback": true,
+      "source_aspect_ratio_preserved": true,
+      "ai_label": true,
+      "sharing_elsewhere": false,
+      "cover": "user_confirmed_mobile_replacement",
+      "remote_cover_pixels_verified": false
+    }
+  },
+  "instagram_timing_seconds": {
+    "source_plan_checks_outside_publish": 0.438,
+    "rehearsal_outside_publish": 0.444,
+    "auth_preflight_outside_publish": 10.137,
+    "publish_total": 412.217,
+    "browser_start_to_file_entry": 11.058,
+    "after_submit_wait": 380.551,
+    "independent_readback": 5.224
+  },
+  "timing_limits": [
+    "single_observation_not_benchmark",
+    "transfer_processing_confirmation_not_separated",
+    "no_live_parallel_speed_measurement"
+  ],
+  "crosscast": {
+    "portfolio_code_snapshot": "0.15.1",
+    "released_version": "0.16.0",
+    "release_commit": "a46bd19372ea3c0c7c4672642d4d56db1b1f42c7",
+    "release_url": "https://github.com/whitecarp/publishops-crosscast/releases/tag/v0.16.0",
+    "main_at_snapshot": "69aa5907894ced4809e99e744d45b12b5ffbda42",
+    "merged_prs": [
+      8,
+      9
+    ],
+    "pending_prs": [
+      10
+    ],
+    "pending_local_work": [
+      "bounded_parallel_publication"
+    ],
+    "existing_release_assets_changed": false
+  },
+  "new_analytics_sample": false,
+  "historical_metrics_unchanged": true,
+  "verified_public_video_versions": 30,
+  "excluded": [
+    "credentials",
+    "raw_client_logs",
+    "private_messages",
+    "viewer_personal_data",
+    "third_party_originals",
+    "unfinished_deliveries",
+    "embargoed_Claude_chan_videos_before_2026_11_05_noon_Beijing"
+  ],
+  "github_assets_verified_at": "2026-11-03T04:25:41.625026+00:00"
+}

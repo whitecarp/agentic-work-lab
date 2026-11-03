@@ -2,6 +2,8 @@
 
 [繁體中文](README.md) · **English**
 
+**2026-11-03:** Added [film publication and one upload timing](production-update-2026-11-03.json). Channel growth metrics were not resampled; the historical snapshots below retain their original scope and dates.
+
 Account: [Bilibili channel · UID 10706217](https://space.bilibili.com/10706217)
 
 ## Coverage

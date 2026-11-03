@@ -2,11 +2,11 @@
 
 **繁體中文** · [English](README_EN.md)
 
-2026-11-02 · **29** 個影片版本 · **1.79 GiB**
+2026-11-03 · **30** 個影片版本 · **2.06 GiB**
 
-全部29個遠端附件的大小及 SHA-256 均與索引一致；版本數不等於集數。保留每筆採樣日期與 B站歷史狀態，不把已過的排期時間當作公開證明。完整實驗交付不等於使用者全片驗收。
+全部30個遠端附件的大小及 SHA-256 均與索引一致；版本數不等於集數。保留每筆採樣日期與 B站歷史狀態，不把已過的排期時間當作公開證明。完整實驗交付不等於使用者全片驗收。
 
-[校驗清單](SHA256SUMS.txt) · [完整索引](manifest.json) · [本輪研究與限制](../docs/updates/2026-11-02.md)
+[校驗清單](SHA256SUMS.txt) · [完整索引](manifest.json) · [本輪研究與限制](../docs/updates/2026-11-03.md)
 
 | 檔案 | 作品 | 已記錄的 B站狀態 | MiB |
 |---|---|---|---:|
@@ -39,6 +39,7 @@
 | [whale-log-07-cut-a-v3-20261101.mp4](https://github.com/whitecarp/agentic-work-lab/releases/download/update-2026-11-02-episode07/whale-log-07-cut-a-v3-20261101.mp4) | 第七期直式切片A：斷糧代班人 | 回執記錄排期；未刷新 | 7.50 |
 | [whale-log-07-cut-b-v3-20261101.mp4](https://github.com/whitecarp/agentic-work-lab/releases/download/update-2026-11-02-episode07/whale-log-07-cut-b-v3-20261101.mp4) | 第七期直式切片B：差評製造機 | 回執記錄排期；未刷新 | 7.81 |
 | [whale-log-07-cut-c-v3-20261101.mp4](https://github.com/whitecarp/agentic-work-lab/releases/download/update-2026-11-02-episode07/whale-log-07-cut-c-v3-20261101.mp4) | 第七期直式切片C：幻覺藝術家 | 回執記錄排期；未刷新 | 7.19 |
+| [i-watched-it-for-you-v3-20261102.mp4](https://github.com/whitecarp/agentic-work-lab/releases/download/update-2026-11-03-film/i-watched-it-for-you-v3-20261102.mp4) | 我替你看過了（v3） | 製作會話記錄公開；未刷新 | 272.61 |
 
 GitHub 存檔公開不更改 B站排期；技術檢查與全片主觀觀看／聆聽分開記錄。歷史人工影片原檔不在本機，仍提供其[數據與平台連結](../data/human-led-history.csv)。
 
