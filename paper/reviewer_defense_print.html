@@ -14,183 +14,183 @@
   p { margin: 0 0 6pt 0; text-align: justify; }
   ul, ol { margin: 0 0 8pt 0; padding-left: 18pt; }
   li { margin-bottom: 3.5pt; }
-  table { width: 100%; border-collapse: collapse; margin: 7pt 0 11pt 0; font-size: 8.8pt; }
+  table { width: 100%; border-collapse: collapse; margin: 7pt 0 11pt 0; font-size: 8.6pt; }
   th { border-top: 1.5pt solid #0f172a; border-bottom: 1pt solid #0f172a; padding: 4pt 5pt; background: #f8fafc; text-align: left; font-weight: bold; }
   td { border-bottom: 0.5pt solid #cbd5e1; padding: 4pt 5pt; vertical-align: top; }
   tr:last-child td { border-bottom: 1.5pt solid #0f172a; }
   .qbox { border-left: 3pt solid #dc2626; background: #fef2f2; padding: 6pt 9pt; margin: 8pt 0 4pt 0; }
   .abox { border-left: 3pt solid #16a34a; background: #f0fdf4; padding: 6pt 9pt; margin: 4pt 0 10pt 0; }
   .fbox { border: 1pt solid #94a3b8; background: #f8fafc; padding: 7pt 10pt; margin: 7pt 0; font-family: "Times New Roman", serif; }
-  code { font-family: "Consolas", monospace; font-size: 8.8pt; background: #f1f5f9; padding: 1pt 3pt; border-radius: 2pt; }
+  code { font-family: "Consolas", monospace; font-size: 8.6pt; background: #f1f5f9; padding: 1pt 3pt; border-radius: 2pt; }
   .page-break { page-break-before: always; }
-</style></head><body><div style="border:2pt solid #b91c1c;background:#fef2f2;color:#7f1d1d;padding:8pt 10pt;margin:0 0 12pt 0;font-weight:bold;font-size:10pt;line-height:1.45">SUPERSEDED - do not use for submission or rebuttal. This document predates the peer-review revision of 4 November 2026 (branch paper/claude-review-fork). It quotes figures the data do not support (a Mann-Whitney U = 65.5, p = 0.0012 result; cohort means of 3,477, 95.89 and 32.56 views; "4 cohorts"; 27,095 and 37,155 lines of code) and describes algorithms and theorems that differ from the revised manuscript. Use main.tex / manuscript.pdf and CLAUDE_PEER_REVIEW_REPORT.md instead.<br><br>已作废——请勿用于投稿或答辩。本文件写于 2026-11-04 同行评审修订之前，引用了数据不支持的数字（Mann–Whitney U = 65.5、p = 0.0012；播放均值 3,477 / 95.89 / 32.56；“4 个队列”；27,095 与 37,155 行代码），所述算法与定理也与修订稿不同。请以 main.tex / manuscript.pdf 及 CLAUDE_PEER_REVIEW_REPORT.md 为准。</div>
-<h1>SCI Peer-Review Defense &amp; Rebuttal Playbook (15 Questions)</h1>
+</style></head><body>
+<h1>SCI Peer-Review Defense &amp; Rebuttal Playbook (15 Questions — 4 Nov Revision)</h1>
 <p><strong>Manuscript:</strong> Governing Human–AI Collaborative Project Workflows in Multi-Platform Digital Delivery: A Design Science Study of Auditable Handoffs and Idempotent Release Operations<br/>
 <strong>Author:</strong> HuaiCheng Sheng (Agentic Work Lab, Hangzhou Chengxin Holding Group Co., Ltd. | ORCID: <code>0009-0003-2900-6377</code>)</p>
-<p>This playbook anticipates the 15 toughest questions from SCI Q1 reviewers across Project Management Theory (Reviewer #1), Distributed Systems &amp; State Machines (Reviewer #2), and Empirical Statistics (Reviewer #3), providing ready-to-copy English responses and Chinese strategic summaries.</p>
+<p>This playbook is 100% synchronized with the revised 22-page manuscript (41 references, 11 tables, 5 figures) and <code>paper/reproduce_paper_tables.mjs</code>, providing ready-to-copy English responses and Chinese strategic summaries.</p>
 
   <div class="qbox">
-    <strong>Q1 [Reviewer #1 (Project Management & DSR Theory)]</strong><br/>
-    <em>EN:</em> How does your four-layer architecture advance Stage-Gate project management theory rather than merely implementing standard DevOps CI/CD scripts?<br/>
-    <em>CN:</em> 你们的四层架构是如何在理论上推进项目管理“阶段门控（Stage-Gate）”理论的，而不是仅仅写了几个普通的 DevOps 自动化脚本？
+    <strong>Q1 [Reviewer #1 (Project Governance & Stage-Gate Theory)]</strong><br/>
+    <em>EN:</em> How does your four-layer architecture advance Stage-Gate project governance theory rather than merely packaging standard DevOps CI/CD scripts?<br/>
+    <em>CN:</em> 你们的四层架构是如何在理论上推进项目管理“阶段门控（Stage-Gate）”理论的，而不是仅仅封装了几个常规的 DevOps 脚本？
   </div>
   <div class="abox">
-    <strong>Standard SCI Rebuttal (English):</strong> Classical Stage-Gate theory (Cooper, 1990; Bianchi et al., 2022) assumes human-to-human review meetings where actors share semantic context, whereas classic CI/CD pipelines (Humble & Farley, 2010) assume deterministic compilers and idempotent deployment targets. Multi-agent AI workflows violate both assumptions: foundation models suffer from stochastic context drift across asynchronous sessions, and external digital platforms exhibit non-idempotent, opaque state transitions (e.g., 92.32% post-submission confirmation waits). Our framework advances Stage-Gate theory by formalizing 'Computational Stage-Gates' through three enforceable invariants: (1) pure temporal-checklist scheduling predicates (Algorithm 1, Theorem A.1), (2) cryptographic plan-hash binding between dry-run rehearsal and execution (--confirm CURRENT_PLAN_HASH, Theorem A.3), and (3) epistemic audit gates (Algorithm 3) that prevent agents from conflating raw output volume with verified project outcomes.<br/><br/>
-    <strong>核心防御逻辑：传统 Stage-Gate 假设“人与人开会评审”，传统 CI/CD 假设“编译器和部署目标是确定且幂等的”。但多智能体项目同时打破了这两个假设（AI 会上下文漂移，外部社交平台 92.32% 时间卡在不确定等待态）。我们将阶段门控理论升华为“可计算门控不变式（Computational Stage-Gates）”，并在 Appendix A 给出了形式化定理证明（Theorems A.1–A.3）。</strong>
-  </div>
-
-
-  <div class="qbox">
-    <strong>Q2 [Reviewer #1 (Project Management & DSR Theory)]</strong><br/>
-    <em>EN:</em> Why is a 'Sole-Operator' human-in-the-loop (HITL) topology necessary when frameworks like ChatDev and MetaGPT advocate fully autonomous multi-agent teams?<br/>
-    <em>CN:</em> 既然 ChatDev 和 MetaGPT 等框架都在鼓吹“全自动无人值守多智能体团队”，为什么你们还要坚持“单人最高授权（Sole-Operator HITL）”？
-  </div>
-  <div class="abox">
-    <strong>Standard SCI Rebuttal (English):</strong> As demonstrated in our comparative governance analysis (Table 1) and ablation study (Table 11, Ablation A4/A5), fully autonomous conversational handoffs lack legal/operational accountability and fail catastrophically when encountering non-API authentication barriers (CAPTCHAs, QR re-logins) or ambiguous timeout states. Drawing on high-reliability control theory (Parasuraman et al., 2000; Shneiderman, 2020; Raisch & Krakowski, 2021), high automation must be paired with high human control over irreversible external commitments. By partitioning roles so that GPT/Codex, Claude, and DeepSeek handle high-frequency synthesis, UI engineering, and heartbeat monitoring while the human Project Manager retains sole release-token authority, our system achieved 0 unauthorized writes across N=69 checkpoints while bounding human intervention solely to explicit NEEDS_HUMAN boundary states.<br/><br/>
-    <strong>核心防御逻辑：全自动多智能体在遇到滑块验证码、Cookie 过期或超时重发时会直接崩溃或闯祸（见表 1 对比与表 11 消融实验 A4/A5）。依据 Shneiderman (2020) 的“高自动化+高人类控制”理论，把高频生成/巡检交给 AI，把不可逆的外部发布锁（Sole Operator）留给人类项目经理，才能实现 69 次运行 0 越权事故。</strong>
+    <strong>Standard SCI Rebuttal (English):</strong> As formalized in Section 2.4 ('Reading Stage-Gate Control as a Commit Protocol') and Section 7.1, classical Stage-Gate models (Cooper, 1990; Too & Weaver, 2014; Conforto & Amaral, 2016; Bianchi et al., 2022) assume human committees with shared organizational memory, while standard CI/CD pipelines (Humble & Farley, 2010) assume idempotent internal deployment targets. Multi-agent digital delivery violates both assumptions: autonomous LLM workflows lack durable cross-session state, and external publishing platforms expose non-idempotent endpoints without client-supplied idempotency keys (Helland, 2012). We bridge project governance and distributed commit protocols (Gray & Reuter, 1992; Saltzer et al., 1984; Garcia-Molina & Salem, 1987; Bainbridge, 1983) through five correspondences: (1) gatekeeping as deterministic admission control (planRun, Algorithm 1), (2) configuration baselines (Whyte et al., 2016) as cryptographic content addresses (--confirm CURRENT_PLAN_HASH), (3) the go decision as a write-ahead at-most-once commit (persisting UNKNOWN and final_submit_attempted = true before pressing Submit, Proposition 1), (4) post-gate review as an end-to-end read-back check, and (5) human escalation (WAITING_FOR_USER) as resolution of in-doubt transactions.<br/><br/>
+    <strong>核心防御逻辑：第 2.4 节与第 7.1 节提出了“将阶段门控重构为分布式提交协议（Reading Stage-Gate Control as a Commit Protocol）”的理论综合。外部社交平台缺乏幂等键（Helland, 2012），一旦超时重发就会造成不可逆的重复发帖。我们通过 5 组理论映射将 Cooper (1990) 与 Too & Weaver (2014) 的项目治理理论同 Gray & Reuter (1992) 的预写日志（Write-Ahead）提交协议、Saltzer et al. (1984) 端到端原则及 Garcia-Molina & Salem (1987) Saga 补偿理论融为一体。</strong>
   </div>
 
 
   <div class="qbox">
-    <strong>Q3 [Reviewer #1 (Project Management & DSR Theory)]</strong><br/>
-    <em>EN:</em> How does this study fulfill the six mandatory steps of Peffers et al.'s (2007) Design Science Research Methodology (DSRM) and Gregor & Hevner's (2013) knowledge contribution framework?<br/>
-    <em>CN:</em> 本研究是如何严格满足 Peffers (2007) 的设计科学研究六步法以及 Gregor & Hevner (2013) 的知识贡献框架的？
+    <strong>Q2 [Reviewer #1 (Human-in-the-Loop Governance & Ironies of Automation)]</strong><br/>
+    <em>EN:</em> Why is a human-gated topology necessary when frameworks like AutoGen, MetaGPT, and ChatDev advocate fully autonomous multi-agent execution?<br/>
+    <em>CN:</em> 既然 AutoGen、MetaGPT 和 ChatDev 等框架都在主打全自动多智能体协作，为什么你们还要保留人类门控与接管？
   </div>
   <div class="abox">
-    <strong>Standard SCI Rebuttal (English):</strong> Section 3.1 and Figure 1 explicitly map all six DSRM activities: (1) Problem Identification (three failure modes in Section 1), (2) Objectives of a Solution (four-layer invariants), (3) Design & Development (Algorithms 1–3, 123 Python modules, 27,095 LOC), (4) Longitudinal Demonstration (two multi-episode production series and standalone releases across 5 platforms), (5) Multi-Method Evaluation (N=69 operational events, N=55 channel records, N=30 SHA-256 media versions, and 2,737 unit tests), and (6) Communication (complete open-source archival and 150-page Supplementary Material). Under Gregor & Hevner's (2013) matrix, our work provides an 'Exaptation / Improvement' contribution that formalizes nascent design theory for agentic project governance.<br/><br/>
-    <strong>核心防御逻辑：第 3.1 节完整对应了 DSRM 六步法，兼具软件制品（27,095 行核心代码）与纵向实证评估（69 条运维日志、55 条发布快照、2,737 个测试），符合 Gregor & Hevner (2013) 的设计科学知识贡献标准。</strong>
+    <strong>Standard SCI Rebuttal (English):</strong> Conversational frameworks (AutoGen, MetaGPT, ChatDev; Table 1) operate inside local code sandboxes where errors can be rolled back via git revert. Live multi-platform publishing mutates public external state that cannot be rolled back and where delete-and-repost destroys work identity and URLs (Garcia-Molina & Salem, 1987). Drawing on Bainbridge's (1983) 'Ironies of Automation', Parasuraman et al. (2000), Shneiderman (2020), and Raisch & Krakowski (2021), automating routine preparation concentrates the remaining human role on precisely the in-doubt or interactive boundaries where automation cannot safely guess (expired platform sessions, CAPTCHAs, or post-submit read-back timeouts). Designing explicit WAITING_FOR_USER and UNKNOWN states turns human intervention into a bounded, auditable transaction resolution step.<br/><br/>
+    <strong>核心防御逻辑：AutoGen/ChatDev 是在本地沙盒写代码，错了能 git revert；公网发视频一旦连发或删错就是不可逆的公开事故。引用自动化经典文献 Bainbridge (1983)《自动化的讽刺》与 Shneiderman (2020)，常规步骤越自动化，留给去处理的边缘异常（扫码登录、验证码、提交后超时）就越关键。显式设计 WAITING_FOR_USER 与 UNKNOWN 状态，把人工介入变成了受界、可审计的“存疑事务裁决”。</strong>
   </div>
 
 
   <div class="qbox">
-    <strong>Q4 [Reviewer #2 (Distributed Systems & State-Machine Formalism)]</strong><br/>
-    <em>EN:</em> In Theorem A.2 and Algorithm 2, why do you latch post-submission verification timeouts into an 'UNKNOWN' state rather than implementing automatic exponential-backoff retries?<br/>
-    <em>CN:</em> 在定理 A.2 和算法 2 中，为什么提交后回读超时要锁定为 UNKNOWN 状态，而不是像常规网络程序那样做“指数退避自动重试”？
+    <strong>Q3 [Reviewer #1 (DSRM, Action Design Research & Researcher Role)]</strong><br/>
+    <em>EN:</em> Since the author served as both system designer and sole operator during the nine-day field deployment, how do you address researcher-role bias and methodological rigor?<br/>
+    <em>CN:</em> 既然作者在 9 天现场部署中同时担任系统设计者与唯一操作员，如何应对研究者角色偏差并保证设计科学的方法学严谨性？
   </div>
   <div class="abox">
-    <strong>Standard SCI Rebuttal (English):</strong> Automatic exponential-backoff retry is only safe when the target operation is natively idempotent (e.g., HTTP PUT with a server-enforced idempotency key). Across heterogeneous social media platforms (especially browser-automated endpoints like Douyin and Instagram or chunked uploads without universal idempotency tokens), a timeout during the post-submission confirmation window (which consumes 92.32% / 380.551 s of Instagram release duration, Table 5) means the payload has already been transmitted and the server is likely processing it asynchronously. As proven in Theorem A.2 (Supplementary Appendix A) and empirically confirmed on Douyin (Table 4), automatic retry after SUBMITTING violates At-Most-Once publication safety and produces duplicate public posts. Latching into UNKNOWN and restricting recovery strictly to read-only reconciliation (verify_remote_state) guarantees zero duplicate side effects across K >= 1 recovery rounds.<br/><br/>
-    <strong>核心防御逻辑：指数退避重试只对幂等接口安全！而在抖音、Instagram 等跨平台发布中，92.32% 的耗时发生在“点击提交后的等待确认期”（见表 5）。此时视频数据早已上传完毕，如果因为超时就自动重传，100% 会造成重复发帖（抖音实测案例见表 4）。锁定为 UNKNOWN 并只允许只读回查，在数学上（定理 A.2）保证了“最多发布一次（At-Most-Once）”。</strong>
+    <strong>Standard SCI Rebuttal (English):</strong> Sections 3.1, 3.3, and 7.4 explicitly situate this study within Design Science Research (Hevner et al., 2004; Peffers et al., 2007; Gregor & Hevner, 2013), Action Design Research (Sein et al., 2011), and Technical Action Research (Wieringa, 2014; Venable et al., 2016). To mitigate single-researcher bias, every empirical claim is anchored in contemporaneous machine-generated receipts committed to two public repositories (agentic-work-lab at data commit e3205d6 and publishops-crosscast at code commit 75b7abc) and recomputed deterministically by paper/reproduce_paper_tables.mjs. Furthermore, Section 7.4 explicitly discloses the dual designer-operator role and separates field observations, automated test results, and analytical baseline comparisons (Table 11).<br/><br/>
+    <strong>核心防御逻辑：第 3.1、3.3 与 7.4 节依据 Sein et al. (2011) 的行动设计研究（ADR）与 Wieringa (2014) 的技术行动研究规范，坦诚披露了“设计者兼操作员”的双重角色，并通过完全公开的双仓库原始机器回执（数据快照 e3205d6、代码快照 75b7abc）与零依赖复算脚本 paper/reproduce_paper_tables.mjs 消除主观叙述偏差。</strong>
   </div>
 
 
   <div class="qbox">
-    <strong>Q5 [Reviewer #2 (Distributed Systems & State-Machine Formalism)]</strong><br/>
-    <em>EN:</em> What threat model does the cryptographic plan-hash lock (--confirm CURRENT_PLAN_HASH) defend against?<br/>
-    <em>CN:</em> 你们设计的加密计划哈希锁（--confirm CURRENT_PLAN_HASH）具体防御的是什么威胁模型（Threat Model）？
+    <strong>Q4 [Reviewer #2 (Distributed Systems & Proposition 1 Safety Guarantee)]</strong><br/>
+    <em>EN:</em> In Proposition 1 and Algorithm 2, why is the receipt saved with state UNKNOWN and final_submit_attempted = true BEFORE pressing the final submit button, and what is the exact exception (A4)?<br/>
+    <em>CN:</em> 在命题 1（Proposition 1）与算法 2 中，为什么要在按下最终提交按钮之前先把状态 UNKNOWN 和 final_submit_attempted = true 落盘？例外条款 (A4) 又是什么？
   </div>
   <div class="abox">
-    <strong>Standard SCI Rebuttal (English):</strong> The plan-hash lock defends against Time-of-Check to Time-of-Use (TOCTOU) drift in multi-agent pipelines. Specifically, between the time a human Project Manager reviews a dry-run rehearsal plan and the moment the execution agent invokes the live release command, another asynchronous agent or background script might modify the title, tags, target platform list, or re-render the video file. Because H_plan = SHA256(Canon(M, T, H(f))) binds the canonical metadata M, target platform vector T, and full stream-based SHA-256 media digest H(f) (Theorem A.3), any single-bit mutation invalidates the confirmation token and aborts execution before network transmission.<br/><br/>
-    <strong>核心防御逻辑：防御的是多智能体协作中的 TOCTOU（检查时与使用时不一致）漂移風險——防止人类刚审完预演计划，另一个后台 AI 就悄悄改了标题、标签或替换了视频文件。通过绑定元数据与 64KB 分块 SHA-256 视频哈希（定理 A.3），改一个字节就会立刻拦截。</strong>
+    <strong>Standard SCI Rebuttal (English):</strong> Without platform-side idempotency keys, a client cannot achieve exactly-once delivery on its own; it must choose between at-least-once and at-most-once (Helland, 2012; Kleppmann, 2017). In publishops-crosscast (browser_backends.py at commit 75b7abc), the adapter writes the receipt with state UNKNOWN and final_submit_attempted = true immediately BEFORE invoking the single final submit press ('Persist BEFORE clicking. A timeout must never cause another click'). Under Proposition 1 (Assumptions A1–A4), if a crash or timeout occurs during or after the press, any subsequent run sees final_submit_attempted = true and refuses to press again, with one explicit exception implemented in code (A4): a resumed run may press again only when the platform itself shows that the earlier work is still an unsubmitted draft. Thus Proposition 1 provides a formal safety guarantee (at-most-once automated submission) rather than a liveness guarantee.<br/><br/>
+    <strong>核心防御逻辑：对应 browser_backends.py 的真实注释与代码（“Persist BEFORE clicking”）：在点击提交按钮前先行把 UNKNOWN 和 final_submit_attempted = true 原子落盘。命题 1 严谨列出了假设 A1–A4，并如实说明了代码中的唯一例外 (A4)：仅当远端平台明确显示此前作品仍处于“未提交草稿（unsubmitted draft）”时才允许恢复点击；同时明确指出这是安全性保证（Safety，最多提交一次）而非活性保证（Liveness）。</strong>
   </div>
 
 
   <div class="qbox">
-    <strong>Q6 [Reviewer #2 (Distributed Systems & State-Machine Formalism)]</strong><br/>
-    <em>EN:</em> Browser DOM automation (Playwright) is notoriously fragile when platforms update their UI. How does your architecture handle DOM selector breakage?<br/>
-    <em>CN:</em> 网页端自动化（Playwright）在平台改版时很容易因为 DOM 选择器失效而崩溃，你们的架构是如何应对这种脆弱性的？
+    <strong>Q5 [Reviewer #2 (Field Evidence of Crash & Timeout Recovery)]</strong><br/>
+    <em>EN:</em> What concrete field evidence supports your release state machine beyond unit tests?<br/>
+    <em>CN:</em> 除了单元测试之外，有哪些具体的现场实测证据支撑你们的发布回执状态机？
   </div>
   <div class="abox">
-    <strong>Standard SCI Rebuttal (English):</strong> Rather than assuming DOM selectors will never break, our architecture treats UI fragility as a first-class design constraint across three mechanisms: (1) Preflight & Dry-Run isolation checks selector availability and authentication validity before entering SUBMITTING; (2) explicit phase separation distinguishes pre-click failures (safe to abort into FAILED without side effects) from post-click verification failures (latched into UNKNOWN); and (3) a dedicated test suite of 2,737 unit and contract tests across 126 modules (Table 8, Supplementary Appendix F) continuously validates adapter contracts, fallback selectors, and receipt serialization.<br/><br/>
-    <strong>核心防御逻辑：我们不假设网页永不改版，而是把“UI 脆弱性”作为一等公民来设计：提交前坏了直接安全退回 FAILED；点击提交后如果选择器变了导致读不到回执，状态机立刻锁入 UNKNOWN 防止重发；同时配合 126 个测试模块、2,737 个单元测试（表 8 与附录 F）持续验证适配器契约。</strong>
+    <strong>Standard SCI Rebuttal (English):</strong> Section 6.3 and Tables 5–6 document three concrete operational traces from the repositories: (1) during the five-platform release of the flagship film, the Douyin adapter completed upload and submission but timed out during post-submit verification, latching the receipt into UNKNOWN (with states PREPARING -> UNKNOWN -> SUBMISSION_VERIFIED / SUBMITTED_UNVERIFIED / WAITING_FOR_USER in Figure 2) without re-uploading; (2) a separate Douyin scheduled-card test on 1 November exhibited the same read-back timeout and likewise held without duplicate submission; and (3) during a private YouTube upload check on 30 October (v0.15.1), a process killed after 8,388,608 acknowledged bytes resumed in a second process and completed under the same video ID rather than creating a duplicate upload.<br/><br/>
+    <strong>核心防御逻辑：第 6.3 节与表 5–6 给出了 3 个硬核实测证据：① 五平台发布中抖音出现回读超时，状态机安全锁入 UNKNOWN 未重传；② 11 月 1 日抖音定时卡片测试复现同类回读超时，同样零重复提交；③ 10 月 30 日 YouTube 私享上传测试中，进程在已确认传输 8,388,608 字节后被强制杀死，第二进程成功续传并保持同一视频 ID，未产生重复视频。</strong>
   </div>
 
 
   <div class="qbox">
-    <strong>Q7 [Reviewer #3 (Empirical Evaluation & Statistical Validity)]</strong><br/>
-    <em>EN:</em> Your empirical evaluation comes from a single organizational laboratory (Agentic Work Lab). How do you justify external validity and generalizability?<br/>
-    <em>CN:</em> 你们的实证数据来自单一机构实验室（Agentic Work Lab），如何证明研究结论的外部有效性（External Validity）与普适性？
+    <strong>Q6 [Reviewer #2 (Post-Publication Revision & Deletion — Algorithm 3)]</strong><br/>
+    <em>EN:</em> How does Algorithm 3 prevent destructive compensation (such as delete-and-repost) during post-publication edits and deletions?<br/>
+    <em>CN:</em> 算法 3 是如何在发布后修订（vpub edit）与删除（vpub delete）中防止“先删帖再重发”这类破坏性操作的？
   </div>
   <div class="abox">
-    <strong>Standard SCI Rebuttal (English):</strong> In Design Science Research and empirical software engineering (Hevner et al., 2004; Runeson & Höst, 2009; Wieringa, 2014), generalization from longitudinal single-site studies relies on 'analytic generalization' (architectural mechanisms and mathematical invariants) rather than purely statistical population sampling. While our operational dataset originates from one laboratory, the technical environment spans 3 distinct foundation model families (GPT/Codex, Claude, DeepSeek), 5 structurally diverse external platforms (Bilibili, YouTube, X, Douyin, Instagram) covering both REST APIs and browser-automated engines, 69 operational checkpoints, 55 published videos, 30 SHA-256 locked media versions (2.21 GB), and 2,737 automated tests. Furthermore, all schemas and source code are publicly archived under the MIT License so independent teams can replicate the governance gates in their own pipelines.<br/><br/>
-    <strong>核心防御逻辑：依据软件工程实证案例研究规范（Runeson & Höst, 2009；Wieringa, 2014），设计科学采用的是“分析性推广（Analytic Generalization）”。虽然来自同一实验室，但横跨了 3 大主流模型家族（GPT、Claude、DeepSeek）、5 个异构国内外平台（API + 浏览器混合）、69 次运维事件、55 条视频与 2,737 个测试，且全部开源可复现。</strong>
+    <strong>Standard SCI Rebuttal (English):</strong> In Saga terminology (Garcia-Molina & Salem, 1987), deleting and reposting a live social media item is not a clean compensating transaction because it destroys the post's URL, engagement history, and timestamp. Algorithm 3 (implemented in PRs #20, #21, #25, #29, and #30 at commit 75b7abc) checks expected_identity before any action and uses four exact status codes: EDIT_VERIFIED (live metadata already matches target; no save click issued), EDIT_MISMATCH (dry-run reports differences without saving), EDIT_UNAVAILABLE (on X, where the post menu exposes no native Edit action, the adapter stops without deleting, reposting, or replying), and EDIT_SUBMITTED_UNVERIFIED. For single-work deletion (vpub delete), the adapter requires a prior dry-run and explicit human approval of the target work, then refreshes the platform catalogue to confirm the work's absence.<br/><br/>
+    <strong>核心防御逻辑：算法 3 严格对齐了真实代码中的四个状态码（EDIT_VERIFIED、EDIT_MISMATCH、EDIT_UNAVAILABLE、EDIT_SUBMITTED_UNVERIFIED）。特别是在 X 平台没有原生编辑按钮时，直接返回 EDIT_UNAVAILABLE 并终止，绝不刪帖重发；删除作品则必须先经过 dry-run 与人工确认，并在删除后刷新列表确认该作品已不存在。</strong>
   </div>
 
 
   <div class="qbox">
-    <strong>Q8 [Reviewer #3 (Empirical Evaluation & Statistical Validity)]</strong><br/>
-    <em>EN:</em> In Table 7, why do the AI-assisted cohorts ('Whale Girl Shift Log' mean = 95.89 views; 'GPT Duty Log' mean = 32.56 views) have lower views than the legacy baseline (mean = 3,477.00 views)? Doesn't this show AI performed worse?<br/>
-    <em>CN:</em> 在表 7 中，为什么 AI 辅助序列（鲸鱼娘均值 95.89，GPT 值班日志均值 32.56）的播放量反而低于历史老视频基线（均值 3,477）？这难道不是说明 AI 表现更差吗？
+    <strong>Q7 [Reviewer #3 (Operational Journal Evidence & Passive vs. Active Evidence)]</strong><br/>
+    <em>EN:</em> In Table 3, why do you state that the 69-record operational journal shows 'absence of writes' rather than claiming it directly proves '68 suppressed writes'?<br/>
+    <em>CN:</em> 在表 3 中，为什么你们严格区分“日志记录中未发生未授权写入”与“主动拦截了 68 次越权尝试”？
   </div>
   <div class="abox">
-    <strong>Standard SCI Rebuttal (English):</strong> Quite the opposite—highlighting this discrepancy is the core point of RQ3 and Algorithm 3 (Epistemic Audit Gate). As explained in Section 5.5, comparing raw cumulative views between legacy videos (which have accumulated organic traffic and algorithmic recommendations over many months/years) and newly launched AI-assisted series (published only days or weeks prior to snapshot collection) commits severe exposure-duration confounding. A naive or dishonest study would cherry-pick metrics or claim 'AI increased output volume by 300%'. Instead, our Mann–Whitney U test (U = 65.5, z = -3.24, p = 0.0012, r_rb = 0.721) formally quantifies this distributional shift and enforces our epistemic rule: operational governance success (0 unauthorized writes, 0 duplicate posts, 100% SHA-256 integrity) must be evaluated independently from time-confounded audience traffic.<br/><br/>
-    <strong>核心防御逻辑：这恰恰是本文 RQ3 最亮眼的学术贡献（诚实审计门，算法 3）！老视频挂在网上累积了很久的自然流量，而新 AI 序列才刚发布不久。如果直接比播放量就犯了统计学上的“曝光周期混杂偏差（Exposure-Duration Confounding）”。我们专门用 Mann–Whitney U 检验（p=0.0012）揭示这一现象，证明工程治理的成功（0 越权、0 重复发布）绝不能与受时间干扰的播放量混为一谈——审稿人最喜欢这种极其诚实、反浮躁的严谨学风！</strong>
+    <strong>Standard SCI Rebuttal (English):</strong> Because scientific honesty requires distinguishing passive outcome logs from active refusal logs (Sections 6.1 and 7.4). In data/operations-events.json (N=69 records; 46 timestamped across 25.3 hours from 26 Oct 01:27 to 27 Oct 02:45 UTC+8), the journal records what each checkpoint did, not what it refused: 20 records carry explicit zero-write counters (13 reads, 0 writes), 39 record platform_calls = 0, 1 records a read-only platform call without a write field (#22), 1 records the authorized platform write (#52: 4 reads, 1 write, replay = 0, new_risk = false), and 8 early records carry no call/write counter fields. While this outcome log is fully consistent with the gate, direct proof that planRun blocks unauthorized callers, stop flags, and unscheduled jobs comes from the 10 unit tests in tests/workflows.test.mjs (10/10 passed) and the scheduled heartbeat evidence.<br/><br/>
+    <strong>核心防御逻辑：这是主动化解审稿人质疑的绝佳设计！运维日志记录的是“每次检查的结果（仅 #52 写了 1 次，其余 0 写入）”，而不是“拦截了多少次恶意攻击”。我们在表 3 按 JSON 真实字段分成 20 / 39 / 1 / 1 / 8 五类（总计 17 次平台读取、1 次写入），同时指出门控的主动拦截逻辑由 workflows.test.mjs（10/10 通过）直接证明，并在未来工作中提出增加“拒绝尝试日志”。这种严谨度让审稿人挑不出任何毛病！</strong>
   </div>
 
 
   <div class="qbox">
-    <strong>Q9 [Reviewer #3 (Empirical Evaluation & Statistical Validity)]</strong><br/>
-    <em>EN:</em> In Table 3, 68 out of 69 operational events were blocked non-write checkpoints and only 1 was an executed write. Is N=1 write event too small to evaluate write execution?<br/>
-    <em>CN:</em> 在表 3 中，69 次事件里有 68 次是非写入拦截，只有 1 次是写入执行。1 次写入样本是不是太少了？
+    <strong>Q8 [Reviewer #3 (Software Scale, Bundled Code Disclosure & Snapshot Pointers)]</strong><br/>
+    <em>EN:</em> How are the code and test counts in Table 4 computed, and how do you handle bundled third-party code and repository evolution?<br/>
+    <em>CN:</em> 表 4 中的代码与测试规模是如何计算的？你们是如何处理内置第三方代码与仓库版本演进的？
   </div>
   <div class="abox">
-    <strong>Standard SCI Rebuttal (English):</strong> Table 3 specifically measures the autonomous scheduled heartbeat daemon (DeepSeek / OpenClaw routine runner) governed by Algorithm 1 (planRun), whose primary safety requirement is to prevent unscheduled or duplicate background mutations across continuous polling intervals (68/68 = 100% suppression accuracy, 0 false-positive writes). The actual multi-platform media write and release executions are evaluated separately across the 5-platform release matrix (Table 4), the phase-level telemetry decomposition (Table 5), the 30 cryptographically verified video delivery versions totaling 2.21 GB (Table 6), the 55 published channel videos (Table 7), and 2,737 automated test cases simulating every state transition (Table 8).<br/><br/>
-    <strong>核心防御逻辑：表 3 测的是后台定时巡检守护进程（Algorithm 1），它的核心使命就是在 68 个非写入时间窗口里 100% 拦住 AI 乱动文件；而真正的跨平台写入与发布实测在表 4（5 大平台发布）、表 5（Instagram 耗时拆解）、表 6（30 个视频版本 2.21GB 交付）、表 7（55 条已发布视频）和表 8（2,737 个自动化测试）中得到了全面验证。</strong>
+    <strong>Standard SCI Rebuttal (English):</strong> All counts in Table 4 are computed at the evaluated head commit 75b7abc (28 March 2026) using physical line counts (wc -l, via paper/reproduce_paper_tables.mjs) and compared transparently against the v0.16.0 release tag (commit a46bd19, 27 March 2026: 107 source files, 84 test files, 2,009 test functions). At 75b7abc, publishops-crosscast contains 123 Python source files (26,972 physical lines), of which 42 files (8,967 lines) are an unmodified bundled copy of MIT-licensed bili-cli v1.2.1 (disclosed in NOTICE.md) and 81 files (18,005 lines) constitute CrossCast's own package. The test suite comprises 126 files (122 test_* modules + 4 helper files, 37,029 physical lines, 2,737 def test_* functions), yielding a test-to-source line ratio of 1.37 overall and 2.06 against CrossCast's own package.<br/><br/>
+    <strong>核心防御逻辑：表 4 不仅用 wc -l 物理行数精确复算了 commit 75b7abc 的全部代码，还主动披露其中 42 个文件（8,967 行）是原样内置的 MIT 开源组件 bili-cli v1.2.1，自研 CrossCast 包为 81 个文件（18,005 行）；对应 126 个测试文件（37,029 行，2,737 个测试函数），自研测试源码比高达 2.06，且同时给出了 v0.16.0（a46bd19）的对比数字，做到了 100% 透明。</strong>
   </div>
 
 
   <div class="qbox">
-    <strong>Q10 [Reviewer #3 (Empirical Evaluation & Statistical Validity)]</strong><br/>
-    <em>EN:</em> Why did you note that the 'blinded identical-task multi-model merchant comparison' is an unexecuted plan rather than running it before submission?<br/>
-    <em>CN:</em> 为什么你们在论文里诚实说明“多模型同题盲测对比”目前只是待执行计划（Unexecuted Plan），而不是编造或凑一组数据放进去？
+    <strong>Q9 [Reviewer #3 (Instagram Timing Interpretation & N=1 Scope)]</strong><br/>
+    <em>EN:</em> In Table 7 and Figure 5, what does the 380.551 s (92.32%) Instagram step actually measure, and can you generalize that exact percentage to all platforms?<br/>
+    <em>CN:</em> 在表 7 和图 5 中，Instagram 的 380.551 秒（92.32%）具体测的是什么？这个百分比能直接推广到所有平台吗？
   </div>
   <div class="abox">
-    <strong>Standard SCI Rebuttal (English):</strong> Rule 4 of our Epistemic Hygiene Protocol (Section 3.2) strictly mandates separating verified execution receipts from planned experimental designs. In our production workflow, GPT/Codex, Claude, and DeepSeek were assigned complementary functional roles (synthesis/QA, UI tooling, and scheduled monitoring, Table 10) rather than redundant identical tasks. Documenting the schema and priority protocol for future blinded comparisons while explicitly labeling its unexecuted status prevents selective reporting bias and upholds the highest standards of empirical software engineering transparency.<br/><br/>
-    <strong>核心防御逻辑：在实际生产中，三个模型是按特长分工协作的（GPT 写脚本与验证、Claude 做界面、DeepSeek 做定时巡检，见表 10），而不是让三个模型重复干同一件事。在论文中明确把“同题盲测”标注为待执行计划，体现了第 3.2 节提出的“诚实学术边界准则（Epistemic Hygiene）”。</strong>
+    <strong>Standard SCI Rebuttal (English):</strong> As stated in Section 6.3 and Table 7 (N = 1 timed Instagram release: 423.236 s end-to-end, 412.217 s inside vpub publish), the 380.551 s post-submit phase spans from the final submit click until the platform returns confirmation. From outside the platform's servers, client telemetry cannot separate network media transfer completion, server-side transcoding/processing, and final confirmation within that 380.551 s window, and the phase breakdown is not exhaustive of small inter-step overhead (0.289 s derived remainder). We do not claim the 92.32% figure transfers numerically to other platforms; rather, it empirically illustrates the structural hazard that motivates Layer 3: a long post-press in-doubt window where an unguarded timeout retry would press Submit a second time.<br/><br/>
+    <strong>核心防御逻辑：我们在摘要、Highlights 与第 6.3 节明确说明：380.551 秒（92.32%）来自单次完整计时的 Instagram 发布（N=1），且从客户端视角无法把该窗口内的上传传输、服务端转码与确认拆开。我们不宣称“所有平台都是 92.32%”，而是用这一实测证据直观揭示“点击提交后存在漫长的存疑窗口”，从而论证在点击前先行落盘 UNKNOWN 状态的架构必然性。</strong>
   </div>
 
 
   <div class="qbox">
-    <strong>Q11 [Reviewer #2 (Systems Performance & Overhead)]</strong><br/>
-    <em>EN:</em> Does computing 64-KB chunked SHA-256 hashes across gigabytes of video files introduce unacceptable latency overhead into the release pipeline?<br/>
-    <em>CN:</em> 对几个 GB 的视频文件做 64-KB 分块 SHA-256 加密哈希计算，会不会给发布流水线带来很大的性能延迟开销？
+    <strong>Q10 [Reviewer #3 (Cohort Complete Separation & Exposure-Age Confounding)]</strong><br/>
+    <em>EN:</em> In Section 6.5 and Table 10, why do you report descriptive quantiles for the 55 Bilibili records without running a significance test?<br/>
+    <em>CN:</em> 在第 6.5 节和表 10 中，为什么你们对 55 条 Bilibili 记录只报告分位数等描述统计，而不做显著性假设检验？
   </div>
   <div class="abox">
-    <strong>Standard SCI Rebuttal (English):</strong> No. Stream-based 64-KB SHA-256 hashing in Python/OpenSSL processes over 500–800 MB/s on modern NVMe SSDs, requiring less than 0.15 seconds per 75 MB video file while keeping peak RAM usage under 64 KB. Compared to external platform upload and confirmation latencies (e.g., 412.217 s on Instagram, Table 5), cryptographic hashing overhead represents less than 0.04% of end-to-end release time while guaranteeing 100% byte-level payload immutability.<br/><br/>
-    <strong>核心防御逻辑：64-KB 流式 SHA-256 哈希在现代固态硬盘上每秒可处理 500–800 MB，算一个 75 MB 的视频不到 0.15 秒，内存占用仅 64 KB；相比于跨平台上传动辄 412 秒的耗时（表 5），哈希校验的开销占比不到 0.04%，却换来了 100% 的字节级防篡改安全。</strong>
+    <strong>Standard SCI Rebuttal (English):</strong> In data/creator-video-snapshot.json (N = 55 records: n = 45 in human_led_history published Oct 2019–Oct 2026, and n = 10 in current_ai_series comprising 5 published videos aged 1.6 hours to 3.1 days and 5 scheduled releases), every single historical video has more views than every single newly published AI-series video: min(human_led_history) = 274 views (mean 40,884.31, SD 64,604.81, median 15,407.0, IQR 26,315.0, max 333,725) versus max(current_ai_series) = 231 views (mean 133.20, SD 99.53, median 183.0, IQR 148.0, min 11). Because the two distributions exhibit complete separation (274 > 231) across a multi-year versus multi-hour exposure gap, a Mann–Whitney test on views mechanically yields U = 0 and would merely restate exposure age rather than content quality. Furthermore, weekly play growth (76,162 vs. 21,398) was driven by older travel vlogs on TV clients, reinforcing why raw channel totals must not be attributed to the new AI workflow.<br/><br/>
+    <strong>核心防御逻辑：在 55 条快照中，45 条人类历史视频最低播放量是 274，而 5 条刚发布 1.6 小时–3.1 天的 AI 视频最高播放量是 231（274 > 231，两组样本完全不重叠，即 Complete Separation，若硬做秩检验 U 恒等于 0）。而且周播放增长（76,162 vs 21,398）主要来自电视端推荐的老旅行视频。因此不做误导性的显著性检验、如实呈现曝光时长混杂，恰恰是第 4 层“认知治理（Epistemic Governance）”的核心示范！</strong>
   </div>
 
 
   <div class="qbox">
-    <strong>Q12 [Reviewer #1 (Human Factors & Cognitive Load)]</strong><br/>
-    <em>EN:</em> Does routing UNKNOWN and NEEDS_HUMAN states to the human Project Manager create alert fatigue or bottleneck scalability?<br/>
-    <em>CN:</em> 把 UNKNOWN 和 NEEDS_HUMAN 状态交给人类项目经理处理，会不会导致人类“告警疲劳（Alert Fatigue）”或成为扩展性瓶颈？
+    <strong>Q11 [Reviewer #3 (Analytical Comparison vs. Executed Ablation — Table 11)]</strong><br/>
+    <em>EN:</em> How are the baseline alternatives in Table 11 evaluated if you did not intentionally run unguarded agents on live public accounts?<br/>
+    <em>CN:</em> 既然你们没有在真实公开账号上故意运行不设防的基线智能体，表 11 中的基线对比是如何评估的？
   </div>
   <div class="abox">
-    <strong>Standard SCI Rebuttal (English):</strong> Our architecture minimizes human cognitive load by filtering out all routine checks and pre-submission errors automatically: Layer 1 suppressed 68/69 non-write polling intervals without human involvement, and Layer 3 only escalates to NEEDS_HUMAN or UNKNOWN when an irreversible external boundary (such as an expired login session or post-submit read-back timeout) occurs. Moreover, when escalation occurs, the receipt provides exact diagnostic telemetry (platform, phase latency, error code, and pre-filled CLI recovery commands), reducing human resolution to a single verification action rather than manual log debugging.<br/><br/>
-    <strong>核心防御逻辑：恰恰相反，第一层门控自动过滤了 68/69 的日常巡检，只有遇到真正不可逆的外部边界（如登录过期或提交后超时）才会触发人工接管，而且回执单里直接给出了精确的故障阶段与恢复命令，极大降低了人类的排查负担。</strong>
+    <strong>Standard SCI Rebuttal (English):</strong> Table 11 is explicitly framed as an analytical comparison rather than an executed ablation trial. For the unguarded baselines, the table states what would occur under each removed layer based on architectural mechanism ('reasoned, not executed'), while for our four-layer design every cell explicitly tags its actual evidence source: field traces (e.g., the two Douyin read-back timeouts and the Instagram login escalation), automated test suites (e.g., workflows.test.mjs and the 2,737 CrossCast test functions), review logs (audio/loudness defect detection in Table 8), or code inspection.<br/><br/>
+    <strong>核心防御逻辑：表 11 明确界定为“分析性对比（Analytical Comparison）”，将未执行的基线标注为基于机制推导的后果（would occur），而本文方案的每一行都严格标注了实证来源（现场记录 Field、自动化测试 Test、审校记录 Review 或代码实现 Code），不把机制推导伪装成跑过的消融实验。</strong>
   </div>
 
 
   <div class="qbox">
-    <strong>Q13 [Reviewer #2 (State Machine Completeness)]</strong><br/>
-    <em>EN:</em> In Figure 3 and Algorithm 2, are the eight states of the release receipt state machine dead-lock free and formally terminating?<br/>
-    <em>CN:</em> 在图 3 和算法 2 中，发布回执状态机的 8 个状态是否保证无死锁（Deadlock-Free）且必然终止？
+    <strong>Q12 [Reviewer #2 (Advisory Scheduling Gate vs. Hard Platform Enforcement)]</strong><br/>
+    <em>EN:</em> If planRun in Layer 1 is a pure JavaScript function, couldn't a rogue script or operator bypass it and call the release CLI directly?<br/>
+    <em>CN:</em> 既然第 1 层的 planRun 是一个纯函数，如果某个脚本绕过它直接调用发布 CLI 怎么办？
   </div>
   <div class="abox">
-    <strong>Standard SCI Rebuttal (English):</strong> Yes. As formalized in Section 4.3 and proven in Supplementary Appendix A (Theorem A.2), the state transition graph is a Directed Acyclic Graph (DAG) within any single execution attempt: every active state (INIT, DRY_RUN, PREFLIGHT, SUBMITTING, VERIFYING) has bounded timeout guards (tau_submit, tau_verify) that deterministically transition into one of the four absorbing terminal states (PUBLISHED, UNKNOWN, NEEDS_HUMAN, FAILED). Consequently, no execution path can loop infinitely or deadlock.<br/><br/>
-    <strong>核心防御逻辑：在单次执行中，状态转移图是一个带超时上界（tau_submit, tau_verify）的有向无环图（DAG），任何活跃状态在有限时间内必然进入四个吸收态（PUBLISHED、UNKNOWN、NEEDS_HUMAN、FAILED）之一，因此在数学上绝不存在死锁或无限循环。</strong>
+    <strong>Standard SCI Rebuttal (English):</strong> Section 4.2 explicitly notes this defense-in-depth boundary: planRun is an advisory scheduling gate for the autonomous runner, whereas hard enforcement at the platform boundary resides in Layers 2 and 3 inside publishops-crosscast itself. Even if a caller bypasses planRun, vpub publish refuses to execute a live write without a matching --confirm CURRENT_PLAN_HASH digest (Layer 2) and an unlatched receipt lock (Layer 3).<br/><br/>
+    <strong>核心防御逻辑：第 4.2 节坦诚说明了这一纵深防御边界：Layer 1（planRun）负责约束后台定时调度器，而真正卡死外部平台写入边界的是内置在 vpub publish 命令内部的 Layer 2（--confirm 计划哈希锁）与 Layer 3（进程锁与回执状态机）。即使绕过 Layer 1，没有匹配的计划哈希与未锁定回执也无法触发发布。</strong>
   </div>
 
 
   <div class="qbox">
-    <strong>Q14 [Reviewer #3 (Ablation Study Design)]</strong><br/>
-    <em>EN:</em> How were the ablation configurations (A1–A5 in Table 11) evaluated without intentionally corrupting live public social media accounts?<br/>
-    <em>CN:</em> 表 11 中的消融实验（A1–A5）是如何在不污染真实公开社交媒体账号的前提下完成验证的？
+    <strong>Q13 [Reviewer #2 (Attestation Boundary of --person-approved)]</strong><br/>
+    <em>EN:</em> Does the --confirm digest cryptographically prove that a human being, rather than an agent, typed the command?<br/>
+    <em>CN:</em> --confirm 摘要能否在密码学意义上证明敲下命令的一定是人类而不是智能体？
   </div>
   <div class="abox">
-    <strong>Standard SCI Rebuttal (English):</strong> As detailed in Section 5.9 and Table 11, each ablation variant (A1–A5) was verified by combining historical incident traces observed prior to gate deployment (e.g., the Douyin read-back timeout trace and Instagram session-expiry trace) with deterministic fault-injection test harnesses in the 2,737-test suite (e.g., tests/test_state_machine_*.py, tests/test_preflight_*.py, and tests/plan-run.test.mjs). This allows exact measurement of failure behavior under gate removal without spamming live public platforms.<br/><br/>
-    <strong>核心防御逻辑：结合了门控上线前的真实故障历史记录（如抖音回读超时、Instagram 登录过期记录）以及 2,737 个自动化测试中的确定性故障注入测试（Fault-Injection Test Harness），既精确验证了去掉每一层门控后的必现故障，又避免了往真实公网平台恶意连发垃圾视频。</strong>
+    <strong>Standard SCI Rebuttal (English):</strong> No, and Section 4.3 states this boundary explicitly: the --confirm CURRENT_PLAN_HASH digest cryptographically binds the approval to the exact metadata and media SHA-256 content reviewed during dry-run (preventing TOCTOU content drift), whereas the --person-approved flag is the caller's attestation that human review took place, as documented in the CLI's own help text.<br/><br/>
+    <strong>核心防御逻辑：第 4.3 节如实界定了密码学边界：--confirm 哈希在数学上保证的是“实发内容与预演审阅内容字节级一致（防 TOCTOU 篡改）”，而“是否由真人批准（--person-approved）”则是调用方的声明与操作规程边界。</strong>
   </div>
 
 
   <div class="qbox">
-    <strong>Q15 [Editor-in-Chief (Journal Fit & Readership Value)]</strong><br/>
-    <em>EN:</em> What concrete takeaway can software engineering and project management practitioners immediately apply from your paper?<br/>
-    <em>CN:</em> 软件工程与项目管理的一线从业者能从你的论文中立刻拿走什么可落地的实践经验？
+    <strong>Q14 [Reviewer #1 (Single-Case Generalizability & External Validity)]</strong><br/>
+    <em>EN:</em> What generalizes from a single-organization, nine-day study to other software engineering and project management teams?<br/>
+    <em>CN:</em> 从单一机构、9 天现场部署的研究中，有哪些结论可以推广到其他软件工程与项目管理团队？
   </div>
   <div class="abox">
-    <strong>Standard SCI Rebuttal (English):</strong> Practitioners gain three immediately actionable engineering patterns: (1) Never rely on conversational prompts to constrain multi-agent write authority—enforce a pure scheduling gate and cryptographic plan-hash token (--confirm CURRENT_PLAN_HASH); (2) Never allow an AI agent to auto-retry a failed post-submission check—latch post-submit timeouts into an UNKNOWN state and reconcile via read-only queries; and (3) Always apply non-parametric cohort stratification before claiming AI productivity or traffic gains. All patterns are available as ready-to-run open-source tools in Agentic Work Lab and PublishOps CrossCast.<br/><br/>
-    <strong>核心防御逻辑：给业界提供了三条即插即用的工程铁律：① 绝不用提示词约束 AI 写权限，必须用纯函数门控+加密计划哈希锁；② 绝不允许 AI 在提交后超时自动重试，必须锁入 UNKNOWN 态做只读回查；③ 评估 AI 效果必须做非参数批次分层检验。且全套工具已开源。</strong>
+    <strong>Standard SCI Rebuttal (English):</strong> Following Flyvbjerg (2006), Runeson & Höst (2009), Wieringa (2014), and Wieringa & Daneva (2015), generalization proceeds by architectural mechanism ('analytical generalization', Section 7.4). While platform-specific latency numbers (such as the 380.551 s Instagram wait) are not claimed to transfer numerically, the underlying structural dilemma transfers to any project where AI agents act on external APIs or browser endpoints that lack idempotency keys and transactional rollback: write-ahead UNKNOWN receipt persistence before the final press, content-addressed approval tokens, and identity-bound in-place revision provide a reusable reference architecture.<br/><br/>
+    <strong>核心防御逻辑：依据 Flyvbjerg (2006) 与 Wieringa & Daneva (2015) 的“按机制分析性推广（Analytical Generalization）”，具体平台的秒数无需照搬，但只要外部接口缺乏幂等键与回滚机制，“点击前预写 UNKNOWN 回执 + 内容寻址计划哈希 + 原位身份核验修订”这一参考架构就具有广泛适用性。</strong>
+  </div>
+
+
+  <div class="qbox">
+    <strong>Q15 [Editor-in-Chief (Future Research & Measurable Gate Suppression)]</strong><br/>
+    <em>EN:</em> What is the most important next step to strengthen this governance framework in future empirical deployments?<br/>
+    <em>CN:</em> 在未来的实证部署中，进一步强化该治理框架最关键的下一步工作是什么？
+  </div>
+  <div class="abox">
+    <strong>Standard SCI Rebuttal (English):</strong> As outlined in Section 8, the top priority is to log gate decisions and refused attempts (not only executed outcomes) so that suppression rates become directly measurable, alongside timing bounded concurrent multi-platform runs against sequential execution, running the planned blinded identical-task multi-model comparison with per-call cost logging, and replicating the architecture across independent teams.<br/><br/>
+    <strong>核心防御逻辑：第 8 节明确提出了 4 项紧扣研究局限的未来工作：① 不仅记录执行结果，还要持久化记录每一次门控决策与被拒绝的尝试，使“拦截率”可直接测量；② 实测受控并发发布与串行发布的性能对比；③ 执行带成本记录的多模型同题盲测；④ 在外部独立团队中开展跨机构复现。</strong>
   </div>
 
 </body></html>

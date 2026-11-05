@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-11-05T05:14:53.717Z",
+  "generatedAt": "2026-11-05T05:18:54.767Z",
   "author": "HuaiCheng Sheng",
   "affiliation": "Agentic Work Lab, Hangzhou Chengxin Holding Group Co., Ltd., Hangzhou, Zhejiang, China",
   "orcid": "0009-0003-2900-6377",
@@ -68,15 +68,15 @@
     },
     {
       "file": "reviewer_defense_playbook.pdf",
-      "role": "Reviewer playbook (SUPERSEDED: predates the 4 Nov revision; see its banner)",
-      "bytes": 1900120,
-      "sha256": "9ba0afc24af9ac3ed6b12cf9af08d8f0fb5f71530b479bc407ef26a4d46d9c8b"
+      "role": "Reviewer defense playbook (15 questions, rewritten to match the 4 Nov revision)",
+      "bytes": 1846654,
+      "sha256": "26461e6a2a894a575caa1d6fac2f6583ca3ead4db40e7bd846abc006cb12d773"
     },
     {
       "file": "manuscript_CN_companion.pdf",
-      "role": "Chinese companion (SUPERSEDED: predates the 4 Nov revision; see its banner)",
-      "bytes": 1897979,
-      "sha256": "96051b259a906c7e627ab3d881db3952ede1992df4fb39aace430e61a4d34b42"
+      "role": "Chinese academic companion (rewritten to match the 4 Nov revision & all 11 tables)",
+      "bytes": 1844793,
+      "sha256": "e583c32cbc286f06e0a0acb4a0abde11f748caba29a8d9bf7602d0aaf0d9a0a2"
     },
     {
       "file": "main.tex",
