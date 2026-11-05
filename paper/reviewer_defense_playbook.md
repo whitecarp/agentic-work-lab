@@ -94,10 +94,10 @@
 - **审稿人问题（中文解析）：** 表 4 中的代码与测试规模是如何计算的？你们是如何处理内置第三方代码与仓库版本演进的？
 
 ### Standard Academic Rebuttal (Direct Copy-Paste for Response Letter):
-> All counts in Table 4 are computed at the evaluated head commit 75b7abc (28 March 2026) using physical line counts (wc -l, via paper/reproduce_paper_tables.mjs) and compared transparently against the v0.16.0 release tag (commit a46bd19, 27 March 2026: 107 source files, 84 test files, 2,009 test functions). At 75b7abc, publishops-crosscast contains 123 Python source files (26,972 physical lines), of which 42 files (8,967 lines) are an unmodified bundled copy of MIT-licensed bili-cli v1.2.1 (disclosed in NOTICE.md) and 81 files (18,005 lines) constitute CrossCast's own package. The test suite comprises 126 files (122 test_* modules + 4 helper files, 37,029 physical lines, 2,737 def test_* functions), yielding a test-to-source line ratio of 1.37 overall and 2.06 against CrossCast's own package.
+> All counts in Table 4 are computed at the evaluated head commit 75b7abc (3 November 2026) using physical line counts (via paper/reproduce_paper_tables.mjs) and compared transparently against the v0.16.0 release tag (commit a46bd19: 107 source files, 84 test files, 2,009 test functions). At 75b7abc, publishops-crosscast contains 123 Python source files (26,972 physical lines), of which 42 files (8,967 lines) are an unmodified bundled copy of MIT-licensed bili-cli v1.2.1 (disclosed in NOTICE.md) and 81 files (18,005 lines) constitute CrossCast's own package. The test suite comprises 126 files (122 test_* modules + 4 helper files, 37,029 physical lines, 2,737 def test_* functions), yielding a test-to-source line ratio of 1.37 overall and 2.06 against CrossCast's own package.
 
 ### 核心防御逻辑总结（供作者快速掌握）：
-核心防御逻辑：表 4 不仅用 wc -l 物理行数精确复算了 commit 75b7abc 的全部代码，还主动披露其中 42 个文件（8,967 行）是原样内置的 MIT 开源组件 bili-cli v1.2.1，自研 CrossCast 包为 81 个文件（18,005 行）；对应 126 个测试文件（37,029 行，2,737 个测试函数），自研测试源码比高达 2.06，且同时给出了 v0.16.0（a46bd19）的对比数字，做到了 100% 透明。
+核心防御逻辑：表 4 不仅用物理行数精确复算了 commit 75b7abc（2026年11月3日快照）的全部代码，还主动披露其中 42 个文件（8,967 行）是原样内置的 MIT 开源组件 bili-cli v1.2.1，自研 CrossCast 包为 81 个文件（18,005 行）；对应 126 个测试文件（37,029 行，2,737 个测试函数），自研测试源码比高达 2.06，且同时给出了 v0.16.0（a46bd19）的对比数字，做到了 100% 透明。
 
 ---
 
@@ -106,10 +106,10 @@
 - **审稿人问题（中文解析）：** 在表 7 和图 5 中，Instagram 的 380.551 秒（92.32%）具体测的是什么？这个百分比能直接推广到所有平台吗？
 
 ### Standard Academic Rebuttal (Direct Copy-Paste for Response Letter):
-> As stated in Section 6.3 and Table 7 (N = 1 timed Instagram release: 423.236 s end-to-end, 412.217 s inside vpub publish), the 380.551 s post-submit phase spans from the final submit click until the platform returns confirmation. From outside the platform's servers, client telemetry cannot separate network media transfer completion, server-side transcoding/processing, and final confirmation within that 380.551 s window, and the phase breakdown is not exhaustive of small inter-step overhead (0.289 s derived remainder). We do not claim the 92.32% figure transfers numerically to other platforms; rather, it empirically illustrates the structural hazard that motivates Layer 3: a long post-press in-doubt window where an unguarded timeout retry would press Submit a second time.
+> As stated in Section 6.3 and Table 7 (N = 1 timed Instagram release: 423.236 s end-to-end, 412.217 s inside vpub publish), the 380.551 s post-Share phase spans from the single Share click until the platform returns confirmation. From outside the platform's servers, client telemetry cannot separate network media transfer completion, server-side transcoding/processing, and final confirmation within that 380.551 s window, and the phase breakdown selects major phases rather than an exhaustive additive split (leaving a 15.384 s derived residual inside vpub publish). This study does not claim the 92.32% figure transfers numerically to other platforms; rather, it empirically illustrates the structural hazard that motivates Layer 3: a long post-press in-doubt window where an unguarded timeout retry would press Submit a second time.
 
 ### 核心防御逻辑总结（供作者快速掌握）：
-核心防御逻辑：我们在摘要、Highlights 与第 6.3 节明确说明：380.551 秒（92.32%）来自单次完整计时的 Instagram 发布（N=1），且从客户端视角无法把该窗口内的上传传输、服务端转码与确认拆开。我们不宣称“所有平台都是 92.32%”，而是用这一实测证据直观揭示“点击提交后存在漫长的存疑窗口”，从而论证在点击前先行落盘 UNKNOWN 状态的架构必然性。
+核心防御逻辑：我们在摘要、Highlights 与第 6.3 节明确说明：380.551 秒（92.32%）来自单次完整计时的 Instagram 发布（N=1），且从客户端视角无法把该窗口内的上传传输、服务端转码与确认拆开（命令内部其余未拆分步骤派生余项为 15.384 秒）。我们不宣称“所有平台都是 92.32%”，而是用这一实测证据直观揭示“点击提交后存在漫长的存疑窗口”，从而论证在点击前先行落盘 UNKNOWN 状态的架构必然性。
 
 ---
 
@@ -118,10 +118,10 @@
 - **审稿人问题（中文解析）：** 在第 6.5 节和表 10 中，为什么你们对 55 条 Bilibili 记录只报告分位数等描述统计，而不做显著性假设检验？
 
 ### Standard Academic Rebuttal (Direct Copy-Paste for Response Letter):
-> In data/creator-video-snapshot.json (N = 55 records: n = 45 in human_led_history published Oct 2019–Oct 2026, and n = 10 in current_ai_series comprising 5 published videos aged 1.6 hours to 3.1 days and 5 scheduled releases), every single historical video has more views than every single newly published AI-series video: min(human_led_history) = 274 views (mean 40,884.31, SD 64,604.81, median 15,407.0, IQR 26,315.0, max 333,725) versus max(current_ai_series) = 231 views (mean 133.20, SD 99.53, median 183.0, IQR 148.0, min 11). Because the two distributions exhibit complete separation (274 > 231) across a multi-year versus multi-hour exposure gap, a Mann–Whitney test on views mechanically yields U = 0 and would merely restate exposure age rather than content quality. Furthermore, weekly play growth (76,162 vs. 21,398) was driven by older travel vlogs on TV clients, reinforcing why raw channel totals must not be attributed to the new AI workflow.
+> In data/creator-video-snapshot.json (N = 55 records: n = 45 in human_led_history published Oct 2019–Oct 2026, and n = 10 in current_ai_series comprising 5 published videos aged 1.6 hours to 3.1 days and 5 scheduled releases), every single historical video has more views than every single newly published AI-series video: min(human_led_history) = 274 views (mean 40,884.31, SD 64,604.81, median 15,407.0, Q1–Q3 1,722–67,502, max 333,725) versus max(current_ai_series) = 231 views (mean 133.20, SD 99.53, median 183.0, Q1–Q3 42–199, min 11). Because the two distributions exhibit complete separation (274 > 231) across a multi-year versus multi-hour exposure gap, a rank test on views mechanically yields U = 0 and would merely restate exposure age rather than content quality. Furthermore, weekly play growth (76,162 vs. 21,398) was led by older travel vlogs and 88.09% TV-client traffic, reinforcing why raw channel totals must not be attributed to the new AI workflow.
 
 ### 核心防御逻辑总结（供作者快速掌握）：
-核心防御逻辑：在 55 条快照中，45 条人类历史视频最低播放量是 274，而 5 条刚发布 1.6 小时–3.1 天的 AI 视频最高播放量是 231（274 > 231，两组样本完全不重叠，即 Complete Separation，若硬做秩检验 U 恒等于 0）。而且周播放增长（76,162 vs 21,398）主要来自电视端推荐的老旅行视频。因此不做误导性的显著性检验、如实呈现曝光时长混杂，恰恰是第 4 层“认知治理（Epistemic Governance）”的核心示范！
+核心防御逻辑：在 55 条快照中，45 条人类历史视频最低播放量是 274（Q1–Q3 为 1,722–67,502），而 5 条刚发布 1.6 小时–3.1 天的 AI 视频最高播放量是 231（Q1–Q3 为 42–199；274 > 231，两组样本完全不重叠，即 Complete Separation，若硬做秩检验 U 恒等于 0）。而且周播放增长（76,162 vs 21,398）主要来自电视端（88.09%）推荐的老旅行视频。因此不做误导性的显著性检验、如实呈现曝光时长混杂，恰恰是第 4 层“认知治理（Epistemic Governance）”的核心示范！
 
 ---
 

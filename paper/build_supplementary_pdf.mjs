@@ -124,11 +124,11 @@ const testSummaryRows = testFiles.map((t, i) => `
     <td class="num">${t.bytes.toLocaleString('en-US')}</td>
     <td class="num">${t.classes}</td>
     <td class="num">${t.testDefs}</td>
-    <td><code>PASS (Verified)</code></td>
+    <td><code>${t.testDefs > 0 ? 'CI PASS (75b7abc)' : 'shared helper'}</code></td>
   </tr>
 `).join('\n');
 
-// Detailed enumeration of all 2,737 test functions across the 126 test modules
+// Detailed enumeration of all 2,737 test functions across the 122 test modules (plus 4 shared helper files)
 let globalTestCounter = 0;
 const allTestsDetailedHtml = testFiles.filter(t => t.testNames.length > 0).map((t, modIdx) => {
   const rows = t.testNames.map((fnName, localIdx) => {
@@ -138,7 +138,7 @@ const allTestsDetailedHtml = testFiles.filter(t => t.testNames.length > 0).map((
       <td class="num">${localIdx + 1}</td>
       <td><code>${esc(t.relPath)}</code></td>
       <td><code>${esc(fnName)}</code></td>
-      <td><code>PASS</code></td>
+      <td><code>CI PASS</code></td>
     </tr>`;
   }).join('\n');
   return `
@@ -421,7 +421,7 @@ const htmlSupp = `<!DOCTYPE html>
 </table>
 
 <h2>Appendix F. Inventory of All ${testFiles.length} Test Files and ${testFiles.reduce((s, f) => s + f.testDefs, 0).toLocaleString('en-US')} Test Functions in <em>PublishOps CrossCast</em> (${testFiles.reduce((s, f) => s + f.lines, 0).toLocaleString('en-US')} Physical Lines)</h2>
-<p>Table F.1 summarizes the 126 test modules in <code>publishops-crosscast/tests/</code>, followed by the complete module-by-module enumeration of all <strong>2,737 individual automated verification test functions</strong>.</p>
+<p>Table F.1 summarizes the 126 files in <code>publishops-crosscast/tests/</code> at commit <code>75b7abc</code> (122 test modules and 4 shared helper files; GitHub CI checks passed on Python 3.10&ndash;3.14), followed by the complete module-by-module enumeration of all <strong>2,737 individual automated verification test functions</strong>.</p>
 
 <table class="sci-table">
   <thead>

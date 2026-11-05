@@ -5,15 +5,15 @@
    *Corresponding author. E-mail: `ZackSheng@gmail.com`  |  ORCID: `0009-0003-2900-6377`  |  GitHub: `https://github.com/whitecarp`
 
    Abstract
-  **Context:** When large language model (LLM) agents move from conversation to execution, project governance must control actions on external platforms that cannot be undone. An uncertain submission that is retried can be published twice, and descriptive metrics are easily reported as evidence of AI-driven gains.
+  **Context:** When large language model (LLM) agents act on external platforms lacking idempotency keys, retrying an uncertain submission can duplicate public releases, and descriptive metrics are easily confounded with causal AI gains.
 
-  **Objective:** Following Design Science Research (DSR) and stage-gate project control theory, we design and evaluate a human-in-the-loop (HITL) governance framework for multi-agent, multi-platform digital delivery, implemented in two open-source artifacts, *Agentic Work Lab* and *PublishOps CrossCast*.
+  **Objective:** Following Design Science Research (DSR) and stage-gate control theory, this study designs and evaluates a human-in-the-loop (HITL) governance framework for multi-agent, multi-platform delivery, implemented in open-source artifacts *Agentic Work Lab* and *PublishOps CrossCast*.
 
-  **Method:** The framework has four layers: (1) a deterministic owner, stop-flag and due-time gate (`planRun`); (2) binding of each release command to the SHA-256 digest of the reviewed plan, with SHA-256 media checks; (3) a receipt state machine that records an `UNKNOWN` state before the single final submission and never re-submits automatically; and (4) independent read-back with escalation to a person. We evaluate it in a nine-day field deployment (26 October–3 November 2026) in one creator–engineering laboratory, using a 69-record operational journal, a scheduled heartbeat trace, a five-platform release of one film, 2,737 offline test functions, 30 SHA-256-recorded video versions (2.21 GB) and a 55-record channel snapshot.
+  **Method:** The architecture enforces four layers: (1) a deterministic owner, stop-flag and due-time gate (`planRun`); (2) release commands bound to SHA-256 digests of the reviewed plan and media; (3) a persistent receipt state machine that saves an `UNKNOWN` state before the single final submission and never re-submits automatically; and (4) independent read-back with human escalation. A nine-day deployment (26 October–3 November 2026) evaluates a 69-record operational journal, a scheduled heartbeat trace, a five-platform film release, 2,737 offline test functions, 30 SHA-256-recorded video versions (2.21 GB) and a 55-record channel snapshot.
 
-  **Results:** The journal records one platform write and no replayed upload. The heartbeat started 24.992 s late and ran 31.175 s without task errors. When Douyin's read-back timed out, the receipt stayed `UNKNOWN`, nothing was re-submitted, and the owner confirmed the work by phone. In one instrumented Instagram run, 380.551 s of the 412.217 s publish command (92.32%) was the wait after the single Share, spanning transfer, processing and confirmation.
+  **Results:** The journal records one platform write and no replayed upload; the heartbeat started 24.992 s late and ran 31.175 s without errors. When Douyin read-back timed out, the receipt stayed `UNKNOWN` without re-submission until mobile confirmation. In one Instagram run, the post-Share wait spanned 380.551 s of the 412.217 s publish command (92.32%).
 
-  **Conclusions:** Here, agentic delivery was governed by deterministic gates, content-bound approvals and at-most-once submission with human reconciliation rather than by prompt instructions. The evidence is single-case and descriptive; code, data and a script that recomputes every reported figure are public.
+  **Conclusions:** Deterministic gates, content-bound approvals and at-most-once receipts with human reconciliation governed agentic delivery where prompt instructions could not. Code, data and recomputation scripts for this single-case study are public.
 
    **Keywords:** Project Management Governance; Human–AI Collaboration; Multi-Agent Workflows; Design Science Research; Idempotent Release Engineering; Stage-Gate Control; PublishOps
 
@@ -43,7 +43,7 @@ Deploying autonomous or semi-autonomous agents into production, however, exposes
 
   - **Epistemic Confounding in Project Performance Evaluation:** AI adoption is often reported with claims of labour savings or audience growth that the underlying data cannot support (Raisch & Krakowski, 2021). Comparing historical human-led output with a newly launched AI-assisted series confounds exposure age (years of cumulative traffic versus days), topic and platform recommendation dynamics, and counting generated drafts as delivered work hides the human review and rework that acceptance required.
 
-To address these problems, this study adopts Design Science Research (DSR) (Hevner et al., 2004; Peffers et al., 2007; Gregor & Hevner, 2013; Venable et al., 2016) to build and evaluate a human-in-the-loop (HITL) governance framework and release operations system: **Agentic Work Lab** and its standalone multi-platform release engine **PublishOps CrossCast** (`vpub`). Rather than treating AI governance as prompt engineering, we formulate multi-agent delivery as a verifiable stage-gate control system (Cooper, 1990; Conforto & Amaral, 2016; Bianchi et al., 2022) backed by content digests, frame-level quality checks and fault-tolerant state transitions.
+To address these problems, this study adopts Design Science Research (DSR) (Hevner et al., 2004; Peffers et al., 2007; Gregor & Hevner, 2013; Venable et al., 2016) to build and evaluate a human-in-the-loop (HITL) governance framework and release operations system: **Agentic Work Lab** and its standalone multi-platform release engine **PublishOps CrossCast** (`vpub`). Rather than treating AI governance as prompt engineering, this study formulates multi-agent delivery as a verifiable stage-gate control system (Cooper, 1990; Conforto & Amaral, 2016; Bianchi et al., 2022) backed by content digests, frame-level quality checks and fault-tolerant state transitions.
 
 Specifically, this paper investigates three research questions (RQs):
 
@@ -55,15 +55,15 @@ Specifically, this paper investigates three research questions (RQs):
 
 The contributions are fivefold:
 
-  - **A Four-Layer Agentic Project Governance Framework:** We synthesize stage-gate control (Cooper, 1990), configuration management (Whyte et al., 2016) and human-centered automation (Parasuraman et al., 2000; Shneiderman, 2020) with commit-protocol reasoning from distributed systems (Section 2.4) into four enforceable layers: (i) a sole-operator and temporal scheduling gate, (ii) plan-hash and media-integrity binding, (iii) an idempotent receipt state machine with `UNKNOWN`-state suppression, and (iv) independent read-back, in-place revision and HITL handoff.
+  - **A Four-Layer Agentic Project Governance Framework:** This study synthesizes stage-gate control (Cooper, 1990), configuration management (Whyte et al., 2016) and human-centered automation (Parasuraman et al., 2000; Shneiderman, 2020) with commit-protocol reasoning from distributed systems (Section 2.4) into four enforceable layers: (i) a sole-operator and temporal scheduling gate, (ii) plan-hash and media-integrity binding, (iii) an idempotent receipt state machine with `UNKNOWN`-state suppression, and (iv) independent read-back, in-place revision and HITL handoff.
 
   - **Algorithms with Stated Assumptions:** Three algorithms govern job planning (Algorithm 1), publication with a receipt persisted before the final submission (Algorithm 2), and identity-bound revision and consent-bound deletion (Algorithm 3); Proposition 1 states the conditions under which automated re-submission cannot occur.
 
-  - **Open-Source Reference Implementation:** We describe the architecture and evolution of *PublishOps CrossCast* from `v0.2.2` to commit `75b7abc` (PR #30), whose test suite grew from 2,009 to 2,737 test functions between the `v0.16.0` release and that commit, together with dependency-free Node.js verification scripts in *Agentic Work Lab*.
+  - **Open-Source Reference Implementation:** This paper describes the architecture and evolution of *PublishOps CrossCast* from `v0.2.2` to commit `75b7abc` (PR #30), whose test suite grew from 2,009 to 2,737 test functions between the `v0.16.0` release and that commit, together with dependency-free Node.js verification scripts in *Agentic Work Lab*.
 
-  - **Field Evidence and a Latency Profile:** We report the system's behaviour in a 69-record operational journal, 30 SHA-256-recorded video versions (2.21 GB), a 13,034-frame defect scan, a crash-recovery check on a private upload, and a five-platform release in which one in-doubt submission was held without re-submission. In one Instagram publication, the wait after Share accounted for 92.32% of the publish command, which motivates persisting submission state before that wait.
+  - **Field Evidence and a Latency Profile:** The study reports the system's behaviour in a 69-record operational journal, 30 SHA-256-recorded video versions (2.21 GB), a 13,034-frame defect scan, a crash-recovery check on a private upload, and a five-platform release in which one in-doubt submission was held without re-submission. In one Instagram publication, the wait after Share accounted for 92.32% of the publish command, which motivates persisting submission state before that wait.
 
-  - **A Protocol for Auditable AI Project Reporting:** We demonstrate reporting rules that keep observational receipts apart from causal inference, guarding against exposure-age confounding when human-led (*n* = 45) and AI-assisted (*n* = 10) cohorts are compared.
+  - **A Protocol for Auditable AI Project Reporting:** The study demonstrates reporting rules that keep observational receipts apart from causal inference, guarding against exposure-age confounding when human-led (*n* = 45) and AI-assisted (*n* = 10) cohorts are compared.
 
 The study is a single-case design science evaluation: its claims concern how the mechanisms behaved and why, not how often such failures occur across projects (Section 7.4).
 
@@ -145,7 +145,7 @@ In software engineering, Continuous Integration and Continuous Delivery (CI/CD) 
        No read-back verification
        No
 
-       **Agentic Work Lab & CrossCast (Ours)**
+       **Agentic Work Lab & CrossCast (This Study)**
        File-mediated state handoffs (GPT/Claude/DS)
        Deterministic `planRun` + OS lock
        `--confirm` Plan Hash + Stream SHA-256
@@ -156,7 +156,7 @@ In software engineering, Continuous Integration and Continuous Delivery (CI/CD) 
 
 ### 2.4 Synthesis: Reading Stage-Gate Control as a Commit Protocol
 
-We read the two literatures together through one observation: a stage gate and a distributed commit protocol solve the same problem, namely how to make an irreversible step happen at most once, on the right object and under the right authority, when parts of the system may fail or disagree. The last row of Table 1 is the resulting design; the correspondence below states it as five design propositions that Section 4 implements and Section 6 examines.
+This study reads the two literatures together through one observation: a stage gate and a distributed commit protocol solve the same problem, namely how to make an irreversible step happen at most once, on the right object and under the right authority, when parts of the system may fail or disagree. The last row of Table 1 is the resulting design; the correspondence below states it as five design propositions that Section 4 implements and Section 6 examines.
 
   - **Gatekeeping as admission control.** A stage gate admits work only when its owner, state and criteria allow (Cooper, 1990; Too & Weaver, 2014). In software, the same decision becomes a pure function of the operating context that returns *skip*, *no work due* or a plan, never an action (Layer 1).
 
@@ -172,7 +172,7 @@ We read the two literatures together through one observation: a stage gate and a
 
 ### 3.1 Design Science Research (DSR) Framework
 
-We follow the six-step Design Science Research Methodology of Peffers et al. (2007) and the evaluation guidance of Hevner et al. (2004), Gregor & Hevner (2013) and Venable et al. (2016):
+This study follows the six-step Design Science Research Methodology of Peffers et al. (2007) and the evaluation guidance of Hevner et al. (2004), Gregor & Hevner (2013) and Venable et al. (2016):
 
   - **Problem Identification and Motivation:** Uncontrolled multi-agent handoffs, duplicate external writes during uncertain platform states, localized defects in generative media, and confounded efficiency claims in AI-assisted delivery (Section 1).
 
@@ -182,11 +182,11 @@ We follow the six-step Design Science Research Methodology of Peffers et al. (20
 
   - **Field Demonstration:** Use of the artifacts from 26 October to 3 November 2026 in one creator–engineering laboratory, spanning two episodic series (*GPT Duty Log* Ep 01–06 and *Whale Girl Shift Log* Ep 01–07), standalone experimental studies and the cross-platform short film *I Watched It For You (v3)*.
 
-  - **Evaluation:** Following FEDS (Venable et al., 2016), we combine naturalistic evaluation (a 69-record operational journal, a scheduled heartbeat trace, a five-platform release and a 55-record channel snapshot) with artificial evaluation through offline regression tests (2,737 test functions in *CrossCast* at commit `75b7abc`, many of which simulate faults, and 10 workflow gate tests in *Agentic Work Lab*) (Section 6).
+  - **Evaluation:** Following FEDS (Venable et al., 2016), the evaluation combines naturalistic field evidence (a 69-record operational journal, a scheduled heartbeat trace, a five-platform release and a 55-record channel snapshot) with artificial evaluation through offline regression tests (2,737 test functions in *CrossCast* at commit `75b7abc`, many of which simulate faults, and 10 workflow gate tests in *Agentic Work Lab*) (Section 6).
 
   - **Communication:** Publication of source code, SHA-256-recorded media deliverables (*N* = 30 versions, 2.21 GB), machine-readable JSON/CSV receipts and a script that recomputes every reported figure (`paper/reproduce_paper_tables.mjs`).
 
-**Researcher role.** The author designed, operated and evaluated both artifacts. We therefore treat the study as researcher–practitioner intervention in the sense of action design research (Sein et al., 2011) and technical action research (Wieringa, 2014). Two choices limit the resulting bias: the evidence consists of machine-readable receipts written when each event happened rather than retrospective accounts, and every receipt, script and dataset is public so that each figure can be recomputed independently.
+**Researcher role.** The author designed, operated and evaluated both artifacts. The study is therefore treated as researcher–practitioner intervention in the sense of action design research (Sein et al., 2011) and technical action research (Wieringa, 2014). Two choices limit the resulting bias: the evidence consists of machine-readable receipts written when each event happened rather than retrospective accounts, and every receipt, script and dataset is public so that each figure can be recomputed independently.
 
 ### 3.2 Epistemic Hygiene and Evidence Classification Protocol
 
@@ -202,11 +202,11 @@ A central methodological element of the study is an explicit epistemic hygiene p
 
 ### 3.3 Data Sources and Evidence Window
 
-The evaluation draws on records with different sampling windows, which we keep separate: the operational journal (69 records; 46 timestamped between 26 October 01:27 and 27 October 02:45, UTC+8; exported on 28 October); the scheduled heartbeat trace (28 October); the channel snapshot (55 records sampled on 28 October at 21:04, UTC+8); the release record of *I Watched It For You (v3)* (2–3 November); the media manifest (30 versions, GitHub assets checked on 3 November); and the *CrossCast* code at commit `75b7abc` (3 November). Both repositories have changed since; every figure refers to these files and commits.
+The evaluation draws on records with different sampling windows, which are kept separate: the operational journal (69 records; 46 timestamped between 26 October 01:27 and 27 October 02:45, UTC+8; exported on 28 October); the scheduled heartbeat trace (28 October); the channel snapshot (55 records sampled on 28 October at 21:04, UTC+8); the release record of *I Watched It For You (v3)* (2–3 November); the media manifest (30 versions, GitHub assets checked on 3 November); and the *CrossCast* code at commit `75b7abc` (3 November). Both repositories have changed since; every figure refers to these files and commits.
 
 ## 4. The Four-Layer Human–AI Project Governance Architecture
 
-To answer **RQ1** and **RQ2**, we formalize the project governance architecture as a four-layer hierarchical control system mediating between the human Project Manager, specialized LLM agents, local media/code artifacts, and external publishing platforms (Figure 1).
+To answer **RQ1** and **RQ2**, this section formalizes the project governance architecture as a four-layer hierarchical control system mediating between the human Project Manager, specialized LLM agents, local media/code artifacts, and external publishing platforms (Figure 1).
 
 *[Vector Figure — see `manuscript.pdf` / `figures/figN.pdf`]*
 
@@ -298,7 +298,7 @@ As formalized in Algorithm 1, `planRun` is a side-effect-free admission filter. 
 
 ### 4.3 Layer 2: Plan-Hash Binding and Artifact Verification
 
-Between plan approval and execution, an agent or background process may change a video export, swap a cover or alter platform copy after the project manager has reviewed the preview. Large deliverables (2.6 MB to 285.9 MB in our archive) can also be written incompletely or misread; the release record of the v3 film notes one earlier local read discrepancy that remains unexplained. Layer 2 closes this time-of-check-to-time-of-use gap with two invariants:
+Between plan approval and execution, an agent or background process may change a video export, swap a cover or alter platform copy after the project manager has reviewed the preview. Large deliverables (2.6 MB to 285.9 MB in the archive) can also be written incompletely or misread; the release record of the v3 film notes one earlier local read discrepancy that remains unexplained. Layer 2 closes this time-of-check-to-time-of-use gap with two invariants:
 
   **Governance Invariant 1 (Media Integrity):** Let *M* = {*m*1, &hellip;, *mK*} be the release manifest, where each entry *mi* = (fname*i*, *Bi*, *Hi*) gives a file name, an exact byte length *Bi* and an expected SHA-256 digest *Hi*. An artifact *fi* passes the delivery check iff basename(fname*i*) = fname*i* ∧ size(*fi*) = *Bi* ∧ SHA256(*fi*) = *Hi*. Decode and frame checks are recorded separately in production receipts.
 
@@ -308,7 +308,7 @@ Both `check-delivery.mjs` (Node.js) and `vpub` (Python) hash media in streamed c
 
 ### 4.4 Layer 3: Idempotent Receipt State Machine and UNKNOWN-State Suppression
 
-To answer **RQ2**, we model each browser publication attempt in *PublishOps CrossCast* as a durable receipt whose changes are written atomically under a file lock, while cross-process OS locks (`process_lock.py`) keep two runs from driving the same browser profile (Figure 2, Algorithm 2). The receipt is stored at a path named by the plan digest and the platform and holds *Rp* = (key, acct*p*, *H*media, *H*meta, *f*submit, &sigma;*p*, wid*p*, &tau;log), where *f*submit is the implementation's `final_submit_attempted` field and &sigma;*p* its state. Before pressing, the receipt also records the account's existing work identifiers, so that read-back can later look for exactly one new work. Figure 2 shows the states used at commit `75b7abc` (`browser_backends.py`).
+To answer **RQ2**, each browser publication attempt in *PublishOps CrossCast* is modelled as a durable receipt whose changes are written atomically under a file lock, while cross-process OS locks (`process_lock.py`) keep two runs from driving the same browser profile (Figure 2, Algorithm 2). The receipt is stored at a path named by the plan digest and the platform and holds *Rp* = (key, acct*p*, *H*media, *H*meta, *f*submit, &sigma;*p*, wid*p*, &tau;log), where *f*submit is the implementation's `final_submit_attempted` field and &sigma;*p* its state. Before pressing, the receipt also records the account's existing work identifiers, so that read-back can later look for exactly one new work. Figure 2 shows the states used at commit `75b7abc` (`browser_backends.py`).
 
 *[Vector Figure — see `manuscript.pdf` / `figures/figN.pdf`]*
 
@@ -384,7 +384,7 @@ Within *Agentic Work Lab*, video production is engineered as an editable, code-d
 
 ### 6.1 Operational Journal and Write Evidence (RQ1)
 
-The operational journal (`data/operations-events.json`) is an export of selected fields from the laboratory's local event logs. It holds 69 records, of which 46 are timestamped, between 26 October 01:27 and 27 October 02:45 (UTC+8, a 25.3-hour window); it was exported on 28 October. Because the export kept different fields for different records—33 carry an event name, 5 only a state name and 31 neither—we classify the records by the write evidence each one carries rather than by a coding of their purpose (Table 3).
+The operational journal (`data/operations-events.json`) is an export of selected fields from the laboratory's local event logs. It holds 69 records, of which 46 are timestamped, between 26 October 01:27 and 27 October 02:45 (UTC+8, a 25.3-hour window); it was exported on 28 October. Because the export kept different fields for different records—33 carry an event name, 5 only a state name and 31 neither—Table 3 classifies the records by the write evidence each one carries rather than by a coding of their purpose.
 
    Table 3: Write evidence in the *N* = 69 records of the operational journal, classified by the fields each record carries (recomputed by `reproduce_paper_tables.mjs`).
 
@@ -562,7 +562,7 @@ Live experiments must not pollute public accounts with deliberate faults such as
 
 ### 6.3 Cross-Platform Release Verification and Latency Bottleneck Analysis (RQ2 & RQ3)
 
-To examine the release layers under real platform conditions, we use the release of the 176.4 s short film *I Watched It For You (v3)* (`i-watched-it-for-you-v3-20261102.mp4`, 285,855,005 bytes, SHA-256 `7d6fd76090f7a93b2711e15db4bb924f741d3a904a01fc4b7628fc2130dbafdc`) on five platforms on 2–3 November 2026 (Table 6), and the phase timing recorded for its Instagram publication (Table 7, Figure 5). Each platform entry comes from its own publication run or from the owner's confirmation; the 3 November record made no fresh platform queries.
+To examine the release layers under real platform conditions, this section analyzes the release of the 176.4 s short film *I Watched It For You (v3)* (`i-watched-it-for-you-v3-20261102.mp4`, 285,855,005 bytes, SHA-256 `7d6fd76090f7a93b2711e15db4bb924f741d3a904a01fc4b7628fc2130dbafdc`) on five platforms on 2–3 November 2026 (Table 6), and the phase timing recorded for its Instagram publication (Table 7, Figure 5). Each platform entry comes from its own publication run or from the owner's confirmation; the 3 November record made no fresh platform queries.
 
    Table 6: Cross-platform publication record for *I Watched It For You (v3)* (`production-update-2026-11-03.json`). States are quoted as recorded; "—" means the record holds no such field.
 
@@ -1119,7 +1119,7 @@ Table 10 reports descriptive statistics for all *N* = 55 channel records (*n* = 
 
        **Whale Girl 02** (`BV1Wfx56JEih`, 117 s, age 24.05 h): 308 views, 24 likes (7.79%), 51 replies (16.56%), 36.63% completion (42 s avg watch).
 
-The two cohorts are not comparable as samples of production methods. The 45 human-led works were published between October 2019 and October 2026 and accumulated years of exposure (mean 40,884.31 views, median 15,407.0), whereas the five published AI-series works were 1.6 hours to 3.1 days old at sampling (mean 133.20, median 183.0). Every human-led work has more views than every AI-series work (minimum 274 against maximum 231), so a rank test would only restate the exposure gap; we therefore report no significance test. The cohort label also does not assert that older works used no AI tools (`docs/research-method_EN.md`). Channel-level figures invite the opposite error: weekly plays rose to 76,162 from 21,398 (`channel-weekly.json`), but the platform's top-five list for 27 October was led by two older travel vlogs (215 and 210 plays) with AI-series episodes at 30, 18 and 11 plays, and 88.09% of plays came from TV clients—a pattern that does not support attributing the rise to the new series. The summary script labels its export `descriptive_snapshot_not_causal_model_comparison`, and the age-matched checkpoints (Panel C) remain single-work descriptions: differences in duration (70 s vs. 117 s), persona and comment threads preclude attributing them to the underlying models.
+The two cohorts are not comparable as samples of production methods. The 45 human-led works were published between October 2019 and October 2026 and accumulated years of exposure (mean 40,884.31 views, median 15,407.0), whereas the five published AI-series works were 1.6 hours to 3.1 days old at sampling (mean 133.20, median 183.0). Every human-led work has more views than every AI-series work (minimum 274 against maximum 231), so a rank test would only restate the exposure gap; no significance test is therefore reported. The cohort label also does not assert that older works used no AI tools (`docs/research-method_EN.md`). Channel-level figures invite the opposite error: weekly plays rose to 76,162 from 21,398 (`channel-weekly.json`), but the platform's top-five list for 27 October was led by two older travel vlogs (215 and 210 plays) with AI-series episodes at 30, 18 and 11 plays, and 88.09% of plays came from TV clients—a pattern that does not support attributing the rise to the new series. The summary script labels its export `descriptive_snapshot_not_causal_model_comparison`, and the age-matched checkpoints (Panel C) remain single-work descriptions: differences in duration (70 s vs. 117 s), persona and comment threads preclude attributing them to the underlying models.
 
    Table 11: Analytical comparison of governance policies across twelve scenarios from the project. Baselines A and B were not executed; their entries state what each policy's rules imply for the recorded situation. The right column reports observed or tested behaviour with its evidence type: F = field record, T = offline test, R = review record, C = code change.
 
@@ -1222,15 +1222,15 @@ The study adds to work on AI in project management (Holzmann et al., 2022; M&uum
 
 ### 7.4 Threats to Validity and Limitations
 
-Following case-study guidance for software engineering (Runeson & H&ouml;st, 2009), we report the boundaries of the evidence.
+Following case-study guidance for software engineering (Runeson & H&ouml;st, 2009), the boundaries of the evidence are stated below.
 
   - **Internal validity.** The Instagram timing (412.217 s) and the heartbeat (31.175 s) are single instrumented observations, and client-side timing cannot separate transfer, processing and confirmation within the 380.551 s wait. The operational journal is a selected-fields export: 31 of its 69 records carry no event or state name, nine are silent on writes, and it records outcomes rather than refused attempts. An earlier local read discrepancy on the film's file remains unexplained; later reads matched, which does not show that its cause was removed.
 
-  - **Researcher role.** The author built, operated and evaluated the artifacts. We limit the risk of motivated reporting by relying on receipts written when each event happened, publishing all data and code, and recomputing every figure with a script; the study nonetheless remains a single-researcher intervention (Sein et al., 2011; Wieringa, 2014).
+  - **Researcher role.** The author built, operated and evaluated the artifacts. The risk of motivated reporting is limited by relying on receipts written when each event happened, publishing all data and code, and recomputing every figure with a script; the study nonetheless remains a single-researcher intervention (Sein et al., 2011; Wieringa, 2014).
 
   - **Construct validity.** Suppression of writes is not directly measurable from outcome logs (Section 6.1). Model names denote workflow roles, not authenticated model versions. Test-function counts measure the volume of checking, not coverage. Plan-hash confirmation binds content, while human approval is attested by the caller. The blinded identical-task comparison of GPT and DeepSeek (`docs/model-workflow_EN.md`) has not been run, so no claim is made about relative model capability, speed or cost.
 
-  - **External validity.** Evidence comes from one laboratory, one account per platform and a nine-day window, with TikTok suspended after a sign-in with a Hong Kong (+852) number failed. Platforms differ structurally—browser versus API routes, and human confirmation on Douyin—so the latency figures do not transfer. What we expect to transfer is the mechanism: any agent that submits to an endpoint without server-side idempotency keys faces the same retry dilemma. Generalization is therefore analytical, by architectural similarity, rather than statistical (Flyvbjerg, 2006; Wieringa & Daneva, 2015).
+  - **External validity.** Evidence comes from one laboratory, one account per platform and a nine-day window, with TikTok suspended after a sign-in with a Hong Kong (+852) number failed. Platforms differ structurally—browser versus API routes, and human confirmation on Douyin—so the latency figures do not transfer. What is expected to transfer is the mechanism: any agent that submits to an endpoint without server-side idempotency keys faces the same retry dilemma. Generalization is therefore analytical, by architectural similarity, rather than statistical (Flyvbjerg, 2006; Wieringa & Daneva, 2015).
 
   - **Reliability.** The repositories have changed since the snapshot (later *CrossCast* pull requests add tests, for example); all figures refer to the files and commits named in Section 3.3. Line counts are physical lines, and the descriptive statistics use sample standard deviations and linear quartiles.
 
@@ -1246,7 +1246,7 @@ Source code, workflow verification scripts, the 69-record operational journal, t
 
 ## Declaration of Competing Interest
 
-The author declares no known competing financial interests or personal relationships that could have appeared to influence the work reported in this paper.
+The author is affiliated with Agentic Work Lab, Hangzhou Chengxin Holding Group Co., Ltd., and is the developer and maintainer of the open-source artifacts evaluated in this study (*Agentic Work Lab* and *PublishOps CrossCast*); a separate API add-on package outside the evaluated open-source snapshot is distributed independently by the author. The author declares no other competing financial interests or personal relationships that could have appeared to influence the work reported in this paper.
 
 ## References
 

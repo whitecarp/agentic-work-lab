@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-11-05T05:18:54.767Z",
+  "generatedAt": "2026-11-05T05:35:15.811Z",
   "author": "HuaiCheng Sheng",
   "affiliation": "Agentic Work Lab, Hangzhou Chengxin Holding Group Co., Ltd., Hangzhou, Zhejiang, China",
   "orcid": "0009-0003-2900-6377",
@@ -9,20 +9,20 @@
     {
       "file": "manuscript.pdf",
       "role": "Main manuscript (22 pages, single-column A4), built by build_publication_pdf.mjs",
-      "bytes": 1257887,
-      "sha256": "7426ce098cf9596c31a438192b919060570c4825aa04cf372fc7a4483b691dc3"
+      "bytes": 1258752,
+      "sha256": "0b7244795891a1941c1503fcd2d861249a3f4d8fbc9c36b64244b68afc8bc225"
     },
     {
       "file": "supplementary_material.pdf",
       "role": "Online supplementary material (142 pages, Appendices A–H)",
-      "bytes": 11261805,
-      "sha256": "1622ac5dc0c58031360d6e3d9563b2779b9b8ba4285aee429329b375c4aa4765"
+      "bytes": 11271164,
+      "sha256": "f8c9fae8c52313a5c36afd674d45eeef3476ce53717beb6d223e1a5d1ae0a300"
     },
     {
       "file": "graphical_abstract.pdf",
       "role": "Graphical Abstract PDF (1 Page Landscape Vector Diagram)",
       "bytes": 69840,
-      "sha256": "67f9b470dd3e86946fc2f2e527b5d25b5be772c74cf3f918a0759d30735f9588"
+      "sha256": "ff7304cbf709605fe31a3a02d5ed0f7121303e2a08b626d9db5836e6f4ee442b"
     },
     {
       "file": "graphical_abstract.svg",
@@ -34,7 +34,7 @@
       "file": "highlights.pdf",
       "role": "Highlights (five bullets, each at most 85 characters)",
       "bytes": 72290,
-      "sha256": "6f3606a81f2601dfc495905df084c9cfc0340bdf0318bb7ed85ff6da592f9045"
+      "sha256": "9d408bf0eedc9a1a8d510a8335cc17264cd26b8e30c056809ebb17591e67fefd"
     },
     {
       "file": "highlights.md",
@@ -45,44 +45,44 @@
     {
       "file": "declarations_and_credit.pdf",
       "role": "CRediT Author Statement, Competing Interest, Funding & Code Metadata Table (C1–C9)",
-      "bytes": 117867,
-      "sha256": "1d3d16586b8928fce37e1ef3436f5cc0f3d7a8b74f4b41643c9ebd1ef1e93d86"
+      "bytes": 137370,
+      "sha256": "f855db0d117c56830d23e651e7a77a5f1cacbed9d6c1fb19d1245990d1c5130c"
     },
     {
       "file": "declarations_and_credit.md",
       "role": "Declarations & CRediT Source",
-      "bytes": 3854,
-      "sha256": "71f8c30e3eda72d636cbe1c7a39df8871ab9531d6ff076c4b073c998e8cf38a4"
+      "bytes": 4242,
+      "sha256": "93a0fc823657ee7487535497b7df7e3910bafa704e2a7573c57cb5067e7cdecd"
     },
     {
       "file": "cover_letter.pdf",
       "role": "Journal-neutral cover letter",
-      "bytes": 81086,
-      "sha256": "f997e77e4f583beb744d682d20dcf2dd6bc47036a17296b251d28f4bb0860078"
+      "bytes": 81064,
+      "sha256": "6222988a298e94d992f349704c48880249155d01a3bd2c787bd7e63f2cf2ca08"
     },
     {
       "file": "cover_letters_3_journals.pdf",
       "role": "Cover letters for JSS, IEEE TEM and IJPM",
-      "bytes": 110251,
-      "sha256": "8d4a9c141e7d85c4451e8bc39ca8d389b648fe56be1dfa0873746c7c033e990d"
+      "bytes": 110253,
+      "sha256": "78ad5a76dce3db80258503b458d718bf3df134c8dc402b523f7af779e68c7843"
     },
     {
       "file": "reviewer_defense_playbook.pdf",
       "role": "Reviewer defense playbook (15 questions, rewritten to match the 4 Nov revision)",
-      "bytes": 1846654,
-      "sha256": "26461e6a2a894a575caa1d6fac2f6583ca3ead4db40e7bd846abc006cb12d773"
+      "bytes": 1852454,
+      "sha256": "54e1ec0b3e266a91373424a21916eb5f68a04191ef32dbf3fca273af0e0f9066"
     },
     {
       "file": "manuscript_CN_companion.pdf",
       "role": "Chinese academic companion (rewritten to match the 4 Nov revision & all 11 tables)",
-      "bytes": 1844793,
-      "sha256": "e583c32cbc286f06e0a0acb4a0abde11f748caba29a8d9bf7602d0aaf0d9a0a2"
+      "bytes": 1815250,
+      "sha256": "0f5dfd29b59fdfd27992161b3702024db1ee31c42b5bf79cda1d3d0a1085fec8"
     },
     {
       "file": "main.tex",
       "role": "LaTeX source generated from the same HTML as manuscript.pdf (sync_main_tex.mjs)",
-      "bytes": 98409,
-      "sha256": "df96236302e64bfc956cc631361751c004d34f899c96001ee3200bd2bd4f3bc3"
+      "bytes": 98563,
+      "sha256": "d1b9731c39014fc4dc6054c467cb49e16052eae2c83e3999509abd97e1f6ad10"
     },
     {
       "file": "references.bib",
@@ -94,31 +94,31 @@
       "file": "figures/fig1.pdf",
       "role": "Figure 1 for main.tex (exported from the manuscript SVG)",
       "bytes": 70877,
-      "sha256": "9fc699e4c9fc1b7764b78600b91f898db14b34f8fd997314e4c85961d0fe5316"
+      "sha256": "862802b1809666b74b1971a8e389ef786cbde5bf8e213aacc338bdb02c4233e8"
     },
     {
       "file": "figures/fig2.pdf",
       "role": "Figure 2 for main.tex",
       "bytes": 63200,
-      "sha256": "82bded8971fb4de4b64b57ac6a3aa94fc051f095149c4003fe2067bd5119c55d"
+      "sha256": "4dbcba3161863b84b4add42c98ecf69b4b47701463886aee3f0e65e2cf6eaf21"
     },
     {
       "file": "figures/fig3.pdf",
       "role": "Figure 3 for main.tex",
       "bytes": 64220,
-      "sha256": "ff22000e04577ea1c00a6634e69f5c8bded52847b931a9967d3995ab26d61853"
+      "sha256": "8f634fc9a0c879d692c5f5f835044ed6574b728b65df1cdf7d2dcdb908156b48"
     },
     {
       "file": "figures/fig4.pdf",
       "role": "Figure 4 for main.tex",
       "bytes": 57486,
-      "sha256": "50b89f6300d39759c4ed220126bca2c96db37b112375f1ff43d25e10bd047e55"
+      "sha256": "41e627e7cc2edbdaabaa32297c2ae749cf86514c3b2675e357651f6e80c26c2f"
     },
     {
       "file": "figures/fig5.pdf",
       "role": "Figure 5 for main.tex",
       "bytes": 51368,
-      "sha256": "49d902ca6918142cb3e30f51ef4b81ca063be671702d915172f13fad1e83fdde"
+      "sha256": "e4fc4325c9bfa156df9878152c19013e71b894433903a59d5014fc7833dba188"
     },
     {
       "file": "CLAUDE_PEER_REVIEW_REPORT.md",
@@ -130,7 +130,7 @@
       "file": "paper_metrics_summary.json",
       "role": "Every reported figure, recomputed by reproduce_paper_tables.mjs",
       "bytes": 14612,
-      "sha256": "077aee5602870fb0f61772000beb07d86292f467419ff0349f7b2189d75c63e7"
+      "sha256": "c303154de05c35efc03127aefd0881854f93cb47ca1b4f47ffa0e69c332d8a0f"
     }
   ]
 }

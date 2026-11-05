@@ -11,7 +11,7 @@
 **HuaiCheng Sheng:** Conceptualization, Methodology, Software, Validation, Formal analysis, Investigation, Resources, Data curation, Writing – original draft, Writing – review & editing, Visualization, Supervision, Project administration.
 
 ## 3. Declaration of competing interest
-The author declares no known competing financial interests or personal relationships that could have appeared to influence the work reported in this paper.
+The author is affiliated with Agentic Work Lab, Hangzhou Chengxin Holding Group Co., Ltd., and is the developer and maintainer of the open-source artifacts evaluated in this study (*Agentic Work Lab* and *PublishOps CrossCast*); a separate API add-on package outside the evaluated open-source snapshot is distributed independently by the author. The author declares no other competing financial interests or personal relationships that could have appeared to influence the work reported in this paper.
 
 ## 4. Funding
 This research was supported by the internal research and engineering resources of Agentic Work Lab, Hangzhou Chengxin Holding Group Co., Ltd., Hangzhou, Zhejiang, China. It did not receive any specific grant from funding agencies in the public, commercial or not-for-profit sectors.
@@ -28,7 +28,7 @@ The 69-record operational journal, the 55-record channel snapshot, the 30-entry 
 | C1 | Current code version | publishops-crosscast v0.16.0 (evaluated main-branch commit `75b7abc`); agentic-work-lab package 0.1.0 |
 | C2 | Permanent link to code/repository | https://github.com/whitecarp/publishops-crosscast and https://github.com/whitecarp/agentic-work-lab |
 | C3 | Paper sources and reproduction script | `paper/` folder of agentic-work-lab (`reproduce_paper_tables.mjs`, `build_publication_pdf.mjs`, `sync_main_tex.mjs`) |
-| C4 | Legal code licence | publishops-crosscast: MIT (bundled bili-cli v1.2.1: MIT). agentic-work-lab: no licence file in the repository at present |
+| C4 | Legal code licence | publishops-crosscast: MIT (bundled bili-cli v1.2.1: MIT). agentic-work-lab: MIT (`LICENSE` in the paper branch; no licence file at data snapshot commit `e3205d6`) |
 | C5 | Code versioning system | Git (GitHub) |
 | C6 | Languages, tools and services | Python (CrossCast at `75b7abc`: 123 source files, 26,972 lines, of which 42 files are the bundled bili-cli; 126 test files with 2,737 test functions); Node.js (laboratory scripts, no package dependencies). Main Python dependencies: Typer, httpx, Patchright, Pillow, curl_cffi, twitter-text-parser; bili-cli also needs bilibili-api-python (GPL-3.0-or-later), installed separately |
 | C7 | Requirements and operating environments | Python 3.10–3.14 (GitHub CI checks for `75b7abc` passed on all five); Node.js 20 or later. Package metadata lists Windows, Linux and macOS; installation acceptance on a fresh computer and across operating systems is recorded as not yet completed |
