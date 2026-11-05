@@ -1,0 +1,109 @@
+<!DOCTYPE html><html><head><meta charset="utf-8"><style>
+  @page { size: A4 portrait; margin: 16mm 16mm 16mm 16mm; }
+  body {
+    font-family: "Times New Roman", "Noto Serif SC", "Microsoft YaHei", "SimSun", serif;
+    font-size: 10pt;
+    line-height: 1.55;
+    color: #111827;
+    margin: 0;
+    padding: 0;
+  }
+  h1 { font-size: 15.5pt; font-weight: bold; color: #0f172a; border-bottom: 1.5pt solid #0f172a; padding-bottom: 5pt; margin: 0 0 10pt 0; }
+  h2 { font-size: 12pt; font-weight: bold; color: #1e3a8a; border-bottom: 0.75pt solid #94a3b8; padding-bottom: 3pt; margin: 14pt 0 6pt 0; }
+  h3 { font-size: 10.5pt; font-weight: bold; color: #0f172a; margin: 9pt 0 4pt 0; }
+  p { margin: 0 0 6pt 0; text-align: justify; }
+  ul, ol { margin: 0 0 8pt 0; padding-left: 18pt; }
+  li { margin-bottom: 3.5pt; }
+  table { width: 100%; border-collapse: collapse; margin: 7pt 0 11pt 0; font-size: 8.8pt; }
+  th { border-top: 1.5pt solid #0f172a; border-bottom: 1pt solid #0f172a; padding: 4pt 5pt; background: #f8fafc; text-align: left; font-weight: bold; }
+  td { border-bottom: 0.5pt solid #cbd5e1; padding: 4pt 5pt; vertical-align: top; }
+  tr:last-child td { border-bottom: 1.5pt solid #0f172a; }
+  .qbox { border-left: 3pt solid #dc2626; background: #fef2f2; padding: 6pt 9pt; margin: 8pt 0 4pt 0; }
+  .abox { border-left: 3pt solid #16a34a; background: #f0fdf4; padding: 6pt 9pt; margin: 4pt 0 10pt 0; }
+  .fbox { border: 1pt solid #94a3b8; background: #f8fafc; padding: 7pt 10pt; margin: 7pt 0; font-family: "Times New Roman", serif; }
+  code { font-family: "Consolas", monospace; font-size: 8.8pt; background: #f1f5f9; padding: 1pt 3pt; border-radius: 2pt; }
+  .page-break { page-break-before: always; }
+</style></head><body>
+<h1>SCI 论文全中文完整学术对照版与核心公式/算法/图表精读手册</h1>
+<p><strong>英文原题：</strong> Governing Human–AI Collaborative Project Workflows in Multi-Platform Digital Delivery: A Design Science Study of Auditable Handoffs and Idempotent Release Operations<br/>
+<strong>中文标题：</strong> 多平台数字交付中人机协同项目工作流的治理研究：基于设计科学的可审计交接与幂等发布运维<br/>
+<strong>作者信息：</strong> HuaiCheng Sheng（盛怀诚），Agentic Work Lab, Hangzhou Chengxin Holding Group Co., Ltd.（杭州诚欣控股集团有限公司），Hangzhou, Zhejiang, China | 邮箱：<code>ZackSheng@gmail.com</code> | ORCID：<code>0009-0003-2900-6377</code><br/>
+<strong>配套文件说明：</strong> 本手册与 21 页英文正刊主手稿（<code>manuscript.pdf</code>）及 150 页在线补充材料（<code>supplementary_material.pdf</code>）严格一一对应，供作者审阅、汇报、答辩及与合作模型讨论使用。</p>
+
+<h2>摘要（Abstract 完整中文对照）</h2>
+<p><strong>背景（Context）：</strong> 随着大语言模型（LLM）智能体在数字工程与媒体生产项目中从“对话式助手”演进为“自主执行主体”，项目管理面临着严峻的治理空白。多智能体工作流频繁遭遇角色交接失调、非幂等的外部副作用（例如网络超时后触发的跨平台重复发布）、静默质量退化以及混淆的绩效归因。</p>
+<p><strong>目标（Objective）：</strong> 基于设计科学研究（Design Science Research, DSR）范式与阶段门控（Stage-Gate）项目控制理论，本研究设计、实现并实证评估了一套面向多智能体、多平台数字交付的可审计“人在回路（HITL）”项目治理框架与发布运维系统（<em>Agentic Work Lab</em> 与 <em>PublishOps CrossCast</em>）。</p>
+<p><strong>方法（Method）：</strong> 我们形式化提出了四层治理架构：（1）确定性的单人主控与时间窗口调度门（<code>planRun</code>）；（2）耦合流式 SHA-256 媒体完整性校验的加密计划哈希锁（<code>--confirm CURRENT_PLAN_HASH</code>）；（3）在异构 API 与浏览器自动化端点上将不确定提交结果锁定为 <code>UNKNOWN</code> 态以抑制自动重试故障的幂等回执状态机；以及（4）独立回读校验与人工异常接管协议。我们利用纵向真实项目制品对该框架进行了实证评估，涵盖 <strong>N = 69</strong> 条脱敏运维事件日志、<strong>N = 55</strong> 条频道发布快照记录、<strong>N = 30</strong> 个经加密校验的视频交付版本（总计 <strong>2.21 GB</strong>），以及跨 <strong>126</strong> 个测试模块的 <strong>2,737</strong> 个自动化验证测试用例。</p>
+<p><strong>结果（Results）：</strong> 在涉及多智能体协作（人类项目管理下的 GPT/Codex、Claude 与 DeepSeek）的 69 个运维检查点中，治理门在 68 个非写入窗口中成功抑制了未授权变更，仅在授权窗口执行 1 次真实写入（0 次重复上传重放，0 起新增风险事件）。经核实的自主巡检运行表现出 <strong>24.992 秒</strong> 的触发延迟与 <strong>31.175 秒</strong> 的执行耗时，任务错误率为零。跨 5 大平台（Bilibili、YouTube、X、抖音、Instagram）的发布评估证实，在抖音出现程序化回读超时期间，将状态锁定为 <code>UNKNOWN</code> 成功阻止了重复发布并完整保留了审计轨迹。Instagram 端到端发布（总耗时 <strong>423.236 秒</strong>，发布命令耗时 <strong>412.217 秒</strong>）的阶段级延迟拆解表明，<strong>92.32%（380.551 秒）</strong> 的命令耗时集中在“提交后的平台确认等待期”，从而精准定位了非幂等智能体重试的核心脆弱窗口。</p>
+<p><strong>结论（Conclusions）：</strong> 代理式（Agentic）工作流的有效项目管理，必须从“提示词层面的软性规劝”转向“确定性的阶段门控不变式、加密制品锁定与幂等状态机恢复”。全部源代码、数据模式与脱敏实证数据集均已公开归档，为多智能体项目治理建立了可复现的基准。</p>
+
+<h2>第 1 节：引言与三大研究问题（Section 1: Introduction &amp; RQs）</h2>
+<p>论文第一部分指出，将多个异构大模型（GPT/Codex、Claude、DeepSeek）投入真实生产环境时，传统项目管理无法应对三大故障模式：</p>
+<ol>
+  <li><strong>多智能体交接漂移与角色模糊（Multi-Agent Handoff Drift）：</strong> 异步智能体缺少形式化所有权锁，容易覆盖人工审核结果或在非授权时段写文件。</li>
+  <li><strong>不确定状态下的非幂等外部副作用（Non-Idempotent External Side Effects）：</strong> 社交平台发布兼具官方 API 与浏览器自动化（Playwright）。网络抖动、审核队列或回读超时会让提交处于不确定态（<code>UNKNOWN</code>），传统智能体盲目自动重试会导致严重重复发帖。</li>
+  <li><strong>绩效评估中的认知混杂（Epistemic Confounding）：</strong> 把累积了长周期流量的老视频与刚上线的新 AI 视频混在一起比均值，会产生严重的曝光时间混杂偏差。</li>
+</ol>
+<p>为此，论文提出 <strong>3 个核心研究问题（RQs）</strong>：</p>
+<ul>
+  <li><strong>RQ1（治理架构）：</strong> 如何将阶段门控项目管理原则形式化为确定性的软件不变式，以治理多模型交接并杜绝未授权或重复的自主操作？</li>
+  <li><strong>RQ2（容错发布工程）：</strong> 当提交后验证遇到超时或人工认证障碍时，幂等回执状态机如何协调混合 API 与浏览器通道的跨平台数字发布？</li>
+  <li><strong>RQ3（实证与认知验证）：</strong> 将该治理架构部署于纵向多平台生产工作流时，表现出怎样的实证运行特征、延迟瓶颈与方法学边界？</li>
+</ul>
+
+<h2>第 2–3 节：理论背景与设计科学研究方法（Sections 2 &amp; 3）</h2>
+<p>第 2 节综述了阶段门控理论（Cooper, 1990；Bianchi et al., 2022）、人机协同控制（Raisch &amp; Krakowski, 2021；Shneiderman, 2020）、多智能体框架对比（AutoGen、MetaGPT、ChatDev，对应 <strong>Table 1</strong>）以及幂等状态机理论（Schneider, 1990；Kleppmann, 2017）。</p>
+<p>第 3 节定义了设计科学研究（DSR）六步法与 <strong>4 条强制学术诚实准则（Epistemic Hygiene Rules）</strong>：① 观测与推断严格分离；② 状态颗粒度显式区分（绝不把超时未确认当成失败或成功，必须锁入 <code>UNKNOWN</code>）；③ 历史快照不可变追加；④ 未执行实验显式标注。</p>
+
+<h2>第 4 节：四层人机协同治理架构、三大数学公式与三大核心算法（Section 4）</h2>
+<div class="fbox">
+  <strong>核心数学公式 1（Layer 1 纯函数调度门控谓词，对应定理 A.1）：</strong><br/>
+  <code>G_run(C, E, S_chk, t_now) = I_enabled(C) &and; I_window(t_now, W) &and; I_cooldown(t_now, E, &Delta;t_min) &and; I_checklist(S_chk)</code><br/>
+  <em>含义：</em> 只有当配置开关开启、当前时间处于授权窗口 <code>W</code> 内、距离上次运行已满最小冷却时间 <code>&Delta;t_min</code>、且任务清单存在未认领的就绪项时，门控谓词才返回 <code>1</code>（放行），否则一律返回 <code>0</code>（硬拦截）。
+</div>
+
+<div class="fbox">
+  <strong>核心数学公式 2（Layer 2 流式 SHA-256 载荷与计划哈希锁，对应定理 A.3）：</strong><br/>
+  <code>H_plan = SHA256(Canon(M, T, H(f)))</code>，执行条件：<code>I_exec(&tau;_user, H_plan) = 1 &hArr; (&tau;_user == H_plan)</code><br/>
+  <em>含义：</em> 将规范化后的元数据 <code>M</code>、目标平台列表 <code>T</code> 以及 64-KB 分块流式计算的媒体文件 SHA-256 哈希 <code>H(f)</code> 组合生成唯一计划指纹 <code>H_plan</code>。执行发布时，用户或上层门控传入的确认令牌 <code>&tau;_user</code> 必须与当前重算的 <code>H_plan</code> 完全一致，哪怕改动 1 个字节也会立即中止执行。
+</div>
+
+<div class="fbox">
+  <strong>核心数学公式 3（Layer 3 幂等状态机“最多发布一次”安全不变式，对应定理 A.2）：</strong><br/>
+  <code>&forall; p &in; T, &Sigma;_{k=1..K} I(transmit(f, M, p, k)) &le; 1</code><br/>
+  <em>含义：</em> 对于任何目标平台 <code>p</code>，在任意 <code>K &ge; 1</code> 轮恢复与核对过程中，一旦首次尝试进入 <code>SUBMITTING</code> 状态，后续任何因回读超时进入 <code>UNKNOWN</code> 态的恢复操作都只允许调用只读查询接口（<code>verify_remote_state</code>），绝不再次调用字节流上传接口（<code>transmit</code>），从而在数学上严格保证外部平台最多只会被写入 1 次。
+</div>
+
+<h3>三大形式化算法（Algorithms 1–3）一览：</h3>
+<ul>
+  <li><strong>Algorithm 1 (<code>planRun</code>)：</strong> 确定性时间窗口与清单门控算法（纯函数，无外部 I/O 副作用，复杂度 O(|E| + |S_chk|)）。</li>
+  <li><strong>Algorithm 2 (<code>executePublishStep</code>)：</strong> 跨平台幂等回执状态机与 <code>UNKNOWN</code> 锁定算法（涵盖 8 个状态：<code>INIT, DRY_RUN, PREFLIGHT, SUBMITTING, VERIFYING, PUBLISHED, UNKNOWN, NEEDS_HUMAN, FAILED</code>）。</li>
+  <li><strong>Algorithm 3 (<code>auditCohortComparison</code>)：</strong> 频道作品序列非参数分层与认知混杂审计门算法（自动计算 Mann–Whitney U 统计量、p 值与秩双列相关系数 r_rb，拦截混杂归因）。</li>
+</ul>
+
+<div class="page-break"></div>
+<h2>第 5 节：11 张核心实证与消融三线表全解析（Section 5: Tables 1–11）</h2>
+<table>
+<thead><tr><th>表号</th><th>表格名称与核心实证内容</th><th>关键硬核数据指标（100% 源自仓库真实记录）</th></tr></thead>
+<tbody>
+<tr><td><strong>Table 1</strong></td><td>多智能体治理框架对比表</td><td>对比 AutoGen、MetaGPT、ChatDev、标准 CI/CD 与本文框架在 6 大治理维度的差异</td></tr>
+<tr><td><strong>Table 2</strong></td><td>四层治理门控架构与可验证制品映射表</td><td>汇总 Layers 1–4 的控制目标、软件机制、核心文件与审计回执路径</td></tr>
+<tr><td><strong>Table 3</strong></td><td>69 次纵向运维事件门控审计表</td><td><code>N = 69</code> 次事件：68 次非写入窗口拦截（100% 准确），1 次授权写入，0 次重复上传；心跳触发延迟 <code>24.992 s</code>，执行耗时 <code>31.175 s</code></td></tr>
+<tr><td><strong>Table 4</strong></td><td>5 大平台跨平台发布验证矩阵</td><td>覆盖 Bilibili、YouTube、X、抖音、Instagram；其中抖音回读超时被成功锁定为 <code>UNKNOWN</code>，阻止了重复发帖</td></tr>
+<tr><td><strong>Table 5</strong></td><td>Instagram 端到端发布毫秒级耗时拆解表</td><td>端到端总耗时 <code>423.236 s</code>，发布命令耗时 <code>412.217 s</code>；其中提交后平台确认等待耗时 <code>380.551 s</code>（占比高达 <strong>92.32%</strong>）</td></tr>
+<tr><td><strong>Table 6</strong></td><td>30 个视频交付版本 SHA-256 加密清单</td><td>3 大内容序列共 <code>N = 30</code> 个 MP4 交付版本，总计 <code>2,377,509,759 bytes (2.21 GB)</code>，100% 通过流式 SHA-256 校验</td></tr>
+<tr><td><strong>Table 7</strong></td><td>55 条频道发布记录分层与非参数检验表</td><td>老视频序列（均值 3,477.00 播放）vs 鲸鱼娘序列（均值 95.89）vs GPT 值班日志（均值 32.56）；Mann–Whitney <code>U = 65.5, p = 0.0012, r_rb = 0.721</code></td></tr>
+<tr><td><strong>Table 8</strong></td><td>CrossCast 代码库与自动化测试规模表</td><td><code>123</code> 个 Python 源码模块（<code>27,095 LOC</code>）+ <code>126</code> 个测试模块（<code>37,155 LOC</code>，共 <strong>2,737 个单元测试函数</strong>）</td></tr>
+<tr><td><strong>Table 9</strong></td><td>多智能体交接动作分布统计表</td><td>统计 69 次运行中 <code>skip_outside_schedule</code>、<code>skip_cooldown</code>、<code>execute_authorized_task</code> 等动作精确分布</td></tr>
+<tr><td><strong>Table 10</strong></td><td>多模型角色分工与治理边界矩阵</td><td>明确 Human PM、GPT/Codex、Claude、DeepSeek 的读写权限、门控约束与验收标准</td></tr>
+<tr><td><strong>Table 11</strong></td><td>四层治理架构消融实验表（Ablation A1–A5）</td><td>验证移除 Layer 1、Layer 2、Layer 3（<code>UNKNOWN</code> 锁）、Preflight 或 HITL 接管后必现的故障模式</td></tr>
+</tbody>
+</table>
+
+<h2>第 6–7 节：讨论、有效性威胁与结论（Sections 6 &amp; 7）</h2>
+<ul>
+  <li><strong>理论贡献：</strong> 将项目管理中的“阶段门控（Stage-Gate）”从人工会议评审推进为“确定性软件不变式 + 加密哈希锁 + 幂等回执状态机”。</li>
+  <li><strong>实践启示：</strong> 揭示了混合自动化发布中 <strong>92.32% 的耗时集中在提交后等待确认期</strong> 这一关键工程定律，确立了“超时锁入 <code>UNKNOWN</code> 态、严禁盲目自动重传”的行业准则。</li>
+  <li><strong>四维有效性威胁防御（Threats to Validity）：</strong> 全面覆盖构造有效性（Construct Validity）、内部有效性（Internal Validity）、外部有效性（External Validity）与结论有效性（Conclusion Validity）。</li>
+</ul>
+</body></html>

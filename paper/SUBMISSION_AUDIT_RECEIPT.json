@@ -1,0 +1,100 @@
+{
+  "generatedAt": "2026-11-05T04:12:53.872Z",
+  "author": "HuaiCheng Sheng",
+  "affiliation": "Agentic Work Lab, Hangzhou Chengxin Holding Group Co., Ltd., Hangzhou, Zhejiang, China",
+  "orcid": "0009-0003-2900-6377",
+  "email": "ZackSheng@gmail.com",
+  "totalDeliverablesVerified": 15,
+  "deliverables": [
+    {
+      "file": "manuscript.pdf",
+      "role": "Main Manuscript (21 Pages, Two-Column SCI Format)",
+      "bytes": 1206164,
+      "sha256": "546d1c7fed13e2c0fb01c65ccceb90b98f84a1d3492c2f7b0f12fa5f415f57e4"
+    },
+    {
+      "file": "supplementary_material.pdf",
+      "role": "Online Supplementary Material & Full Compendium (150 Pages, Appendices A–H)",
+      "bytes": 11242924,
+      "sha256": "3459dc1015aedd678a0b5e4b35b551073bc4889f7376da4ca692aed9757531b5"
+    },
+    {
+      "file": "graphical_abstract.pdf",
+      "role": "Graphical Abstract PDF (1 Page Landscape Vector Diagram)",
+      "bytes": 90609,
+      "sha256": "0281d10a507468d50c413c57f9f145a6f278fa5f39dd84384cab6ceb813a7008"
+    },
+    {
+      "file": "graphical_abstract.svg",
+      "role": "Graphical Abstract Vector Source (1328x531 SVG)",
+      "bytes": 9141,
+      "sha256": "0872ce6f7ca3c37d24489a9bcc579dcbf5ad696f5cb859a8b569ea38387b407d"
+    },
+    {
+      "file": "highlights.pdf",
+      "role": "Elsevier Research Highlights PDF (Verified <= 85 chars per bullet)",
+      "bytes": 100140,
+      "sha256": "a68f006eaddb25808404fbb59f86bba7b71ade91922348967c7f2aa9b036414f"
+    },
+    {
+      "file": "highlights.md",
+      "role": "Elsevier Research Highlights Markdown Source",
+      "bytes": 1481,
+      "sha256": "91d0240dd1d4a70acb778dcfd066d2e95f1a3c9b5a357263d17b3e61dcf610eb"
+    },
+    {
+      "file": "declarations_and_credit.pdf",
+      "role": "CRediT Author Statement, Competing Interest, Funding & Code Metadata Table (C1–C9)",
+      "bytes": 115481,
+      "sha256": "3a265e0dacb686042ab775adb0df9b1af34f12139cd926e528c1f973db3c7d9a"
+    },
+    {
+      "file": "declarations_and_credit.md",
+      "role": "Declarations & CRediT Source",
+      "bytes": 4023,
+      "sha256": "1f994674787612349c3e93ceafd55bc4de8d1520e0076833de399d03b164d4a7"
+    },
+    {
+      "file": "cover_letter.pdf",
+      "role": "Primary Submission Cover Letter PDF (1 Page)",
+      "bytes": 137847,
+      "sha256": "ea242be60c8a8890155ae49f3982dc6470f067c07bc04d150704dc069be286e5"
+    },
+    {
+      "file": "cover_letters_3_journals.pdf",
+      "role": "Customized Cover Letters for JSS, IEEE TEM, and IJPM (2 Pages)",
+      "bytes": 141599,
+      "sha256": "a4008318d7380ae923a01284370cd06981cecb9b358f3be7cf14c2df74de7ff5"
+    },
+    {
+      "file": "reviewer_defense_playbook.pdf",
+      "role": "15-Question SCI Peer-Review Defense & Rebuttal Playbook (7 Pages, EN + CN)",
+      "bytes": 1866979,
+      "sha256": "40e66a914f811e5bc27e97e3afa845cdb7ca90a0b664f1b25c8e8ecd50c516bb"
+    },
+    {
+      "file": "manuscript_CN_companion.pdf",
+      "role": "Full Chinese Academic Companion & Oral Defense Guide (3 Pages)",
+      "bytes": 1823353,
+      "sha256": "2aaca92bd1e51a744b1732bc4ce4b5c41a60f7aea8915a7e786359c021f1c64d"
+    },
+    {
+      "file": "main.tex",
+      "role": "Complete LaTeX Manuscript Source (Synchronized with 21-Page PDF)",
+      "bytes": 94946,
+      "sha256": "98744a307f060da7bbdcd37f3d3d4efc8c64993b672310c51020cb272c01596a"
+    },
+    {
+      "file": "references.bib",
+      "role": "BibTeX Reference Database (35 SCI References)",
+      "bytes": 11372,
+      "sha256": "1e9afc04ffced41b2a83f210608a938db868fe377b0f0e2d486106f265ab170e"
+    },
+    {
+      "file": "paper_metrics_summary.json",
+      "role": "Reproducible Empirical Metrics Summary JSON",
+      "bytes": 1930,
+      "sha256": "e5b3b6976481df05777d31faa545313e347358875f1b7f5b2c1b7d13c906f3fe"
+    }
+  ]
+}

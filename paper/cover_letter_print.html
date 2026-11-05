@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Cover Letter - SCI Submission</title>
+<style>
+  @page { size: A4; margin: 22mm 20mm 22mm 20mm; }
+  body {
+    font-family: "Times New Roman", Times, Georgia, serif;
+    font-size: 11pt;
+    line-height: 1.5;
+    color: #111;
+    margin: 0;
+    text-align: justify;
+  }
+  p { margin: 0 0 10pt 0; }
+  ul { margin: 6pt 0 10pt 20pt; padding: 0; }
+  li { margin-bottom: 5pt; }
+</style>
+</head>
+<body>
+<p><strong>Date:</strong> November 5, 2026</p>
+<p><strong>To:</strong><br>
+The Editor-in-Chief<br>
+<em>Journal of Systems and Software / IEEE Transactions on Engineering Management</em></p>
+<p><strong>Subject:</strong> Submission of Original Research Manuscript: <em>"Governing Human–AI Collaborative Project Workflows in Multi-Platform Digital Delivery: A Design Science Study of Auditable Handoffs and Idempotent Release Operations"</em></p>
+<p>Dear Editor-in-Chief,</p>
+<p>I am pleased to submit our original research manuscript entitled <strong>"Governing Human–AI Collaborative Project Workflows in Multi-Platform Digital Delivery: A Design Science Study of Auditable Handoffs and Idempotent Release Operations"</strong> for consideration for publication.</p>
+<p>As Large Language Model (LLM) agents increasingly transition from passive chat assistants to autonomous execution actors in project delivery and operations, project managers face severe governance challenges: uncoordinated multi-agent role handoffs, non-idempotent external side effects (such as duplicate publications when platform read-backs time out), and confounded performance claims. Grounded in the Design Science Research (DSR) paradigm and stage-gate project control theory, this study presents the design, formalization, and empirical evaluation of <strong>Agentic Work Lab</strong> and <strong>PublishOps CrossCast (<code>vpub</code>)</strong>—an open-source human-in-the-loop (HITL) project governance framework and multi-platform release operations console.</p>
+<p>The primary contributions of this manuscript include:</p>
+<ul>
+  <li><strong>A Four-Layer Agentic Project Governance Architecture:</strong> Formalizing stage-gate controls into deterministic software invariants across (i) sole-operator and temporal scheduling gates (<code>planRun</code>), (ii) cryptographic plan-hash locking (<code>--confirm CURRENT_PLAN_HASH</code>) and streaming SHA-256 media verification, (iii) an idempotent receipt state machine that latches uncertain post-submission outcomes (<code>UNKNOWN</code> states) to suppress automatic retry faults, and (iv) independent read-back and HITL verification handoffs.</li>
+  <li><strong>Comprehensive Empirical &amp; Software Evaluation:</strong> Validating the architecture across <strong>69 de-identified operational event records</strong> (achieving 68 zero-write monitoring intervals, 1 authorized write, 0 duplicate upload replays, and 0 new risk incidents), <strong>30 cryptographically verified video delivery versions</strong> (2.21 GB total), <strong>55 channel cohort records</strong>, and <strong>2,737 automated unit/integration test cases</strong> across 126 test modules in <em>PublishOps CrossCast</em> (<code>v0.16.0</code> / commit <code>75b7abc</code>).</li>
+  <li><strong>Cross-Platform Release &amp; Latency Bottleneck Discovery:</strong> Demonstrating live release governance across five major platforms (Bilibili, YouTube, X, Douyin, and Instagram), showing how <code>UNKNOWN</code>-state latching prevented duplicate publication during a Douyin read-back timeout, and proving via phase-level timing decomposition that <strong>92.32% (380.551 s out of 412.217 s)</strong> of browser-mediated publication latency occurs during the post-submission platform confirmation wait.</li>
+  <li><strong>Epistemic Hygiene Protocol for AI Project Reporting:</strong> Establishing machine-readable boundaries between descriptive cohort metrics and causal inference to prevent exposure-age confounding in human–AI comparative studies.</li>
+</ul>
+<p>All source code, schemas, and de-identified empirical datasets are publicly archived on GitHub (<code>https://github.com/whitecarp/agentic-work-lab</code> and <code>https://github.com/whitecarp/publishops-crosscast</code>) to ensure complete reproducibility.</p>
+<p>This manuscript is original, has not been published previously, and is not under consideration for publication elsewhere. The author declares no competing financial or personal interests.</p>
+<p>Thank you very much for your time and consideration of this manuscript. I look forward to hearing from you.</p>
+<p>Sincerely,</p>
+<p><strong>HuaiCheng Sheng</strong><br>
+Agentic Work Lab, Hangzhou Chengxin Holding Group Co., Ltd., Hangzhou, Zhejiang, China<br>
+E-mail: <code>ZackSheng@gmail.com</code><br>
+ORCID: <code>https://orcid.org/0009-0003-2900-6377</code><br>
+GitHub: <code>https://github.com/whitecarp</code></p>
+</body>
+</html>
