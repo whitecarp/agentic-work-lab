@@ -124,7 +124,31 @@ Nevertheless, empirical deployments of multi-agent systems in continuous operati
 \subsection{DevOps, Release Engineering, and Idempotent State Machines}
 In software engineering, Continuous Integration and Continuous Delivery (CI/CD) pipelines manage deployment risk through automated build verification, immutable artifact digests, and staged rollouts \citep{Humble2010, Bass2015, Adams2016, Shahin2017, Leite2019}. A foundational principle of reliable distributed systems and transaction processing is \emph{idempotency}---the guarantee that repeating an operation or recovering from an interrupted request does not produce duplicate side effects \citep{Schneider1990, gray1992transaction, Kleppmann2017}.
 
-Extending DevOps principles to multi-platform digital media delivery (which we term \emph{PublishOps}) introduces unique socio-technical constraints. Unlike cloud infrastructure APIs that natively support idempotency keys, consumer content platforms (e.g., Bilibili, YouTube, X, Douyin, Instagram) exhibit heterogeneous access modalities: some provide OAuth REST APIs with resumable byte-offset protocols, whereas others require driving authenticated web interfaces where anti-bot verifications, asynchronous transcoding queues, and DOM layout shifts obscure submission outcomes. Bridging stage-gate project governance with fault-tolerant state-machine design is therefore essential to enable safe human--AI collaboration in multi-platform release operations.
+Extending DevOps principles to multi-platform digital media delivery (which we term \emph{PublishOps}) introduces unique socio-technical constraints. Unlike cloud infrastructure APIs that natively support idempotency keys, consumer content platforms (e.g., Bilibili, YouTube, X, Douyin, Instagram) exhibit heterogeneous access modalities: some provide OAuth REST APIs with resumable byte-offset protocols, whereas others require driving authenticated web interfaces where anti-bot verifications, asynchronous transcoding queues, and DOM layout shifts obscure submission outcomes. Table~\ref{tab:litcomp} contrasts existing multi-agent frameworks, CI/CD pipelines, and open-source upload helpers against the proposed \emph{Agentic Work Lab} and \emph{PublishOps CrossCast} architecture across eight socio-technical governance dimensions.
+
+\begin{table}[htbp]
+\centering
+\caption{Comparative analysis of multi-agent frameworks, release pipelines, and the proposed governance architecture across eight socio-technical control dimensions.}
+\label{tab:litcomp}
+\scriptsize
+\begin{tabular}{p{2.3cm} p{1.8cm} p{1.6cm} p{1.7cm} p{1.6cm} p{1.8cm} p{1.6cm} p{1.7cm}}
+\toprule
+\textbf{Framework / System} & \textbf{Multi-Model Handoffs} & \textbf{Temporal \& Owner Gate} & \textbf{Crypto Plan \& SHA-256 Lock} & \textbf{Hybrid API + Pipe Browser} & \textbf{\texttt{UNKNOWN} Latch (Zero Retry)} & \textbf{Identity-Bound Edit/Delete} & \textbf{Epistemic \& Non-Causal Audit} \\
+\midrule
+\textbf{AutoGen} \citep{Wu2023AutoGen} & Conversational chat loops & No native lock & No & External tools only & No (standard retry) & No & No \\
+\addlinespace
+\textbf{MetaGPT} \citep{Hong2023MetaGPT} & Prompt-level SOP roles & Sequential memory & No & No & No & No & No \\
+\addlinespace
+\textbf{ChatDev} \citep{Qian2024ChatDev} & Dual-agent chat chain & Phase-level only & Git commit only & No & No & No & No \\
+\addlinespace
+\textbf{Standard CI/CD} \citep{Humble2010} & Static pipeline stages & Runner queue locks & Artifact SHA-256 & REST APIs only & API-dependent & Rollback scripts & Build logs only \\
+\addlinespace
+\textbf{Open-Source Upload Helpers} & Single-script execution & Cron timer only & No plan-hash lock & Browser form fill & No (risks double post) & No read-back verification & No \\
+\midrule
+\textbf{Agentic Work Lab \& CrossCast (Ours)} & \textbf{File-mediated state handoffs (GPT/Claude/DS)} & \textbf{Deterministic \texttt{planRun} + OS lock} & \textbf{\texttt{--confirm} Plan Hash + Stream SHA-256} & \textbf{OAuth API + Private Pipe Browser} & \textbf{Durable $f_{\text{submit}}$ latch + \texttt{UNKNOWN} hold} & \textbf{\texttt{--verify-only} + Absence Read-Back} & \textbf{Enforced machine-readable limits} \\
+\bottomrule
+\end{tabular}
+\end{table}
 
 ---
 
@@ -285,6 +309,32 @@ Furthermore, for any automated run record $R = (\text{trig}, \text{status}, f_{\
 \label{eq:verify_sched}
 \end{equation}
 
+\begin{algorithm}[htbp]
+\caption{Deterministic Sole-Operator \& Temporal Scheduling Gate (\texttt{planRun} \& \texttt{verifyScheduledRun})}
+\label{alg:planrun}
+\footnotesize
+\begin{algorithmic}[1]
+\Require Context tuple $\mathcal{S} = (e, o, f_{\text{stop}}, f_{\text{run}}, t_{\text{now}}, \mathcal{J})$; Run trace record $R$
+\Ensure Gate decision tuple $(\text{decision}, \text{reason}, \mathcal{D})$
+\State $t_{\text{cur}} \gets \text{ParseEpoch}(t_{\text{now}})$
+\If{$\neg \text{IsFinite}(t_{\text{cur}})$} \textbf{throw} \texttt{Error("Invalid current time")} \EndIf
+\If{$e = \varnothing \lor e \neq o$} \Return $(\texttt{"skip"}, \texttt{"not\_owner"}, \emptyset)$ \EndIf
+\If{$f_{\text{stop}} = \text{true}$} \Return $(\texttt{"skip"}, \texttt{"stop\_flag"}, \emptyset)$ \EndIf
+\If{$f_{\text{run}} = \text{true}$} \Return $(\texttt{"skip"}, \texttt{"already\_running"}, \emptyset)$ \EndIf
+\State $I_{\text{seen}} \gets \emptyset$; $\mathcal{D} \gets []$
+\ForAll{$j_k = (\text{id}_k, t_{\text{due},k}, \text{auth}_k, \text{done}_k) \in \mathcal{J}$}
+    \If{$\text{id}_k = \varnothing \lor \text{id}_k \in I_{\text{seen}}$} \textbf{throw} \texttt{Error("Missing or duplicate job id")} \EndIf
+    \State $I_{\text{seen}} \gets I_{\text{seen}} \cup \{\text{id}_k\}$
+    \If{$\text{done}_k = \text{true} \lor \text{auth}_k \neq \text{true}$} \textbf{continue} \EndIf
+    \State $t_{\text{at}} \gets \text{ParseEpoch}(t_{\text{due},k})$
+    \If{$\neg \text{IsFinite}(t_{\text{at}})$} \textbf{throw} \texttt{Error("Invalid due time for " + id\_k)} \EndIf
+    \If{$t_{\text{at}} \le t_{\text{cur}}$} $\text{Append}(\mathcal{D}, \text{id}_k)$ \EndIf
+\EndFor
+\State $\text{decision} \gets (|\mathcal{D}| > 0) \mathbin{?} \texttt{"plan\_only"} : \texttt{"no\_work\_due"}$
+\State \Return $(\text{decision}, \texttt{"checked"}, \mathcal{D})$
+\end{algorithmic}
+\end{algorithm}
+
 \subsection{Layer 2: Cryptographic Plan-Hash Locking and Artifact Verification}
 Even when a task is due and authorized, multi-agent pipelines risk publishing mismatched media versions (e.g., an earlier unpatched render) or altered platform captions. Layer~2 enforces two cryptographic invariants:
 
@@ -347,6 +397,61 @@ where $\text{acct}_p$ is the bound platform account identity, $H_{\text{media}}$
 \label{prop:idempotency}
 Suppose an execution instance initiates publication for plan $P$ on platform $p$. Immediately prior to dispatching the final platform commit action (e.g., clicking ``Share'' on Instagram/Douyin or issuing the final commit call), the receipt journal atomically persists $f_{\text{submit}} \leftarrow \text{true}$. If the subsequent platform confirmation wait times out or fails programmatic read-back, the state transitions to $\sigma_p = \texttt{UNKNOWN}$ (State~5a) while retaining $f_{\text{submit}} = \text{true}$. Because the publication guard requires $f_{\text{submit}} = \text{false}$ to enter State~3/4, no automated agent or retry loop can re-submit the payload. Resolution proceeds exclusively via non-mutating reconciliation (\texttt{vpub verify}), which queries the account's visible catalog for a unique work matching $(\text{acct}_p, H_{\text{meta}}, \text{duration})$, or via human operator visual confirmation (State~6).
 \end{proposition}
+
+\begin{algorithm}[htbp]
+\caption{Idempotent Cross-Platform Publication \& \texttt{UNKNOWN}-State Latching (\texttt{vpub publish} \& \texttt{vpub verify})}
+\label{alg:publish}
+\footnotesize
+\begin{algorithmic}[1]
+\Require Release plan $P$, confirmation token $H_{\text{user}}$, target platform $p$, receipt journal $\mathcal{R}_p$
+\Ensure Updated persistent receipt $\mathcal{R}_p = (\text{key}, \text{acct}_p, H_{\text{media}}, H_{\text{meta}}, f_{\text{submit}}, \sigma_p, \text{wid}_p, \tau_{\text{log}})$
+\If{$H_{\text{user}} \neq \text{SHA256}(\text{CanonicalJSON}(P))$} \textbf{abort} \texttt{PLAN\_HASH\_MISMATCH} \EndIf
+\State $\text{AcquireProcessLock}(p, \text{acct}_p)$ \Comment{Recovers stale lock only if OS PID is confirmed terminated}
+\If{$\mathcal{R}_p.f_{\text{submit}} = \text{true}$}
+    \State \Return $\text{ReconcileExistingReceipt}(\mathcal{R}_p)$ \Comment{Strictly blocks duplicate submission if already latched}
+\EndIf
+\State $\text{VerifyMediaStreamSHA256}(P.\text{media\_file}, P.\text{expected\_bytes}, P.H_{\text{media}})$
+\State $\text{session} \gets \text{AttachPipeBrowserOrOAuthSession}(p, \text{acct}_p)$
+\State $\text{StageMediaWithOffsetRecovery}(\text{session}, P.\text{media\_file}, P.\text{cover\_file}, P.\text{caption})$
+\State $\mathcal{R}_p.f_{\text{submit}} \gets \text{true}$; $\mathcal{R}_p.\sigma_p \gets \texttt{SUBMITTED\_WAIT}$; $\text{PersistAtomically}(\mathcal{R}_p)$
+\State $\text{DispatchSingleFinalCommit}(\text{session})$ \Comment{Single Share / Post / Save click}
+\State $\text{outcome} \gets \text{AwaitPlatformConfirmationAndReadBack}(\text{session}, P.\text{expected\_identity})$
+\If{$\text{outcome}.\text{verified} = \text{true}$}
+    \State $\mathcal{R}_p.\sigma_p \gets \texttt{SUBMISSION\_VERIFIED}$; $\mathcal{R}_p.\text{wid}_p \gets \text{outcome}.\text{work\_id}$
+\Else
+    \State $\mathcal{R}_p.\sigma_p \gets \texttt{UNKNOWN\_LATCHED}$ \Comment{Never re-clicks submit; awaits \texttt{vpub verify} or HITL}
+\EndIf
+\State $\text{PersistAtomically}(\mathcal{R}_p)$; $\text{ReleaseProcessLock}(p, \text{acct}_p)$; \Return $\mathcal{R}_p$
+\end{algorithmic}
+\end{algorithm}
+
+\subsection{Layer 4: Identity-Bound In-Place Revision and Durable-Consent Deletion}
+Beyond initial publication, day-to-day channel operations require revising captions, updating covers, assigning chapters, and occasionally deleting test works. Layer~4 enforces a strict identity-bound revision and deletion protocol (Algorithm~\ref{alg:editdelete}), implemented across PRs~\#20, \#21, \#25, \#29, and \#30.
+
+\begin{algorithm}[htbp]
+\caption{Identity-Bound In-Place Revision \& Durable-Consent Single-Work Deletion (\texttt{vpub edit} \& \texttt{vpub delete})}
+\label{alg:editdelete}
+\footnotesize
+\begin{algorithmic}[1]
+\Require Receipt key $K$, patch specification $\Delta P$ (or delete consent token $C_{\text{del}}$), mode $\in \{\texttt{VERIFY\_ONLY}, \texttt{APPLY\_EDIT}, \texttt{DELETE\_WORK}\}$
+\Ensure Reconciled receipt state $\sigma_p$ and audit log entry
+\State $\mathcal{R}_p \gets \text{LoadReceipt}(K)$; $\text{VerifyAccountOwnership}(\text{session}, \mathcal{R}_p.\text{acct}_p, \Delta P.\text{expected\_identity})$
+\If{$\text{mode} \in \{\texttt{VERIFY\_ONLY}, \texttt{APPLY\_EDIT}\}$}
+    \State $\text{live\_meta} \gets \text{ReadEditorNativeMetadata}(\text{session}, \mathcal{R}_p.\text{wid}_p)$ \Comment{Ignores page translations \& comments}
+    \If{$\text{live\_meta} = \Delta P.\text{target\_meta}$} \Return \texttt{NO\_SAVE\_REQUIRED\_MATCHED} \EndIf
+    \If{$\text{mode} = \texttt{VERIFY\_ONLY}$} \Return \texttt{EDIT\_MISMATCH\_DETECTED} \EndIf
+    \If{$p = \texttt{X} \land \neg \text{ExposesNativeEditControl}(\text{session}, \mathcal{R}_p.\text{wid}_p)$}
+        \State \textbf{abort} \texttt{MISSING\_EDIT\_ACCESS\_NO\_DELETE\_OR\_REPOST} \Comment{Never deletes or reposts as fallback}
+    \EndIf
+    \State $\text{ApplyInPlaceMutation}(\text{session}, \mathcal{R}_p.\text{wid}_p, \Delta P)$ \Comment{Preserves video bytes and visibility}
+    \State $\text{ReopenEditorAndVerifyReadBack}(\text{session}, \mathcal{R}_p.\text{wid}_p, \Delta P.\text{target\_meta})$
+\ElsIf{$\text{mode} = \texttt{DELETE\_WORK}$}
+    \State $\text{VerifyDurableConsentToken}(C_{\text{del}}, \mathcal{R}_p.\text{wid}_p, \mathcal{R}_p.H_{\text{media}})$
+    \State $\text{ExecuteSingleWorkDeletion}(\text{session}, \mathcal{R}_p.\text{wid}_p)$
+    \State $\text{RefreshCatalogAndConfirmAbsence}(\text{session}, \mathcal{R}_p.\text{wid}_p)$ \Comment{Verifies work absent \& neighbors intact}
+\EndIf
+\end{algorithmic}
+\end{algorithm}
 
 ---
 
@@ -444,7 +549,31 @@ Because live platform experiments must avoid polluting public accounts with deli
 \end{tabular}
 \end{table}
 
-As shown in Table~\ref{tab:testcoverage}, the test suite in \emph{PublishOps CrossCast} exceeds the source code volume ($37,155$ test LOC vs. $27,095$ source LOC, a ratio of $1.37:1$) and enforces $2,737$ distinct assertions covering account switching, partial DOM loads, lost network responses, and duplicate submission prevention.
+As shown in Table~\ref{tab:testcoverage}, the test suite in \emph{PublishOps CrossCast} exceeds the source code volume ($37,155$ test LOC vs. $27,095$ source LOC, a ratio of $1.37:1$) and enforces $2,737$ distinct assertions covering account switching, partial DOM loads, lost network responses, and duplicate submission prevention. Table~\ref{tab:evolution} documents the longitudinal Design Science evolution of \emph{PublishOps CrossCast} from early prototypes through commit \texttt{75b7abc} (PR~\#30).
+
+\begin{table}[htbp]
+\centering
+\caption{Longitudinal Design Science evolution of \emph{PublishOps CrossCast} from early prototypes to commit \texttt{75b7abc} (PR~\#30).}
+\label{tab:evolution}
+\scriptsize
+\begin{tabular}{p{2.3cm} p{3.6cm} p{3.9cm} p{3.9cm}}
+\toprule
+\textbf{Version / Commit} & \textbf{Architectural Milestone} & \textbf{Empirical \& CI Verification Evidence} & \textbf{Identified Boundary \& Subsequent DSR Refinement} \\
+\midrule
+\texttt{v0.2.2--v0.3.0} (\texttt{596e951}) & Initial 5-platform adapters, X Media Studio 16:9 thumbnail persistence, FFmpeg $79.5\text{ s}$ cover-lead synthesis. & $86$ offline tests passed; verified YouTube Studio category change \& $1,327$-char Instagram caption read-back. & Instagram profile grid cropped landscape cover text; TikTok suspended after HK phone login block. \\
+\addlinespace
+\texttt{v0.15.1} (Lab Snapshot) & OS process lock (\texttt{process\_lock.py}), private pipe browser context reuse, resumable byte-offset recovery. & $417$ offline tests passed; atomic API pagination and Douyin/Instagram collection membership controls. & Needed independent CI matrix verification and stricter schedule/pin counterexample checks. \\
+\addlinespace
+Candidates \texttt{eaa1aab} / \texttt{80e166b} / \texttt{2d54c8f} & Separated development from independent validation; tested X schedule submission and cleanup. & GitHub CI passed on Python 3.10--3.12; $143 + 16$ targeted local checks passed; X temp media deleted \& confirmed absent. & Counterexample found imprecise pinned-comment ID (live pin held); X schedule row lacked post/media ID pair (kept \texttt{SUBMITTED\_UNVERIFIED}). \\
+\addlinespace
+\texttt{v0.16.0} Release (\texttt{a46bd19} / PR~\#8--\#9) & Public standalone CLI release; shortened default capability list (\texttt{--full}) and separated rehearsal from live readiness. & Live 5-platform release of \emph{I Watched It For You v3}; instrumented $412.217\text{ s}$ Instagram timing breakdown. & Post-submit wait consumed $92.32\%$ of publish time; motivated explicit wait progress and bounded concurrency. \\
+\addlinespace
+PRs~\#10--\#28 (\texttt{d97835f}--\texttt{439c038}) & Two-command \texttt{prepare}/\texttt{go} flow (\#10), two-slot browser concurrency (\#11/\#15), YouTube single-Save guard (\#16), X edit consistency (\#21). & Python 3.13/3.14 support (\#14); prompt login return \& interrupted worker recovery (\#27); runtime cleanup isolated (\#28). & Required durable consent and post-deletion absence read-back for single-work deletions across all platforms. \\
+\addlinespace
+PRs~\#29--\#30 (\texttt{3b56bdc} / \texttt{75b7abc}) & Durable-consent single-work deletion with absence read-back (\#29); deletion control readiness \& layout guards (\#30). & Full regression suite expanded to \textbf{$126$ test files ($37,155$ LOC, $2,737$ test functions)}; all assertions passing. & Live multi-platform concurrent speedup benchmarking scheduled as next empirical evaluation phase. \\
+\bottomrule
+\end{tabular}
+\end{table}
 
 \subsection{Cross-Platform Release Verification and Latency Bottleneck Analysis (RQ2 \& RQ3)}
 To evaluate the end-to-end effectiveness of the framework in live multi-platform delivery, we examine the release of the $176.4\text{ s}$ ($1920\times 1080$, $30\text{ fps}$, H.264/AAC, $285,855,005\text{ bytes}$, SHA-256 \texttt{7d6fd760...}) production film \emph{I Watched It For You (v3)} across all five target platforms (Table~\ref{tab:platforms}).
@@ -506,7 +635,77 @@ The Douyin and Instagram releases in Table~\ref{tab:platforms} provide crucial e
 
 Table~\ref{tab:igtiming} reveals a striking operational reality: pre-publication governance checks (plan hash verification, rehearsal, and auth preflight) add only $11.019\text{ s}$ ($2.60\%$ of end-to-end time), and independent post-publication read-back requires only $5.224\text{ s}$ ($1.27\%$ of command time). Conversely, $380.551\text{ s}$ ($92.32\%$ of the $412.217\text{ s}$ publication command) is consumed waiting between clicking ``Share'' and receiving platform confirmation. This $6.3$-minute post-submission window is precisely where unguarded automation agents experience timeout anxiety and trigger destructive duplicate retries, empirically explaining why persistent pre-wait commit latching ($f_{\text{submit}} = \text{true}$) is the cornerstone of reliable agentic release engineering.
 
-\subsection{Descriptive Cohort Analytics and Epistemic Boundary Control (RQ3)}
+\subsection{Multi-Modal Quality Engineering and Complete 30-Artifact Catalogue (RQ3)}
+To demonstrate how Layer~2 governs deliverable quality across iterative revisions, Table~\ref{tab:multimodalqa} synthesizes the quantitative frame-level and audio-signal engineering audits conducted across the production studies, and Table~\ref{tab:manifest30} lists the complete cryptographic manifest of all $N=30$ downloadable video versions archived in \emph{Agentic Work Lab}.
+
+\begin{table}[htbp]
+\centering
+\caption{Multi-modal programmable video quality engineering cases and surgical defect repair verifications.}
+\label{tab:multimodalqa}
+\scriptsize
+\begin{tabular}{p{2.6cm} p{3.3cm} p{3.8cm} p{4.0cm}}
+\toprule
+\textbf{Production Case} & \textbf{Diagnosed Technical Defect} & \textbf{Surgical Code / Timeline Repair} & \textbf{Quantitative Verification \& Documented Limits} \\
+\midrule
+\textbf{Animation Timing Diagnostic} (\texttt{animation-timing.md}) & Changing render from $24$ to $30\text{ fps}$ failed to create missing contact, load-transfer, and withdrawal actions. & Decomposed $24\text{ fps}$ exposure rules (ones $=24$, twos $=12$, threes $=8\text{ exp/s}$) and 5-stage physical handoff criteria. & $66.7\text{ s}$ ($2,001$ frames at $30\text{ fps}$): $52$ segments, $44$ holds (median hold $0.85\text{ s}$, max $7.0\text{ s}$). Established diagnostic baseline. \\
+\addlinespace
+\textbf{GPT Duty Log 05} (\texttt{v3-antiflash}, $434.47\text{ s}$) & Full-opacity frame before fade, white flashes during right-panel changes, and shot leakage at cuts. & Set explicit hidden initial states, frame-aligned boundaries, whole-panel replacement, and 4-frame clean-entry hold; kept v2 audio. & \textbf{$13,034 / 13,034$ frames scanned} at $320\times 180$: $11$ sequences fixed; $0$ ABA/black/white pulses; $-15.97\text{ LUFS}$, $-1.21\text{ dBTP}$, $0\text{ ms}$ audio offset. \\
+\addlinespace
+\textbf{Whale Girl Transformation} (\texttt{v3} $67\text{ s} \to \texttt{v4}$ $75.23\text{ s}$) & Abrupt eye gaze jumps, brightness mismatch across cut, and moving tail fin entering fixed hair mask. & Interpolated eye regions only between real source endpoints; matched cut brightness; expanded v4 protection mask; ducked music $12\text{ dB}$. & $1080\times 1920$, $2,257$ frames: $0$ decode errors, $0$ clipped samples ($-0.636\text{ dBFS}$ peak), all-zero silence verified from $50.763$ to $62.503\text{ s}$, black frame at $1,845$ ($61.500\text{ s}$). \\
+\addlinespace
+\textbf{Whale Girl Revisions} (\texttt{r5} Colour/Heels \& \texttt{r7} Motion) & Colour spill onto blue tail during grading (r5); uneven alternating steps in sock/heart gestures (r7). & Separated clothing/skin/background masks protecting tail \& $6$ heel events (r5); reordered real source frames without optical flow (r7). & r5: $66.87\text{ s}$ ($2,006$ frames), full decode passed ($+1.11\text{ dBFS}$ inherited float peak noted). r7: $65.37\text{ s}$ ($1,961$ frames), join \& duplicate-frame checks passed. \\
+\addlinespace
+\textbf{Whale Girl Ep 07 \& Portrait Cuts A/B/C} ($179.77\text{ s} + 3$ cuts) & Cropping $1920\times 1080$ landscape to $1080\times 1920$ portrait cuts off ticket counters and character art. & Programmatically rearranged ticket/character panels into $y \in [168, 1330]$ ($56\text{ px}$ subtitles, $106\text{ px}$ numbers) at $360\text{ px}$ preview width. & $5,393$ landscape frames + $843/897/899$ portrait frames; $-17.5/-16.6/-17.5\text{ LUFS}$, $-0.5\text{ dBFS}$ peak, $0$ clips. Documented $130\text{ ms}$ first-ticket stamp offset vs. earlier $6\text{ ms}$ estimate. \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{table}[htbp]
+\centering
+\caption{Complete cryptographic manifest and verification status of all $N=30$ downloadable video delivery versions archived in \emph{Agentic Work Lab} ($2,211,716,129\text{ bytes} / 2.21\text{ GB}$ total; $100\%$ SHA-256 verified).}
+\label{tab:manifest30}
+\tiny
+\begin{tabular}{r l p{4.2cm} r r l r l}
+\toprule
+\textbf{\#} & \textbf{Archive Filename} & \textbf{Deliverable Title / Scope} & \textbf{MB} & \textbf{Exact Bytes} & \textbf{SHA-256 Prefix} & \textbf{Dur (s)} & \textbf{State} \\
+\midrule
+1 & \texttt{gpt-log-01.mp4} & GPT Duty Log 01 & 153.01 & 160,441,478 & \texttt{13a9b82396e5da\dots} & --- & \texttt{published} \\
+2 & \texttt{gpt-log-02.mp4} & GPT Duty Log 02 & 164.55 & 172,545,563 & \texttt{decb95dbb5ebaa\dots} & --- & \texttt{published} \\
+3 & \texttt{gpt-log-03.mp4} & GPT Duty Log 03 & 42.38 & 44,443,753 & \texttt{b6932ebc4f5821\dots} & --- & \texttt{published} \\
+4 & \texttt{whale-log-01.mp4} & Whale Girl Shift Log 01 & 40.21 & 42,158,416 & \texttt{5fc2a8bc961a49\dots} & --- & \texttt{published} \\
+5 & \texttt{whale-log-02.mp4} & Whale Girl Shift Log 02 & 33.70 & 35,336,986 & \texttt{6bd55d5a62026f\dots} & --- & \texttt{published} \\
+6 & \texttt{whale-log-03.mp4} & Whale Girl Shift Log 03 & 23.84 & 24,994,028 & \texttt{95a862fd0e9ed8\dots} & --- & \texttt{published} \\
+7 & \texttt{gpt-log-04.mp4} & GPT Duty Log 04: production tutorial & 157.70 & 165,360,386 & \texttt{870fd0dd15459a\dots} & --- & \texttt{published} \\
+8 & \texttt{gpt-log-05-review.mp4} & GPT Episode 05: Seedance tutorial (review) & 105.48 & 110,600,280 & \texttt{2e4a5da549b341\dots} & --- & \texttt{ready\_for\_review} \\
+9 & \texttt{archive-episode03-candidate.mp4} & Earlier local episode 03 candidate & 169.51 & 177,747,769 & \texttt{3c2225790f5f17\dots} & --- & \texttt{unpublished\_exp} \\
+10 & \texttt{archive-episode04-story-v4.mp4} & Earlier local episode 04 story cut & 67.51 & 70,793,338 & \texttt{96da49a29f44ae\dots} & --- & \texttt{unpublished\_exp} \\
+11 & \texttt{archive-triangle-cats.mp4} & Triangle-cats challenge candidate & 72.21 & 75,712,985 & \texttt{7c081526da7a24\dots} & --- & \texttt{unpublished\_exp} \\
+12 & \texttt{archive-dinner-full-film.mp4} & Complete dinner-animation experiment & 130.34 & 136,670,959 & \texttt{6b1927cc279e2e\dots} & --- & \texttt{unpublished\_exp} \\
+13 & \texttt{study-connected-motion-v6.mp4} & Ten-second continuity experiment v6 & 2.44 & 2,562,181 & \texttt{41a2929321d5f3\dots} & --- & \texttt{research\_sample} \\
+14 & \texttt{study-comic-v3-1.mp4} & Comic-style short experiment v3.1 & 13.78 & 14,449,925 & \texttt{adef504edb059f\dots} & --- & \texttt{research\_sample} \\
+15 & \texttt{study-3d-handover-v2.mp4} & 3D walk-and-handoff prototype v2 & 23.56 & 24,704,815 & \texttt{b409355012deff\dots} & --- & \texttt{research\_sample} \\
+16 & \texttt{study-seedance-previs.mp4} & Seedance production previs & 6.20 & 6,500,102 & \texttt{33132eddbeb8a1\dots} & --- & \texttt{research\_sample} \\
+17 & \texttt{whale-log-04-v2-20261028.mp4} & Whale Girl Shift Log 04: small favours & 11.93 & 12,506,936 & \texttt{c23c171149bc47\dots} & 132.00 & \texttt{scheduled\_bili} \\
+18 & \texttt{whale-log-05-v2-20261028.mp4} & Whale Girl Shift Log 05: the bill & 13.40 & 14,052,172 & \texttt{f735aca1bb770a\dots} & 148.20 & \texttt{scheduled\_bili} \\
+19 & \texttt{gpt-log-05-v3-antiflash-20261028.mp4} & GPT Duty Log 05: flash correction & 83.52 & 87,578,698 & \texttt{5dc121e833dcfc\dots} & 434.47 & \texttt{scheduled\_bili} \\
+20 & \texttt{gpt-log-06-v2-20261029.mp4} & GPT Duty Log 06: DeepSeek workflow (v2) & 42.23 & 44,282,436 & \texttt{b53d3df6f85b2e\dots} & 591.47 & \texttt{scheduled\_bili} \\
+21 & \texttt{whale-log-06-v2-20261029.mp4} & Whale Girl Shift Log 06: automation (v2) & 13.88 & 14,552,237 & \texttt{35bc463bc4c7fc\dots} & 184.20 & \texttt{scheduled\_bili} \\
+22 & \texttt{study-whale-transformation-v3-20261030.mp4} & Whale Girl transformation study v3 & 85.84 & 90,012,465 & \texttt{60f03a12439c0c\dots} & 67.00 & \texttt{unpublished\_exp} \\
+23 & \texttt{study-whale-transformation-v4-20261030.mp4} & Whale Girl transformation study v4 & 98.33 & 103,106,107 & \texttt{3b209af916b128\dots} & 75.23 & \texttt{unpublished\_exp} \\
+24 & \texttt{study-whale-color-heels-r5-20261031.mp4} & Whale Girl colour/heel-sound revision 5 & 108.10 & 113,352,299 & \texttt{19ea894908ce36\dots} & 66.87 & \texttt{not\_verified} \\
+25 & \texttt{study-whale-motion-r7-20261101.mp4} & Whale Girl motion-timing revision 7 & 103.48 & 108,503,225 & \texttt{933e1643a73519\dots} & 65.37 & \texttt{not\_verified} \\
+26 & \texttt{whale-log-07-v3-20261101.mp4} & Whale Girl Shift Log 07: simulator (v3) & 47.02 & 49,307,630 & \texttt{e37285ee4f8c9f\dots} & 179.77 & \texttt{not\_refreshed} \\
+27 & \texttt{whale-log-07-cut-a-v3-20261101.mp4} & Episode 07 portrait cut A & 7.50 & 7,861,825 & \texttt{8429157c4fe444\dots} & 28.10 & \texttt{not\_refreshed} \\
+28 & \texttt{whale-log-07-cut-b-v3-20261101.mp4} & Episode 07 portrait cut B & 7.81 & 8,185,740 & \texttt{1e436aff188953\dots} & 29.90 & \texttt{not\_refreshed} \\
+29 & \texttt{whale-log-07-cut-c-v3-20261101.mp4} & Episode 07 portrait cut C & 7.19 & 7,536,390 & \texttt{e7ba91f7e903e2\dots} & 29.97 & \texttt{not\_refreshed} \\
+30 & \texttt{i-watched-it-for-you-v3-20261102.mp4} & I Watched It For You (v3) & 272.61 & 285,855,005 & \texttt{7d6fd76090f7a9\dots} & 176.40 & \texttt{not\_refreshed} \\
+\midrule
+\textbf{30} & \textbf{Total Verified Archive} & \textbf{7 GitHub Release Snapshots (0 Mismatches)} & \textbf{2,109.26} & \textbf{2,211,716,129} & \textbf{100\% Matched} & --- & \textbf{Verified} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Descriptive Cohort Analytics and 12-Scenario Governance Ablation (RQ3)}
 Finally, to demonstrate how our methodological protocol prevents confounded efficiency claims, we analyze the full channel dataset (\texttt{data/creator-video-snapshot.json}, $N=55$ total records sampled on 28~October 2026) and the two matched 24-hour post-publication checkpoints (\texttt{episode03-24h-2026-10-28.json} and \texttt{whale-log02-24h-2026-10-29.json}). Table~\ref{tab:cohorts} reports the statistical distributions across both cohorts.
 
 \begin{table}[htbp]
@@ -548,6 +747,42 @@ As documented in Table~\ref{tab:cohorts}, a naive comparison of lifetime views (
     \item The historical cohort ($n=45$) spans seven years of cumulative platform exposure (October 2019 to October 2026) across diverse travel and lifestyle topics, whereas the published AI cohort ($n=5$) had only $1\text{--}3$ days of exposure at the snapshot timestamp.
     \item Even when holding exposure age constant at 24~hours (Panel~C of Table~\ref{tab:cohorts}: $229$ views and $44.64\%$ completion for \emph{GPT Duty Log 03} vs. $308$ views and $36.63\%$ completion for \emph{Whale Girl 02}), differences in video duration ($70\text{ s}$ vs. $117\text{ s}$), narrative persona, and non-unique comment threads preclude attributing performance variance to the underlying foundation models (GPT vs. DeepSeek).
 \end{enumerate}
+
+\begin{table}[htbp]
+\centering
+\caption{Trace-driven governance ablation across 12 empirical fault and exception scenarios recorded in the laboratory.}
+\label{tab:ablation}
+\scriptsize
+\begin{tabular}{p{3.0cm} p{3.3cm} p{3.3cm} p{4.1cm}}
+\toprule
+\textbf{Empirical Fault / Exception Scenario} & \textbf{Baseline A: Ungoverned Agent Retry Loop} & \textbf{Baseline B: Schedule Gate Only (No Receipt Latch)} & \textbf{Proposed 4-Layer Governance (\emph{Lab} + \emph{CrossCast})} \\
+\midrule
+1. Douyin post-submit read-back timeout (Nov 3 film) & \textbf{FAIL:} Re-uploads $285.8\text{ MB}$ video, creating duplicate public post. & \textbf{FAIL:} Retries submission after timeout expires. & \textbf{PASS:} Latches \texttt{UNKNOWN} ($f_{\text{submit}}=\text{true}$); blocks retry; verified via HITL phone check. \\
+\addlinespace
+2. Instagram $380.55\text{ s}$ confirmation wait window & \textbf{FAIL:} Agent timeout triggers second Share click. & \textbf{WARN:} Vulnerable if CLI session disconnects mid-wait. & \textbf{PASS:} Single Share persisted before wait; explicit wait progress (\#13) \& read-back verification. \\
+\addlinespace
+3. Non-owner / old agent executor wake-up & \textbf{FAIL:} Executes duplicate checklist actions concurrently. & \textbf{PASS:} Blocked by owner check. & \textbf{PASS:} Deterministic \texttt{planRun} returns $(\texttt{skip}, \texttt{not\_owner})$ + OS \texttt{process\_lock.py}. \\
+\addlinespace
+4. Hourly heartbeat during active render / QA pending & \textbf{FAIL:} Publishes unverified intermediate render (e.g., GPT Ep 06). & \textbf{FAIL:} Publishes if due time passes without QA gate. & \textbf{PASS:} Excluded via $\text{authorized} \neq \text{true}$ and \texttt{RENDER\_OR\_QA\_PENDING} gate. \\
+\addlinespace
+5. Unpatched flash frames in tutorial render (GPT Ep 05) & \textbf{FAIL:} Releases defective video with white/black pulses. & \textbf{FAIL:} Hash check passes uninspected first render. & \textbf{PASS:} $13,034$-frame scan detects $11$ flash sequences; surgical repair retains v2 audio master. \\
+\addlinespace
+6. Missing native Edit button on published X post & \textbf{FAIL:} Deletes original post and re-uploads (losing replies/ID). & \textbf{FAIL:} Aborts without state reconciliation. & \textbf{PASS:} Strictly forbids delete/repost fallback; preserves original post \& logs policy update. \\
+\addlinespace
+7. YouTube Studio Save button re-arming latency & \textbf{FAIL:} Double-clicks Save, corrupting draft state. & \textbf{WARN:} Unverified save state. & \textbf{PASS:} Verifies after one final Save without re-arming button (PR~\#16, \texttt{0969064}). \\
+\addlinespace
+8. Imprecise pinned-comment selector (\texttt{988bee2} trial) & \textbf{FAIL:} Pins wrong comment on live creator page. & \textbf{FAIL:} Lacks counterexample gate before live action. & \textbf{PASS:} Independent counterexample test caught selector flaw; live pin held until fixed. \\
+\addlinespace
+9. X scheduled post row lacking durable media/post ID & \textbf{FAIL:} Marks schedule as fully verified public post. & \textbf{WARN:} Over-claims verification status. & \textbf{PASS:} Retains \texttt{SUBMITTED\_UNVERIFIED} receipt; cleans up test schedule \& confirms absence. \\
+\addlinespace
+10. Single-work deletion of test upload (IG / X / YT) & \textbf{FAIL:} Risk of deleting adjacent production works. & \textbf{FAIL:} No post-delete absence verification. & \textbf{PASS:} Durable consent token + exact identity match + refreshed absence read-back (PR~\#29/\#30). \\
+\addlinespace
+11. Browser worker interrupted mid-login or cleanup & \textbf{FAIL:} Leaves zombie browser lock blocking future runs. & \textbf{FAIL:} Stale lock requires manual file deletion. & \textbf{PASS:} Confirms OS PID exit before lock recovery; isolates cleanup from publish path (\#27/\#28). \\
+\addlinespace
+12. Confounded lifetime view comparison (45 vs. 5 works) & \textbf{FAIL:} Falsely claims AI series underperforms or drives 76k weekly plays. & \textbf{FAIL:} Reports raw means without exposure-age control. & \textbf{PASS:} Automatically embeds \texttt{descriptive\_snapshot\_not\_causal} metadata \& 24h age buckets. \\
+\bottomrule
+\end{tabular}
+\end{table}
 
 ---
 
