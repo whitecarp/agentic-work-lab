@@ -1,0 +1,8 @@
+\begin{equation}
+\begin{aligned}
+\mathcal{V}_{\text{sched}}(R) \iff\;& (\text{trig} = \texttt{automation\_heartbeat\_scheduled}) \\
+&\land (\text{status} = \texttt{VERIFIED\_AUTOMATIC\_RUN\_COMPLETED}) \\
+&\land (f_{\text{manual}} = \text{false}) \land (t_{\text{start}}, t_{\text{end}} \text{ finite}) \land (t_{\text{start}} \le t_{\text{end}}) \land (|E_{\text{err}}| = 0)
+\end{aligned}
+\label{eq:verify_sched}
+\end{equation}

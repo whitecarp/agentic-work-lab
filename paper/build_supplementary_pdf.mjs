@@ -1,10 +1,12 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { execFileSync } from 'node:child_process';
+import { fileURLToPath } from 'node:url';
 
-const outDir = 'C:/Users/ROG/.gemini/antigravity/scratch/agentic-sci-paper/paper';
-const labDir = 'C:/Users/ROG/.gemini/antigravity/scratch/agentic-sci-paper/agentic-work-lab';
-const ccDir = 'C:/Users/ROG/.gemini/antigravity/scratch/agentic-sci-paper/publishops-crosscast';
+const __here = path.dirname(fileURLToPath(import.meta.url)); // this script's folder (the fork's paper/)
+const outDir = __here;
+const labDir = path.resolve(__here, '..');
+const ccDir = path.resolve(__here, '..', '..', 'publishops-crosscast'); // read-only sibling checkout
 
 const opsEvents = JSON.parse(fs.readFileSync(path.join(labDir, 'data/operations-events.json'), 'utf8'));
 const snapshot = JSON.parse(fs.readFileSync(path.join(labDir, 'data/creator-video-snapshot.json'), 'utf8'));
@@ -24,7 +26,7 @@ function walkPyDetailed(dir, baseDir) {
       results = results.concat(walkPyDetailed(full, baseDir));
     } else if (entry.isFile() && entry.name.endsWith('.py')) {
       const content = fs.readFileSync(full, 'utf8');
-      const lines = content.split(/\r?\n/).length;
+      const lines = content.length ? content.split(/\r?\n/).length - (/\r?\n$/.test(content) ? 1 : 0) : 0; // physical lines
       const testNames = [];
       const funcNames = [];
       const classNames = [];
@@ -57,17 +59,22 @@ const testFiles = walkPyDetailed(path.join(ccDir, 'tests'), ccDir);
 const srcFiles = walkPyDetailed(path.join(ccDir, 'src'), ccDir);
 
 const opsRows = opsEvents.records.map((e, i) => {
-  const ts = e.at || e.checked_at || e.trigger || '—';
-  const label = e.event || e.state || (e.platform_writes === 1 ? 'AUTHORIZED_PLATFORM_WRITE_CHECKPOINT' : 'SCHEDULED_HEARTBEAT_ZERO_WRITE_CHECKPOINT');
+  const ts = e.at || e.checked_at || '—';
+  const label = e.event || e.state || '(no event or state name in the export)';
+  const v = x => (x === undefined ? '—' : esc(String(x)));
+  const writes = e.platform_writes ?? e.write_calls ?? e.platform_write_calls;
+  const reads = e.platform_reads ?? e.read_calls;
   return `
   <tr>
     <td class="num">${i + 1}</td>
     <td><code>${esc(ts)}</code></td>
     <td><code>${esc(label)}</code></td>
-    <td class="num">${e.platform_reads ?? e.cli_calls ?? e.platform_calls ?? 0}</td>
-    <td class="num">${e.platform_writes ?? 0}</td>
-    <td class="num">${e.upload_attempts_replayed ?? 0}</td>
-    <td><code>${e.new_risk ?? false}</code></td>
+    <td class="num">${v(reads)}</td>
+    <td class="num">${v(e.cli_calls)}</td>
+    <td class="num">${v(e.platform_calls)}</td>
+    <td class="num">${v(writes)}</td>
+    <td class="num">${v(e.upload_attempts_replayed)}</td>
+    <td><code>${v(e.new_risk)}</code></td>
   </tr>`;
 }).join('\n');
 
@@ -313,37 +320,35 @@ const htmlSupp = `<!DOCTYPE html>
   <strong>E-mail:</strong> <code>ZackSheng@gmail.com</code> &nbsp;|&nbsp; <strong>ORCID:</strong> <code>0009-0003-2900-6377</code> &nbsp;|&nbsp; <strong>Repositories:</strong> <code>https://github.com/whitecarp/agentic-work-lab</code> &amp; <code>https://github.com/whitecarp/publishops-crosscast</code>
 </div>
 
-<h2>Appendix A. Formal Mathematical Proofs of Governance Safety and Idempotency Invariants</h2>
-
+<h2>Appendix A. Formal Statements and Proof Sketches for the Governance Layers</h2>
+<p>These statements restate the guarantees of the revised manuscript with their assumptions. Line numbers refer to Algorithms 1&ndash;3 of the manuscript; code references are to <code>scripts/operations-gate.mjs</code> in <em>Agentic Work Lab</em> and to <em>PublishOps CrossCast</em> at commit <code>75b7abc</code>.</p>
 <div class="proof-box">
-  <strong>Theorem A.1 (Safety &amp; Mutual Exclusion of the Layer 1 Scheduling Gate <em>G</em><sub>plan</sub>):</strong><br>
-  Let <em>S</em> = (<em>e</em>, <em>o</em>, <em>f</em><sub>stop</sub>, <em>f</em><sub>run</sub>, <em>t</em><sub>now</sub>, <em>J</em>) be any operational state tuple presented to Algorithm 1 (<code>planRun</code>), and let <em>L</em><sub>OS</sub>(<em>p</em>, acct<sub><em>p</em></sub>) be the OS-level process lock in Layer 3 (<code>process_lock.py</code>). Then no two concurrent agent processes <em>P</em><sub>1</sub> and <em>P</em><sub>2</sub> can simultaneously mutate the same platform account state, nor can any unauthorized or future-scheduled job enter the execution queue.<br><br>
-  <em>Proof.</em> By construction of Equation (1) and Algorithm 1, <code>planRun</code> evaluates three ordered preconditions prior to inspecting <em>J</em>: (i) if <em>e</em> = &empty; &or; <em>e</em> &ne; <em>o</em>, it returns <code>(skip, not_owner, &empty;)</code>; (ii) if <em>f</em><sub>stop</sub> = true, it returns <code>(skip, stop_flag, &empty;)</code>; and (iii) if <em>f</em><sub>run</sub> = true, it returns <code>(skip, already_running, &empty;)</code>. For any job <em>j<sub>k</sub></em> &isin; <em>J</em>, admission into the due set <em>D</em> requires <code>done</code><sub><em>k</em></sub> = false &and; <code>auth</code><sub><em>k</em></sub> = true &and; <em>t</em><sub>due,<em>k</em></sub> &le; <em>t</em><sub>now</sub>. Thus, no unapproved (<code>auth</code><sub><em>k</em></sub> &ne; true) or premature (<em>t</em><sub>due,<em>k</em></sub> &gt; <em>t</em><sub>now</sub>) job can be returned in <em>D</em>. Furthermore, even if two OS processes <em>P</em><sub>1</sub> and <em>P</em><sub>2</sub> invoke Layer 3 simultaneously with valid owner credentials, <code>AcquireProcessLock(p, acct_p)</code> requests an exclusive atomic OS file/PID lock tied to (<em>p</em>, acct<sub><em>p</em></sub>). A stale lock is recovered if and only if the OS kernel process table confirms that the holding PID has terminated. Hence, at most one process can enter the critical section for (<em>p</em>, acct<sub><em>p</em></sub>) at any time <em>t</em>. &#9632;
+  <p><strong>Statement A.1 (Layer 1 admission decisions).</strong> For any context tuple <em>S</em> = (<em>e</em>, <em>o</em>, <em>f</em><sub>stop</sub>, <em>f</em><sub>run</sub>, <em>t</em><sub>now</sub>, <em>J</em>), <code>planRun</code> returns <code>skip</code> whenever the executor is not the owner, the stop flag is set or a run is active, and otherwise returns a due set <em>D</em> containing only jobs that are authorized, not completed and due. It never performs an action.</p>
+  <p><em>Proof sketch.</em> Lines 3&ndash;5 return before the job scan in the three skip cases. A job reaches line 13 only if it passed line 10, i.e. done<sub><em>k</em></sub> = false and auth<sub><em>k</em></sub> = true, and is appended only if <em>t</em><sub>due,<em>k</em></sub> &le; <em>t</em><sub>now</sub>. The function has no side effects. A non-finite due time raises an error only for jobs that reach line 11. <em>Scope:</em> the gate binds only callers that consult it; exclusion of concurrent runs on one browser profile comes from <code>process_lock.py</code>, which takes over a lock only when its owner has released it or its process has exited (a process whose state cannot be read counts as still running). &#8718;</p>
 </div>
-
 <div class="proof-box">
-  <strong>Theorem A.2 (Zero-Duplicate Submission under Arbitrary Post-Commit Network or UI Timeouts):</strong><br>
-  Suppose a platform adapter in Layer 3 executes Algorithm 2 for release plan <em>P</em> on platform <em>p</em>. If the final commit action (Line 10, <code>DispatchSingleFinalCommit</code>) is invoked at least once, then no subsequent timeout, network drop, DOM selector failure, or repeated invocation of <code>vpub publish</code> can trigger a second commit click for plan <em>P</em>.<br><br>
-  <em>Proof.</em> In Algorithm 2, Line 9 executes <code>R_p.f_submit &larr; true</code> and <code>PersistAtomically(R_p)</code> strictly prior to Line 10 (<code>DispatchSingleFinalCommit</code>). Suppose the external platform accepts the submission at Line 10, but the confirmation wait or read-back at Line 11 times out (as observed empirically on Douyin in Table 6 or during the 380.551 s window on Instagram in Table 7). Execution enters the <code>else</code> branch at Line 14, setting <code>R_p.&sigma;_p &larr; UNKNOWN_LATCHED</code> while preserving <code>R_p.f_submit = true</code> on disk. Now consider any subsequent retry invocation of Algorithm 2 (either by an automated cron agent or a CLI retry loop). After acquiring the process lock at Line 2, Line 3 evaluates the guard <code>if R_p.f_submit = true</code>. Because <code>f_submit</code> was atomically latched to <code>true</code> prior to the first commit, Line 4 immediately returns <code>ReconcileExistingReceipt(R_p)</code>, which invokes read-only verification (<code>vpub verify</code>) and never reaches Line 10. Therefore, the total number of external commit dispatches is bounded above by 1. &#9632;
+  <p><strong>Statement A.2 (Proposition 1: at-most-once automated final submission).</strong> Assume (A1) every final submission for plan <em>P</em> on platform <em>p</em> goes through the receipt transaction of Algorithm 2; (A2) receipt writes are atomic and durable; and (A3) receipts are not edited by hand. Then automated runs issue at most one final press per (<em>P</em>, <em>p</em>), except that (A4) a resumed run may press again when the platform shows that the earlier work is still an unsubmitted draft.</p>
+  <p><em>Proof sketch.</em> The receipt is stored at a path named by <em>H</em>(<em>P</em>) and <em>p</em>. Before the press it is saved with state <code>UNKNOWN</code> and <code>final_submit_attempted</code> = true (line 9; <code>Transaction.submit</code> in <code>browser_backends.py</code>). A later run either finds the receipt and stops with <code>attempt_exists</code> (line 4), or resumes it; resuming requires the same media digest and account (line 5), and the submit step then refuses another press with <code>already_submitted</code> (line 8) unless (A4) holds. If the receipt file is missing while the publication record shows a selected file or an attempted press, the run stops with <code>receipt_missing</code> (line 6). Hence no automated path issues a second press outside (A4). &#8718;</p>
+  <p><em>Remarks.</em> The guarantee is safety, not liveness: a crash between saving the receipt and pressing leaves an <code>UNKNOWN</code> receipt for a submission that never happened. <code>vpub verify</code> upgrades a receipt to <code>SUBMISSION_VERIFIED</code> only when it finds exactly one matching new work on the signed-in account, and otherwise leaves it <code>SUBMITTED_UNVERIFIED</code> with the instruction never to re-upload automatically. Field instances: the Douyin release of 3 November 2026 and a Douyin scheduled-card test on 1 November 2026, both ending in read-back timeouts without re-submission.</p>
 </div>
-
 <div class="proof-box">
-  <strong>Theorem A.3 (Preservation of Live Work Identity under Revision and Deletion Faults):</strong><br>
-  Under Algorithm 3 (Layer 4), neither a missing platform edit control nor an unverified deletion request can destructively overwrite an existing work ID or delete an adjacent work.<br><br>
-  <em>Proof.</em> In <code>VERIFY_ONLY</code> or <code>APPLY_EDIT</code> mode, Line 1 verifies account identity, and Line 3 reads the native editor metadata. If live metadata already equals <code>&Delta;P.target_meta</code>, Line 4 terminates without issuing a save click. If <em>p</em> = <code>X</code> and native edit controls are absent (Line 6), Line 7 aborts with <code>MISSING_EDIT_ACCESS_NO_DELETE_OR_REPOST</code>; no fallback path exists to delete or re-upload the post. In <code>DELETE_WORK</code> mode, Line 12 requires a durable consent token <em>C</em><sub>del</sub> cryptographically bound to <code>R_p.wid_p</code> and <code>R_p.H_media</code>, and Line 14 refreshes the remote catalog to verify both the absence of <code>R_p.wid_p</code> and the preservation of neighboring work IDs. &#9632;
+  <p><strong>Statement A.3 (Layer 4 identity binding).</strong> Under Algorithm 3, an edit or deletion acts only on the work identified by the receipt and only from the receipt&rsquo;s account; a missing in-place edit control ends the run without deletion, repost or reply; and a deletion is reported as done only when a refreshed catalogue no longer lists the work.</p>
+  <p><em>Proof sketch.</em> Line 1 compares the signed-in account with <code>expected_identity</code>. Lines 4&ndash;5 return <code>EDIT_VERIFIED</code> or <code>EDIT_MISMATCH</code> without saving; line 6 returns <code>EDIT_UNAVAILABLE</code> (for X, &ldquo;the original post menu has no Edit action; no deletion/repost/reply was attempted&rdquo;). Line 10 requires a dry run and a person&rsquo;s approval of the exact work, and line 12 reports success only on absence after refresh. The statement does not cover neighbouring works, which the code does not check. &#8718;</p>
 </div>
 
 <h2>Appendix B. Complete De-Identified Operational Event Ledger (<em>N</em> = 69 Events)</h2>
-<p>Table B.1 lists every single operational event recorded in <code>data/operations-events.json</code> (<em>N</em> = 69), demonstrating how 68 non-write checkpoints suppressed external mutations while 1 authorized write executed cleanly with zero replayed uploads.</p>
+<p>Table B.1 lists every record in <code>data/operations-events.json</code> (<em>N</em> = 69) with only the fields the export kept; &ldquo;&mdash;&rdquo; means the record has no such field. One record reports a platform write (record 52), no record reports a replayed upload, and 31 records carry no event or state name. The journal records outcomes, not refused attempts; Table 3 of the manuscript classifies the records by the write evidence they carry.</p>
 
 <table class="sci-table">
   <thead>
     <tr>
       <th class="num">#</th>
-      <th>ISO-8601 Timestamp</th>
-      <th>Operational Event Identifier</th>
-      <th class="num">Reads / CLI</th>
-      <th class="num">Writes</th>
+      <th>Timestamp</th>
+      <th>Event or State (as Exported)</th>
+      <th class="num">Platform Reads</th>
+      <th class="num">CLI Calls</th>
+      <th class="num">Platform Calls</th>
+      <th class="num">Platform Writes</th>
       <th class="num">Replays</th>
       <th>New Risk</th>
     </tr>
@@ -396,8 +401,8 @@ const htmlSupp = `<!DOCTYPE html>
   </tbody>
 </table>
 
-<h2>Appendix E. Complete Architectural &amp; Function-Level Specification of All 123 Source Modules in <em>PublishOps CrossCast</em> (27,095 LOC)</h2>
-<p>Table E.1 details every Python source module in <code>publishops-crosscast/src/</code> (123 files, 27,095 lines of source code), including its exact line count, byte size, defined classes, and top-level/member function identifiers.</p>
+<h2>Appendix E. Function-Level Inventory of All ${srcFiles.length} Source Modules in <em>PublishOps CrossCast</em> (${srcFiles.reduce((s, f) => s + f.lines, 0).toLocaleString('en-US')} Physical Lines)</h2>
+<p>Table E.1 lists every Python source module in <code>publishops-crosscast/src/</code> at commit <code>75b7abc</code> (${srcFiles.length} files, ${srcFiles.reduce((s, f) => s + f.lines, 0).toLocaleString('en-US')} physical lines). Of these, ${srcFiles.filter(f => /^src[\\/]bili_cli[\\/]/.test(f.relPath)).length} files are an unmodified bundled copy of the MIT-licensed <code>bili-cli</code> v1.2.1 (<code>NOTICE.md</code>). For each module the table gives its line count, byte size, classes and function identifiers.</p>
 
 <table class="sci-table">
   <thead>
@@ -415,7 +420,7 @@ const htmlSupp = `<!DOCTYPE html>
   </tbody>
 </table>
 
-<h2>Appendix F. Complete Verification Ledger of All 126 Test Modules &amp; All 2,737 Automated Test Cases in <em>PublishOps CrossCast</em> (37,155 LOC)</h2>
+<h2>Appendix F. Inventory of All ${testFiles.length} Test Files and ${testFiles.reduce((s, f) => s + f.testDefs, 0).toLocaleString('en-US')} Test Functions in <em>PublishOps CrossCast</em> (${testFiles.reduce((s, f) => s + f.lines, 0).toLocaleString('en-US')} Physical Lines)</h2>
 <p>Table F.1 summarizes the 126 test modules in <code>publishops-crosscast/tests/</code>, followed by the complete module-by-module enumeration of all <strong>2,737 individual automated verification test functions</strong>.</p>
 
 <table class="sci-table">
@@ -442,7 +447,7 @@ ${allTestsDetailedHtml}
 <p>This appendix archives the complete technical protocol documentation from <code>agentic-work-lab/docs/</code> governing programmable video synthesis, animation timing diagnostics, temporal quality checks, and epistemic hygiene.</p>
 ${docsHtml}
 
-<h2>Appendix H. Verbatim Machine-Readable Audit Receipts &amp; Longitudinal Data Archives</h2>
+<h2>Appendix H. Verbatim Machine-Readable Audit Receipts and Data Archives</h2>
 <p>Below are the verbatim JSON data archives and dated production update receipts from <code>agentic-work-lab/data/</code>.</p>
 ${prodUpdateBlocks}
 

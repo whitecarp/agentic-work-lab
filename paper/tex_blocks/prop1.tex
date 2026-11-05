@@ -1,0 +1,7 @@
+\begin{proposition}[At-Most-Once Automated Final Submission]
+\label{prop:idempotency}
+Assume (A1) every final submission for plan $P$ on platform $p$ goes through the receipt transaction of Algorithm~\ref{alg:publish}; (A2) receipt writes are atomic and durable; and (A3) receipts are not edited by hand. Then automated runs issue at most one final press per $(P, p)$, with one exception: (A4) a resumed run may press again when the platform shows that the earlier work is still an unsubmitted draft.
+\end{proposition}
+\begin{proof}[Proof sketch]
+The receipt is saved with $\sigma_p = \texttt{UNKNOWN}$ and $f_{\text{submit}} = \text{true}$ before the press (line~9). A later run on the same plan either finds the receipt and stops (line~4) or resumes it, in which case line~8 refuses another press while $f_{\text{submit}} = \text{true}$ unless (A4) holds. If the receipt file has disappeared while the publication record shows a selected file or an attempted press, the run stops (line~6) instead of uploading again.
+\end{proof}

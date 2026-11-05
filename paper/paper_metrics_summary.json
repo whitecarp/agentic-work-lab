@@ -1,73 +1,596 @@
 {
-  "generated_at": "2026-11-05T02:35:58.082Z",
-  "repositories": {
-    "agentic_work_lab_videos": 30,
-    "agentic_work_lab_total_bytes": 2211716129,
-    "agentic_work_lab_operations_events": 69,
-    "agentic_work_lab_channel_records": 55,
-    "crosscast_version": "0.16.0",
-    "crosscast_release_commit": "a46bd19372ea3c0c7c4672642d4d56db1b1f42c7",
-    "crosscast_main_commit": "69aa5907894ced4809e99e744d45b12b5ffbda42"
+  "generated_at": "2026-11-05T04:36:53.400Z",
+  "table3_operational_journal": {
+    "source": "data/operations-events.json",
+    "exported_at": "2026-10-28T07:55:26.609Z",
+    "records": 69,
+    "classes": {
+      "explicit_zero_write": {
+        "records": 20,
+        "share_pct": 28.99,
+        "platform_reads": 13,
+        "platform_writes": 0,
+        "record_numbers": [
+          1,
+          3,
+          4,
+          5,
+          6,
+          8,
+          14,
+          15,
+          25,
+          26,
+          29,
+          31,
+          37,
+          38,
+          41,
+          51,
+          65,
+          67,
+          68,
+          69
+        ]
+      },
+      "zero_platform_calls": {
+        "records": 39,
+        "share_pct": 56.52,
+        "platform_reads": 0,
+        "platform_writes": 0,
+        "record_numbers": [
+          2,
+          7,
+          9,
+          10,
+          11,
+          12,
+          13,
+          17,
+          18,
+          19,
+          20,
+          21,
+          23,
+          24,
+          27,
+          28,
+          32,
+          33,
+          34,
+          35,
+          36,
+          39,
+          40,
+          45,
+          46,
+          47,
+          49,
+          50,
+          54,
+          55,
+          56,
+          57,
+          58,
+          59,
+          60,
+          62,
+          63,
+          64,
+          66
+        ]
+      },
+      "platform_call_without_write_field": {
+        "records": 1,
+        "share_pct": 1.45,
+        "platform_reads": 0,
+        "platform_writes": 0,
+        "record_numbers": [
+          22
+        ]
+      },
+      "platform_write": {
+        "records": 1,
+        "share_pct": 1.45,
+        "platform_reads": 4,
+        "platform_writes": 1,
+        "record_numbers": [
+          52
+        ]
+      },
+      "no_call_or_write_field": {
+        "records": 8,
+        "share_pct": 11.59,
+        "platform_reads": 0,
+        "platform_writes": 0,
+        "record_numbers": [
+          16,
+          30,
+          42,
+          43,
+          44,
+          48,
+          53,
+          61
+        ]
+      }
+    },
+    "platform_reads_total": 17,
+    "platform_writes_total": 1,
+    "write_record": {
+      "number": 52,
+      "at": "2026-10-26T22:17:45.9823951+08:00",
+      "platform_writes": 1,
+      "platform_reads": 4,
+      "new_risk": false
+    },
+    "cli_calls_total": 26,
+    "cli_call_records": 4,
+    "named_event_records": 33,
+    "state_only_records": 5,
+    "unnamed_records": 31,
+    "automation_trigger_records": 4,
+    "new_risk_present": 8,
+    "new_risk_true": 0,
+    "upload_attempts_replayed_present": 1,
+    "upload_attempts_replayed_sum": 0,
+    "timestamped_records": 46,
+    "first_timestamp": "2026-10-26T01:27:17.9162440+08:00",
+    "last_timestamp": "2026-10-27T02:45:39.4969765+08:00",
+    "span_hours": 25.31
   },
-  "scheduled_run_verification": {
+  "heartbeat": {
+    "trigger": "automation_heartbeat_scheduled",
+    "status": "VERIFIED_AUTOMATIC_RUN_COMPLETED",
+    "planned_at": "2026-10-28T12:37:13.943+08:00",
     "trigger_delay_ms": 24992,
     "duration_ms": 31175,
     "task_errors": 0,
+    "manual_test_triggered": false,
     "duplicate_run_started": false,
-    "manual_test_triggered": false
+    "work_items": 4
   },
-  "instagram_latency_analysis": {
-    "source_plan_checks_s": 0.438,
-    "rehearsal_s": 0.444,
-    "auth_preflight_s": 10.137,
-    "pre_publish_subtotal_s": 11.019,
-    "browser_start_to_file_entry_s": 11.058,
-    "after_submit_wait_s": 380.551,
-    "independent_readback_s": 5.224,
-    "other_in_command_overhead_s": 15.384,
-    "publish_command_total_s": 412.217,
-    "end_to_end_total_s": 423.236,
-    "after_submit_wait_pct_of_publish": 92.32,
-    "after_submit_wait_pct_of_e2e": 89.91
-  },
-  "day_one_checkpoints": {
-    "gpt_ep03_24h": {
-      "view": 229,
-      "like": 8,
-      "favorite": 2,
-      "coin": 0,
-      "reply": 7,
-      "share": 0,
-      "danmaku": 0,
-      "completion_percent": 44.64,
-      "avg_watch_seconds": 31,
-      "per_100_plays": {
-        "like": 3.49,
-        "favorite": 0.87,
-        "coin": 0,
-        "reply": 3.06,
-        "share": 0,
-        "danmaku": 0
+  "table6_release": {
+    "file": "i-watched-it-for-you-v3-20261102.mp4",
+    "bytes": 285855005,
+    "sha256": "7d6fd76090f7a93b2711e15db4bb924f741d3a904a01fc4b7628fc2130dbafdc",
+    "duration_seconds": 176.4,
+    "platforms": {
+      "bilibili": {
+        "url": "https://www.bilibili.com/video/BV15B4F6hEYr",
+        "evidence": "production_session_report",
+        "fresh_check": false
+      },
+      "youtube": {
+        "url": "https://www.youtube.com/watch?v=AzW6vr8nvDM",
+        "state": "PUBLIC_VERIFIED",
+        "native_state": "SUBMISSION_VERIFIED"
+      },
+      "x": {
+        "url": "https://x.com/White_Carp2000/status/2117261340633161838",
+        "state": "PUBLIC_VERIFIED",
+        "native_state": "SUBMISSION_VERIFIED",
+        "stored_resolution_verified": false
+      },
+      "douyin": {
+        "state": "USER_CONFIRMED_VISIBLE_NATIVE_VERIFY_BLOCKED",
+        "native_state": "UNKNOWN",
+        "url": null,
+        "cover": "user_phone_confirmation"
+      },
+      "instagram": {
+        "url": "https://www.instagram.com/reel/DfQ9iCiCWYN/",
+        "native_state": "SUBMISSION_VERIFIED",
+        "one_upload_one_share": true,
+        "metadata_readback": true,
+        "source_aspect_ratio_preserved": true,
+        "ai_label": true,
+        "sharing_elsewhere": false,
+        "cover": "user_confirmed_mobile_replacement",
+        "remote_cover_pixels_verified": false
       }
     },
-    "whale_ep02_24h": {
-      "view": 308,
-      "like": 24,
-      "favorite": 5,
-      "coin": 0,
-      "reply": 51,
-      "share": 0,
-      "danmaku": 1,
-      "completion_percent": 36.63,
-      "avg_watch_seconds": 42,
-      "per_100_plays": {
-        "like": 7.79,
-        "favorite": 1.62,
+    "bilibili_state_at_snapshot": "public_reported_by_production_session",
+    "state_verified_at": "2026-11-02T21:01:21+08:00",
+    "local_read_discrepancy_resolved": false
+  },
+  "table7_instagram_timing": {
+    "source_plan_checks_outside_publish": 0.438,
+    "rehearsal_outside_publish": 0.444,
+    "auth_preflight_outside_publish": 10.137,
+    "publish_total": 412.217,
+    "browser_start_to_file_entry": 11.058,
+    "after_submit_wait": 380.551,
+    "independent_readback": 5.224,
+    "pre_publish_subtotal": 11.019,
+    "end_to_end": 423.236,
+    "residual_derived": 15.384,
+    "wait_pct_of_command": 92.32,
+    "wait_pct_of_e2e": 89.91,
+    "timing_limits": [
+      "single_observation_not_benchmark",
+      "transfer_processing_confirmation_not_separated",
+      "no_live_parallel_speed_measurement"
+    ]
+  },
+  "table9_manifest": {
+    "items": 30,
+    "total_bytes": 2211716129,
+    "total_gb_decimal": 2.21,
+    "total_mib": 2109.26,
+    "release_tags": 7,
+    "github_asset_status_published_verified": 30,
+    "manifest_vs_sha256sums_mismatches": 0,
+    "full_decode_zero_errors_recorded": 5,
+    "smallest_bytes": 2562181,
+    "largest_bytes": 285855005,
+    "github_verified_at": "2026-11-03T04:25:41.625026+00:00"
+  },
+  "table10_channel_snapshot": {
+    "sampled_at": "2026-10-28T13:04:26.206Z",
+    "records": 55,
+    "cohorts": {
+      "human_led_history": 45,
+      "current_ai_series": 10,
+      "current_ai_series_published": 5
+    },
+    "human_publication_range": [
+      "2019-10-08T13:14:21+08:00",
+      "2026-10-08T02:09:52+08:00"
+    ],
+    "ai_published_age_hours": {
+      "min": 1.57,
+      "max": 73.57
+    },
+    "complete_separation_of_views": true,
+    "human_min_views": 274,
+    "ai_max_views": 231,
+    "human": {
+      "views": {
+        "mean": 40884.31,
+        "sd": 64604.81,
+        "median": 15407,
+        "q1": 1722,
+        "q3": 67502,
+        "min": 274,
+        "max": 333725,
+        "sum": 1839794
+      },
+      "likes": {
+        "mean": 4022.36,
+        "sd": 7281.57,
+        "median": 729,
+        "q1": 89,
+        "q3": 3765,
+        "min": 8,
+        "max": 30299,
+        "sum": 181006
+      },
+      "comments": {
+        "mean": 78.18,
+        "sd": 132.65,
+        "median": 14,
+        "q1": 4,
+        "q3": 113,
+        "min": 0,
+        "max": 597,
+        "sum": 3518
+      },
+      "favorites": {
+        "mean": 1584.31,
+        "sd": 2048.27,
+        "median": 473,
+        "q1": 19,
+        "q3": 2746,
+        "min": 2,
+        "max": 6158,
+        "sum": 71294
+      },
+      "coins": {
+        "mean": 356.38,
+        "sd": 751.32,
+        "median": 54,
+        "q1": 6,
+        "q3": 237,
+        "min": 2,
+        "max": 3044,
+        "sum": 16037
+      },
+      "shares": {
+        "mean": 764.76,
+        "sd": 1594.05,
+        "median": 31,
+        "q1": 1,
+        "q3": 996,
+        "min": 0,
+        "max": 5571,
+        "sum": 34414
+      },
+      "danmaku": {
+        "mean": 190.27,
+        "sd": 232.37,
+        "median": 105,
+        "q1": 41,
+        "q3": 279,
+        "min": 0,
+        "max": 1045,
+        "sum": 8562
+      }
+    },
+    "ai_published": {
+      "views": {
+        "mean": 133.2,
+        "sd": 99.53,
+        "median": 183,
+        "q1": 42,
+        "q3": 199,
+        "min": 11,
+        "max": 231,
+        "sum": 666
+      },
+      "likes": {
+        "mean": 10.6,
+        "sd": 7.7,
+        "median": 9,
+        "q1": 8,
+        "q3": 11,
+        "min": 2,
+        "max": 23,
+        "sum": 53
+      },
+      "comments": {
+        "mean": 29.4,
+        "sd": 46.94,
+        "median": 12,
+        "q1": 7,
+        "q3": 13,
+        "min": 2,
+        "max": 113,
+        "sum": 147
+      },
+      "favorites": {
+        "mean": 4.2,
+        "sd": 5.26,
+        "median": 2,
+        "q1": 1,
+        "q3": 5,
+        "min": 0,
+        "max": 13,
+        "sum": 21
+      },
+      "coins": {
+        "mean": 1.2,
+        "sd": 1.1,
+        "median": 2,
+        "q1": 0,
+        "q3": 2,
+        "min": 0,
+        "max": 2,
+        "sum": 6
+      },
+      "shares": {
+        "mean": 0.2,
+        "sd": 0.45,
+        "median": 0,
+        "q1": 0,
+        "q3": 0,
+        "min": 0,
+        "max": 1,
+        "sum": 1
+      },
+      "danmaku": {
+        "mean": 0,
+        "sd": 0,
+        "median": 0,
+        "q1": 0,
+        "q3": 0,
+        "min": 0,
+        "max": 0,
+        "sum": 0
+      }
+    },
+    "weekly_plays": {
+      "now": 76162,
+      "previous": 21398
+    },
+    "weekly_data_date": "20261027",
+    "ott_share_pct": 88.09,
+    "top_videos_yesterday": [
+      215,
+      210,
+      30,
+      18,
+      11
+    ],
+    "earlier_snapshot_records": 52,
+    "day_one": {
+      "gpt_ep03_24h": {
+        "view": 229,
+        "like": 8,
+        "favorite": 2,
         "coin": 0,
-        "reply": 16.56,
+        "reply": 7,
         "share": 0,
-        "danmaku": 0.32
+        "danmaku": 0,
+        "completion_percent": 44.64,
+        "avg_watch_seconds": 31,
+        "per_100_plays": {
+          "like": 3.49,
+          "favorite": 0.87,
+          "coin": 0,
+          "reply": 3.06,
+          "share": 0,
+          "danmaku": 0
+        }
+      },
+      "whale_ep02_24h": {
+        "view": 308,
+        "like": 24,
+        "favorite": 5,
+        "coin": 0,
+        "reply": 51,
+        "share": 0,
+        "danmaku": 1,
+        "completion_percent": 36.63,
+        "avg_watch_seconds": 42,
+        "per_100_plays": {
+          "like": 7.79,
+          "favorite": 1.62,
+          "coin": 0,
+          "reply": 16.56,
+          "share": 0,
+          "danmaku": 0.32
+        }
       }
     }
-  }
+  },
+  "table4_crosscast": {
+    "repository": "C:\\Users\\ROG\\.gemini\\antigravity\\scratch\\agentic-sci-paper\\publishops-crosscast",
+    "pinned": {
+      "commit": "75b7abcdd97de3e6a0b11df70742ea275d2422f2",
+      "src_files": 123,
+      "src_lines": 26972,
+      "own_package_files": 81,
+      "own_package_lines": 18005,
+      "bundled_bili_cli_files": 42,
+      "bundled_bili_cli_lines": 8967,
+      "test_files": 126,
+      "test_modules": 122,
+      "test_lines": 37029,
+      "test_functions": 2737,
+      "groups": {
+        "publish_workflow_receipts_locks_recovery": {
+          "files": 20,
+          "lines": 7547,
+          "test_functions": 494
+        },
+        "platform_pages_and_adapters": {
+          "files": 20,
+          "lines": 7154,
+          "test_functions": 590
+        },
+        "edits_and_metadata_readback": {
+          "files": 5,
+          "lines": 1615,
+          "test_functions": 128
+        },
+        "other_cli_docs_install": {
+          "files": 32,
+          "lines": 6383,
+          "test_functions": 524
+        },
+        "collections_and_playlists": {
+          "files": 8,
+          "lines": 2792,
+          "test_functions": 259
+        },
+        "messages_comments_engagement_safety": {
+          "files": 18,
+          "lines": 4300,
+          "test_functions": 402
+        },
+        "deletion_and_absence_readback": {
+          "files": 19,
+          "lines": 6830,
+          "test_functions": 340
+        }
+      },
+      "test_to_source_line_ratio": 1.37,
+      "test_to_own_package_line_ratio": 2.06
+    },
+    "release_v0_16_0": {
+      "commit": "a46bd19372ea3c0c7c4672642d4d56db1b1f42c7",
+      "src_files": 107,
+      "src_lines": 23082,
+      "own_package_files": 65,
+      "own_package_lines": 14115,
+      "bundled_bili_cli_files": 42,
+      "bundled_bili_cli_lines": 8967,
+      "test_files": 84,
+      "test_modules": 80,
+      "test_lines": 24016,
+      "test_functions": 2009,
+      "groups": {
+        "platform_pages_and_adapters": {
+          "files": 16,
+          "lines": 6134,
+          "test_functions": 510
+        },
+        "publish_workflow_receipts_locks_recovery": {
+          "files": 13,
+          "lines": 4690,
+          "test_functions": 340
+        },
+        "other_cli_docs_install": {
+          "files": 23,
+          "lines": 4964,
+          "test_functions": 435
+        },
+        "collections_and_playlists": {
+          "files": 7,
+          "lines": 2628,
+          "test_functions": 249
+        },
+        "messages_comments_engagement_safety": {
+          "files": 18,
+          "lines": 4300,
+          "test_functions": 402
+        },
+        "deletion_and_absence_readback": {
+          "files": 1,
+          "lines": 97,
+          "test_functions": 3
+        },
+        "edits_and_metadata_readback": {
+          "files": 2,
+          "lines": 795,
+          "test_functions": 70
+        }
+      },
+      "test_to_source_line_ratio": 1.04,
+      "test_to_own_package_line_ratio": 1.7
+    },
+    "group_rules": [
+      [
+        "deletion_and_absence_readback",
+        "/^tests\\/test_(work_delete|deletion)/"
+      ],
+      [
+        "edits_and_metadata_readback",
+        "/edit/"
+      ],
+      [
+        "collections_and_playlists",
+        "/collection|playlist/"
+      ],
+      [
+        "publish_workflow_receipts_locks_recovery",
+        "/publish|two_commands|test_workflow|rehearsal|less_waiting|progress|browser_backend|browser_broker|runtime_cleanup|safety_processes|hidden_desktop_lifecycle|auth_jobs_lifecycle|file_selection_guards|closeout|stage1_stops|stage1_repeats/"
+      ],
+      [
+        "platform_pages_and_adapters",
+        "/youtube|test_x_|douyin|instagram|bili/"
+      ],
+      [
+        "messages_comments_engagement_safety",
+        "/message|comment|engage|likes|repl|hostile|safety|platform_warnings|stage1_limits|stage1_reading|stage1_reporting|stage2_|write_answers/"
+      ],
+      [
+        "other_cli_docs_install",
+        "/./"
+      ]
+    ]
+  },
+  "lab_workflow_tests": {
+    "file": "tests/workflows.test.mjs",
+    "lines": 27,
+    "recorded": {
+      "total": 10,
+      "passed": 10,
+      "failed": 0
+    },
+    "recorded_on": "2026-10-28",
+    "node_version": "26.11.1"
+  },
+  "note": "Descriptive statistics only. No significance test is reported: lifetime views separate completely between the cohorts, so a rank test would restate the exposure-age confound rather than test a production effect."
 }

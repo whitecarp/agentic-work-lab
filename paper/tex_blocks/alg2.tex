@@ -1,0 +1,24 @@
+\begin{algorithm}[htbp]
+\caption{Idempotent Cross-Platform Publication \& \texttt{UNKNOWN}-State Latching (\texttt{vpub publish} \& \texttt{vpub verify})}
+\label{alg:publish}
+\footnotesize
+\begin{algorithmic}[1]
+\Require Release plan $P$ with digest $H(P)$, confirmation code $H_{\text{user}}$, platform $p$, account $\text{acct}_p$, resume flag
+\Ensure Persistent receipt $\mathcal{R}_p = (\text{key}, \text{acct}_p, H_{\text{media}}, H_{\text{meta}}, f_{\text{submit}}, \sigma_p, \text{wid}_p, \tau_{\text{log}})$
+\If{$H_{\text{user}} \neq H(P)$} \textbf{abort} (stale or wrong plan code) \EndIf
+\State $\text{AcquireProcessLock}(p, \text{acct}_p)$ \Comment{a stale lock is taken over only after its owner process has exited}
+\State $\text{path} \gets \text{ReceiptPath}(H(P), p)$
+\If{$\text{Exists}(\text{path}) \land \neg\text{resume}$} \textbf{abort} \texttt{attempt\_exists} \Comment{never reset an attempt to upload again} \EndIf
+\If{$\text{resume} \land \text{Exists}(\text{path})$} $\mathcal{R}_p \gets \text{Load}(\text{path})$; require the same $H_{\text{media}}$ and $\text{acct}_p$, else \textbf{abort} \texttt{receipt\_conflict} \EndIf
+\If{$\text{resume} \land \neg\text{Exists}(\text{path})$ and the publication record shows media selected or a press attempted} \textbf{abort} \texttt{receipt\_missing} \EndIf
+\State $\text{VerifySHA256}(P.\text{media}, P.\text{covers})$; select media; $\mathcal{R}_p.\text{media\_selected} \gets \text{true}$; $\text{PersistAtomically}(\mathcal{R}_p)$
+\If{$\mathcal{R}_p.f_{\text{submit}} = \text{true} \land \neg\text{PlatformShowsUnsubmittedDraft}()$} \textbf{abort} \texttt{already\_submitted} \EndIf
+\State $\mathcal{R}_p.\sigma_p \gets \texttt{UNKNOWN}$; $\mathcal{R}_p.f_{\text{submit}} \gets \text{true}$; $\text{PersistAtomically}(\mathcal{R}_p)$ \Comment{before the click}
+\State $\text{PressFinalSubmitOnce}()$ \Comment{a single Share / Post / Publish press}
+\State $\text{outcome} \gets \text{AwaitConfirmationAndReadBack}(\text{acct}_p, \text{new works not listed before the press})$
+\If{outcome holds exactly one matching new work} $\mathcal{R}_p.\sigma_p \gets \texttt{SUBMISSION\_VERIFIED}$; $\mathcal{R}_p.\text{wid}_p \gets \text{outcome}.\text{work\_id}$
+\Else\ keep $\mathcal{R}_p.\sigma_p \in \{\texttt{UNKNOWN}, \texttt{SUBMITTED\_UNVERIFIED}\}$ \Comment{never re-press; escalate to \texttt{vpub verify} or a person}
+\EndIf
+\State $\text{PersistAtomically}(\mathcal{R}_p)$; $\text{ReleaseProcessLock}(p, \text{acct}_p)$; \Return $\mathcal{R}_p$
+\end{algorithmic}
+\end{algorithm}

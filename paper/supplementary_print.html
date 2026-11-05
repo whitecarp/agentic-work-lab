@@ -108,37 +108,35 @@
   <strong>E-mail:</strong> <code>ZackSheng@gmail.com</code> &nbsp;|&nbsp; <strong>ORCID:</strong> <code>0009-0003-2900-6377</code> &nbsp;|&nbsp; <strong>Repositories:</strong> <code>https://github.com/whitecarp/agentic-work-lab</code> &amp; <code>https://github.com/whitecarp/publishops-crosscast</code>
 </div>
 
-<h2>Appendix A. Formal Mathematical Proofs of Governance Safety and Idempotency Invariants</h2>
-
+<h2>Appendix A. Formal Statements and Proof Sketches for the Governance Layers</h2>
+<p>These statements restate the guarantees of the revised manuscript with their assumptions. Line numbers refer to Algorithms 1&ndash;3 of the manuscript; code references are to <code>scripts/operations-gate.mjs</code> in <em>Agentic Work Lab</em> and to <em>PublishOps CrossCast</em> at commit <code>75b7abc</code>.</p>
 <div class="proof-box">
-  <strong>Theorem A.1 (Safety &amp; Mutual Exclusion of the Layer 1 Scheduling Gate <em>G</em><sub>plan</sub>):</strong><br>
-  Let <em>S</em> = (<em>e</em>, <em>o</em>, <em>f</em><sub>stop</sub>, <em>f</em><sub>run</sub>, <em>t</em><sub>now</sub>, <em>J</em>) be any operational state tuple presented to Algorithm 1 (<code>planRun</code>), and let <em>L</em><sub>OS</sub>(<em>p</em>, acct<sub><em>p</em></sub>) be the OS-level process lock in Layer 3 (<code>process_lock.py</code>). Then no two concurrent agent processes <em>P</em><sub>1</sub> and <em>P</em><sub>2</sub> can simultaneously mutate the same platform account state, nor can any unauthorized or future-scheduled job enter the execution queue.<br><br>
-  <em>Proof.</em> By construction of Equation (1) and Algorithm 1, <code>planRun</code> evaluates three ordered preconditions prior to inspecting <em>J</em>: (i) if <em>e</em> = &empty; &or; <em>e</em> &ne; <em>o</em>, it returns <code>(skip, not_owner, &empty;)</code>; (ii) if <em>f</em><sub>stop</sub> = true, it returns <code>(skip, stop_flag, &empty;)</code>; and (iii) if <em>f</em><sub>run</sub> = true, it returns <code>(skip, already_running, &empty;)</code>. For any job <em>j<sub>k</sub></em> &isin; <em>J</em>, admission into the due set <em>D</em> requires <code>done</code><sub><em>k</em></sub> = false &and; <code>auth</code><sub><em>k</em></sub> = true &and; <em>t</em><sub>due,<em>k</em></sub> &le; <em>t</em><sub>now</sub>. Thus, no unapproved (<code>auth</code><sub><em>k</em></sub> &ne; true) or premature (<em>t</em><sub>due,<em>k</em></sub> &gt; <em>t</em><sub>now</sub>) job can be returned in <em>D</em>. Furthermore, even if two OS processes <em>P</em><sub>1</sub> and <em>P</em><sub>2</sub> invoke Layer 3 simultaneously with valid owner credentials, <code>AcquireProcessLock(p, acct_p)</code> requests an exclusive atomic OS file/PID lock tied to (<em>p</em>, acct<sub><em>p</em></sub>). A stale lock is recovered if and only if the OS kernel process table confirms that the holding PID has terminated. Hence, at most one process can enter the critical section for (<em>p</em>, acct<sub><em>p</em></sub>) at any time <em>t</em>. &#9632;
+  <p><strong>Statement A.1 (Layer 1 admission decisions).</strong> For any context tuple <em>S</em> = (<em>e</em>, <em>o</em>, <em>f</em><sub>stop</sub>, <em>f</em><sub>run</sub>, <em>t</em><sub>now</sub>, <em>J</em>), <code>planRun</code> returns <code>skip</code> whenever the executor is not the owner, the stop flag is set or a run is active, and otherwise returns a due set <em>D</em> containing only jobs that are authorized, not completed and due. It never performs an action.</p>
+  <p><em>Proof sketch.</em> Lines 3&ndash;5 return before the job scan in the three skip cases. A job reaches line 13 only if it passed line 10, i.e. done<sub><em>k</em></sub> = false and auth<sub><em>k</em></sub> = true, and is appended only if <em>t</em><sub>due,<em>k</em></sub> &le; <em>t</em><sub>now</sub>. The function has no side effects. A non-finite due time raises an error only for jobs that reach line 11. <em>Scope:</em> the gate binds only callers that consult it; exclusion of concurrent runs on one browser profile comes from <code>process_lock.py</code>, which takes over a lock only when its owner has released it or its process has exited (a process whose state cannot be read counts as still running). &#8718;</p>
 </div>
-
 <div class="proof-box">
-  <strong>Theorem A.2 (Zero-Duplicate Submission under Arbitrary Post-Commit Network or UI Timeouts):</strong><br>
-  Suppose a platform adapter in Layer 3 executes Algorithm 2 for release plan <em>P</em> on platform <em>p</em>. If the final commit action (Line 10, <code>DispatchSingleFinalCommit</code>) is invoked at least once, then no subsequent timeout, network drop, DOM selector failure, or repeated invocation of <code>vpub publish</code> can trigger a second commit click for plan <em>P</em>.<br><br>
-  <em>Proof.</em> In Algorithm 2, Line 9 executes <code>R_p.f_submit &larr; true</code> and <code>PersistAtomically(R_p)</code> strictly prior to Line 10 (<code>DispatchSingleFinalCommit</code>). Suppose the external platform accepts the submission at Line 10, but the confirmation wait or read-back at Line 11 times out (as observed empirically on Douyin in Table 6 or during the 380.551 s window on Instagram in Table 7). Execution enters the <code>else</code> branch at Line 14, setting <code>R_p.&sigma;_p &larr; UNKNOWN_LATCHED</code> while preserving <code>R_p.f_submit = true</code> on disk. Now consider any subsequent retry invocation of Algorithm 2 (either by an automated cron agent or a CLI retry loop). After acquiring the process lock at Line 2, Line 3 evaluates the guard <code>if R_p.f_submit = true</code>. Because <code>f_submit</code> was atomically latched to <code>true</code> prior to the first commit, Line 4 immediately returns <code>ReconcileExistingReceipt(R_p)</code>, which invokes read-only verification (<code>vpub verify</code>) and never reaches Line 10. Therefore, the total number of external commit dispatches is bounded above by 1. &#9632;
+  <p><strong>Statement A.2 (Proposition 1: at-most-once automated final submission).</strong> Assume (A1) every final submission for plan <em>P</em> on platform <em>p</em> goes through the receipt transaction of Algorithm 2; (A2) receipt writes are atomic and durable; and (A3) receipts are not edited by hand. Then automated runs issue at most one final press per (<em>P</em>, <em>p</em>), except that (A4) a resumed run may press again when the platform shows that the earlier work is still an unsubmitted draft.</p>
+  <p><em>Proof sketch.</em> The receipt is stored at a path named by <em>H</em>(<em>P</em>) and <em>p</em>. Before the press it is saved with state <code>UNKNOWN</code> and <code>final_submit_attempted</code> = true (line 9; <code>Transaction.submit</code> in <code>browser_backends.py</code>). A later run either finds the receipt and stops with <code>attempt_exists</code> (line 4), or resumes it; resuming requires the same media digest and account (line 5), and the submit step then refuses another press with <code>already_submitted</code> (line 8) unless (A4) holds. If the receipt file is missing while the publication record shows a selected file or an attempted press, the run stops with <code>receipt_missing</code> (line 6). Hence no automated path issues a second press outside (A4). &#8718;</p>
+  <p><em>Remarks.</em> The guarantee is safety, not liveness: a crash between saving the receipt and pressing leaves an <code>UNKNOWN</code> receipt for a submission that never happened. <code>vpub verify</code> upgrades a receipt to <code>SUBMISSION_VERIFIED</code> only when it finds exactly one matching new work on the signed-in account, and otherwise leaves it <code>SUBMITTED_UNVERIFIED</code> with the instruction never to re-upload automatically. Field instances: the Douyin release of 3 November 2026 and a Douyin scheduled-card test on 1 November 2026, both ending in read-back timeouts without re-submission.</p>
 </div>
-
 <div class="proof-box">
-  <strong>Theorem A.3 (Preservation of Live Work Identity under Revision and Deletion Faults):</strong><br>
-  Under Algorithm 3 (Layer 4), neither a missing platform edit control nor an unverified deletion request can destructively overwrite an existing work ID or delete an adjacent work.<br><br>
-  <em>Proof.</em> In <code>VERIFY_ONLY</code> or <code>APPLY_EDIT</code> mode, Line 1 verifies account identity, and Line 3 reads the native editor metadata. If live metadata already equals <code>&Delta;P.target_meta</code>, Line 4 terminates without issuing a save click. If <em>p</em> = <code>X</code> and native edit controls are absent (Line 6), Line 7 aborts with <code>MISSING_EDIT_ACCESS_NO_DELETE_OR_REPOST</code>; no fallback path exists to delete or re-upload the post. In <code>DELETE_WORK</code> mode, Line 12 requires a durable consent token <em>C</em><sub>del</sub> cryptographically bound to <code>R_p.wid_p</code> and <code>R_p.H_media</code>, and Line 14 refreshes the remote catalog to verify both the absence of <code>R_p.wid_p</code> and the preservation of neighboring work IDs. &#9632;
+  <p><strong>Statement A.3 (Layer 4 identity binding).</strong> Under Algorithm 3, an edit or deletion acts only on the work identified by the receipt and only from the receipt&rsquo;s account; a missing in-place edit control ends the run without deletion, repost or reply; and a deletion is reported as done only when a refreshed catalogue no longer lists the work.</p>
+  <p><em>Proof sketch.</em> Line 1 compares the signed-in account with <code>expected_identity</code>. Lines 4&ndash;5 return <code>EDIT_VERIFIED</code> or <code>EDIT_MISMATCH</code> without saving; line 6 returns <code>EDIT_UNAVAILABLE</code> (for X, &ldquo;the original post menu has no Edit action; no deletion/repost/reply was attempted&rdquo;). Line 10 requires a dry run and a person&rsquo;s approval of the exact work, and line 12 reports success only on absence after refresh. The statement does not cover neighbouring works, which the code does not check. &#8718;</p>
 </div>
 
 <h2>Appendix B. Complete De-Identified Operational Event Ledger (<em>N</em> = 69 Events)</h2>
-<p>Table B.1 lists every single operational event recorded in <code>data/operations-events.json</code> (<em>N</em> = 69), demonstrating how 68 non-write checkpoints suppressed external mutations while 1 authorized write executed cleanly with zero replayed uploads.</p>
+<p>Table B.1 lists every record in <code>data/operations-events.json</code> (<em>N</em> = 69) with only the fields the export kept; &ldquo;&mdash;&rdquo; means the record has no such field. One record reports a platform write (record 52), no record reports a replayed upload, and 31 records carry no event or state name. The journal records outcomes, not refused attempts; Table 3 of the manuscript classifies the records by the write evidence they carry.</p>
 
 <table class="sci-table">
   <thead>
     <tr>
       <th class="num">#</th>
-      <th>ISO-8601 Timestamp</th>
-      <th>Operational Event Identifier</th>
-      <th class="num">Reads / CLI</th>
-      <th class="num">Writes</th>
+      <th>Timestamp</th>
+      <th>Event or State (as Exported)</th>
+      <th class="num">Platform Reads</th>
+      <th class="num">CLI Calls</th>
+      <th class="num">Platform Calls</th>
+      <th class="num">Platform Writes</th>
       <th class="num">Replays</th>
       <th>New Risk</th>
     </tr>
@@ -149,9 +147,11 @@
     <td class="num">1</td>
     <td><code>2026-10-26T01:27:17.9162440+08:00</code></td>
     <td><code>MANUAL_TREND_REFRESH_COMPLETED</code></td>
+    <td class="num">—</td>
     <td class="num">7</td>
+    <td class="num">—</td>
     <td class="num">0</td>
-    <td class="num">0</td>
+    <td class="num">—</td>
     <td><code>false</code></td>
   </tr>
 
@@ -159,20 +159,24 @@
     <td class="num">2</td>
     <td><code>2026-10-26T01:52:57.6032319+08:00</code></td>
     <td><code>USER_AUTHORIZED_FLEXIBLE_TOPICS_AND_REVISION</code></td>
+    <td class="num">—</td>
+    <td class="num">—</td>
     <td class="num">0</td>
+    <td class="num">—</td>
     <td class="num">0</td>
-    <td class="num">0</td>
-    <td><code>false</code></td>
+    <td><code>—</code></td>
   </tr>
 
   <tr>
     <td class="num">3</td>
     <td><code>2026-10-26T02:11:18.5698073+08:00</code></td>
     <td><code>ADAPTIVE_EDITORIAL_SCRIPT_DELIVERED_AND_REVISIONS_DISPATCHED</code></td>
+    <td class="num">—</td>
+    <td class="num">—</td>
     <td class="num">0</td>
     <td class="num">0</td>
-    <td class="num">0</td>
-    <td><code>false</code></td>
+    <td class="num">—</td>
+    <td><code>—</code></td>
   </tr>
 
   <tr>
@@ -180,9 +184,11 @@
     <td><code>2026-10-26T02:31:34.6076243+08:00</code></td>
     <td><code>BOUNDED_COMMENT_MAINTENANCE_COMPLETED</code></td>
     <td class="num">4</td>
+    <td class="num">—</td>
+    <td class="num">—</td>
     <td class="num">0</td>
-    <td class="num">0</td>
-    <td><code>false</code></td>
+    <td class="num">—</td>
+    <td><code>—</code></td>
   </tr>
 
   <tr>
@@ -190,29 +196,35 @@
     <td><code>2026-10-26T02:34:14.7453527+08:00</code></td>
     <td><code>BOTH_EDITORIAL_REVISIONS_ACCEPTED_SELECTED</code></td>
     <td class="num">4</td>
+    <td class="num">—</td>
+    <td class="num">—</td>
     <td class="num">0</td>
-    <td class="num">0</td>
-    <td><code>false</code></td>
+    <td class="num">—</td>
+    <td><code>—</code></td>
   </tr>
 
   <tr>
     <td class="num">6</td>
     <td><code>2026-10-26T03:01:54.6983550+08:00</code></td>
     <td><code>USER_LOW_TRAFFIC_TOPIC_DIAGNOSIS_STARTED</code></td>
+    <td class="num">—</td>
     <td class="num">2</td>
+    <td class="num">—</td>
     <td class="num">0</td>
-    <td class="num">0</td>
-    <td><code>false</code></td>
+    <td class="num">—</td>
+    <td><code>—</code></td>
   </tr>
 
   <tr>
     <td class="num">7</td>
     <td><code>2026-10-26T03:12:26.8185896+08:00</code></td>
     <td><code>USER_REQUESTED_BROADER_AI_HIGH_INTEREST_CONTENT</code></td>
+    <td class="num">—</td>
+    <td class="num">—</td>
     <td class="num">0</td>
-    <td class="num">0</td>
-    <td class="num">0</td>
-    <td><code>false</code></td>
+    <td class="num">—</td>
+    <td class="num">—</td>
+    <td><code>—</code></td>
   </tr>
 
   <tr>
@@ -220,68 +232,82 @@
     <td><code>2026-10-26T03:28:25.7271020+08:00</code></td>
     <td><code>TRIANGLE_PRODUCTION_AND_MANUAL_EP02_DEFERRAL_PENDING</code></td>
     <td class="num">0</td>
+    <td class="num">—</td>
+    <td class="num">—</td>
     <td class="num">0</td>
-    <td class="num">0</td>
-    <td><code>false</code></td>
+    <td class="num">—</td>
+    <td><code>—</code></td>
   </tr>
 
   <tr>
     <td class="num">9</td>
     <td><code>2026-10-26T03:37:10.4939591+08:00</code></td>
     <td><code>USER_CONFIRMED_EP02_NATIVE_RESCHEDULE_UNAVAILABLE</code></td>
+    <td class="num">—</td>
+    <td class="num">—</td>
     <td class="num">0</td>
-    <td class="num">0</td>
-    <td class="num">0</td>
-    <td><code>false</code></td>
+    <td class="num">—</td>
+    <td class="num">—</td>
+    <td><code>—</code></td>
   </tr>
 
   <tr>
     <td class="num">10</td>
     <td><code>2026-10-26T03:37:58.1399043+08:00</code></td>
     <td><code>EP02_RETAIN_ORIGINAL_SCHEDULE_AFTER_ASTRA_REVIEW</code></td>
+    <td class="num">—</td>
+    <td class="num">—</td>
     <td class="num">0</td>
-    <td class="num">0</td>
-    <td class="num">0</td>
-    <td><code>false</code></td>
+    <td class="num">—</td>
+    <td class="num">—</td>
+    <td><code>—</code></td>
   </tr>
 
   <tr>
     <td class="num">11</td>
     <td><code>2026-10-26T03:43:10.3341377+08:00</code></td>
     <td><code>USER_REQUESTED_TWO_MINUTE_CLEAR_NARRATIVE</code></td>
+    <td class="num">—</td>
+    <td class="num">—</td>
     <td class="num">0</td>
-    <td class="num">0</td>
-    <td class="num">0</td>
-    <td><code>false</code></td>
+    <td class="num">—</td>
+    <td class="num">—</td>
+    <td><code>—</code></td>
   </tr>
 
   <tr>
     <td class="num">12</td>
     <td><code>2026-10-26T03:45:25.8468727+08:00</code></td>
     <td><code>USER_CLARIFIED_TOPIC_MOTIVATION_NOT_DURATION</code></td>
+    <td class="num">—</td>
+    <td class="num">—</td>
     <td class="num">0</td>
-    <td class="num">0</td>
-    <td class="num">0</td>
-    <td><code>false</code></td>
+    <td class="num">—</td>
+    <td class="num">—</td>
+    <td><code>—</code></td>
   </tr>
 
   <tr>
     <td class="num">13</td>
     <td><code>2026-10-26T03:49:20.4442065+08:00</code></td>
     <td><code>PURPOSE_FIRST_TOPIC_RETHINK_AUTHORIZED</code></td>
+    <td class="num">—</td>
+    <td class="num">—</td>
     <td class="num">0</td>
-    <td class="num">0</td>
-    <td class="num">0</td>
-    <td><code>false</code></td>
+    <td class="num">—</td>
+    <td class="num">—</td>
+    <td><code>—</code></td>
   </tr>
 
   <tr>
     <td class="num">14</td>
     <td><code>2026-10-26T04:02:04.7671934+08:00</code></td>
     <td><code>USER_REQUESTED_CURRENT_STATION_RESEARCH</code></td>
+    <td class="num">—</td>
     <td class="num">6</td>
+    <td class="num">—</td>
     <td class="num">0</td>
-    <td class="num">0</td>
+    <td class="num">—</td>
     <td><code>false</code></td>
   </tr>
 
@@ -289,9 +315,11 @@
     <td class="num">15</td>
     <td><code>2026-10-26T04:05:07.2977762+08:00</code></td>
     <td><code>PURPOSE_LED_STATION_SAMPLING_COMPLETE</code></td>
+    <td class="num">—</td>
     <td class="num">11</td>
+    <td class="num">—</td>
     <td class="num">0</td>
-    <td class="num">0</td>
+    <td class="num">—</td>
     <td><code>false</code></td>
   </tr>
 
@@ -299,90 +327,108 @@
     <td class="num">16</td>
     <td><code>2026-10-26T04:15:17.1478779+08:00</code></td>
     <td><code>CURRENT_STATION_RESEARCH_REPORT_RECEIVED</code></td>
-    <td class="num">0</td>
-    <td class="num">0</td>
-    <td class="num">0</td>
-    <td><code>false</code></td>
+    <td class="num">—</td>
+    <td class="num">—</td>
+    <td class="num">—</td>
+    <td class="num">—</td>
+    <td class="num">—</td>
+    <td><code>—</code></td>
   </tr>
 
   <tr>
     <td class="num">17</td>
     <td><code>2026-10-26T04:20:45.3039194+08:00</code></td>
     <td><code>EVIDENCE_BASED_PREMISE_PASS_RULE_DESIGN_DISPATCHED</code></td>
+    <td class="num">—</td>
+    <td class="num">—</td>
     <td class="num">0</td>
-    <td class="num">0</td>
-    <td class="num">0</td>
-    <td><code>false</code></td>
+    <td class="num">—</td>
+    <td class="num">—</td>
+    <td><code>—</code></td>
   </tr>
 
   <tr>
     <td class="num">18</td>
     <td><code>—</code></td>
     <td><code>SHOPPING_SINGLE_RUN_COMPLETED</code></td>
+    <td class="num">—</td>
+    <td class="num">—</td>
     <td class="num">0</td>
-    <td class="num">0</td>
-    <td class="num">0</td>
-    <td><code>false</code></td>
+    <td class="num">—</td>
+    <td class="num">—</td>
+    <td><code>—</code></td>
   </tr>
 
   <tr>
     <td class="num">19</td>
     <td><code>—</code></td>
     <td><code>NEW_TOPIC_PROPOSAL_ONLY_AND_EXISTING_PLATFORM_STOP_ACKNOWLEDGED</code></td>
+    <td class="num">—</td>
+    <td class="num">—</td>
     <td class="num">0</td>
-    <td class="num">0</td>
-    <td class="num">0</td>
-    <td><code>false</code></td>
+    <td class="num">—</td>
+    <td class="num">—</td>
+    <td><code>—</code></td>
   </tr>
 
   <tr>
     <td class="num">20</td>
     <td><code>—</code></td>
     <td><code>TOPIC_PROPOSAL_PASS_DELIVERY</code></td>
+    <td class="num">—</td>
+    <td class="num">—</td>
     <td class="num">0</td>
-    <td class="num">0</td>
-    <td class="num">0</td>
-    <td><code>false</code></td>
+    <td class="num">—</td>
+    <td class="num">—</td>
+    <td><code>—</code></td>
   </tr>
 
   <tr>
     <td class="num">21</td>
     <td><code>—</code></td>
     <td><code>SCRIPT_V1_DELIVERY</code></td>
+    <td class="num">—</td>
+    <td class="num">—</td>
     <td class="num">0</td>
-    <td class="num">0</td>
-    <td class="num">0</td>
-    <td><code>false</code></td>
+    <td class="num">—</td>
+    <td class="num">—</td>
+    <td><code>—</code></td>
   </tr>
 
   <tr>
     <td class="num">22</td>
     <td><code>—</code></td>
     <td><code>USER_SELECTED_TITLE_SEQUENCE03_AUTH_SUCCESS</code></td>
+    <td class="num">—</td>
+    <td class="num">—</td>
     <td class="num">1</td>
-    <td class="num">0</td>
-    <td class="num">0</td>
-    <td><code>false</code></td>
+    <td class="num">—</td>
+    <td class="num">—</td>
+    <td><code>—</code></td>
   </tr>
 
   <tr>
     <td class="num">23</td>
     <td><code>—</code></td>
     <td><code>EXPLICIT_DEPARTURE_PRODUCTION_PUBLICATION_AUTHORIZATION</code></td>
+    <td class="num">—</td>
+    <td class="num">—</td>
     <td class="num">0</td>
-    <td class="num">0</td>
-    <td class="num">0</td>
-    <td><code>false</code></td>
+    <td class="num">—</td>
+    <td class="num">—</td>
+    <td><code>—</code></td>
   </tr>
 
   <tr>
     <td class="num">24</td>
     <td><code>—</code></td>
     <td><code>EPISODE03_PREVIEW_REQUEST_NO_PUBLICATION_REPLY_GATE</code></td>
+    <td class="num">—</td>
+    <td class="num">—</td>
     <td class="num">0</td>
-    <td class="num">0</td>
-    <td class="num">0</td>
-    <td><code>false</code></td>
+    <td class="num">—</td>
+    <td class="num">—</td>
+    <td><code>—</code></td>
   </tr>
 
   <tr>
@@ -390,9 +436,11 @@
     <td><code>2026-10-26T05:33:04.9351589+08:00</code></td>
     <td><code>EXISTING_EPISODE03_PRODUCTION_ADVANCING_NO_PLATFORM_TASK_DUE</code></td>
     <td class="num">0</td>
+    <td class="num">—</td>
+    <td class="num">—</td>
     <td class="num">0</td>
-    <td class="num">0</td>
-    <td><code>false</code></td>
+    <td class="num">—</td>
+    <td><code>—</code></td>
   </tr>
 
   <tr>
@@ -400,29 +448,35 @@
     <td><code>2026-10-26T05:48:09.7477731+08:00</code></td>
     <td><code>EXISTING_EPISODE03_WORKER_ACTIVE_PRE_RENDER_FIXES_CLOSED</code></td>
     <td class="num">0</td>
+    <td class="num">—</td>
+    <td class="num">—</td>
     <td class="num">0</td>
-    <td class="num">0</td>
-    <td><code>false</code></td>
+    <td class="num">—</td>
+    <td><code>—</code></td>
   </tr>
 
   <tr>
     <td class="num">27</td>
     <td><code>—</code></td>
     <td><code>USER_FEEDBACK_REOPENS_EP03_CREATIVE_ACCEPTANCE</code></td>
+    <td class="num">—</td>
+    <td class="num">—</td>
     <td class="num">0</td>
-    <td class="num">0</td>
-    <td class="num">0</td>
-    <td><code>false</code></td>
+    <td class="num">—</td>
+    <td class="num">—</td>
+    <td><code>—</code></td>
   </tr>
 
   <tr>
     <td class="num">28</td>
     <td><code>—</code></td>
     <td><code>USER_REQUIRES_ACTUAL3D_HOME_MOTION</code></td>
+    <td class="num">—</td>
+    <td class="num">—</td>
     <td class="num">0</td>
-    <td class="num">0</td>
-    <td class="num">0</td>
-    <td><code>false</code></td>
+    <td class="num">—</td>
+    <td class="num">—</td>
+    <td><code>—</code></td>
   </tr>
 
   <tr>
@@ -430,98 +484,118 @@
     <td><code>2026-10-26T06:20:06.4326325+08:00</code></td>
     <td><code>EXISTING_ASTRA_3D_PROTOTYPE_BUILDING</code></td>
     <td class="num">0</td>
+    <td class="num">—</td>
+    <td class="num">—</td>
     <td class="num">0</td>
-    <td class="num">0</td>
-    <td><code>false</code></td>
+    <td class="num">—</td>
+    <td><code>—</code></td>
   </tr>
 
   <tr>
     <td class="num">30</td>
     <td><code>—</code></td>
     <td><code>DUE_COMMENT_MAINTENANCE_ONE_NEW_SUPPORTIVE_COMMENT</code></td>
-    <td class="num">0</td>
-    <td class="num">0</td>
-    <td class="num">0</td>
-    <td><code>false</code></td>
+    <td class="num">—</td>
+    <td class="num">—</td>
+    <td class="num">—</td>
+    <td class="num">—</td>
+    <td class="num">—</td>
+    <td><code>—</code></td>
   </tr>
 
   <tr>
     <td class="num">31</td>
     <td><code>—</code></td>
     <td><code>USER_REFERENCE_BV1R6pE6TE4j_ACQUIRED_AND_ASTRA_REASSESSMENT</code></td>
+    <td class="num">—</td>
+    <td class="num">—</td>
+    <td class="num">—</td>
     <td class="num">0</td>
-    <td class="num">0</td>
-    <td class="num">0</td>
-    <td><code>false</code></td>
+    <td class="num">—</td>
+    <td><code>—</code></td>
   </tr>
 
   <tr>
     <td class="num">32</td>
     <td><code>—</code></td>
-    <td><code>SCHEDULED_HEARTBEAT_ZERO_WRITE_CHECKPOINT</code></td>
+    <td><code>(no event or state name in the export)</code></td>
+    <td class="num">—</td>
+    <td class="num">—</td>
     <td class="num">0</td>
-    <td class="num">0</td>
-    <td class="num">0</td>
-    <td><code>false</code></td>
+    <td class="num">—</td>
+    <td class="num">—</td>
+    <td><code>—</code></td>
   </tr>
 
   <tr>
     <td class="num">33</td>
     <td><code>—</code></td>
-    <td><code>SCHEDULED_HEARTBEAT_ZERO_WRITE_CHECKPOINT</code></td>
+    <td><code>(no event or state name in the export)</code></td>
+    <td class="num">—</td>
+    <td class="num">—</td>
     <td class="num">0</td>
-    <td class="num">0</td>
-    <td class="num">0</td>
-    <td><code>false</code></td>
+    <td class="num">—</td>
+    <td class="num">—</td>
+    <td><code>—</code></td>
   </tr>
 
   <tr>
     <td class="num">34</td>
     <td><code>—</code></td>
-    <td><code>SCHEDULED_HEARTBEAT_ZERO_WRITE_CHECKPOINT</code></td>
+    <td><code>(no event or state name in the export)</code></td>
+    <td class="num">—</td>
+    <td class="num">—</td>
     <td class="num">0</td>
-    <td class="num">0</td>
-    <td class="num">0</td>
-    <td><code>false</code></td>
+    <td class="num">—</td>
+    <td class="num">—</td>
+    <td><code>—</code></td>
   </tr>
 
   <tr>
     <td class="num">35</td>
     <td><code>—</code></td>
-    <td><code>SCHEDULED_HEARTBEAT_ZERO_WRITE_CHECKPOINT</code></td>
+    <td><code>(no event or state name in the export)</code></td>
+    <td class="num">—</td>
+    <td class="num">—</td>
     <td class="num">0</td>
-    <td class="num">0</td>
-    <td class="num">0</td>
-    <td><code>false</code></td>
+    <td class="num">—</td>
+    <td class="num">—</td>
+    <td><code>—</code></td>
   </tr>
 
   <tr>
     <td class="num">36</td>
     <td><code>—</code></td>
-    <td><code>SCHEDULED_HEARTBEAT_ZERO_WRITE_CHECKPOINT</code></td>
+    <td><code>(no event or state name in the export)</code></td>
+    <td class="num">—</td>
+    <td class="num">—</td>
     <td class="num">0</td>
-    <td class="num">0</td>
-    <td class="num">0</td>
-    <td><code>false</code></td>
+    <td class="num">—</td>
+    <td class="num">—</td>
+    <td><code>—</code></td>
   </tr>
 
   <tr>
     <td class="num">37</td>
     <td><code>—</code></td>
-    <td><code>SCHEDULED_HEARTBEAT_ZERO_WRITE_CHECKPOINT</code></td>
+    <td><code>(no event or state name in the export)</code></td>
+    <td class="num">—</td>
+    <td class="num">—</td>
+    <td class="num">—</td>
     <td class="num">0</td>
-    <td class="num">0</td>
-    <td class="num">0</td>
-    <td><code>false</code></td>
+    <td class="num">—</td>
+    <td><code>—</code></td>
   </tr>
 
   <tr>
     <td class="num">38</td>
     <td><code>—</code></td>
-    <td><code>SCHEDULED_HEARTBEAT_ZERO_WRITE_CHECKPOINT</code></td>
+    <td><code>(no event or state name in the export)</code></td>
+    <td class="num">—</td>
+    <td class="num">—</td>
+    <td class="num">—</td>
     <td class="num">0</td>
-    <td class="num">0</td>
-    <td class="num">0</td>
+    <td class="num">—</td>
     <td><code>false</code></td>
   </tr>
 
@@ -529,269 +603,323 @@
     <td class="num">39</td>
     <td><code>—</code></td>
     <td><code>DENSE_REFERENCE_SEEN_ORIGINAL_KEY_DRAWINGS_IN_PROGRESS</code></td>
+    <td class="num">—</td>
+    <td class="num">—</td>
     <td class="num">0</td>
-    <td class="num">0</td>
-    <td class="num">0</td>
-    <td><code>false</code></td>
+    <td class="num">—</td>
+    <td class="num">—</td>
+    <td><code>—</code></td>
   </tr>
 
   <tr>
     <td class="num">40</td>
     <td><code>—</code></td>
-    <td><code>SCHEDULED_HEARTBEAT_ZERO_WRITE_CHECKPOINT</code></td>
+    <td><code>(no event or state name in the export)</code></td>
+    <td class="num">—</td>
+    <td class="num">—</td>
     <td class="num">0</td>
-    <td class="num">0</td>
-    <td class="num">0</td>
-    <td><code>false</code></td>
+    <td class="num">—</td>
+    <td class="num">—</td>
+    <td><code>—</code></td>
   </tr>
 
   <tr>
     <td class="num">41</td>
     <td><code>—</code></td>
-    <td><code>SCHEDULED_HEARTBEAT_ZERO_WRITE_CHECKPOINT</code></td>
+    <td><code>(no event or state name in the export)</code></td>
+    <td class="num">—</td>
+    <td class="num">—</td>
+    <td class="num">—</td>
     <td class="num">0</td>
-    <td class="num">0</td>
-    <td class="num">0</td>
-    <td><code>false</code></td>
+    <td class="num">—</td>
+    <td><code>—</code></td>
   </tr>
 
   <tr>
     <td class="num">42</td>
     <td><code>2026-10-26T18:10:34.3677718+08:00</code></td>
-    <td><code>SCHEDULED_HEARTBEAT_ZERO_WRITE_CHECKPOINT</code></td>
-    <td class="num">0</td>
-    <td class="num">0</td>
-    <td class="num">0</td>
-    <td><code>false</code></td>
+    <td><code>(no event or state name in the export)</code></td>
+    <td class="num">—</td>
+    <td class="num">—</td>
+    <td class="num">—</td>
+    <td class="num">—</td>
+    <td class="num">—</td>
+    <td><code>—</code></td>
   </tr>
 
   <tr>
     <td class="num">43</td>
     <td><code>2026-10-26T18:10:34.3677718+08:00</code></td>
-    <td><code>SCHEDULED_HEARTBEAT_ZERO_WRITE_CHECKPOINT</code></td>
-    <td class="num">0</td>
-    <td class="num">0</td>
-    <td class="num">0</td>
-    <td><code>false</code></td>
+    <td><code>(no event or state name in the export)</code></td>
+    <td class="num">—</td>
+    <td class="num">—</td>
+    <td class="num">—</td>
+    <td class="num">—</td>
+    <td class="num">—</td>
+    <td><code>—</code></td>
   </tr>
 
   <tr>
     <td class="num">44</td>
     <td><code>2026-10-26T18:10:34.3677718+08:00</code></td>
-    <td><code>SCHEDULED_HEARTBEAT_ZERO_WRITE_CHECKPOINT</code></td>
-    <td class="num">0</td>
-    <td class="num">0</td>
-    <td class="num">0</td>
-    <td><code>false</code></td>
+    <td><code>(no event or state name in the export)</code></td>
+    <td class="num">—</td>
+    <td class="num">—</td>
+    <td class="num">—</td>
+    <td class="num">—</td>
+    <td class="num">—</td>
+    <td><code>—</code></td>
   </tr>
 
   <tr>
     <td class="num">45</td>
     <td><code>2026-10-26T18:33:58.7489343+08:00</code></td>
-    <td><code>SCHEDULED_HEARTBEAT_ZERO_WRITE_CHECKPOINT</code></td>
+    <td><code>(no event or state name in the export)</code></td>
+    <td class="num">—</td>
+    <td class="num">—</td>
     <td class="num">0</td>
-    <td class="num">0</td>
-    <td class="num">0</td>
-    <td><code>false</code></td>
+    <td class="num">—</td>
+    <td class="num">—</td>
+    <td><code>—</code></td>
   </tr>
 
   <tr>
     <td class="num">46</td>
     <td><code>2026-10-26T18:48:20.8674364+08:00</code></td>
-    <td><code>SCHEDULED_HEARTBEAT_ZERO_WRITE_CHECKPOINT</code></td>
+    <td><code>(no event or state name in the export)</code></td>
+    <td class="num">—</td>
+    <td class="num">—</td>
     <td class="num">0</td>
-    <td class="num">0</td>
-    <td class="num">0</td>
-    <td><code>false</code></td>
+    <td class="num">—</td>
+    <td class="num">—</td>
+    <td><code>—</code></td>
   </tr>
 
   <tr>
     <td class="num">47</td>
     <td><code>2026-10-26T19:03:20.9543409+08:00</code></td>
-    <td><code>SCHEDULED_HEARTBEAT_ZERO_WRITE_CHECKPOINT</code></td>
+    <td><code>(no event or state name in the export)</code></td>
+    <td class="num">—</td>
+    <td class="num">—</td>
     <td class="num">0</td>
-    <td class="num">0</td>
-    <td class="num">0</td>
-    <td><code>false</code></td>
+    <td class="num">—</td>
+    <td class="num">—</td>
+    <td><code>—</code></td>
   </tr>
 
   <tr>
     <td class="num">48</td>
     <td><code>2026-10-26T19:34:01.9112258+08:00</code></td>
-    <td><code>SCHEDULED_HEARTBEAT_ZERO_WRITE_CHECKPOINT</code></td>
-    <td class="num">0</td>
-    <td class="num">0</td>
-    <td class="num">0</td>
+    <td><code>(no event or state name in the export)</code></td>
+    <td class="num">—</td>
+    <td class="num">—</td>
+    <td class="num">—</td>
+    <td class="num">—</td>
+    <td class="num">—</td>
     <td><code>false</code></td>
   </tr>
 
   <tr>
     <td class="num">49</td>
     <td><code>2026-10-26T19:37:14.5711599+08:00</code></td>
-    <td><code>SCHEDULED_HEARTBEAT_ZERO_WRITE_CHECKPOINT</code></td>
+    <td><code>(no event or state name in the export)</code></td>
+    <td class="num">—</td>
+    <td class="num">—</td>
     <td class="num">0</td>
-    <td class="num">0</td>
-    <td class="num">0</td>
-    <td><code>false</code></td>
+    <td class="num">—</td>
+    <td class="num">—</td>
+    <td><code>—</code></td>
   </tr>
 
   <tr>
     <td class="num">50</td>
     <td><code>2026-10-26T20:09:41.7435568+08:00</code></td>
-    <td><code>SCHEDULED_HEARTBEAT_ZERO_WRITE_CHECKPOINT</code></td>
+    <td><code>(no event or state name in the export)</code></td>
+    <td class="num">—</td>
+    <td class="num">—</td>
     <td class="num">0</td>
-    <td class="num">0</td>
-    <td class="num">0</td>
-    <td><code>false</code></td>
+    <td class="num">—</td>
+    <td class="num">—</td>
+    <td><code>—</code></td>
   </tr>
 
   <tr>
     <td class="num">51</td>
     <td><code>2026-10-26T21:33:43.5219404+08:00</code></td>
-    <td><code>SCHEDULED_HEARTBEAT_ZERO_WRITE_CHECKPOINT</code></td>
+    <td><code>(no event or state name in the export)</code></td>
     <td class="num">1</td>
+    <td class="num">—</td>
+    <td class="num">—</td>
     <td class="num">0</td>
-    <td class="num">0</td>
+    <td class="num">—</td>
     <td><code>false</code></td>
   </tr>
 
   <tr>
     <td class="num">52</td>
     <td><code>2026-10-26T22:17:45.9823951+08:00</code></td>
-    <td><code>AUTHORIZED_PLATFORM_WRITE_CHECKPOINT</code></td>
+    <td><code>(no event or state name in the export)</code></td>
     <td class="num">4</td>
+    <td class="num">—</td>
+    <td class="num">—</td>
     <td class="num">1</td>
-    <td class="num">0</td>
+    <td class="num">—</td>
     <td><code>false</code></td>
   </tr>
 
   <tr>
     <td class="num">53</td>
     <td><code>2026-10-26T22:32:49.4014946+08:00</code></td>
-    <td><code>SCHEDULED_HEARTBEAT_ZERO_WRITE_CHECKPOINT</code></td>
-    <td class="num">0</td>
-    <td class="num">0</td>
-    <td class="num">0</td>
-    <td><code>false</code></td>
+    <td><code>(no event or state name in the export)</code></td>
+    <td class="num">—</td>
+    <td class="num">—</td>
+    <td class="num">—</td>
+    <td class="num">—</td>
+    <td class="num">—</td>
+    <td><code>—</code></td>
   </tr>
 
   <tr>
     <td class="num">54</td>
     <td><code>2026-10-26T22:44:22.9312243+08:00</code></td>
-    <td><code>SCHEDULED_HEARTBEAT_ZERO_WRITE_CHECKPOINT</code></td>
+    <td><code>(no event or state name in the export)</code></td>
+    <td class="num">—</td>
+    <td class="num">—</td>
     <td class="num">0</td>
-    <td class="num">0</td>
-    <td class="num">0</td>
-    <td><code>false</code></td>
+    <td class="num">—</td>
+    <td class="num">—</td>
+    <td><code>—</code></td>
   </tr>
 
   <tr>
     <td class="num">55</td>
     <td><code>2026-10-26T22:53:21.2380257+08:00</code></td>
-    <td><code>SCHEDULED_HEARTBEAT_ZERO_WRITE_CHECKPOINT</code></td>
+    <td><code>(no event or state name in the export)</code></td>
+    <td class="num">—</td>
+    <td class="num">—</td>
     <td class="num">0</td>
-    <td class="num">0</td>
-    <td class="num">0</td>
-    <td><code>false</code></td>
+    <td class="num">—</td>
+    <td class="num">—</td>
+    <td><code>—</code></td>
   </tr>
 
   <tr>
     <td class="num">56</td>
     <td><code>2026-10-26T23:09:32.5083300+08:00</code></td>
-    <td><code>SCHEDULED_HEARTBEAT_ZERO_WRITE_CHECKPOINT</code></td>
+    <td><code>(no event or state name in the export)</code></td>
+    <td class="num">—</td>
+    <td class="num">—</td>
     <td class="num">0</td>
-    <td class="num">0</td>
-    <td class="num">0</td>
-    <td><code>false</code></td>
+    <td class="num">—</td>
+    <td class="num">—</td>
+    <td><code>—</code></td>
   </tr>
 
   <tr>
     <td class="num">57</td>
     <td><code>2026-10-26T23:38:53.2700411+08:00</code></td>
-    <td><code>SCHEDULED_HEARTBEAT_ZERO_WRITE_CHECKPOINT</code></td>
+    <td><code>(no event or state name in the export)</code></td>
+    <td class="num">—</td>
+    <td class="num">—</td>
     <td class="num">0</td>
-    <td class="num">0</td>
-    <td class="num">0</td>
-    <td><code>false</code></td>
+    <td class="num">—</td>
+    <td class="num">—</td>
+    <td><code>—</code></td>
   </tr>
 
   <tr>
     <td class="num">58</td>
     <td><code>2026-10-26T23:42:46.0229696+08:00</code></td>
-    <td><code>SCHEDULED_HEARTBEAT_ZERO_WRITE_CHECKPOINT</code></td>
+    <td><code>(no event or state name in the export)</code></td>
+    <td class="num">—</td>
+    <td class="num">—</td>
     <td class="num">0</td>
-    <td class="num">0</td>
-    <td class="num">0</td>
-    <td><code>false</code></td>
+    <td class="num">—</td>
+    <td class="num">—</td>
+    <td><code>—</code></td>
   </tr>
 
   <tr>
     <td class="num">59</td>
     <td><code>2026-10-27T00:15:58.3993146+08:00</code></td>
-    <td><code>SCHEDULED_HEARTBEAT_ZERO_WRITE_CHECKPOINT</code></td>
+    <td><code>(no event or state name in the export)</code></td>
+    <td class="num">—</td>
+    <td class="num">—</td>
     <td class="num">0</td>
-    <td class="num">0</td>
-    <td class="num">0</td>
-    <td><code>false</code></td>
+    <td class="num">—</td>
+    <td class="num">—</td>
+    <td><code>—</code></td>
   </tr>
 
   <tr>
     <td class="num">60</td>
     <td><code>2026-10-27T00:30:16.8876502+08:00</code></td>
-    <td><code>SCHEDULED_HEARTBEAT_ZERO_WRITE_CHECKPOINT</code></td>
+    <td><code>(no event or state name in the export)</code></td>
+    <td class="num">—</td>
+    <td class="num">—</td>
     <td class="num">0</td>
-    <td class="num">0</td>
-    <td class="num">0</td>
-    <td><code>false</code></td>
+    <td class="num">—</td>
+    <td class="num">—</td>
+    <td><code>—</code></td>
   </tr>
 
   <tr>
     <td class="num">61</td>
     <td><code>2026-10-27T01:34:59.0091142+08:00</code></td>
-    <td><code>SCHEDULED_HEARTBEAT_ZERO_WRITE_CHECKPOINT</code></td>
-    <td class="num">0</td>
-    <td class="num">0</td>
-    <td class="num">0</td>
-    <td><code>false</code></td>
+    <td><code>(no event or state name in the export)</code></td>
+    <td class="num">—</td>
+    <td class="num">—</td>
+    <td class="num">—</td>
+    <td class="num">—</td>
+    <td class="num">—</td>
+    <td><code>—</code></td>
   </tr>
 
   <tr>
     <td class="num">62</td>
     <td><code>2026-10-27T02:06:31.7454547+08:00</code></td>
-    <td><code>SCHEDULED_HEARTBEAT_ZERO_WRITE_CHECKPOINT</code></td>
+    <td><code>(no event or state name in the export)</code></td>
+    <td class="num">—</td>
+    <td class="num">—</td>
     <td class="num">0</td>
-    <td class="num">0</td>
-    <td class="num">0</td>
-    <td><code>false</code></td>
+    <td class="num">—</td>
+    <td class="num">—</td>
+    <td><code>—</code></td>
   </tr>
 
   <tr>
     <td class="num">63</td>
     <td><code>—</code></td>
     <td><code>FIRST_LOCAL_TEMPORAL_PILOT_ACTUALLY_ENCODED_REVIEW_DISPATCHED</code></td>
+    <td class="num">—</td>
+    <td class="num">—</td>
     <td class="num">0</td>
-    <td class="num">0</td>
-    <td class="num">0</td>
-    <td><code>false</code></td>
+    <td class="num">—</td>
+    <td class="num">—</td>
+    <td><code>—</code></td>
   </tr>
 
   <tr>
     <td class="num">64</td>
     <td><code>—</code></td>
     <td><code>LOCAL_TEMPORAL_PILOT_V1_VISUAL_REVISION_REQUIRED</code></td>
+    <td class="num">—</td>
+    <td class="num">—</td>
     <td class="num">0</td>
-    <td class="num">0</td>
-    <td class="num">0</td>
-    <td><code>false</code></td>
+    <td class="num">—</td>
+    <td class="num">—</td>
+    <td><code>—</code></td>
   </tr>
 
   <tr>
     <td class="num">65</td>
     <td><code>2026-10-27T02:31:10.7396097+08:00</code></td>
-    <td><code>SCHEDULED_HEARTBEAT_ZERO_WRITE_CHECKPOINT</code></td>
+    <td><code>(no event or state name in the export)</code></td>
     <td class="num">4</td>
+    <td class="num">—</td>
+    <td class="num">—</td>
     <td class="num">0</td>
-    <td class="num">0</td>
+    <td class="num">—</td>
     <td><code>false</code></td>
   </tr>
 
@@ -799,20 +927,24 @@
     <td class="num">66</td>
     <td><code>2026-10-27T02:45:39.4969765+08:00</code></td>
     <td><code>BOUNDED_LOCAL_TEMPORAL_TRIAL_CLOSED_AUTHOR_RETURNS_TO_COLORED_POSE_WORK</code></td>
+    <td class="num">—</td>
+    <td class="num">—</td>
     <td class="num">0</td>
-    <td class="num">0</td>
-    <td class="num">0</td>
-    <td><code>false</code></td>
+    <td class="num">—</td>
+    <td class="num">—</td>
+    <td><code>—</code></td>
   </tr>
 
   <tr>
     <td class="num">67</td>
     <td><code>2026-10-26T07:34:35.3009205+08:00</code></td>
     <td><code>CREATOR_TOOL_CREDITS_AND_SIX_COMIC_KEY_DRAWINGS_REVIEWED</code></td>
+    <td class="num">—</td>
+    <td class="num">—</td>
+    <td class="num">—</td>
     <td class="num">0</td>
-    <td class="num">0</td>
-    <td class="num">0</td>
-    <td><code>false</code></td>
+    <td class="num">—</td>
+    <td><code>—</code></td>
   </tr>
 
   <tr>
@@ -820,9 +952,11 @@
     <td><code>2026-10-26T07:36:23.1156653+08:00</code></td>
     <td><code>COMIC_SHORT_ENCODED_REVIEW_DISPATCHED</code></td>
     <td class="num">0</td>
+    <td class="num">—</td>
+    <td class="num">—</td>
     <td class="num">0</td>
-    <td class="num">0</td>
-    <td><code>false</code></td>
+    <td class="num">—</td>
+    <td><code>—</code></td>
   </tr>
 
   <tr>
@@ -830,9 +964,11 @@
     <td><code>2026-10-26T18:17:39.6899150+08:00</code></td>
     <td><code>CONTINUITY_DRAWINGS_IN_PROGRESS</code></td>
     <td class="num">0</td>
+    <td class="num">—</td>
+    <td class="num">—</td>
     <td class="num">0</td>
-    <td class="num">0</td>
-    <td><code>false</code></td>
+    <td class="num">—</td>
+    <td><code>—</code></td>
   </tr>
   </tbody>
 </table>
@@ -2028,8 +2164,8 @@
   </tbody>
 </table>
 
-<h2>Appendix E. Complete Architectural &amp; Function-Level Specification of All 123 Source Modules in <em>PublishOps CrossCast</em> (27,095 LOC)</h2>
-<p>Table E.1 details every Python source module in <code>publishops-crosscast/src/</code> (123 files, 27,095 lines of source code), including its exact line count, byte size, defined classes, and top-level/member function identifiers.</p>
+<h2>Appendix E. Function-Level Inventory of All 123 Source Modules in <em>PublishOps CrossCast</em> (26,972 Physical Lines)</h2>
+<p>Table E.1 lists every Python source module in <code>publishops-crosscast/src/</code> at commit <code>75b7abc</code> (123 files, 26,972 physical lines). Of these, 42 files are an unmodified bundled copy of the MIT-licensed <code>bili-cli</code> v1.2.1 (<code>NOTICE.md</code>). For each module the table gives its line count, byte size, classes and function identifiers.</p>
 
 <table class="sci-table">
   <thead>
@@ -2047,7 +2183,7 @@
   <tr>
     <td class="num">1</td>
     <td><code>src/bili_cli/__init__.py</code></td>
-    <td class="num">2</td>
+    <td class="num">1</td>
     <td class="num">23</td>
     <td><code style="font-size:7pt;">—</code></td>
     <td><code style="font-size:6.8pt;word-break:break-word;">—</code></td>
@@ -2057,7 +2193,7 @@
   <tr>
     <td class="num">2</td>
     <td><code>src/bili_cli/asr/__init__.py</code></td>
-    <td class="num">9</td>
+    <td class="num">8</td>
     <td class="num">530</td>
     <td><code style="font-size:7pt;">—</code></td>
     <td><code style="font-size:6.8pt;word-break:break-word;">—</code></td>
@@ -2067,7 +2203,7 @@
   <tr>
     <td class="num">3</td>
     <td><code>src/bili_cli/asr/audio.py</code></td>
-    <td class="num">61</td>
+    <td class="num">60</td>
     <td class="num">2,473</td>
     <td><code style="font-size:7pt;">—</code></td>
     <td><code style="font-size:6.8pt;word-break:break-word;">require_ffmpeg, _audio_urls, fetch_wav</code></td>
@@ -2077,7 +2213,7 @@
   <tr>
     <td class="num">4</td>
     <td><code>src/bili_cli/asr/engines.py</code></td>
-    <td class="num">277</td>
+    <td class="num">276</td>
     <td class="num">12,538</td>
     <td><code style="font-size:7pt;">Engine, SherpaEngine, TorchQwenEngine, OpenAICompatEngine, AliyunEngine, TencentEngine</code></td>
     <td><code style="font-size:6.8pt;word-break:break-word;">transcribe, expose_nvidia_dlls, __init__, _build, _run, transcribe, __init__, _run, transcribe, _gather_limited, run, __init__, transcribe, one, __init__, transcribe, one, __init__, _headers, sign, transcribe, one, build_local, build</code></td>
@@ -2087,7 +2223,7 @@
   <tr>
     <td class="num">5</td>
     <td><code>src/bili_cli/asr/pipeline.py</code></td>
-    <td class="num">49</td>
+    <td class="num">48</td>
     <td class="num">1,963</td>
     <td><code style="font-size:7pt;">—</code></td>
     <td><code style="font-size:6.8pt;word-break:break-word;">_cache_path, transcribe</code></td>
@@ -2097,7 +2233,7 @@
   <tr>
     <td class="num">6</td>
     <td><code>src/bili_cli/asr/segment.py</code></td>
-    <td class="num">118</td>
+    <td class="num">117</td>
     <td class="num">4,119</td>
     <td><code style="font-size:7pt;">Segment</code></td>
     <td><code style="font-size:6.8pt;word-break:break-word;">wav_bytes, floats, read_pcm, _cut, vad_segments, drain, silence_segments</code></td>
@@ -2107,7 +2243,7 @@
   <tr>
     <td class="num">7</td>
     <td><code>src/bili_cli/asr/settings.py</code></td>
-    <td class="num">50</td>
+    <td class="num">49</td>
     <td class="num">1,296</td>
     <td><code style="font-size:7pt;">—</code></td>
     <td><code style="font-size:6.8pt;word-break:break-word;">path, models_dir, load, save, masked</code></td>
@@ -2117,7 +2253,7 @@
   <tr>
     <td class="num">8</td>
     <td><code>src/bili_cli/asr/setup.py</code></td>
-    <td class="num">190</td>
+    <td class="num">189</td>
     <td class="num">8,038</td>
     <td><code style="font-size:7pt;">—</code></td>
     <td><code style="font-size:6.8pt;word-break:break-word;">detect_gpu, _importable, _pip, _download, _fetch_release, _fetch_vad, plan, setup_local, self_test</code></td>
@@ -2127,7 +2263,7 @@
   <tr>
     <td class="num">9</td>
     <td><code>src/bili_cli/cards.py</code></td>
-    <td class="num">70</td>
+    <td class="num">69</td>
     <td class="num">2,028</td>
     <td><code style="font-size:7pt;">—</code></td>
     <td><code style="font-size:6.8pt;word-break:break-word;">_reason, video_card, _seen_path, load_seen, mark_seen, filter_unseen</code></td>
@@ -2137,7 +2273,7 @@
   <tr>
     <td class="num">10</td>
     <td><code>src/bili_cli/commands/__init__.py</code></td>
-    <td class="num">1</td>
+    <td class="num">0</td>
     <td class="num">0</td>
     <td><code style="font-size:7pt;">—</code></td>
     <td><code style="font-size:6.8pt;word-break:break-word;">—</code></td>
@@ -2147,7 +2283,7 @@
   <tr>
     <td class="num">11</td>
     <td><code>src/bili_cli/commands/asr.py</code></td>
-    <td class="num">149</td>
+    <td class="num">148</td>
     <td class="num">7,473</td>
     <td><code style="font-size:7pt;">—</code></td>
     <td><code style="font-size:6.8pt;word-break:break-word;">setup_local, body, setup_cloud, body, use, body, status, body</code></td>
@@ -2157,7 +2293,7 @@
   <tr>
     <td class="num">12</td>
     <td><code>src/bili_cli/commands/auth.py</code></td>
-    <td class="num">253</td>
+    <td class="num">252</td>
     <td class="num">10,248</td>
     <td><code style="font-size:7pt;">—</code></td>
     <td><code style="font-size:6.8pt;word-break:break-word;">_generate_qr, _poll_qr, _self_info, _correspond_path, _refresh_cookies, _wait_pending, _wait_deadline, login, body, status, body, logout, body</code></td>
@@ -2167,7 +2303,7 @@
   <tr>
     <td class="num">13</td>
     <td><code>src/bili_cli/commands/autoreply.py</code></td>
-    <td class="num">210</td>
+    <td class="num">209</td>
     <td class="num">9,777</td>
     <td><code style="font-size:7pt;">—</code></td>
     <td><code style="font-size:6.8pt;word-break:break-word;">_kind, _texts, summarize, _split, _check_reply, show, body, _switch, set_, body, on_, off_, _toggle, body, build_rule, keyword_add, body, keyword_delete, body</code></td>
@@ -2177,7 +2313,7 @@
   <tr>
     <td class="num">14</td>
     <td><code>src/bili_cli/commands/comment.py</code></td>
-    <td class="num">532</td>
+    <td class="num">531</td>
     <td class="num">23,799</td>
     <td><code style="font-size:7pt;">—</code></td>
     <td><code style="font-size:6.8pt;word-break:break-word;">resolve_target, _https, comment_images, _reply, needs_reply, _pinned, list_, body, replies, body, _mentions, check_images, _upload_pictures, _send, post, body, check, body, _check_result, pin, body, reply, body, like, body, delete, body, summarize_emotes, texts, emotes, body, image_path, images, body</code></td>
@@ -2187,7 +2323,7 @@
   <tr>
     <td class="num">15</td>
     <td><code>src/bili_cli/commands/danmaku.py</code></td>
-    <td class="num">411</td>
+    <td class="num">410</td>
     <td class="num">23,220</td>
     <td><code style="font-size:7pt;">—</code></td>
     <td><code style="font-size:6.8pt;word-break:break-word;">send, body, recall, body, own_video_page, _post_command, interact_link, body, interact_follow, body, interact_vote, body, interact_rating, body, interact_reserve, body, interact_list, body, interact_remove, body</code></td>
@@ -2197,7 +2333,7 @@
   <tr>
     <td class="num">16</td>
     <td><code>src/bili_cli/commands/data.py</code></td>
-    <td class="num">475</td>
+    <td class="num">474</td>
     <td class="num">24,349</td>
     <td><code style="font-size:7pt;">—</code></td>
     <td><code style="font-size:6.8pt;word-break:break-word;">pct, num, share, date_str, day, top_items, get_data, _period, _diagnose_metrics, overview, body, trend, body, audience, body, gender, ages, interests, fans, body, names, videos, body, _pick_archive, video, body, diagnose, body</code></td>
@@ -2207,7 +2343,7 @@
   <tr>
     <td class="num">17</td>
     <td><code>src/bili_cli/commands/dm_watch.py</code></td>
-    <td class="num">305</td>
+    <td class="num">304</td>
     <td class="num">16,459</td>
     <td><code style="font-size:7pt;">—</code></td>
     <td><code style="font-size:6.8pt;word-break:break-word;">_within, _emit, _watch, sessions, ours_only, fetch, handle, sync, full_resync, worker, round_, poll_loop, push_loop, watch, body</code></td>
@@ -2217,7 +2353,7 @@
   <tr>
     <td class="num">18</td>
     <td><code>src/bili_cli/commands/dm.py</code></td>
-    <td class="num">294</td>
+    <td class="num">293</td>
     <td class="num">14,325</td>
     <td><code style="font-size:7pt;">—</code></td>
     <td><code style="font-size:6.8pt;word-break:break-word;">_content, _names, _page, _history, _resolve_uid, _sessions, conversations, unread_conversations, list_, body, read, body, _may_message, _send_one, _image_content, send, body</code></td>
@@ -2227,7 +2363,7 @@
   <tr>
     <td class="num">19</td>
     <td><code>src/bili_cli/commands/dynamic.py</code></td>
-    <td class="num">248</td>
+    <td class="num">247</td>
     <td class="num">11,465</td>
     <td><code style="font-size:7pt;">—</code></td>
     <td><code style="font-size:6.8pt;word-break:break-word;">vote_payload, _text_of, _vote_card, check_vote, normalize, post, body, list_, body, show, body, delete, body, vote_, body</code></td>
@@ -2237,7 +2373,7 @@
   <tr>
     <td class="num">20</td>
     <td><code>src/bili_cli/commands/feed.py</code></td>
-    <td class="num">347</td>
+    <td class="num">346</td>
     <td class="num">14,620</td>
     <td><code style="font-size:7pt;">—</code></td>
     <td><code style="font-size:6.8pt;word-break:break-word;">_parse_cursor, _reply_command, _notice, _collect, recommend, body, timeline, body, _unread, _replies, convert, _mentions, convert, _like, _likes, fetch, _system, notifications, body, replies, body, mentions, body, likes, body, system, body, inbox, body, fresh</code></td>
@@ -2247,7 +2383,7 @@
   <tr>
     <td class="num">21</td>
     <td><code>src/bili_cli/commands/hot.py</code></td>
-    <td class="num">129</td>
+    <td class="num">128</td>
     <td class="num">5,431</td>
     <td><code style="font-size:7pt;">—</code></td>
     <td><code style="font-size:6.8pt;word-break:break-word;">search_, body, popular, body, weekly, body, precious, body, rank_, body</code></td>
@@ -2257,7 +2393,7 @@
   <tr>
     <td class="num">22</td>
     <td><code>src/bili_cli/commands/mcp.py</code></td>
-    <td class="num">183</td>
+    <td class="num">182</td>
     <td class="num">7,044</td>
     <td><code style="font-size:7pt;">—</code></td>
     <td><code style="font-size:6.8pt;word-break:break-word;">_server_command, _appdata, _app_support, _xdg, _json_client_path, _entry, _cli_argv, _plan, _apply, _clients, serve, _mcp_command, install, body, uninstall, body</code></td>
@@ -2267,7 +2403,7 @@
   <tr>
     <td class="num">23</td>
     <td><code>src/bili_cli/commands/me.py</code></td>
-    <td class="num">244</td>
+    <td class="num">243</td>
     <td class="num">10,541</td>
     <td><code style="font-size:7pt;">—</code></td>
     <td><code style="font-size:6.8pt;word-break:break-word;">_account, _update_profile, show, body, favs, body, _pct, summarize_stats, pair, stats, body, set_sign, body, set_name, body, _square_png, set_avatar, body</code></td>
@@ -2277,7 +2413,7 @@
   <tr>
     <td class="num">24</td>
     <td><code>src/bili_cli/commands/owner.py</code></td>
-    <td class="num">60</td>
+    <td class="num">59</td>
     <td class="num">1,961</td>
     <td><code style="font-size:7pt;">—</code></td>
     <td><code style="font-size:6.8pt;word-break:break-word;">resolve_user, set_, body, show, body, clear, body</code></td>
@@ -2287,7 +2423,7 @@
   <tr>
     <td class="num">25</td>
     <td><code>src/bili_cli/commands/search.py</code></td>
-    <td class="num">112</td>
+    <td class="num">111</td>
     <td class="num">3,663</td>
     <td><code style="font-size:7pt;">—</code></td>
     <td><code style="font-size:6.8pt;word-break:break-word;">_order, video_, body, user_, body</code></td>
@@ -2297,7 +2433,7 @@
   <tr>
     <td class="num">26</td>
     <td><code>src/bili_cli/commands/season.py</code></td>
-    <td class="num">203</td>
+    <td class="num">202</td>
     <td class="num">9,684</td>
     <td><code style="font-size:7pt;">—</code></td>
     <td><code style="font-size:6.8pt;word-break:break-word;">_api, summarize_season, _seasons, _section_of, own_episode, add_episodes, list_, body, create, body, add, body, remove, body, delete, body</code></td>
@@ -2307,7 +2443,7 @@
   <tr>
     <td class="num">27</td>
     <td><code>src/bili_cli/commands/skills.py</code></td>
-    <td class="num">118</td>
+    <td class="num">117</td>
     <td class="num">5,025</td>
     <td><code style="font-size:7pt;">—</code></td>
     <td><code style="font-size:6.8pt;word-break:break-word;">_targets, _check_agents, install, body, _split, uninstall, body, status, body, show, body</code></td>
@@ -2317,7 +2453,7 @@
   <tr>
     <td class="num">28</td>
     <td><code>src/bili_cli/commands/upload.py</code></td>
-    <td class="num">955</td>
+    <td class="num">954</td>
     <td class="num">50,258</td>
     <td><code style="font-size:7pt;">—</code></td>
     <td><code style="font-size:6.8pt;word-break:break-word;">_predict_zone, _zones, _check_tags, _preflight, find_topic, parse_staff, _pre, _check_reserve, _check_staff, _extract_cover, _parse_schedule, _progress, on_chunk, video_, body, _archive, list_, body, status, body, _archive_view, build_desc_v2, _find_all, _desc_mentions, _upload_file, edit_blocker, current_staffs, build_edit, edit, body, video_rates, stats, body, parse_chapter_lines, build_chapters, _chapter_rules, _submit_chapters, chapters_show, body, chapters_set, body, chapters_clear, body, zones, body</code></td>
@@ -2327,7 +2463,7 @@
   <tr>
     <td class="num">29</td>
     <td><code>src/bili_cli/commands/user.py</code></td>
-    <td class="num">229</td>
+    <td class="num">228</td>
     <td class="num">9,291</td>
     <td><code style="font-size:7pt;">—</code></td>
     <td><code style="font-size:6.8pt;word-break:break-word;">resolve_mid, info, body, videos, body, _relation_with, _set_relation, follow, unfollow, block, unblock, blocked, body, following, body</code></td>
@@ -2337,7 +2473,7 @@
   <tr>
     <td class="num">30</td>
     <td><code>src/bili_cli/commands/video.py</code></td>
-    <td class="num">663</td>
+    <td class="num">662</td>
     <td class="num">30,998</td>
     <td><code style="font-size:7pt;">—</code></td>
     <td><code style="font-size:6.8pt;word-break:break-word;">_video, _pick_page, _stat, _summarize, info, body, stats, body, subtitle, body, danmaku, body, _peak_cards, _load_danmaku, _annotate, _density_bins, _snapshot, frames, body, _relation, _own_video, _watch_note, relation, body, like, body, coin, body, _folders, fav, body, pick, triple, body, watch, body, transcribe, body, chapters, body, summary, body</code></td>
@@ -2347,7 +2483,7 @@
   <tr>
     <td class="num">31</td>
     <td><code>src/bili_cli/config.py</code></td>
-    <td class="num">139</td>
+    <td class="num">138</td>
     <td class="num">4,072</td>
     <td><code style="font-size:7pt;">—</code></td>
     <td><code style="font-size:6.8pt;word-break:break-word;">home, _read_json, _write_private, credential_path, pending_login_path, save_credential, load_credential, require_credential, my_mid, optional_credential, delete_credential, owner_path, load_owner, save_owner, device_id, save_pending_login, load_pending_login, clear_pending_login</code></td>
@@ -2357,7 +2493,7 @@
   <tr>
     <td class="num">32</td>
     <td><code>src/bili_cli/errors.py</code></td>
-    <td class="num">133</td>
+    <td class="num">132</td>
     <td class="num">6,051</td>
     <td><code style="font-size:7pt;">BiliError</code></td>
     <td><code style="font-size:6.8pt;word-break:break-word;">__init__, exit_code, to_dict, from_exception</code></td>
@@ -2367,7 +2503,7 @@
   <tr>
     <td class="num">33</td>
     <td><code>src/bili_cli/frames.py</code></td>
-    <td class="num">318</td>
+    <td class="num">317</td>
     <td class="num">14,598</td>
     <td><code style="font-size:7pt;">—</code></td>
     <td><code style="font-size:6.8pt;word-break:break-word;">plan_times, fmt_time, frame_name, grab_preview, dedupe, pick_stream, grab_hd, one, _font, _printable, _fit, _flow, contact_sheet</code></td>
@@ -2377,7 +2513,7 @@
   <tr>
     <td class="num">34</td>
     <td><code>src/bili_cli/guard.py</code></td>
-    <td class="num">129</td>
+    <td class="num">128</td>
     <td class="num">4,837</td>
     <td><code style="font-size:7pt;">—</code></td>
     <td><code style="font-size:6.8pt;word-break:break-word;">_state_path, _load, _disabled, check, _check, record</code></td>
@@ -2387,7 +2523,7 @@
   <tr>
     <td class="num">35</td>
     <td><code>src/bili_cli/health.py</code></td>
-    <td class="num">156</td>
+    <td class="num">155</td>
     <td class="num">5,877</td>
     <td><code style="font-size:7pt;">_Stats</code></td>
     <td><code style="font-size:6.8pt;word-break:break-word;">debug_enabled, debug, __init__, take, record_tick, _heartbeat, start_heartbeat, loop_probe, enrich, install_request_guard, _request</code></td>
@@ -2397,7 +2533,7 @@
   <tr>
     <td class="num">36</td>
     <td><code>src/bili_cli/im_push.py</code></td>
-    <td class="num">172</td>
+    <td class="num">171</td>
     <td class="num">6,232</td>
     <td><code style="font-size:7pt;">Frame, Notify</code></td>
     <td><code style="font-size:6.8pt;word-break:break-word;">_varint, _field_len, _field_int, parse, _read_varint, _first, frame, auth_frame, subscribe_frame, heartbeat_frame, decode_frame, decode_notify</code></td>
@@ -2407,7 +2543,7 @@
   <tr>
     <td class="num">37</td>
     <td><code>src/bili_cli/main.py</code></td>
-    <td class="num">166</td>
+    <td class="num">165</td>
     <td class="num">6,134</td>
     <td><code style="font-size:7pt;">—</code></td>
     <td><code style="font-size:6.8pt;word-break:break-word;">_version, root, _describe_params, _describe, schema, body, _hoist_global_flags, main</code></td>
@@ -2417,7 +2553,7 @@
   <tr>
     <td class="num">38</td>
     <td><code>src/bili_cli/mcp_server.py</code></td>
-    <td class="num">188</td>
+    <td class="num">187</td>
     <td class="num">10,840</td>
     <td><code style="font-size:7pt;">—</code></td>
     <td><code style="font-size:6.8pt;word-break:break-word;">call, _flag, build_server, status, login, wait_login, inbox, watch_video, video_transcript, search_videos, recommended_videos, trending, list_comments, list_dms, read_dm, post_comment, reply_comment, send_dm, post_dynamic, run_bili, _call_with_stdin, serve</code></td>
@@ -2427,7 +2563,7 @@
   <tr>
     <td class="num">39</td>
     <td><code>src/bili_cli/output.py</code></td>
-    <td class="num">60</td>
+    <td class="num">59</td>
     <td class="num">1,673</td>
     <td><code style="font-size:7pt;">Settings</code></td>
     <td><code style="font-size:6.8pt;word-break:break-word;">_dump, _write, success, fail, info, dry_run</code></td>
@@ -2437,7 +2573,7 @@
   <tr>
     <td class="num">40</td>
     <td><code>src/bili_cli/reactions.py</code></td>
-    <td class="num">129</td>
+    <td class="num">128</td>
     <td class="num">5,358</td>
     <td><code style="font-size:7pt;">—</code></td>
     <td><code style="font-size:6.8pt;word-break:break-word;">load, moment, _key, top_texts, assign, density, peaks</code></td>
@@ -2447,7 +2583,7 @@
   <tr>
     <td class="num">41</td>
     <td><code>src/bili_cli/runtime.py</code></td>
-    <td class="num">244</td>
+    <td class="num">243</td>
     <td class="num">8,749</td>
     <td><code style="font-size:7pt;">—</code></td>
     <td><code style="font-size:6.8pt;word-break:break-word;">web_client, default_deadline, _timeout_error, _hard_exit, write, _within, run, parse_video_id, iso_time, strip_html, read_text, parse_timestamp, parse_seconds</code></td>
@@ -2457,7 +2593,7 @@
   <tr>
     <td class="num">42</td>
     <td><code>src/bili_cli/skills.py</code></td>
-    <td class="num">228</td>
+    <td class="num">227</td>
     <td class="num">8,795</td>
     <td><code style="font-size:7pt;">Target</code></td>
     <td><code style="font-size:6.8pt;word-break:break-word;">_xdg_config, _env_dir, config_dir, skill_dir, detected, HOME, project_targets, bundled_dir, commands_reference, _source_hash, read_marker, plan, install, uninstall, status</code></td>
@@ -2467,7 +2603,7 @@
   <tr>
     <td class="num">43</td>
     <td><code>src/video_publisher/__init__.py</code></td>
-    <td class="num">4</td>
+    <td class="num">3</td>
     <td class="num">103</td>
     <td><code style="font-size:7pt;">—</code></td>
     <td><code style="font-size:6.8pt;word-break:break-word;">—</code></td>
@@ -2477,7 +2613,7 @@
   <tr>
     <td class="num">44</td>
     <td><code>src/video_publisher/__main__.py</code></td>
-    <td class="num">5</td>
+    <td class="num">4</td>
     <td class="num">35</td>
     <td><code style="font-size:7pt;">—</code></td>
     <td><code style="font-size:6.8pt;word-break:break-word;">—</code></td>
@@ -2487,7 +2623,7 @@
   <tr>
     <td class="num">45</td>
     <td><code>src/video_publisher/adapters.py</code></td>
-    <td class="num">359</td>
+    <td class="num">358</td>
     <td class="num">18,092</td>
     <td><code style="font-size:7pt;">—</code></td>
     <td><code style="font-size:6.8pt;word-break:break-word;">bili, paid_api, paid_feature, email_reminder, email_status, youtube_api, youtube_playlists, yt_service, yt_credentials, publish_youtube, finish_youtube, addon_installed, default_method, browser_timeout, hidden_desktop_call, worker_call, browser_call, browser_answer, auth_status, auth_login, preflight, publish_bilibili, moment, bilibili_differences, publish, verify</code></td>
@@ -2497,7 +2633,7 @@
   <tr>
     <td class="num">46</td>
     <td><code>src/video_publisher/auth_jobs.py</code></td>
-    <td class="num">234</td>
+    <td class="num">233</td>
     <td class="num">10,664</td>
     <td><code style="font-size:7pt;">—</code></td>
     <td><code style="font-size:6.8pt;word-break:break-word;">job_path, _turn, _hint, _interrupted, _invalid, _folder, _file, _require_account, _result, _status, status, start, run_job, wait</code></td>
@@ -2507,7 +2643,7 @@
   <tr>
     <td class="num">47</td>
     <td><code>src/video_publisher/browser_backends.py</code></td>
-    <td class="num">995</td>
+    <td class="num">994</td>
     <td class="num">63,951</td>
     <td><code style="font-size:7pt;">Transaction</code></td>
     <td><code style="font-size:6.8pt;word-break:break-word;">normalize, work_url, instagram_address_is, click_named, wait_until, before_a_file_goes_up, choose_file, choose_in_picker, upload_file, __init__, save, media_name, media, validate_assets, cover, submit, links, douyin_card_is_waiting, douyin_card_status, douyin_card_words, douyin_type_caption, douyin_card_says, douyin_cards_saying, douyin_cards_titled, douyin_card_stamp, douyin_card_time, douyin_cards_at, douyin_scheduled_card, douyin_editor_address, douyin_editor_work, douyin_editor_boxes, douyin_id_from_menu, target, its_menu, same, douyin_new_works, x_new_works, x_new_posts, instagram_caption_says, x_post_reads_as_this_upload, reads_right, douyin_card_id, works, studio_visibility, studio_style, studio_read, studio_moments, studio_offsets, studio_zone_offsets_agree, youtube_schedule_passed, youtube_schedule_zone_agrees, verify_youtube, on_this_video, x_chosen_time_says, x_row_says_schedule, x_schedule_moment, x_row_has_words, x_row_is_a_post, x_row_is_finished, x_row_has_schedule, x_schedule_rows, x_schedule_read, x_schedule_baseline, verify_scheduled_x, rows_with_its_words, posted_around, verify, shown, execute, complete_pending_chapters</code></td>
@@ -2517,7 +2653,7 @@
   <tr>
     <td class="num">48</td>
     <td><code>src/video_publisher/browser_broker.py</code></td>
-    <td class="num">387</td>
+    <td class="num">386</td>
     <td class="num">17,945</td>
     <td><code style="font-size:7pt;">—</code></td>
     <td><code style="font-size:6.8pt;word-break:break-word;">enabled, idle_seconds, state_path, failure_path, file_version, new_address, busy_error, wait_for_lock, connect, attempt, start, call, release, accept_later, finish, wait, serve, out_of_time, within, check_again, run, handle, main</code></td>
@@ -2527,7 +2663,7 @@
   <tr>
     <td class="num">49</td>
     <td><code>src/video_publisher/browser_edits.py</code></td>
-    <td class="num">476</td>
+    <td class="num">475</td>
     <td class="num">30,811</td>
     <td><code style="font-size:7pt;">—</code></td>
     <td><code style="font-size:6.8pt;word-break:break-word;">instagram_caption_editor, words_to_save, x_edit_post, execute, save, submit, still_same_post, still_only_the_cover, douyin_cover_traffic, started, ended, finished, failed, look, douyin_cover_stuck, douyin_cover_settles, douyin_fonts, douyin_fonts_loaded, douyin_says_held, douyin_held, douyin_greyed, not_greyed, douyin_can_press, douyin_moved_on, douyin_fields, douyin_text, current, capture_cover, loaded, douyin_chapters, chapter_text_matches</code></td>
@@ -2537,7 +2673,7 @@
   <tr>
     <td class="num">50</td>
     <td><code>src/video_publisher/browser_forms.py</code></td>
-    <td class="num">1,234</td>
+    <td class="num">1,233</td>
     <td class="num">83,395</td>
     <td><code style="font-size:7pt;">—</code></td>
     <td><code style="font-size:6.8pt;word-break:break-word;">enabled, finish, x_schedule, x_video_is_whole, x_composer_is_this_files, x_send_scheduled, not_ready, read, time_is_this_schedule, words_are_the_plans, tied, class_says_off, aria_says_off, says_done, ready_to_send, x_studio_path, x_media_address, x_file_link, x_link_names_another_video, x_media_form, x_form_shows, x_names_showing, x_names_among_tiles, x_first_click_hold, x_open_media, opened, publish_x, still_same_media, form_video, still_this_files, instagram_shares_elsewhere, publish_instagram, crop_ready, words_are_kept, ai_switch, switches_in, still_says_it, douyin_reopen_kept_draft, publish_douyin, douyin_schedule, douyin_collection, douyin_offers_draft, douyin_keep_draft, finish_douyin_form, youtube_link_id, yt_video_id, youtube_link_shape, yt_upload_look, yt_reopen_stopped_upload, yt_button_ready, yt_radio, yt_category, yt_tick, yt_playlists, yt_set_time, held, yt_schedule_zone, yt_schedule_local, yt_schedule, yt_press_answer, yt_checks_finished, yt_back_from_warning, gone, yt_press_publish, schedule_still_holds, yt_finish_draft, yt_upload_finished, publish_youtube, tags_shown, yt_final_steps</code></td>
@@ -2547,7 +2683,7 @@
   <tr>
     <td class="num">51</td>
     <td><code>src/video_publisher/browser_runtime.py</code></td>
-    <td class="num">529</td>
+    <td class="num">528</td>
     <td class="num">31,890</td>
     <td><code style="font-size:7pt;">—</code></td>
     <td><code style="font-size:6.8pt;word-break:break-word;">profile_dir, profile_lock, visible, unique_visible, look_until, on_site, platform_at, challenge_address, platform_words, challenge_shown, what_asked, risk_check, identity, check_identity, open_context, identity_path, remember_identity, login, any_challenge, keep_session, close_context, exit_soon, plain_address, failure_record, failure_message, kept, names_target, target_fields, objected, status_words, type_names, answer_shape, write_answers, acknowledged, save_session, signed_in_page</code></td>
@@ -2557,7 +2693,7 @@
   <tr>
     <td class="num">52</td>
     <td><code>src/video_publisher/browser_worker.py</code></td>
-    <td class="num">114</td>
+    <td class="num">113</td>
     <td class="num">6,170</td>
     <td><code style="font-size:7pt;">—</code></td>
     <td><code style="font-size:6.8pt;word-break:break-word;">action_timeout, dispatch, run, main</code></td>
@@ -2567,7 +2703,7 @@
   <tr>
     <td class="num">53</td>
     <td><code>src/video_publisher/categories.py</code></td>
-    <td class="num">15</td>
+    <td class="num">14</td>
     <td class="num">993</td>
     <td><code style="font-size:7pt;">—</code></td>
     <td><code style="font-size:6.8pt;word-break:break-word;">validate_youtube</code></td>
@@ -2577,7 +2713,7 @@
   <tr>
     <td class="num">54</td>
     <td><code>src/video_publisher/chapters.py</code></td>
-    <td class="num">70</td>
+    <td class="num">69</td>
     <td class="num">3,991</td>
     <td><code style="font-size:7pt;">—</code></td>
     <td><code style="font-size:6.8pt;word-break:break-word;">validate, stamp, chapter_lines, youtube_rules, without_chapters, youtube_description</code></td>
@@ -2587,7 +2723,7 @@
   <tr>
     <td class="num">55</td>
     <td><code>src/video_publisher/cli.py</code></td>
-    <td class="num">1,434</td>
+    <td class="num">1,433</td>
     <td class="num">113,979</td>
     <td><code style="font-size:7pt;">—</code></td>
     <td><code style="font-size:6.8pt;word-break:break-word;">only_a_preview, without_cover, with_cover, check_upload_copy, snapshot_plan, copy, _publish_platform, checkpoint, _stop_interrupted_publish, _publish_browser_batch, defer_interrupt, publish_plan, separate_bili_agent, included_bili_version, skill_file, doctor, setup, template, grouped_help, parser, safety_flags, execute, run_command, checkpoint, checkpoint, verify_attempt, checkpoint, keep_verified, login_answer, status_selected, login_selected, platform_routes, capabilities_summary, capabilities, one_line, finished, main</code></td>
@@ -2597,7 +2733,7 @@
   <tr>
     <td class="num">56</td>
     <td><code>src/video_publisher/collections_bilibili.py</code></td>
-    <td class="num">96</td>
+    <td class="num">95</td>
     <td class="num">4,465</td>
     <td><code style="font-size:7pt;">—</code></td>
     <td><code style="font-size:6.8pt;word-break:break-word;">sections, mine, items, rename, body, listing, members, call</code></td>
@@ -2607,7 +2743,7 @@
   <tr>
     <td class="num">57</td>
     <td><code>src/video_publisher/collections_browser.py</code></td>
-    <td class="num">448</td>
+    <td class="num">447</td>
     <td class="num">28,244</td>
     <td><code style="font-size:7pt;">—</code></td>
     <td><code style="font-size:6.8pt;word-break:break-word;">folder_section, folder_response, folders_in, folder_write_done, x_answer, created_id, instagram_response, official_response, response_capture, capture, click, fill_until_enabled, root, read_list, x_folder_row, x_member, x_folder_failed, x_folder_posts, x_earlier_member, execute</code></td>
@@ -2617,7 +2753,7 @@
   <tr>
     <td class="num">58</td>
     <td><code>src/video_publisher/collections_douyin.py</code></td>
-    <td class="num">184</td>
+    <td class="num">183</td>
     <td class="num">13,062</td>
     <td><code style="font-size:7pt;">—</code></td>
     <td><code style="font-size:6.8pt;word-break:break-word;">rows, matches, listing, detail, member_rows, execute, accepted_response</code></td>
@@ -2627,7 +2763,7 @@
   <tr>
     <td class="num">59</td>
     <td><code>src/video_publisher/collections_instagram.py</code></td>
-    <td class="num">88</td>
+    <td class="num">87</td>
     <td class="num">5,817</td>
     <td><code style="font-size:7pt;">—</code></td>
     <td><code style="font-size:6.8pt;word-break:break-word;">members, detail, execute</code></td>
@@ -2637,7 +2773,7 @@
   <tr>
     <td class="num">60</td>
     <td><code>src/video_publisher/collections.py</code></td>
-    <td class="num">225</td>
+    <td class="num">224</td>
     <td class="num">14,188</td>
     <td><code style="font-size:7pt;">—</code></td>
     <td><code style="font-size:6.8pt;word-break:break-word;">validate, receipt_path, call, members, listing, not_finished, playlist_differs, read_back, checked_result, verify, change, before_submit, membership</code></td>
@@ -2647,7 +2783,7 @@
   <tr>
     <td class="num">61</td>
     <td><code>src/video_publisher/comment_actions_api.py</code></td>
-    <td class="num">62</td>
+    <td class="num">61</td>
     <td class="num">4,240</td>
     <td><code style="font-size:7pt;">—</code></td>
     <td><code style="font-size:6.8pt;word-break:break-word;">execute</code></td>
@@ -2657,7 +2793,7 @@
   <tr>
     <td class="num">62</td>
     <td><code>src/video_publisher/comment_actions_browser.py</code></td>
-    <td class="num">125</td>
+    <td class="num">124</td>
     <td class="num">8,020</td>
     <td><code style="font-size:7pt;">—</code></td>
     <td><code style="font-size:6.8pt;word-break:break-word;">delete_answered, press_once, instagram_delete, heard, execute</code></td>
@@ -2667,7 +2803,7 @@
   <tr>
     <td class="num">63</td>
     <td><code>src/video_publisher/comment_actions_douyin.py</code></td>
-    <td class="num">87</td>
+    <td class="num">86</td>
     <td class="num">5,380</td>
     <td><code style="font-size:7pt;">—</code></td>
     <td><code style="font-size:6.8pt;word-break:break-word;">bound_row, observed, execute</code></td>
@@ -2677,7 +2813,7 @@
   <tr>
     <td class="num">64</td>
     <td><code>src/video_publisher/comment_actions_x.py</code></td>
-    <td class="num">91</td>
+    <td class="num">90</td>
     <td class="num">6,529</td>
     <td><code style="font-size:7pt;">—</code></td>
     <td><code style="font-size:6.8pt;word-break:break-word;">execute, delete_own</code></td>
@@ -2687,7 +2823,7 @@
   <tr>
     <td class="num">65</td>
     <td><code>src/video_publisher/comment_actions.py</code></td>
-    <td class="num">236</td>
+    <td class="num">235</td>
     <td class="num">16,801</td>
     <td><code style="font-size:7pt;">—</code></td>
     <td><code style="font-size:6.8pt;word-break:break-word;">target, gone_for_certain, refresh_snapshot, dispatch, status, submitting, matches, edited_words, mutate, verify, resume</code></td>
@@ -2697,7 +2833,7 @@
   <tr>
     <td class="num">66</td>
     <td><code>src/video_publisher/comment_collection.py</code></td>
-    <td class="num">82</td>
+    <td class="num">81</td>
     <td class="num">4,088</td>
     <td><code style="font-size:7pt;">—</code></td>
     <td><code style="font-size:6.8pt;word-break:break-word;">budgets, expand, scroll, collect</code></td>
@@ -2707,7 +2843,7 @@
   <tr>
     <td class="num">67</td>
     <td><code>src/video_publisher/core.py</code></td>
-    <td class="num">655</td>
+    <td class="num">654</td>
     <td class="num">40,870</td>
     <td><code style="font-size:7pt;">VpubError, Ledger</code></td>
     <td><code style="font-size:6.8pt;word-break:break-word;">__init__, never_sent, part_left_undone, presses_on_record, verified_over, reply_pressing, error_fields, now, home, when_the_file_is_free, read_json, atomic_json, digest, file_sha, real_window, wrong_file, snapshot_file, account_name, config, platform_check, language_tag, x_post_text, x_weighted_length, title_limit, douyin_caption, how_to_clear_a_stop, stop_check, manifest_file, shared_portrait, load_plan, __init__, key, get, rows, claim, save, save_unless_changed, forget_preview, forget, close, publication_lock, observation_lock, receipt_turn, brief_lock</code></td>
@@ -2717,7 +2853,7 @@
   <tr>
     <td class="num">68</td>
     <td><code>src/video_publisher/covers.py</code></td>
-    <td class="num">221</td>
+    <td class="num">220</td>
     <td class="num">13,974</td>
     <td><code style="font-size:7pt;">—</code></td>
     <td><code style="font-size:6.8pt;word-break:break-word;">parse_box, layout, portrait, check_supplied, prepare</code></td>
@@ -2727,7 +2863,7 @@
   <tr>
     <td class="num">69</td>
     <td><code>src/video_publisher/deletion.py</code></td>
-    <td class="num">117</td>
+    <td class="num">116</td>
     <td class="num">7,384</td>
     <td><code style="font-size:7pt;">—</code></td>
     <td><code style="font-size:6.8pt;word-break:break-word;">_work, request, record, repost, copy_asset</code></td>
@@ -2737,7 +2873,7 @@
   <tr>
     <td class="num">70</td>
     <td><code>src/video_publisher/direct_messages_bili.py</code></td>
-    <td class="num">37</td>
+    <td class="num">36</td>
     <td class="num">2,408</td>
     <td><code style="font-size:7pt;">—</code></td>
     <td><code style="font-size:6.8pt;word-break:break-word;">execute</code></td>
@@ -2747,7 +2883,7 @@
   <tr>
     <td class="num">71</td>
     <td><code>src/video_publisher/direct_messages_browser.py</code></td>
-    <td class="num">114</td>
+    <td class="num">113</td>
     <td class="num">7,991</td>
     <td><code style="font-size:7pt;">—</code></td>
     <td><code style="font-size:6.8pt;word-break:break-word;">outgoing_counts, new_outgoing, instagram_chat, execute</code></td>
@@ -2757,7 +2893,7 @@
   <tr>
     <td class="num">72</td>
     <td><code>src/video_publisher/direct_messages_douyin.py</code></td>
-    <td class="num">58</td>
+    <td class="num">57</td>
     <td class="num">3,675</td>
     <td><code style="font-size:7pt;">—</code></td>
     <td><code style="font-size:6.8pt;word-break:break-word;">execute</code></td>
@@ -2767,7 +2903,7 @@
   <tr>
     <td class="num">73</td>
     <td><code>src/video_publisher/direct_messages_x.py</code></td>
-    <td class="num">120</td>
+    <td class="num">119</td>
     <td class="num">7,444</td>
     <td><code style="font-size:7pt;">—</code></td>
     <td><code style="font-size:6.8pt;word-break:break-word;">open_chat, inbox, unlock, conversation_id, chat, execute</code></td>
@@ -2777,7 +2913,7 @@
   <tr>
     <td class="num">74</td>
     <td><code>src/video_publisher/direct_messages.py</code></td>
-    <td class="num">156</td>
+    <td class="num">155</td>
     <td class="num">9,382</td>
     <td><code style="font-size:7pt;">—</code></td>
     <td><code style="font-size:6.8pt;word-break:break-word;">recipient, identity, dispatch, read, validate_text, from_them, last_incoming, send, submitting, _verify, record, verify</code></td>
@@ -2787,7 +2923,7 @@
   <tr>
     <td class="num">75</td>
     <td><code>src/video_publisher/drafts_bilibili.py</code></td>
-    <td class="num">95</td>
+    <td class="num">94</td>
     <td class="num">5,642</td>
     <td><code style="font-size:7pt;">—</code></td>
     <td><code style="font-size:6.8pt;word-break:break-word;">request, add, body, drafts, save, verify</code></td>
@@ -2797,7 +2933,7 @@
   <tr>
     <td class="num">76</td>
     <td><code>src/video_publisher/edits_bilibili.py</code></td>
-    <td class="num">184</td>
+    <td class="num">183</td>
     <td class="num">11,291</td>
     <td><code style="font-size:7pt;">—</code></td>
     <td><code style="font-size:6.8pt;word-break:break-word;">archive, saved_chapters, chapter_args, finish_chapters, text_of, tags_of, description_segments, can_replace_description, submit, run, change, matches</code></td>
@@ -2807,7 +2943,7 @@
   <tr>
     <td class="num">77</td>
     <td><code>src/video_publisher/edits.py</code></td>
-    <td class="num">238</td>
+    <td class="num">237</td>
     <td class="num">18,163</td>
     <td><code style="font-size:7pt;">—</code></td>
     <td><code style="font-size:6.8pt;word-break:break-word;">x_edit_receipt_matches, x_edit_was_attempted, x_edit_readback_note, validate_patch, send, checkpoint, run_adopted, found_after_edit, keep_resume_in_step, run</code></td>
@@ -2817,7 +2953,7 @@
   <tr>
     <td class="num">78</td>
     <td><code>src/video_publisher/engagement_api.py</code></td>
-    <td class="num">65</td>
+    <td class="num">64</td>
     <td class="num">3,483</td>
     <td><code style="font-size:7pt;">—</code></td>
     <td><code style="font-size:6.8pt;word-break:break-word;">bili_folders, body, check_identity, execute, bilibili</code></td>
@@ -2827,7 +2963,7 @@
   <tr>
     <td class="num">79</td>
     <td><code>src/video_publisher/engagement_browser.py</code></td>
-    <td class="num">116</td>
+    <td class="num">115</td>
     <td class="num">6,667</td>
     <td><code style="font-size:7pt;">—</code></td>
     <td><code style="font-size:6.8pt;word-break:break-word;">open_target, pair, douyin_detail_state, controls, execute, detail_response</code></td>
@@ -2837,7 +2973,7 @@
   <tr>
     <td class="num">80</td>
     <td><code>src/video_publisher/engagement.py</code></td>
-    <td class="num">147</td>
+    <td class="num">146</td>
     <td class="num">9,250</td>
     <td><code style="font-size:7pt;">—</code></td>
     <td><code style="font-size:6.8pt;word-break:break-word;">validate, dispatch, collections, signed_in_as, status, submitting, finish, set_action, verify</code></td>
@@ -2847,7 +2983,7 @@
   <tr>
     <td class="num">81</td>
     <td><code>src/video_publisher/hidden_desktop.py</code></td>
-    <td class="num">175</td>
+    <td class="num">174</td>
     <td class="num">10,176</td>
     <td><code style="font-size:7pt;">JOBOBJECT_BASIC_ACCOUNTING_INFORMATION, STARTUPINFOW, PROCESS_INFORMATION, Started</code></td>
     <td><code style="font-size:6.8pt;word-break:break-word;">libraries, launch, still_running, end_job, end_tree, run, __init__, poll, call_worker</code></td>
@@ -2857,7 +2993,7 @@
   <tr>
     <td class="num">82</td>
     <td><code>src/video_publisher/instagram_media.py</code></td>
-    <td class="num">60</td>
+    <td class="num">59</td>
     <td class="num">3,346</td>
     <td><code style="font-size:7pt;">—</code></td>
     <td><code style="font-size:6.8pt;word-break:break-word;">prepare</code></td>
@@ -2867,7 +3003,7 @@
   <tr>
     <td class="num">83</td>
     <td><code>src/video_publisher/language_policy.py</code></td>
-    <td class="num">20</td>
+    <td class="num">19</td>
     <td class="num">1,051</td>
     <td><code style="font-size:7pt;">—</code></td>
     <td><code style="font-size:6.8pt;word-break:break-word;">route</code></td>
@@ -2877,7 +3013,7 @@
   <tr>
     <td class="num">84</td>
     <td><code>src/video_publisher/mentions_browser.py</code></td>
-    <td class="num">126</td>
+    <td class="num">125</td>
     <td class="num">7,171</td>
     <td><code style="font-size:7pt;">—</code></td>
     <td><code style="font-size:6.8pt;word-break:break-word;">preview, instagram_panel, instagram_mentions, douyin_mentions</code></td>
@@ -2887,7 +3023,7 @@
   <tr>
     <td class="num">85</td>
     <td><code>src/video_publisher/message_sources.py</code></td>
-    <td class="num">62</td>
+    <td class="num">61</td>
     <td class="num">3,721</td>
     <td><code style="font-size:7pt;">—</code></td>
     <td><code style="font-size:6.8pt;word-break:break-word;">x_mentions, execute</code></td>
@@ -2897,7 +3033,7 @@
   <tr>
     <td class="num">86</td>
     <td><code>src/video_publisher/messages.py</code></td>
-    <td class="num">103</td>
+    <td class="num">102</td>
     <td class="num">6,678</td>
     <td><code style="font-size:7pt;">—</code></td>
     <td><code style="font-size:6.8pt;word-break:break-word;">stable_preview, merge, entries, listing, mark, sync, summary, resume</code></td>
@@ -2907,7 +3043,7 @@
   <tr>
     <td class="num">87</td>
     <td><code>src/video_publisher/metadata.py</code></td>
-    <td class="num">133</td>
+    <td class="num">132</td>
     <td class="num">11,966</td>
     <td><code style="font-size:7pt;">—</code></td>
     <td><code style="font-size:6.8pt;word-break:break-word;">request, apply</code></td>
@@ -2917,7 +3053,7 @@
   <tr>
     <td class="num">88</td>
     <td><code>src/video_publisher/native_browser.py</code></td>
-    <td class="num">397</td>
+    <td class="num">396</td>
     <td class="num">29,666</td>
     <td><code style="font-size:7pt;">—</code></td>
     <td><code style="font-size:6.8pt;word-break:break-word;">login, queue, request, begin, retry_rejected, authorize_publish, revise, record, revise_cover</code></td>
@@ -2927,7 +3063,7 @@
   <tr>
     <td class="num">89</td>
     <td><code>src/video_publisher/operations_api.py</code></td>
-    <td class="num">150</td>
+    <td class="num">149</td>
     <td class="num">9,989</td>
     <td><code style="font-size:7pt;">—</code></td>
     <td><code style="font-size:6.8pt;word-break:break-word;">read_session, metric, _bili_comment, preview_text, bilibili_source, execute, bilibili</code></td>
@@ -2937,7 +3073,7 @@
   <tr>
     <td class="num">90</td>
     <td><code>src/video_publisher/operations_batch.py</code></td>
-    <td class="num">70</td>
+    <td class="num">69</td>
     <td class="num">4,198</td>
     <td><code style="font-size:7pt;">—</code></td>
     <td><code style="font-size:6.8pt;word-break:break-word;">validate, execute, perform</code></td>
@@ -2947,7 +3083,7 @@
   <tr>
     <td class="num">91</td>
     <td><code>src/video_publisher/operations_browser.py</code></td>
-    <td class="num">355</td>
+    <td class="num">354</td>
     <td class="num">24,390</td>
     <td><code style="font-size:7pt;">—</code></td>
     <td><code style="font-size:6.8pt;word-break:break-word;">number, douyin_metrics, open_work, x_root, x_metrics, x_composer, fill_x_text, comments, execute</code></td>
@@ -2957,7 +3093,7 @@
   <tr>
     <td class="num">92</td>
     <td><code>src/video_publisher/operations_douyin.py</code></td>
-    <td class="num">101</td>
+    <td class="num">100</td>
     <td class="num">6,194</td>
     <td><code style="font-size:7pt;">—</code></td>
     <td><code style="font-size:6.8pt;word-break:break-word;">creator_target, acknowledgement, creator_page, reply</code></td>
@@ -2967,7 +3103,7 @@
   <tr>
     <td class="num">93</td>
     <td><code>src/video_publisher/operations_inbox.py</code></td>
-    <td class="num">60</td>
+    <td class="num">59</td>
     <td class="num">2,802</td>
     <td><code style="font-size:7pt;">—</code></td>
     <td><code style="font-size:6.8pt;word-break:break-word;">merge, entries, mark, find, find_item</code></td>
@@ -2977,7 +3113,7 @@
   <tr>
     <td class="num">94</td>
     <td><code>src/video_publisher/operations_runs.py</code></td>
-    <td class="num">376</td>
+    <td class="num">375</td>
     <td class="num">22,152</td>
     <td><code style="font-size:7pt;">—</code></td>
     <td><code style="font-size:6.8pt;word-break:break-word;">run_lock, path_for, status, listing, save, cache_path, make_run, changes_for, finish, _finish, api_comments, recover_batches, browser_group, read_direct, execute_serial, finalize, patrol_summary, execute, sync, resume</code></td>
@@ -2987,7 +3123,7 @@
   <tr>
     <td class="num">95</td>
     <td><code>src/video_publisher/operations_sync.py</code></td>
-    <td class="num">113</td>
+    <td class="num">112</td>
     <td class="num">7,322</td>
     <td><code style="font-size:7pt;">—</code></td>
     <td><code style="font-size:6.8pt;word-break:break-word;">metric_changes, works, watch, collect</code></td>
@@ -2997,7 +3133,7 @@
   <tr>
     <td class="num">96</td>
     <td><code>src/video_publisher/operations.py</code></td>
-    <td class="num">294</td>
+    <td class="num">293</td>
     <td class="num">22,195</td>
     <td><code style="font-size:7pt;">—</code></td>
     <td><code style="font-size:6.8pt;word-break:break-word;">work_id, language_hint, reporting_language, set_language, record, browser_identity, backend, save_observation, observe, reply, remember_reply, verify_reply, self_test, capabilities</code></td>
@@ -3007,7 +3143,7 @@
   <tr>
     <td class="num">97</td>
     <td><code>src/video_publisher/overview.py</code></td>
-    <td class="num">402</td>
+    <td class="num">401</td>
     <td class="num">22,077</td>
     <td><code style="font-size:7pt;">—</code></td>
     <td><code style="font-size:6.8pt;word-break:break-word;">read_quietly, chrome_path, stop_state, workspace_busy, native_step, next_step, progress, attempt, sign_in, background_browsers, plan_files, row_folders, same_as_approved, keep_reason, folder_bytes, snapshot_folders, read_rows, human_size, saved_receipts, action_row, edit_rows, widget_rows, unconfirmed_actions, summary, quietly, status, cleanup</code></td>
@@ -3017,7 +3153,7 @@
   <tr>
     <td class="num">98</td>
     <td><code>src/video_publisher/preferences.py</code></td>
-    <td class="num">54</td>
+    <td class="num">53</td>
     <td class="num">2,597</td>
     <td><code style="font-size:7pt;">—</code></td>
     <td><code style="font-size:6.8pt;word-break:break-word;">platform_list, selected, read, update</code></td>
@@ -3027,7 +3163,7 @@
   <tr>
     <td class="num">99</td>
     <td><code>src/video_publisher/process_lock.py</code></td>
-    <td class="num">99</td>
+    <td class="num">98</td>
     <td class="num">4,028</td>
     <td><code style="font-size:7pt;">—</code></td>
     <td><code style="font-size:6.8pt;word-break:break-word;">alive, released, hold</code></td>
@@ -3037,7 +3173,7 @@
   <tr>
     <td class="num">100</td>
     <td><code>src/video_publisher/progress.py</code></td>
-    <td class="num">134</td>
+    <td class="num">133</td>
     <td class="num">5,254</td>
     <td><code style="font-size:7pt;">—</code></td>
     <td><code style="font-size:6.8pt;word-break:break-word;">attach, stage, watch, announced, opening, show, copy_lines, relay</code></td>
@@ -3047,7 +3183,7 @@
   <tr>
     <td class="num">101</td>
     <td><code>src/video_publisher/publication_review.py</code></td>
-    <td class="num">110</td>
+    <td class="num">109</td>
     <td class="num">5,112</td>
     <td><code style="font-size:7pt;">—</code></td>
     <td><code style="font-size:6.8pt;word-break:break-word;">folder_choice, manifest_choice, published_platforms, has_published, carry_choice, requirements, check, pending</code></td>
@@ -3057,7 +3193,7 @@
   <tr>
     <td class="num">102</td>
     <td><code>src/video_publisher/quick.py</code></td>
-    <td class="num">195</td>
+    <td class="num">194</td>
     <td class="num">14,031</td>
     <td><code style="font-size:7pt;">—</code></td>
     <td><code style="font-size:6.8pt;word-break:break-word;">step, prepare, fill, unwritten, build, review_required, go</code></td>
@@ -3067,7 +3203,7 @@
   <tr>
     <td class="num">103</td>
     <td><code>src/video_publisher/read_scheduler.py</code></td>
-    <td class="num">72</td>
+    <td class="num">71</td>
     <td class="num">3,239</td>
     <td><code style="font-size:7pt;">—</code></td>
     <td><code style="font-size:6.8pt;word-break:break-word;">execute, collect, work</code></td>
@@ -3077,7 +3213,7 @@
   <tr>
     <td class="num">104</td>
     <td><code>src/video_publisher/rehearsal.py</code></td>
-    <td class="num">143</td>
+    <td class="num">142</td>
     <td class="num">6,910</td>
     <td><code style="font-size:7pt;">—</code></td>
     <td><code style="font-size:6.8pt;word-break:break-word;">inspect_video, _nonempty, _profile_present, _bili_home, sign_in, local_prerequisites, require_local_prerequisites, dry_run</code></td>
@@ -3087,7 +3223,7 @@
   <tr>
     <td class="num">105</td>
     <td><code>src/video_publisher/runtime_delete.py</code></td>
-    <td class="num">75</td>
+    <td class="num">74</td>
     <td class="num">4,030</td>
     <td><code style="font-size:7pt;">Disposition</code></td>
     <td><code style="font-size:6.8pt;word-break:break-word;">remove, opened</code></td>
@@ -3097,7 +3233,7 @@
   <tr>
     <td class="num">106</td>
     <td><code>src/video_publisher/runtime_files.py</code></td>
-    <td class="num">209</td>
+    <td class="num">208</td>
     <td class="num">9,532</td>
     <td><code style="font-size:7pt;">—</code></td>
     <td><code style="font-size:6.8pt;word-break:break-word;">_inside, _safe, _stamp, _parents, defer, _record, registered_in, cleanup</code></td>
@@ -3107,7 +3243,7 @@
   <tr>
     <td class="num">107</td>
     <td><code>src/video_publisher/runtime_scratch.py</code></td>
-    <td class="num">80</td>
+    <td class="num">79</td>
     <td class="num">3,579</td>
     <td><code style="font-size:7pt;">—</code></td>
     <td><code style="font-size:6.8pt;word-break:break-word;">directory_stamp, scratch, inspect</code></td>
@@ -3117,7 +3253,7 @@
   <tr>
     <td class="num">108</td>
     <td><code>src/video_publisher/safety.py</code></td>
-    <td class="num">381</td>
+    <td class="num">380</td>
     <td class="num">23,971</td>
     <td><code style="font-size:7pt;">—</code></td>
     <td><code style="font-size:6.8pt;word-break:break-word;">today, settings, set_limits, plain, incoming_flags, viewer_flags, labelled, label_language, comparable, account, people_path, people, same_person, parse_account, link, unlink, usage_path, usage, save_usage, sent_to, check_text, strings, check_public_text, public_text_flags, plan_flags, admit, release, reclaim, pushed_back, clear_stop, status</code></td>
@@ -3127,7 +3263,7 @@
   <tr>
     <td class="num">109</td>
     <td><code>src/video_publisher/widgets_bilibili.py</code></td>
-    <td class="num">386</td>
+    <td class="num">385</td>
     <td class="num">21,290</td>
     <td><code style="font-size:7pt;">—</code></td>
     <td><code style="font-size:6.8pt;word-break:break-word;">bad, one_line, number, clean, validate, command, read, shows, new_rows, overall, send, finish, keep, save, seen, checked_work, record_path, record_of, latest, stands, listing, add, save, verify, remove</code></td>
@@ -3137,7 +3273,7 @@
   <tr>
     <td class="num">110</td>
     <td><code>src/video_publisher/work_catalog.py</code></td>
-    <td class="num">79</td>
+    <td class="num">78</td>
     <td class="num">4,661</td>
     <td><code style="font-size:7pt;">—</code></td>
     <td><code style="font-size:6.8pt;word-break:break-word;">binding, discover, adopt</code></td>
@@ -3147,7 +3283,7 @@
   <tr>
     <td class="num">111</td>
     <td><code>src/video_publisher/work_delete_bili.py</code></td>
-    <td class="num">24</td>
+    <td class="num">23</td>
     <td class="num">1,695</td>
     <td><code style="font-size:7pt;">—</code></td>
     <td><code style="font-size:6.8pt;word-break:break-word;">execute</code></td>
@@ -3157,7 +3293,7 @@
   <tr>
     <td class="num">112</td>
     <td><code>src/video_publisher/work_delete_browser.py</code></td>
-    <td class="num">18</td>
+    <td class="num">17</td>
     <td class="num">1,062</td>
     <td><code style="font-size:7pt;">—</code></td>
     <td><code style="font-size:6.8pt;word-break:break-word;">execute</code></td>
@@ -3167,7 +3303,7 @@
   <tr>
     <td class="num">113</td>
     <td><code>src/video_publisher/work_delete_douyin.py</code></td>
-    <td class="num">263</td>
+    <td class="num">262</td>
     <td class="num">13,508</td>
     <td><code style="font-size:7pt;">—</code></td>
     <td><code style="font-size:6.8pt;word-break:break-word;">guard, same_node, retain, validate, evidence, owner, same_card, card_id, own_list, exact_gone, readback, execute, delete_bound</code></td>
@@ -3177,7 +3313,7 @@
   <tr>
     <td class="num">114</td>
     <td><code>src/video_publisher/work_delete_instagram.py</code></td>
-    <td class="num">439</td>
+    <td class="num">438</td>
     <td class="num">25,741</td>
     <td><code style="font-size:7pt;">PostSelection</code></td>
     <td><code style="font-size:6.8pt;word-break:break-word;">guard, current_identity, navigation_selector, exact_address, exact_account, profile_address, profile_current, permalink_selector, exact_permalink, scope_permalink, same_node, overlays_bound, target_bound, visible_labels, exact, listing, evidence, execute, retain, wait_controls, candidate, menu_bound</code></td>
@@ -3187,7 +3323,7 @@
   <tr>
     <td class="num">115</td>
     <td><code>src/video_publisher/work_delete_state.py</code></td>
-    <td class="num">183</td>
+    <td class="num">182</td>
     <td class="num">8,989</td>
     <td><code style="font-size:7pt;">—</code></td>
     <td><code style="font-size:6.8pt;word-break:break-word;">_plain, _location, receipt_path, _bound, _receipt_lock, same_target, read_receipt, cancel, refuse_other_action, begin_press, verified, save_result</code></td>
@@ -3197,7 +3333,7 @@
   <tr>
     <td class="num">116</td>
     <td><code>src/video_publisher/work_delete_x_readback.py</code></td>
-    <td class="num">207</td>
+    <td class="num">206</td>
     <td class="num">9,597</td>
     <td><code style="font-size:7pt;">TimelineCapture</code></td>
     <td><code style="font-size:6.8pt;word-break:break-word;">request_parts, tweet_ids, timeline_page, proof, __init__, start, request, response, read, snapshot, close</code></td>
@@ -3207,7 +3343,7 @@
   <tr>
     <td class="num">117</td>
     <td><code>src/video_publisher/work_delete_x.py</code></td>
-    <td class="num">320</td>
+    <td class="num">319</td>
     <td class="num">16,828</td>
     <td><code style="font-size:7pt;">—</code></td>
     <td><code style="font-size:6.8pt;word-break:break-word;">guard, exact_address, exact_account, profile_address, profile_current, same_node, target_bound, overlays_bound, visible_label_matches, platform_gone, exact, absence, execute, retain, menu_bound</code></td>
@@ -3217,7 +3353,7 @@
   <tr>
     <td class="num">118</td>
     <td><code>src/video_publisher/work_delete_youtube.py</code></td>
-    <td class="num">307</td>
+    <td class="num">306</td>
     <td class="num">15,877</td>
     <td><code style="font-size:7pt;">CheckedRows</code></td>
     <td><code style="font-size:6.8pt;word-break:break-word;">guard, same_node, retain, validate, evidence, unfiltered_query, owner, empty_list, own_list, parse, count, evaluate_all, exact_gone, same_address, readback, bound_row, check_row, execute, menu_bound, dialog_bound</code></td>
@@ -3227,7 +3363,7 @@
   <tr>
     <td class="num">119</td>
     <td><code>src/video_publisher/work_delete.py</code></td>
-    <td class="num">154</td>
+    <td class="num">153</td>
     <td class="num">9,329</td>
     <td><code style="font-size:7pt;">—</code></td>
     <td><code style="font-size:6.8pt;word-break:break-word;">target_for, backend, public_result, run, status_rows</code></td>
@@ -3237,7 +3373,7 @@
   <tr>
     <td class="num">120</td>
     <td><code>src/video_publisher/work_discovery_browser.py</code></td>
-    <td class="num">114</td>
+    <td class="num">113</td>
     <td class="num">6,939</td>
     <td><code style="font-size:7pt;">—</code></td>
     <td><code style="font-size:6.8pt;word-break:break-word;">scan, douyin_title, execute</code></td>
@@ -3247,7 +3383,7 @@
   <tr>
     <td class="num">121</td>
     <td><code>src/video_publisher/x_pages.py</code></td>
-    <td class="num">105</td>
+    <td class="num">104</td>
     <td class="num">6,807</td>
     <td><code style="font-size:7pt;">—</code></td>
     <td><code style="font-size:6.8pt;word-break:break-word;">rebuilt, open_menu, post_row, post_time, post_fields, own_posts, views_of</code></td>
@@ -3257,7 +3393,7 @@
   <tr>
     <td class="num">122</td>
     <td><code>src/video_publisher/youtube_playlists.py</code></td>
-    <td class="num">38</td>
+    <td class="num">37</td>
     <td class="num">2,024</td>
     <td><code style="font-size:7pt;">—</code></td>
     <td><code style="font-size:6.8pt;word-break:break-word;">listing, verify, current_title, change</code></td>
@@ -3267,7 +3403,7 @@
   <tr>
     <td class="num">123</td>
     <td><code>src/video_publisher/youtube_studio.py</code></td>
-    <td class="num">997</td>
+    <td class="num">996</td>
     <td class="num">59,535</td>
     <td><code style="font-size:7pt;">—</code></td>
     <td><code style="font-size:6.8pt;word-break:break-word;">count_of, handle_of, comment_items, work_items, studio_metrics, appears, act_and_settle, sent, ended, own_handle, named, content_rows, works, drafts_named, stats, read_comments, find_reply, shown_boxes, boxes_in, comment_box, operations, pressed, where_it_went, open_watch_page, save_row, engagement, playlist_items, playlist_videos, studio_table, open_playlist_list, read_playlists, playlist_list_empty, playlist_title, studio_confirm, wait_ready, set_privacy, playlist_fields, visibility_trigger, rename_playlist, ensure_playlists, not_attempted, before_create, create_playlist, delete_playlist, playlists, comment_menu_item, watch_first_thread, watch_pin, watch_unpin, comment_action, sent, choose, edit_fields, edit</code></td>
@@ -3276,7 +3412,7 @@
   </tbody>
 </table>
 
-<h2>Appendix F. Complete Verification Ledger of All 126 Test Modules &amp; All 2,737 Automated Test Cases in <em>PublishOps CrossCast</em> (37,155 LOC)</h2>
+<h2>Appendix F. Inventory of All 126 Test Files and 2,737 Test Functions in <em>PublishOps CrossCast</em> (37,029 Physical Lines)</h2>
 <p>Table F.1 summarizes the 126 test modules in <code>publishops-crosscast/tests/</code>, followed by the complete module-by-module enumeration of all <strong>2,737 individual automated verification test functions</strong>.</p>
 
 <table class="sci-table">
@@ -3296,7 +3432,7 @@
   <tr>
     <td class="num">1</td>
     <td><code>tests/conftest.py</code></td>
-    <td class="num">12</td>
+    <td class="num">11</td>
     <td class="num">459</td>
     <td class="num">0</td>
     <td class="num">0</td>
@@ -3307,7 +3443,7 @@
   <tr>
     <td class="num">2</td>
     <td><code>tests/hidden_desktop_fixture.py</code></td>
-    <td class="num">59</td>
+    <td class="num">58</td>
     <td class="num">1,901</td>
     <td class="num">0</td>
     <td class="num">0</td>
@@ -3318,7 +3454,7 @@
   <tr>
     <td class="num">3</td>
     <td><code>tests/shared_chrome.py</code></td>
-    <td class="num">255</td>
+    <td class="num">254</td>
     <td class="num">9,646</td>
     <td class="num">4</td>
     <td class="num">0</td>
@@ -3329,7 +3465,7 @@
   <tr>
     <td class="num">4</td>
     <td><code>tests/stage_browser.py</code></td>
-    <td class="num">86</td>
+    <td class="num">85</td>
     <td class="num">3,368</td>
     <td class="num">1</td>
     <td class="num">0</td>
@@ -3340,7 +3476,7 @@
   <tr>
     <td class="num">5</td>
     <td><code>tests/test_auth_jobs_lifecycle.py</code></td>
-    <td class="num">425</td>
+    <td class="num">424</td>
     <td class="num">23,153</td>
     <td class="num">1</td>
     <td class="num">21</td>
@@ -3351,7 +3487,7 @@
   <tr>
     <td class="num">6</td>
     <td><code>tests/test_bili_merged.py</code></td>
-    <td class="num">207</td>
+    <td class="num">206</td>
     <td class="num">10,958</td>
     <td class="num">4</td>
     <td class="num">15</td>
@@ -3362,7 +3498,7 @@
   <tr>
     <td class="num">7</td>
     <td><code>tests/test_bilibili_drafts.py</code></td>
-    <td class="num">350</td>
+    <td class="num">349</td>
     <td class="num">19,622</td>
     <td class="num">5</td>
     <td class="num">30</td>
@@ -3373,7 +3509,7 @@
   <tr>
     <td class="num">8</td>
     <td><code>tests/test_bilibili_edit_mentions.py</code></td>
-    <td class="num">143</td>
+    <td class="num">142</td>
     <td class="num">7,882</td>
     <td class="num">1</td>
     <td class="num">12</td>
@@ -3384,7 +3520,7 @@
   <tr>
     <td class="num">9</td>
     <td><code>tests/test_bilibili_messages.py</code></td>
-    <td class="num">183</td>
+    <td class="num">182</td>
     <td class="num">10,383</td>
     <td class="num">2</td>
     <td class="num">14</td>
@@ -3395,7 +3531,7 @@
   <tr>
     <td class="num">10</td>
     <td><code>tests/test_bilibili_widgets.py</code></td>
-    <td class="num">495</td>
+    <td class="num">494</td>
     <td class="num">29,128</td>
     <td class="num">6</td>
     <td class="num">47</td>
@@ -3406,7 +3542,7 @@
   <tr>
     <td class="num">11</td>
     <td><code>tests/test_browser_backend.py</code></td>
-    <td class="num">236</td>
+    <td class="num">235</td>
     <td class="num">13,932</td>
     <td class="num">1</td>
     <td class="num">28</td>
@@ -3417,7 +3553,7 @@
   <tr>
     <td class="num">12</td>
     <td><code>tests/test_browser_broker.py</code></td>
-    <td class="num">591</td>
+    <td class="num">590</td>
     <td class="num">30,198</td>
     <td class="num">6</td>
     <td class="num">41</td>
@@ -3428,7 +3564,7 @@
   <tr>
     <td class="num">13</td>
     <td><code>tests/test_capabilities_summary.py</code></td>
-    <td class="num">53</td>
+    <td class="num">52</td>
     <td class="num">3,122</td>
     <td class="num">1</td>
     <td class="num">4</td>
@@ -3439,7 +3575,7 @@
   <tr>
     <td class="num">14</td>
     <td><code>tests/test_categories.py</code></td>
-    <td class="num">56</td>
+    <td class="num">55</td>
     <td class="num">2,933</td>
     <td class="num">1</td>
     <td class="num">3</td>
@@ -3450,7 +3586,7 @@
   <tr>
     <td class="num">15</td>
     <td><code>tests/test_chapters.py</code></td>
-    <td class="num">29</td>
+    <td class="num">28</td>
     <td class="num">1,545</td>
     <td class="num">1</td>
     <td class="num">2</td>
@@ -3461,7 +3597,7 @@
   <tr>
     <td class="num">16</td>
     <td><code>tests/test_cli_startup.py</code></td>
-    <td class="num">41</td>
+    <td class="num">40</td>
     <td class="num">1,473</td>
     <td class="num">1</td>
     <td class="num">2</td>
@@ -3472,7 +3608,7 @@
   <tr>
     <td class="num">17</td>
     <td><code>tests/test_closeout.py</code></td>
-    <td class="num">62</td>
+    <td class="num">61</td>
     <td class="num">2,893</td>
     <td class="num">1</td>
     <td class="num">6</td>
@@ -3483,7 +3619,7 @@
   <tr>
     <td class="num">18</td>
     <td><code>tests/test_codex_update70_guards.py</code></td>
-    <td class="num">512</td>
+    <td class="num">511</td>
     <td class="num">27,730</td>
     <td class="num">9</td>
     <td class="num">25</td>
@@ -3494,7 +3630,7 @@
   <tr>
     <td class="num">19</td>
     <td><code>tests/test_collection_bilibili.py</code></td>
-    <td class="num">230</td>
+    <td class="num">229</td>
     <td class="num">11,547</td>
     <td class="num">6</td>
     <td class="num">20</td>
@@ -3505,7 +3641,7 @@
   <tr>
     <td class="num">20</td>
     <td><code>tests/test_collection_members.py</code></td>
-    <td class="num">143</td>
+    <td class="num">142</td>
     <td class="num">7,836</td>
     <td class="num">2</td>
     <td class="num">22</td>
@@ -3516,7 +3652,7 @@
   <tr>
     <td class="num">21</td>
     <td><code>tests/test_collections_dom.py</code></td>
-    <td class="num">636</td>
+    <td class="num">635</td>
     <td class="num">37,306</td>
     <td class="num">7</td>
     <td class="num">46</td>
@@ -3527,7 +3663,7 @@
   <tr>
     <td class="num">22</td>
     <td><code>tests/test_collections.py</code></td>
-    <td class="num">187</td>
+    <td class="num">186</td>
     <td class="num">10,823</td>
     <td class="num">1</td>
     <td class="num">31</td>
@@ -3538,7 +3674,7 @@
   <tr>
     <td class="num">23</td>
     <td><code>tests/test_comment_actions_dom.py</code></td>
-    <td class="num">33</td>
+    <td class="num">32</td>
     <td class="num">2,681</td>
     <td class="num">1</td>
     <td class="num">4</td>
@@ -3549,7 +3685,7 @@
   <tr>
     <td class="num">24</td>
     <td><code>tests/test_comment_snapshot.py</code></td>
-    <td class="num">242</td>
+    <td class="num">241</td>
     <td class="num">14,436</td>
     <td class="num">5</td>
     <td class="num">26</td>
@@ -3560,7 +3696,7 @@
   <tr>
     <td class="num">25</td>
     <td><code>tests/test_cover_prerequisites.py</code></td>
-    <td class="num">118</td>
+    <td class="num">117</td>
     <td class="num">7,327</td>
     <td class="num">1</td>
     <td class="num">7</td>
@@ -3571,7 +3707,7 @@
   <tr>
     <td class="num">26</td>
     <td><code>tests/test_covers.py</code></td>
-    <td class="num">199</td>
+    <td class="num">198</td>
     <td class="num">10,391</td>
     <td class="num">1</td>
     <td class="num">14</td>
@@ -3582,7 +3718,7 @@
   <tr>
     <td class="num">27</td>
     <td><code>tests/test_declarations.py</code></td>
-    <td class="num">188</td>
+    <td class="num">187</td>
     <td class="num">8,634</td>
     <td class="num">2</td>
     <td class="num">9</td>
@@ -3593,7 +3729,7 @@
   <tr>
     <td class="num">28</td>
     <td><code>tests/test_deletion.py</code></td>
-    <td class="num">130</td>
+    <td class="num">129</td>
     <td class="num">7,724</td>
     <td class="num">1</td>
     <td class="num">4</td>
@@ -3604,7 +3740,7 @@
   <tr>
     <td class="num">29</td>
     <td><code>tests/test_diagnostics.py</code></td>
-    <td class="num">133</td>
+    <td class="num">132</td>
     <td class="num">7,688</td>
     <td class="num">4</td>
     <td class="num">9</td>
@@ -3615,7 +3751,7 @@
   <tr>
     <td class="num">30</td>
     <td><code>tests/test_docs.py</code></td>
-    <td class="num">172</td>
+    <td class="num">171</td>
     <td class="num">8,952</td>
     <td class="num">1</td>
     <td class="num">10</td>
@@ -3626,7 +3762,7 @@
   <tr>
     <td class="num">31</td>
     <td><code>tests/test_douyin_cover_read.py</code></td>
-    <td class="num">188</td>
+    <td class="num">187</td>
     <td class="num">8,581</td>
     <td class="num">1</td>
     <td class="num">11</td>
@@ -3637,7 +3773,7 @@
   <tr>
     <td class="num">32</td>
     <td><code>tests/test_douyin_form.py</code></td>
-    <td class="num">757</td>
+    <td class="num">756</td>
     <td class="num">47,314</td>
     <td class="num">12</td>
     <td class="num">69</td>
@@ -3648,7 +3784,7 @@
   <tr>
     <td class="num">33</td>
     <td><code>tests/test_edits.py</code></td>
-    <td class="num">196</td>
+    <td class="num">195</td>
     <td class="num">12,250</td>
     <td class="num">4</td>
     <td class="num">20</td>
@@ -3659,7 +3795,7 @@
   <tr>
     <td class="num">34</td>
     <td><code>tests/test_engagement_dom.py</code></td>
-    <td class="num">55</td>
+    <td class="num">54</td>
     <td class="num">4,386</td>
     <td class="num">1</td>
     <td class="num">7</td>
@@ -3670,7 +3806,7 @@
   <tr>
     <td class="num">35</td>
     <td><code>tests/test_engagement.py</code></td>
-    <td class="num">96</td>
+    <td class="num">95</td>
     <td class="num">6,623</td>
     <td class="num">2</td>
     <td class="num">13</td>
@@ -3681,7 +3817,7 @@
   <tr>
     <td class="num">36</td>
     <td><code>tests/test_field_fixes.py</code></td>
-    <td class="num">433</td>
+    <td class="num">432</td>
     <td class="num">21,895</td>
     <td class="num">15</td>
     <td class="num">42</td>
@@ -3692,7 +3828,7 @@
   <tr>
     <td class="num">37</td>
     <td><code>tests/test_file_selection_guards.py</code></td>
-    <td class="num">179</td>
+    <td class="num">178</td>
     <td class="num">7,259</td>
     <td class="num">5</td>
     <td class="num">5</td>
@@ -3703,7 +3839,7 @@
   <tr>
     <td class="num">38</td>
     <td><code>tests/test_final_review_fixes.py</code></td>
-    <td class="num">252</td>
+    <td class="num">251</td>
     <td class="num">14,099</td>
     <td class="num">7</td>
     <td class="num">20</td>
@@ -3714,7 +3850,7 @@
   <tr>
     <td class="num">39</td>
     <td><code>tests/test_first_run.py</code></td>
-    <td class="num">167</td>
+    <td class="num">166</td>
     <td class="num">9,516</td>
     <td class="num">1</td>
     <td class="num">15</td>
@@ -3725,7 +3861,7 @@
   <tr>
     <td class="num">40</td>
     <td><code>tests/test_free_features.py</code></td>
-    <td class="num">894</td>
+    <td class="num">893</td>
     <td class="num">49,274</td>
     <td class="num">13</td>
     <td class="num">84</td>
@@ -3736,7 +3872,7 @@
   <tr>
     <td class="num">41</td>
     <td><code>tests/test_hidden_desktop_lifecycle.py</code></td>
-    <td class="num">372</td>
+    <td class="num">371</td>
     <td class="num">18,176</td>
     <td class="num">5</td>
     <td class="num">22</td>
@@ -3747,7 +3883,7 @@
   <tr>
     <td class="num">42</td>
     <td><code>tests/test_hostile_messages.py</code></td>
-    <td class="num">69</td>
+    <td class="num">68</td>
     <td class="num">3,167</td>
     <td class="num">1</td>
     <td class="num">2</td>
@@ -3758,7 +3894,7 @@
   <tr>
     <td class="num">43</td>
     <td><code>tests/test_instagram_comment_delete.py</code></td>
-    <td class="num">236</td>
+    <td class="num">235</td>
     <td class="num">13,142</td>
     <td class="num">3</td>
     <td class="num">21</td>
@@ -3769,7 +3905,7 @@
   <tr>
     <td class="num">44</td>
     <td><code>tests/test_instagram_media.py</code></td>
-    <td class="num">69</td>
+    <td class="num">68</td>
     <td class="num">3,718</td>
     <td class="num">1</td>
     <td class="num">4</td>
@@ -3780,7 +3916,7 @@
   <tr>
     <td class="num">45</td>
     <td><code>tests/test_installer.py</code></td>
-    <td class="num">151</td>
+    <td class="num">150</td>
     <td class="num">8,250</td>
     <td class="num">1</td>
     <td class="num">6</td>
@@ -3791,7 +3927,7 @@
   <tr>
     <td class="num">46</td>
     <td><code>tests/test_language_policy.py</code></td>
-    <td class="num">33</td>
+    <td class="num">32</td>
     <td class="num">1,970</td>
     <td class="num">1</td>
     <td class="num">4</td>
@@ -3802,7 +3938,7 @@
   <tr>
     <td class="num">47</td>
     <td><code>tests/test_less_waiting.py</code></td>
-    <td class="num">213</td>
+    <td class="num">212</td>
     <td class="num">7,994</td>
     <td class="num">10</td>
     <td class="num">14</td>
@@ -3813,7 +3949,7 @@
   <tr>
     <td class="num">48</td>
     <td><code>tests/test_malformed_input.py</code></td>
-    <td class="num">154</td>
+    <td class="num">153</td>
     <td class="num">9,522</td>
     <td class="num">2</td>
     <td class="num">7</td>
@@ -3824,7 +3960,7 @@
   <tr>
     <td class="num">49</td>
     <td><code>tests/test_metadata_cover_playlist.py</code></td>
-    <td class="num">143</td>
+    <td class="num">142</td>
     <td class="num">7,783</td>
     <td class="num">1</td>
     <td class="num">6</td>
@@ -3835,7 +3971,7 @@
   <tr>
     <td class="num">50</td>
     <td><code>tests/test_operations_011.py</code></td>
-    <td class="num">198</td>
+    <td class="num">197</td>
     <td class="num">13,036</td>
     <td class="num">3</td>
     <td class="num">23</td>
@@ -3846,7 +3982,7 @@
   <tr>
     <td class="num">51</td>
     <td><code>tests/test_operations_070.py</code></td>
-    <td class="num">131</td>
+    <td class="num">130</td>
     <td class="num">9,033</td>
     <td class="num">1</td>
     <td class="num">16</td>
@@ -3857,7 +3993,7 @@
   <tr>
     <td class="num">52</td>
     <td><code>tests/test_operations_080.py</code></td>
-    <td class="num">177</td>
+    <td class="num">176</td>
     <td class="num">12,290</td>
     <td class="num">5</td>
     <td class="num">21</td>
@@ -3868,7 +4004,7 @@
   <tr>
     <td class="num">53</td>
     <td><code>tests/test_operations_dom.py</code></td>
-    <td class="num">51</td>
+    <td class="num">50</td>
     <td class="num">3,569</td>
     <td class="num">1</td>
     <td class="num">3</td>
@@ -3879,7 +4015,7 @@
   <tr>
     <td class="num">54</td>
     <td><code>tests/test_operations_douyin.py</code></td>
-    <td class="num">48</td>
+    <td class="num">47</td>
     <td class="num">3,211</td>
     <td class="num">2</td>
     <td class="num">5</td>
@@ -3890,7 +4026,7 @@
   <tr>
     <td class="num">55</td>
     <td><code>tests/test_operations_sync.py</code></td>
-    <td class="num">90</td>
+    <td class="num">89</td>
     <td class="num">6,040</td>
     <td class="num">1</td>
     <td class="num">10</td>
@@ -3901,7 +4037,7 @@
   <tr>
     <td class="num">56</td>
     <td><code>tests/test_operations.py</code></td>
-    <td class="num">144</td>
+    <td class="num">143</td>
     <td class="num">9,403</td>
     <td class="num">3</td>
     <td class="num">16</td>
@@ -3912,7 +4048,7 @@
   <tr>
     <td class="num">57</td>
     <td><code>tests/test_overview_lookup_u83.py</code></td>
-    <td class="num">89</td>
+    <td class="num">88</td>
     <td class="num">4,637</td>
     <td class="num">2</td>
     <td class="num">7</td>
@@ -3923,7 +4059,7 @@
   <tr>
     <td class="num">58</td>
     <td><code>tests/test_overview.py</code></td>
-    <td class="num">583</td>
+    <td class="num">582</td>
     <td class="num">34,012</td>
     <td class="num">5</td>
     <td class="num">58</td>
@@ -3934,7 +4070,7 @@
   <tr>
     <td class="num">59</td>
     <td><code>tests/test_paid_api_hook.py</code></td>
-    <td class="num">66</td>
+    <td class="num">65</td>
     <td class="num">3,884</td>
     <td class="num">1</td>
     <td class="num">5</td>
@@ -3945,7 +4081,7 @@
   <tr>
     <td class="num">60</td>
     <td><code>tests/test_paid_features_hook.py</code></td>
-    <td class="num">52</td>
+    <td class="num">51</td>
     <td class="num">2,498</td>
     <td class="num">1</td>
     <td class="num">5</td>
@@ -3956,7 +4092,7 @@
   <tr>
     <td class="num">61</td>
     <td><code>tests/test_platform_warnings.py</code></td>
-    <td class="num">370</td>
+    <td class="num">369</td>
     <td class="num">22,178</td>
     <td class="num">7</td>
     <td class="num">32</td>
@@ -3967,7 +4103,7 @@
   <tr>
     <td class="num">62</td>
     <td><code>tests/test_preferences.py</code></td>
-    <td class="num">232</td>
+    <td class="num">231</td>
     <td class="num">12,274</td>
     <td class="num">4</td>
     <td class="num">19</td>
@@ -3978,7 +4114,7 @@
   <tr>
     <td class="num">63</td>
     <td><code>tests/test_progress.py</code></td>
-    <td class="num">659</td>
+    <td class="num">658</td>
     <td class="num">30,720</td>
     <td class="num">15</td>
     <td class="num">38</td>
@@ -3989,7 +4125,7 @@
   <tr>
     <td class="num">64</td>
     <td><code>tests/test_public_text.py</code></td>
-    <td class="num">193</td>
+    <td class="num">192</td>
     <td class="num">11,772</td>
     <td class="num">6</td>
     <td class="num">22</td>
@@ -4000,7 +4136,7 @@
   <tr>
     <td class="num">65</td>
     <td><code>tests/test_publication_review.py</code></td>
-    <td class="num">209</td>
+    <td class="num">208</td>
     <td class="num">11,309</td>
     <td class="num">3</td>
     <td class="num">13</td>
@@ -4011,7 +4147,7 @@
   <tr>
     <td class="num">66</td>
     <td><code>tests/test_publish_checkpoint_dedup.py</code></td>
-    <td class="num">164</td>
+    <td class="num">163</td>
     <td class="num">7,518</td>
     <td class="num">1</td>
     <td class="num">6</td>
@@ -4022,7 +4158,7 @@
   <tr>
     <td class="num">67</td>
     <td><code>tests/test_publish_plan_safety.py</code></td>
-    <td class="num">386</td>
+    <td class="num">385</td>
     <td class="num">20,346</td>
     <td class="num">7</td>
     <td class="num">29</td>
@@ -4033,7 +4169,7 @@
   <tr>
     <td class="num">68</td>
     <td><code>tests/test_publish_refill.py</code></td>
-    <td class="num">334</td>
+    <td class="num">333</td>
     <td class="num">15,801</td>
     <td class="num">1</td>
     <td class="num">7</td>
@@ -4044,7 +4180,7 @@
   <tr>
     <td class="num">69</td>
     <td><code>tests/test_publish_workers.py</code></td>
-    <td class="num">697</td>
+    <td class="num">696</td>
     <td class="num">34,777</td>
     <td class="num">4</td>
     <td class="num">25</td>
@@ -4055,7 +4191,7 @@
   <tr>
     <td class="num">70</td>
     <td><code>tests/test_rehearsal.py</code></td>
-    <td class="num">175</td>
+    <td class="num">174</td>
     <td class="num">9,632</td>
     <td class="num">1</td>
     <td class="num">12</td>
@@ -4066,7 +4202,7 @@
   <tr>
     <td class="num">71</td>
     <td><code>tests/test_review_consent_independent.py</code></td>
-    <td class="num">120</td>
+    <td class="num">119</td>
     <td class="num">5,918</td>
     <td class="num">1</td>
     <td class="num">4</td>
@@ -4077,7 +4213,7 @@
   <tr>
     <td class="num">72</td>
     <td><code>tests/test_review_followup.py</code></td>
-    <td class="num">157</td>
+    <td class="num">156</td>
     <td class="num">7,963</td>
     <td class="num">1</td>
     <td class="num">7</td>
@@ -4088,7 +4224,7 @@
   <tr>
     <td class="num">73</td>
     <td><code>tests/test_runtime_cleanup.py</code></td>
-    <td class="num">283</td>
+    <td class="num">282</td>
     <td class="num">15,241</td>
     <td class="num">1</td>
     <td class="num">17</td>
@@ -4099,7 +4235,7 @@
   <tr>
     <td class="num">74</td>
     <td><code>tests/test_safety_processes.py</code></td>
-    <td class="num">285</td>
+    <td class="num">284</td>
     <td class="num">13,677</td>
     <td class="num">5</td>
     <td class="num">18</td>
@@ -4110,7 +4246,7 @@
   <tr>
     <td class="num">75</td>
     <td><code>tests/test_safety.py</code></td>
-    <td class="num">510</td>
+    <td class="num">509</td>
     <td class="num">30,138</td>
     <td class="num">9</td>
     <td class="num">55</td>
@@ -4121,7 +4257,7 @@
   <tr>
     <td class="num">76</td>
     <td><code>tests/test_stage1_bilibili_pacing.py</code></td>
-    <td class="num">345</td>
+    <td class="num">344</td>
     <td class="num">16,085</td>
     <td class="num">10</td>
     <td class="num">19</td>
@@ -4132,7 +4268,7 @@
   <tr>
     <td class="num">77</td>
     <td><code>tests/test_stage1_collections.py</code></td>
-    <td class="num">263</td>
+    <td class="num">262</td>
     <td class="num">15,897</td>
     <td class="num">3</td>
     <td class="num">23</td>
@@ -4143,7 +4279,7 @@
   <tr>
     <td class="num">78</td>
     <td><code>tests/test_stage1_edits.py</code></td>
-    <td class="num">617</td>
+    <td class="num">616</td>
     <td class="num">38,835</td>
     <td class="num">7</td>
     <td class="num">50</td>
@@ -4154,7 +4290,7 @@
   <tr>
     <td class="num">79</td>
     <td><code>tests/test_stage1_likes.py</code></td>
-    <td class="num">378</td>
+    <td class="num">377</td>
     <td class="num">20,066</td>
     <td class="num">7</td>
     <td class="num">36</td>
@@ -4165,7 +4301,7 @@
   <tr>
     <td class="num">80</td>
     <td><code>tests/test_stage1_limits.py</code></td>
-    <td class="num">173</td>
+    <td class="num">172</td>
     <td class="num">10,693</td>
     <td class="num">3</td>
     <td class="num">16</td>
@@ -4176,7 +4312,7 @@
   <tr>
     <td class="num">81</td>
     <td><code>tests/test_stage1_messages.py</code></td>
-    <td class="num">270</td>
+    <td class="num">269</td>
     <td class="num">14,486</td>
     <td class="num">5</td>
     <td class="num">20</td>
@@ -4187,7 +4323,7 @@
   <tr>
     <td class="num">82</td>
     <td><code>tests/test_stage1_publish.py</code></td>
-    <td class="num">888</td>
+    <td class="num">887</td>
     <td class="num">50,505</td>
     <td class="num">9</td>
     <td class="num">94</td>
@@ -4198,7 +4334,7 @@
   <tr>
     <td class="num">83</td>
     <td><code>tests/test_stage1_reading.py</code></td>
-    <td class="num">365</td>
+    <td class="num">364</td>
     <td class="num">22,871</td>
     <td class="num">12</td>
     <td class="num">38</td>
@@ -4209,7 +4345,7 @@
   <tr>
     <td class="num">84</td>
     <td><code>tests/test_stage1_repeats.py</code></td>
-    <td class="num">351</td>
+    <td class="num">350</td>
     <td class="num">18,114</td>
     <td class="num">3</td>
     <td class="num">16</td>
@@ -4220,7 +4356,7 @@
   <tr>
     <td class="num">85</td>
     <td><code>tests/test_stage1_replies.py</code></td>
-    <td class="num">458</td>
+    <td class="num">457</td>
     <td class="num">24,230</td>
     <td class="num">6</td>
     <td class="num">33</td>
@@ -4231,7 +4367,7 @@
   <tr>
     <td class="num">86</td>
     <td><code>tests/test_stage1_reporting.py</code></td>
-    <td class="num">107</td>
+    <td class="num">106</td>
     <td class="num">6,256</td>
     <td class="num">3</td>
     <td class="num">9</td>
@@ -4242,7 +4378,7 @@
   <tr>
     <td class="num">87</td>
     <td><code>tests/test_stage1_stops.py</code></td>
-    <td class="num">128</td>
+    <td class="num">127</td>
     <td class="num">6,108</td>
     <td class="num">4</td>
     <td class="num">8</td>
@@ -4253,7 +4389,7 @@
   <tr>
     <td class="num">88</td>
     <td><code>tests/test_stage2_incoming.py</code></td>
-    <td class="num">330</td>
+    <td class="num">329</td>
     <td class="num">17,281</td>
     <td class="num">8</td>
     <td class="num">25</td>
@@ -4264,7 +4400,7 @@
   <tr>
     <td class="num">89</td>
     <td><code>tests/test_stage2_output.py</code></td>
-    <td class="num">224</td>
+    <td class="num">223</td>
     <td class="num">12,412</td>
     <td class="num">5</td>
     <td class="num">17</td>
@@ -4275,7 +4411,7 @@
   <tr>
     <td class="num">90</td>
     <td><code>tests/test_stage2_pages.py</code></td>
-    <td class="num">159</td>
+    <td class="num">158</td>
     <td class="num">10,650</td>
     <td class="num">4</td>
     <td class="num">17</td>
@@ -4286,7 +4422,7 @@
   <tr>
     <td class="num">91</td>
     <td><code>tests/test_stage2_shapes.py</code></td>
-    <td class="num">307</td>
+    <td class="num">306</td>
     <td class="num">18,226</td>
     <td class="num">6</td>
     <td class="num">26</td>
@@ -4297,7 +4433,7 @@
   <tr>
     <td class="num">92</td>
     <td><code>tests/test_two_commands.py</code></td>
-    <td class="num">460</td>
+    <td class="num">459</td>
     <td class="num">25,298</td>
     <td class="num">1</td>
     <td class="num">37</td>
@@ -4308,7 +4444,7 @@
   <tr>
     <td class="num">93</td>
     <td><code>tests/test_work_delete_bili.py</code></td>
-    <td class="num">79</td>
+    <td class="num">78</td>
     <td class="num">3,758</td>
     <td class="num">1</td>
     <td class="num">5</td>
@@ -4319,7 +4455,7 @@
   <tr>
     <td class="num">94</td>
     <td><code>tests/test_work_delete_coexistence.py</code></td>
-    <td class="num">254</td>
+    <td class="num">253</td>
     <td class="num">12,722</td>
     <td class="num">1</td>
     <td class="num">8</td>
@@ -4330,7 +4466,7 @@
   <tr>
     <td class="num">95</td>
     <td><code>tests/test_work_delete_douyin.py</code></td>
-    <td class="num">472</td>
+    <td class="num">471</td>
     <td class="num">21,388</td>
     <td class="num">4</td>
     <td class="num">36</td>
@@ -4341,7 +4477,7 @@
   <tr>
     <td class="num">96</td>
     <td><code>tests/test_work_delete_instagram_layout.py</code></td>
-    <td class="num">1,038</td>
+    <td class="num">1,037</td>
     <td class="num">54,402</td>
     <td class="num">10</td>
     <td class="num">41</td>
@@ -4352,7 +4488,7 @@
   <tr>
     <td class="num">97</td>
     <td><code>tests/test_work_delete_instagram.py</code></td>
-    <td class="num">416</td>
+    <td class="num">415</td>
     <td class="num">22,303</td>
     <td class="num">2</td>
     <td class="num">30</td>
@@ -4363,7 +4499,7 @@
   <tr>
     <td class="num">98</td>
     <td><code>tests/test_work_delete_paths_review.py</code></td>
-    <td class="num">291</td>
+    <td class="num">290</td>
     <td class="num">14,229</td>
     <td class="num">1</td>
     <td class="num">12</td>
@@ -4374,7 +4510,7 @@
   <tr>
     <td class="num">99</td>
     <td><code>tests/test_work_delete_paths.py</code></td>
-    <td class="num">286</td>
+    <td class="num">285</td>
     <td class="num">14,762</td>
     <td class="num">1</td>
     <td class="num">14</td>
@@ -4385,7 +4521,7 @@
   <tr>
     <td class="num">100</td>
     <td><code>tests/test_work_delete_x_dialogs.py</code></td>
-    <td class="num">408</td>
+    <td class="num">407</td>
     <td class="num">18,734</td>
     <td class="num">2</td>
     <td class="num">20</td>
@@ -4396,7 +4532,7 @@
   <tr>
     <td class="num">101</td>
     <td><code>tests/test_work_delete_x_loading.py</code></td>
-    <td class="num">240</td>
+    <td class="num">239</td>
     <td class="num">11,565</td>
     <td class="num">2</td>
     <td class="num">13</td>
@@ -4407,7 +4543,7 @@
   <tr>
     <td class="num">102</td>
     <td><code>tests/test_work_delete_x_readback.py</code></td>
-    <td class="num">437</td>
+    <td class="num">436</td>
     <td class="num">21,475</td>
     <td class="num">4</td>
     <td class="num">25</td>
@@ -4418,7 +4554,7 @@
   <tr>
     <td class="num">103</td>
     <td><code>tests/test_work_delete_x_timeline_contract.py</code></td>
-    <td class="num">127</td>
+    <td class="num">126</td>
     <td class="num">6,061</td>
     <td class="num">1</td>
     <td class="num">9</td>
@@ -4429,7 +4565,7 @@
   <tr>
     <td class="num">104</td>
     <td><code>tests/test_work_delete_x_timeline.py</code></td>
-    <td class="num">420</td>
+    <td class="num">419</td>
     <td class="num">19,708</td>
     <td class="num">8</td>
     <td class="num">21</td>
@@ -4440,7 +4576,7 @@
   <tr>
     <td class="num">105</td>
     <td><code>tests/test_work_delete_x.py</code></td>
-    <td class="num">854</td>
+    <td class="num">853</td>
     <td class="num">41,611</td>
     <td class="num">9</td>
     <td class="num">34</td>
@@ -4451,7 +4587,7 @@
   <tr>
     <td class="num">106</td>
     <td><code>tests/test_work_delete_youtube_absence.py</code></td>
-    <td class="num">72</td>
+    <td class="num">71</td>
     <td class="num">3,605</td>
     <td class="num">1</td>
     <td class="num">5</td>
@@ -4462,7 +4598,7 @@
   <tr>
     <td class="num">107</td>
     <td><code>tests/test_work_delete_youtube_menu.py</code></td>
-    <td class="num">65</td>
+    <td class="num">64</td>
     <td class="num">2,840</td>
     <td class="num">2</td>
     <td class="num">4</td>
@@ -4473,7 +4609,7 @@
   <tr>
     <td class="num">108</td>
     <td><code>tests/test_work_delete_youtube_query.py</code></td>
-    <td class="num">38</td>
+    <td class="num">37</td>
     <td class="num">2,211</td>
     <td class="num">1</td>
     <td class="num">2</td>
@@ -4484,7 +4620,7 @@
   <tr>
     <td class="num">109</td>
     <td><code>tests/test_work_delete_youtube.py</code></td>
-    <td class="num">731</td>
+    <td class="num">730</td>
     <td class="num">32,306</td>
     <td class="num">7</td>
     <td class="num">30</td>
@@ -4495,7 +4631,7 @@
   <tr>
     <td class="num">110</td>
     <td><code>tests/test_work_delete.py</code></td>
-    <td class="num">491</td>
+    <td class="num">490</td>
     <td class="num">27,887</td>
     <td class="num">1</td>
     <td class="num">27</td>
@@ -4506,7 +4642,7 @@
   <tr>
     <td class="num">111</td>
     <td><code>tests/test_work_discovery_wait.py</code></td>
-    <td class="num">391</td>
+    <td class="num">390</td>
     <td class="num">21,972</td>
     <td class="num">4</td>
     <td class="num">36</td>
@@ -4517,7 +4653,7 @@
   <tr>
     <td class="num">112</td>
     <td><code>tests/test_workflow.py</code></td>
-    <td class="num">679</td>
+    <td class="num">678</td>
     <td class="num">38,450</td>
     <td class="num">1</td>
     <td class="num">50</td>
@@ -4528,7 +4664,7 @@
   <tr>
     <td class="num">113</td>
     <td><code>tests/test_write_answers.py</code></td>
-    <td class="num">172</td>
+    <td class="num">171</td>
     <td class="num">10,266</td>
     <td class="num">7</td>
     <td class="num">26</td>
@@ -4539,7 +4675,7 @@
   <tr>
     <td class="num">114</td>
     <td><code>tests/test_x_composer.py</code></td>
-    <td class="num">65</td>
+    <td class="num">64</td>
     <td class="num">3,344</td>
     <td class="num">1</td>
     <td class="num">4</td>
@@ -4550,7 +4686,7 @@
   <tr>
     <td class="num">115</td>
     <td><code>tests/test_x_discovery.py</code></td>
-    <td class="num">386</td>
+    <td class="num">385</td>
     <td class="num">21,118</td>
     <td class="num">2</td>
     <td class="num">27</td>
@@ -4561,7 +4697,7 @@
   <tr>
     <td class="num">116</td>
     <td><code>tests/test_x_edit_consistency.py</code></td>
-    <td class="num">282</td>
+    <td class="num">281</td>
     <td class="num">19,018</td>
     <td class="num">2</td>
     <td class="num">19</td>
@@ -4572,7 +4708,7 @@
   <tr>
     <td class="num">117</td>
     <td><code>tests/test_x_edit_length.py</code></td>
-    <td class="num">382</td>
+    <td class="num">381</td>
     <td class="num">21,414</td>
     <td class="num">1</td>
     <td class="num">27</td>
@@ -4583,7 +4719,7 @@
   <tr>
     <td class="num">118</td>
     <td><code>tests/test_x_post_length.py</code></td>
-    <td class="num">182</td>
+    <td class="num">181</td>
     <td class="num">10,626</td>
     <td class="num">4</td>
     <td class="num">23</td>
@@ -4594,7 +4730,7 @@
   <tr>
     <td class="num">119</td>
     <td><code>tests/test_x_schedule.py</code></td>
-    <td class="num">906</td>
+    <td class="num">905</td>
     <td class="num">61,937</td>
     <td class="num">11</td>
     <td class="num">93</td>
@@ -4605,7 +4741,7 @@
   <tr>
     <td class="num">120</td>
     <td><code>tests/test_x_site.py</code></td>
-    <td class="num">517</td>
+    <td class="num">516</td>
     <td class="num">35,367</td>
     <td class="num">9</td>
     <td class="num">34</td>
@@ -4616,7 +4752,7 @@
   <tr>
     <td class="num">121</td>
     <td><code>tests/test_youtube_browser.py</code></td>
-    <td class="num">1,236</td>
+    <td class="num">1,235</td>
     <td class="num">72,978</td>
     <td class="num">13</td>
     <td class="num">100</td>
@@ -4627,7 +4763,7 @@
   <tr>
     <td class="num">122</td>
     <td><code>tests/test_youtube_picker.py</code></td>
-    <td class="num">190</td>
+    <td class="num">189</td>
     <td class="num">12,588</td>
     <td class="num">3</td>
     <td class="num">15</td>
@@ -4638,7 +4774,7 @@
   <tr>
     <td class="num">123</td>
     <td><code>tests/test_youtube_playlist_empty.py</code></td>
-    <td class="num">164</td>
+    <td class="num">163</td>
     <td class="num">9,412</td>
     <td class="num">1</td>
     <td class="num">10</td>
@@ -4649,7 +4785,7 @@
   <tr>
     <td class="num">124</td>
     <td><code>tests/test_youtube_playlists.py</code></td>
-    <td class="num">1,034</td>
+    <td class="num">1,033</td>
     <td class="num">70,870</td>
     <td class="num">8</td>
     <td class="num">101</td>
@@ -4660,7 +4796,7 @@
   <tr>
     <td class="num">125</td>
     <td><code>tests/test_youtube_schedule_zone.py</code></td>
-    <td class="num">229</td>
+    <td class="num">228</td>
     <td class="num">13,867</td>
     <td class="num">6</td>
     <td class="num">16</td>
@@ -4671,7 +4807,7 @@
   <tr>
     <td class="num">126</td>
     <td><code>tests/test_youtube_studio.py</code></td>
-    <td class="num">532</td>
+    <td class="num">531</td>
     <td class="num">29,397</td>
     <td class="num">9</td>
     <td class="num">39</td>
@@ -4683,7 +4819,7 @@
 
 <h3>F.2 Complete Enumeration of All 2,737 Automated Test Functions Across Modules</h3>
 
-  <h4>Module 1: <code>tests/test_auth_jobs_lifecycle.py</code> (425 LOC, 21 Test Functions)</h4>
+  <h4>Module 1: <code>tests/test_auth_jobs_lifecycle.py</code> (424 LOC, 21 Test Functions)</h4>
   <table class="sci-table">
     <thead>
       <tr>
@@ -4845,7 +4981,7 @@
     </tbody>
   </table>
 
-  <h4>Module 2: <code>tests/test_bili_merged.py</code> (207 LOC, 15 Test Functions)</h4>
+  <h4>Module 2: <code>tests/test_bili_merged.py</code> (206 LOC, 15 Test Functions)</h4>
   <table class="sci-table">
     <thead>
       <tr>
@@ -4965,7 +5101,7 @@
     </tbody>
   </table>
 
-  <h4>Module 3: <code>tests/test_bilibili_drafts.py</code> (350 LOC, 30 Test Functions)</h4>
+  <h4>Module 3: <code>tests/test_bilibili_drafts.py</code> (349 LOC, 30 Test Functions)</h4>
   <table class="sci-table">
     <thead>
       <tr>
@@ -5190,7 +5326,7 @@
     </tbody>
   </table>
 
-  <h4>Module 4: <code>tests/test_bilibili_edit_mentions.py</code> (143 LOC, 12 Test Functions)</h4>
+  <h4>Module 4: <code>tests/test_bilibili_edit_mentions.py</code> (142 LOC, 12 Test Functions)</h4>
   <table class="sci-table">
     <thead>
       <tr>
@@ -5289,7 +5425,7 @@
     </tbody>
   </table>
 
-  <h4>Module 5: <code>tests/test_bilibili_messages.py</code> (183 LOC, 14 Test Functions)</h4>
+  <h4>Module 5: <code>tests/test_bilibili_messages.py</code> (182 LOC, 14 Test Functions)</h4>
   <table class="sci-table">
     <thead>
       <tr>
@@ -5402,7 +5538,7 @@
     </tbody>
   </table>
 
-  <h4>Module 6: <code>tests/test_bilibili_widgets.py</code> (495 LOC, 47 Test Functions)</h4>
+  <h4>Module 6: <code>tests/test_bilibili_widgets.py</code> (494 LOC, 47 Test Functions)</h4>
   <table class="sci-table">
     <thead>
       <tr>
@@ -5746,7 +5882,7 @@
     </tbody>
   </table>
 
-  <h4>Module 7: <code>tests/test_browser_backend.py</code> (236 LOC, 28 Test Functions)</h4>
+  <h4>Module 7: <code>tests/test_browser_backend.py</code> (235 LOC, 28 Test Functions)</h4>
   <table class="sci-table">
     <thead>
       <tr>
@@ -5957,7 +6093,7 @@
     </tbody>
   </table>
 
-  <h4>Module 8: <code>tests/test_browser_broker.py</code> (591 LOC, 41 Test Functions)</h4>
+  <h4>Module 8: <code>tests/test_browser_broker.py</code> (590 LOC, 41 Test Functions)</h4>
   <table class="sci-table">
     <thead>
       <tr>
@@ -6259,7 +6395,7 @@
     </tbody>
   </table>
 
-  <h4>Module 9: <code>tests/test_capabilities_summary.py</code> (53 LOC, 4 Test Functions)</h4>
+  <h4>Module 9: <code>tests/test_capabilities_summary.py</code> (52 LOC, 4 Test Functions)</h4>
   <table class="sci-table">
     <thead>
       <tr>
@@ -6302,7 +6438,7 @@
     </tbody>
   </table>
 
-  <h4>Module 10: <code>tests/test_categories.py</code> (56 LOC, 3 Test Functions)</h4>
+  <h4>Module 10: <code>tests/test_categories.py</code> (55 LOC, 3 Test Functions)</h4>
   <table class="sci-table">
     <thead>
       <tr>
@@ -6338,7 +6474,7 @@
     </tbody>
   </table>
 
-  <h4>Module 11: <code>tests/test_chapters.py</code> (29 LOC, 2 Test Functions)</h4>
+  <h4>Module 11: <code>tests/test_chapters.py</code> (28 LOC, 2 Test Functions)</h4>
   <table class="sci-table">
     <thead>
       <tr>
@@ -6367,7 +6503,7 @@
     </tbody>
   </table>
 
-  <h4>Module 12: <code>tests/test_cli_startup.py</code> (41 LOC, 2 Test Functions)</h4>
+  <h4>Module 12: <code>tests/test_cli_startup.py</code> (40 LOC, 2 Test Functions)</h4>
   <table class="sci-table">
     <thead>
       <tr>
@@ -6396,7 +6532,7 @@
     </tbody>
   </table>
 
-  <h4>Module 13: <code>tests/test_closeout.py</code> (62 LOC, 6 Test Functions)</h4>
+  <h4>Module 13: <code>tests/test_closeout.py</code> (61 LOC, 6 Test Functions)</h4>
   <table class="sci-table">
     <thead>
       <tr>
@@ -6453,7 +6589,7 @@
     </tbody>
   </table>
 
-  <h4>Module 14: <code>tests/test_codex_update70_guards.py</code> (512 LOC, 25 Test Functions)</h4>
+  <h4>Module 14: <code>tests/test_codex_update70_guards.py</code> (511 LOC, 25 Test Functions)</h4>
   <table class="sci-table">
     <thead>
       <tr>
@@ -6643,7 +6779,7 @@
     </tbody>
   </table>
 
-  <h4>Module 15: <code>tests/test_collection_bilibili.py</code> (230 LOC, 20 Test Functions)</h4>
+  <h4>Module 15: <code>tests/test_collection_bilibili.py</code> (229 LOC, 20 Test Functions)</h4>
   <table class="sci-table">
     <thead>
       <tr>
@@ -6798,7 +6934,7 @@
     </tbody>
   </table>
 
-  <h4>Module 16: <code>tests/test_collection_members.py</code> (143 LOC, 22 Test Functions)</h4>
+  <h4>Module 16: <code>tests/test_collection_members.py</code> (142 LOC, 22 Test Functions)</h4>
   <table class="sci-table">
     <thead>
       <tr>
@@ -6967,7 +7103,7 @@
     </tbody>
   </table>
 
-  <h4>Module 17: <code>tests/test_collections_dom.py</code> (636 LOC, 46 Test Functions)</h4>
+  <h4>Module 17: <code>tests/test_collections_dom.py</code> (635 LOC, 46 Test Functions)</h4>
   <table class="sci-table">
     <thead>
       <tr>
@@ -7304,7 +7440,7 @@
     </tbody>
   </table>
 
-  <h4>Module 18: <code>tests/test_collections.py</code> (187 LOC, 31 Test Functions)</h4>
+  <h4>Module 18: <code>tests/test_collections.py</code> (186 LOC, 31 Test Functions)</h4>
   <table class="sci-table">
     <thead>
       <tr>
@@ -7536,7 +7672,7 @@
     </tbody>
   </table>
 
-  <h4>Module 19: <code>tests/test_comment_actions_dom.py</code> (33 LOC, 4 Test Functions)</h4>
+  <h4>Module 19: <code>tests/test_comment_actions_dom.py</code> (32 LOC, 4 Test Functions)</h4>
   <table class="sci-table">
     <thead>
       <tr>
@@ -7579,7 +7715,7 @@
     </tbody>
   </table>
 
-  <h4>Module 20: <code>tests/test_comment_snapshot.py</code> (242 LOC, 26 Test Functions)</h4>
+  <h4>Module 20: <code>tests/test_comment_snapshot.py</code> (241 LOC, 26 Test Functions)</h4>
   <table class="sci-table">
     <thead>
       <tr>
@@ -7776,7 +7912,7 @@
     </tbody>
   </table>
 
-  <h4>Module 21: <code>tests/test_cover_prerequisites.py</code> (118 LOC, 7 Test Functions)</h4>
+  <h4>Module 21: <code>tests/test_cover_prerequisites.py</code> (117 LOC, 7 Test Functions)</h4>
   <table class="sci-table">
     <thead>
       <tr>
@@ -7840,7 +7976,7 @@
     </tbody>
   </table>
 
-  <h4>Module 22: <code>tests/test_covers.py</code> (199 LOC, 14 Test Functions)</h4>
+  <h4>Module 22: <code>tests/test_covers.py</code> (198 LOC, 14 Test Functions)</h4>
   <table class="sci-table">
     <thead>
       <tr>
@@ -7953,7 +8089,7 @@
     </tbody>
   </table>
 
-  <h4>Module 23: <code>tests/test_declarations.py</code> (188 LOC, 9 Test Functions)</h4>
+  <h4>Module 23: <code>tests/test_declarations.py</code> (187 LOC, 9 Test Functions)</h4>
   <table class="sci-table">
     <thead>
       <tr>
@@ -8031,7 +8167,7 @@
     </tbody>
   </table>
 
-  <h4>Module 24: <code>tests/test_deletion.py</code> (130 LOC, 4 Test Functions)</h4>
+  <h4>Module 24: <code>tests/test_deletion.py</code> (129 LOC, 4 Test Functions)</h4>
   <table class="sci-table">
     <thead>
       <tr>
@@ -8074,7 +8210,7 @@
     </tbody>
   </table>
 
-  <h4>Module 25: <code>tests/test_diagnostics.py</code> (133 LOC, 9 Test Functions)</h4>
+  <h4>Module 25: <code>tests/test_diagnostics.py</code> (132 LOC, 9 Test Functions)</h4>
   <table class="sci-table">
     <thead>
       <tr>
@@ -8152,7 +8288,7 @@
     </tbody>
   </table>
 
-  <h4>Module 26: <code>tests/test_docs.py</code> (172 LOC, 10 Test Functions)</h4>
+  <h4>Module 26: <code>tests/test_docs.py</code> (171 LOC, 10 Test Functions)</h4>
   <table class="sci-table">
     <thead>
       <tr>
@@ -8237,7 +8373,7 @@
     </tbody>
   </table>
 
-  <h4>Module 27: <code>tests/test_douyin_cover_read.py</code> (188 LOC, 11 Test Functions)</h4>
+  <h4>Module 27: <code>tests/test_douyin_cover_read.py</code> (187 LOC, 11 Test Functions)</h4>
   <table class="sci-table">
     <thead>
       <tr>
@@ -8329,7 +8465,7 @@
     </tbody>
   </table>
 
-  <h4>Module 28: <code>tests/test_douyin_form.py</code> (757 LOC, 69 Test Functions)</h4>
+  <h4>Module 28: <code>tests/test_douyin_form.py</code> (756 LOC, 69 Test Functions)</h4>
   <table class="sci-table">
     <thead>
       <tr>
@@ -8827,7 +8963,7 @@
     </tbody>
   </table>
 
-  <h4>Module 29: <code>tests/test_edits.py</code> (196 LOC, 20 Test Functions)</h4>
+  <h4>Module 29: <code>tests/test_edits.py</code> (195 LOC, 20 Test Functions)</h4>
   <table class="sci-table">
     <thead>
       <tr>
@@ -8982,7 +9118,7 @@
     </tbody>
   </table>
 
-  <h4>Module 30: <code>tests/test_engagement_dom.py</code> (55 LOC, 7 Test Functions)</h4>
+  <h4>Module 30: <code>tests/test_engagement_dom.py</code> (54 LOC, 7 Test Functions)</h4>
   <table class="sci-table">
     <thead>
       <tr>
@@ -9046,7 +9182,7 @@
     </tbody>
   </table>
 
-  <h4>Module 31: <code>tests/test_engagement.py</code> (96 LOC, 13 Test Functions)</h4>
+  <h4>Module 31: <code>tests/test_engagement.py</code> (95 LOC, 13 Test Functions)</h4>
   <table class="sci-table">
     <thead>
       <tr>
@@ -9152,7 +9288,7 @@
     </tbody>
   </table>
 
-  <h4>Module 32: <code>tests/test_field_fixes.py</code> (433 LOC, 42 Test Functions)</h4>
+  <h4>Module 32: <code>tests/test_field_fixes.py</code> (432 LOC, 42 Test Functions)</h4>
   <table class="sci-table">
     <thead>
       <tr>
@@ -9461,7 +9597,7 @@
     </tbody>
   </table>
 
-  <h4>Module 33: <code>tests/test_file_selection_guards.py</code> (179 LOC, 5 Test Functions)</h4>
+  <h4>Module 33: <code>tests/test_file_selection_guards.py</code> (178 LOC, 5 Test Functions)</h4>
   <table class="sci-table">
     <thead>
       <tr>
@@ -9511,7 +9647,7 @@
     </tbody>
   </table>
 
-  <h4>Module 34: <code>tests/test_final_review_fixes.py</code> (252 LOC, 20 Test Functions)</h4>
+  <h4>Module 34: <code>tests/test_final_review_fixes.py</code> (251 LOC, 20 Test Functions)</h4>
   <table class="sci-table">
     <thead>
       <tr>
@@ -9666,7 +9802,7 @@
     </tbody>
   </table>
 
-  <h4>Module 35: <code>tests/test_first_run.py</code> (167 LOC, 15 Test Functions)</h4>
+  <h4>Module 35: <code>tests/test_first_run.py</code> (166 LOC, 15 Test Functions)</h4>
   <table class="sci-table">
     <thead>
       <tr>
@@ -9786,7 +9922,7 @@
     </tbody>
   </table>
 
-  <h4>Module 36: <code>tests/test_free_features.py</code> (894 LOC, 84 Test Functions)</h4>
+  <h4>Module 36: <code>tests/test_free_features.py</code> (893 LOC, 84 Test Functions)</h4>
   <table class="sci-table">
     <thead>
       <tr>
@@ -10389,7 +10525,7 @@
     </tbody>
   </table>
 
-  <h4>Module 37: <code>tests/test_hidden_desktop_lifecycle.py</code> (372 LOC, 22 Test Functions)</h4>
+  <h4>Module 37: <code>tests/test_hidden_desktop_lifecycle.py</code> (371 LOC, 22 Test Functions)</h4>
   <table class="sci-table">
     <thead>
       <tr>
@@ -10558,7 +10694,7 @@
     </tbody>
   </table>
 
-  <h4>Module 38: <code>tests/test_hostile_messages.py</code> (69 LOC, 2 Test Functions)</h4>
+  <h4>Module 38: <code>tests/test_hostile_messages.py</code> (68 LOC, 2 Test Functions)</h4>
   <table class="sci-table">
     <thead>
       <tr>
@@ -10587,7 +10723,7 @@
     </tbody>
   </table>
 
-  <h4>Module 39: <code>tests/test_instagram_comment_delete.py</code> (236 LOC, 21 Test Functions)</h4>
+  <h4>Module 39: <code>tests/test_instagram_comment_delete.py</code> (235 LOC, 21 Test Functions)</h4>
   <table class="sci-table">
     <thead>
       <tr>
@@ -10749,7 +10885,7 @@
     </tbody>
   </table>
 
-  <h4>Module 40: <code>tests/test_instagram_media.py</code> (69 LOC, 4 Test Functions)</h4>
+  <h4>Module 40: <code>tests/test_instagram_media.py</code> (68 LOC, 4 Test Functions)</h4>
   <table class="sci-table">
     <thead>
       <tr>
@@ -10792,7 +10928,7 @@
     </tbody>
   </table>
 
-  <h4>Module 41: <code>tests/test_installer.py</code> (151 LOC, 6 Test Functions)</h4>
+  <h4>Module 41: <code>tests/test_installer.py</code> (150 LOC, 6 Test Functions)</h4>
   <table class="sci-table">
     <thead>
       <tr>
@@ -10849,7 +10985,7 @@
     </tbody>
   </table>
 
-  <h4>Module 42: <code>tests/test_language_policy.py</code> (33 LOC, 4 Test Functions)</h4>
+  <h4>Module 42: <code>tests/test_language_policy.py</code> (32 LOC, 4 Test Functions)</h4>
   <table class="sci-table">
     <thead>
       <tr>
@@ -10892,7 +11028,7 @@
     </tbody>
   </table>
 
-  <h4>Module 43: <code>tests/test_less_waiting.py</code> (213 LOC, 14 Test Functions)</h4>
+  <h4>Module 43: <code>tests/test_less_waiting.py</code> (212 LOC, 14 Test Functions)</h4>
   <table class="sci-table">
     <thead>
       <tr>
@@ -11005,7 +11141,7 @@
     </tbody>
   </table>
 
-  <h4>Module 44: <code>tests/test_malformed_input.py</code> (154 LOC, 7 Test Functions)</h4>
+  <h4>Module 44: <code>tests/test_malformed_input.py</code> (153 LOC, 7 Test Functions)</h4>
   <table class="sci-table">
     <thead>
       <tr>
@@ -11069,7 +11205,7 @@
     </tbody>
   </table>
 
-  <h4>Module 45: <code>tests/test_metadata_cover_playlist.py</code> (143 LOC, 6 Test Functions)</h4>
+  <h4>Module 45: <code>tests/test_metadata_cover_playlist.py</code> (142 LOC, 6 Test Functions)</h4>
   <table class="sci-table">
     <thead>
       <tr>
@@ -11126,7 +11262,7 @@
     </tbody>
   </table>
 
-  <h4>Module 46: <code>tests/test_operations_011.py</code> (198 LOC, 23 Test Functions)</h4>
+  <h4>Module 46: <code>tests/test_operations_011.py</code> (197 LOC, 23 Test Functions)</h4>
   <table class="sci-table">
     <thead>
       <tr>
@@ -11302,7 +11438,7 @@
     </tbody>
   </table>
 
-  <h4>Module 47: <code>tests/test_operations_070.py</code> (131 LOC, 16 Test Functions)</h4>
+  <h4>Module 47: <code>tests/test_operations_070.py</code> (130 LOC, 16 Test Functions)</h4>
   <table class="sci-table">
     <thead>
       <tr>
@@ -11429,7 +11565,7 @@
     </tbody>
   </table>
 
-  <h4>Module 48: <code>tests/test_operations_080.py</code> (177 LOC, 21 Test Functions)</h4>
+  <h4>Module 48: <code>tests/test_operations_080.py</code> (176 LOC, 21 Test Functions)</h4>
   <table class="sci-table">
     <thead>
       <tr>
@@ -11591,7 +11727,7 @@
     </tbody>
   </table>
 
-  <h4>Module 49: <code>tests/test_operations_dom.py</code> (51 LOC, 3 Test Functions)</h4>
+  <h4>Module 49: <code>tests/test_operations_dom.py</code> (50 LOC, 3 Test Functions)</h4>
   <table class="sci-table">
     <thead>
       <tr>
@@ -11627,7 +11763,7 @@
     </tbody>
   </table>
 
-  <h4>Module 50: <code>tests/test_operations_douyin.py</code> (48 LOC, 5 Test Functions)</h4>
+  <h4>Module 50: <code>tests/test_operations_douyin.py</code> (47 LOC, 5 Test Functions)</h4>
   <table class="sci-table">
     <thead>
       <tr>
@@ -11677,7 +11813,7 @@
     </tbody>
   </table>
 
-  <h4>Module 51: <code>tests/test_operations_sync.py</code> (90 LOC, 10 Test Functions)</h4>
+  <h4>Module 51: <code>tests/test_operations_sync.py</code> (89 LOC, 10 Test Functions)</h4>
   <table class="sci-table">
     <thead>
       <tr>
@@ -11762,7 +11898,7 @@
     </tbody>
   </table>
 
-  <h4>Module 52: <code>tests/test_operations.py</code> (144 LOC, 16 Test Functions)</h4>
+  <h4>Module 52: <code>tests/test_operations.py</code> (143 LOC, 16 Test Functions)</h4>
   <table class="sci-table">
     <thead>
       <tr>
@@ -11889,7 +12025,7 @@
     </tbody>
   </table>
 
-  <h4>Module 53: <code>tests/test_overview_lookup_u83.py</code> (89 LOC, 7 Test Functions)</h4>
+  <h4>Module 53: <code>tests/test_overview_lookup_u83.py</code> (88 LOC, 7 Test Functions)</h4>
   <table class="sci-table">
     <thead>
       <tr>
@@ -11953,7 +12089,7 @@
     </tbody>
   </table>
 
-  <h4>Module 54: <code>tests/test_overview.py</code> (583 LOC, 58 Test Functions)</h4>
+  <h4>Module 54: <code>tests/test_overview.py</code> (582 LOC, 58 Test Functions)</h4>
   <table class="sci-table">
     <thead>
       <tr>
@@ -12374,7 +12510,7 @@
     </tbody>
   </table>
 
-  <h4>Module 55: <code>tests/test_paid_api_hook.py</code> (66 LOC, 5 Test Functions)</h4>
+  <h4>Module 55: <code>tests/test_paid_api_hook.py</code> (65 LOC, 5 Test Functions)</h4>
   <table class="sci-table">
     <thead>
       <tr>
@@ -12424,7 +12560,7 @@
     </tbody>
   </table>
 
-  <h4>Module 56: <code>tests/test_paid_features_hook.py</code> (52 LOC, 5 Test Functions)</h4>
+  <h4>Module 56: <code>tests/test_paid_features_hook.py</code> (51 LOC, 5 Test Functions)</h4>
   <table class="sci-table">
     <thead>
       <tr>
@@ -12474,7 +12610,7 @@
     </tbody>
   </table>
 
-  <h4>Module 57: <code>tests/test_platform_warnings.py</code> (370 LOC, 32 Test Functions)</h4>
+  <h4>Module 57: <code>tests/test_platform_warnings.py</code> (369 LOC, 32 Test Functions)</h4>
   <table class="sci-table">
     <thead>
       <tr>
@@ -12713,7 +12849,7 @@
     </tbody>
   </table>
 
-  <h4>Module 58: <code>tests/test_preferences.py</code> (232 LOC, 19 Test Functions)</h4>
+  <h4>Module 58: <code>tests/test_preferences.py</code> (231 LOC, 19 Test Functions)</h4>
   <table class="sci-table">
     <thead>
       <tr>
@@ -12861,7 +12997,7 @@
     </tbody>
   </table>
 
-  <h4>Module 59: <code>tests/test_progress.py</code> (659 LOC, 38 Test Functions)</h4>
+  <h4>Module 59: <code>tests/test_progress.py</code> (658 LOC, 38 Test Functions)</h4>
   <table class="sci-table">
     <thead>
       <tr>
@@ -13142,7 +13278,7 @@
     </tbody>
   </table>
 
-  <h4>Module 60: <code>tests/test_public_text.py</code> (193 LOC, 22 Test Functions)</h4>
+  <h4>Module 60: <code>tests/test_public_text.py</code> (192 LOC, 22 Test Functions)</h4>
   <table class="sci-table">
     <thead>
       <tr>
@@ -13311,7 +13447,7 @@
     </tbody>
   </table>
 
-  <h4>Module 61: <code>tests/test_publication_review.py</code> (209 LOC, 13 Test Functions)</h4>
+  <h4>Module 61: <code>tests/test_publication_review.py</code> (208 LOC, 13 Test Functions)</h4>
   <table class="sci-table">
     <thead>
       <tr>
@@ -13417,7 +13553,7 @@
     </tbody>
   </table>
 
-  <h4>Module 62: <code>tests/test_publish_checkpoint_dedup.py</code> (164 LOC, 6 Test Functions)</h4>
+  <h4>Module 62: <code>tests/test_publish_checkpoint_dedup.py</code> (163 LOC, 6 Test Functions)</h4>
   <table class="sci-table">
     <thead>
       <tr>
@@ -13474,7 +13610,7 @@
     </tbody>
   </table>
 
-  <h4>Module 63: <code>tests/test_publish_plan_safety.py</code> (386 LOC, 29 Test Functions)</h4>
+  <h4>Module 63: <code>tests/test_publish_plan_safety.py</code> (385 LOC, 29 Test Functions)</h4>
   <table class="sci-table">
     <thead>
       <tr>
@@ -13692,7 +13828,7 @@
     </tbody>
   </table>
 
-  <h4>Module 64: <code>tests/test_publish_refill.py</code> (334 LOC, 7 Test Functions)</h4>
+  <h4>Module 64: <code>tests/test_publish_refill.py</code> (333 LOC, 7 Test Functions)</h4>
   <table class="sci-table">
     <thead>
       <tr>
@@ -13756,7 +13892,7 @@
     </tbody>
   </table>
 
-  <h4>Module 65: <code>tests/test_publish_workers.py</code> (697 LOC, 25 Test Functions)</h4>
+  <h4>Module 65: <code>tests/test_publish_workers.py</code> (696 LOC, 25 Test Functions)</h4>
   <table class="sci-table">
     <thead>
       <tr>
@@ -13946,7 +14082,7 @@
     </tbody>
   </table>
 
-  <h4>Module 66: <code>tests/test_rehearsal.py</code> (175 LOC, 12 Test Functions)</h4>
+  <h4>Module 66: <code>tests/test_rehearsal.py</code> (174 LOC, 12 Test Functions)</h4>
   <table class="sci-table">
     <thead>
       <tr>
@@ -14045,7 +14181,7 @@
     </tbody>
   </table>
 
-  <h4>Module 67: <code>tests/test_review_consent_independent.py</code> (120 LOC, 4 Test Functions)</h4>
+  <h4>Module 67: <code>tests/test_review_consent_independent.py</code> (119 LOC, 4 Test Functions)</h4>
   <table class="sci-table">
     <thead>
       <tr>
@@ -14088,7 +14224,7 @@
     </tbody>
   </table>
 
-  <h4>Module 68: <code>tests/test_review_followup.py</code> (157 LOC, 7 Test Functions)</h4>
+  <h4>Module 68: <code>tests/test_review_followup.py</code> (156 LOC, 7 Test Functions)</h4>
   <table class="sci-table">
     <thead>
       <tr>
@@ -14152,7 +14288,7 @@
     </tbody>
   </table>
 
-  <h4>Module 69: <code>tests/test_runtime_cleanup.py</code> (283 LOC, 17 Test Functions)</h4>
+  <h4>Module 69: <code>tests/test_runtime_cleanup.py</code> (282 LOC, 17 Test Functions)</h4>
   <table class="sci-table">
     <thead>
       <tr>
@@ -14286,7 +14422,7 @@
     </tbody>
   </table>
 
-  <h4>Module 70: <code>tests/test_safety_processes.py</code> (285 LOC, 18 Test Functions)</h4>
+  <h4>Module 70: <code>tests/test_safety_processes.py</code> (284 LOC, 18 Test Functions)</h4>
   <table class="sci-table">
     <thead>
       <tr>
@@ -14427,7 +14563,7 @@
     </tbody>
   </table>
 
-  <h4>Module 71: <code>tests/test_safety.py</code> (510 LOC, 55 Test Functions)</h4>
+  <h4>Module 71: <code>tests/test_safety.py</code> (509 LOC, 55 Test Functions)</h4>
   <table class="sci-table">
     <thead>
       <tr>
@@ -14827,7 +14963,7 @@
     </tbody>
   </table>
 
-  <h4>Module 72: <code>tests/test_stage1_bilibili_pacing.py</code> (345 LOC, 19 Test Functions)</h4>
+  <h4>Module 72: <code>tests/test_stage1_bilibili_pacing.py</code> (344 LOC, 19 Test Functions)</h4>
   <table class="sci-table">
     <thead>
       <tr>
@@ -14975,7 +15111,7 @@
     </tbody>
   </table>
 
-  <h4>Module 73: <code>tests/test_stage1_collections.py</code> (263 LOC, 23 Test Functions)</h4>
+  <h4>Module 73: <code>tests/test_stage1_collections.py</code> (262 LOC, 23 Test Functions)</h4>
   <table class="sci-table">
     <thead>
       <tr>
@@ -15151,7 +15287,7 @@
     </tbody>
   </table>
 
-  <h4>Module 74: <code>tests/test_stage1_edits.py</code> (617 LOC, 50 Test Functions)</h4>
+  <h4>Module 74: <code>tests/test_stage1_edits.py</code> (616 LOC, 50 Test Functions)</h4>
   <table class="sci-table">
     <thead>
       <tr>
@@ -15516,7 +15652,7 @@
     </tbody>
   </table>
 
-  <h4>Module 75: <code>tests/test_stage1_likes.py</code> (378 LOC, 36 Test Functions)</h4>
+  <h4>Module 75: <code>tests/test_stage1_likes.py</code> (377 LOC, 36 Test Functions)</h4>
   <table class="sci-table">
     <thead>
       <tr>
@@ -15783,7 +15919,7 @@
     </tbody>
   </table>
 
-  <h4>Module 76: <code>tests/test_stage1_limits.py</code> (173 LOC, 16 Test Functions)</h4>
+  <h4>Module 76: <code>tests/test_stage1_limits.py</code> (172 LOC, 16 Test Functions)</h4>
   <table class="sci-table">
     <thead>
       <tr>
@@ -15910,7 +16046,7 @@
     </tbody>
   </table>
 
-  <h4>Module 77: <code>tests/test_stage1_messages.py</code> (270 LOC, 20 Test Functions)</h4>
+  <h4>Module 77: <code>tests/test_stage1_messages.py</code> (269 LOC, 20 Test Functions)</h4>
   <table class="sci-table">
     <thead>
       <tr>
@@ -16065,7 +16201,7 @@
     </tbody>
   </table>
 
-  <h4>Module 78: <code>tests/test_stage1_publish.py</code> (888 LOC, 94 Test Functions)</h4>
+  <h4>Module 78: <code>tests/test_stage1_publish.py</code> (887 LOC, 94 Test Functions)</h4>
   <table class="sci-table">
     <thead>
       <tr>
@@ -16738,7 +16874,7 @@
     </tbody>
   </table>
 
-  <h4>Module 79: <code>tests/test_stage1_reading.py</code> (365 LOC, 38 Test Functions)</h4>
+  <h4>Module 79: <code>tests/test_stage1_reading.py</code> (364 LOC, 38 Test Functions)</h4>
   <table class="sci-table">
     <thead>
       <tr>
@@ -17019,7 +17155,7 @@
     </tbody>
   </table>
 
-  <h4>Module 80: <code>tests/test_stage1_repeats.py</code> (351 LOC, 16 Test Functions)</h4>
+  <h4>Module 80: <code>tests/test_stage1_repeats.py</code> (350 LOC, 16 Test Functions)</h4>
   <table class="sci-table">
     <thead>
       <tr>
@@ -17146,7 +17282,7 @@
     </tbody>
   </table>
 
-  <h4>Module 81: <code>tests/test_stage1_replies.py</code> (458 LOC, 33 Test Functions)</h4>
+  <h4>Module 81: <code>tests/test_stage1_replies.py</code> (457 LOC, 33 Test Functions)</h4>
   <table class="sci-table">
     <thead>
       <tr>
@@ -17392,7 +17528,7 @@
     </tbody>
   </table>
 
-  <h4>Module 82: <code>tests/test_stage1_reporting.py</code> (107 LOC, 9 Test Functions)</h4>
+  <h4>Module 82: <code>tests/test_stage1_reporting.py</code> (106 LOC, 9 Test Functions)</h4>
   <table class="sci-table">
     <thead>
       <tr>
@@ -17470,7 +17606,7 @@
     </tbody>
   </table>
 
-  <h4>Module 83: <code>tests/test_stage1_stops.py</code> (128 LOC, 8 Test Functions)</h4>
+  <h4>Module 83: <code>tests/test_stage1_stops.py</code> (127 LOC, 8 Test Functions)</h4>
   <table class="sci-table">
     <thead>
       <tr>
@@ -17541,7 +17677,7 @@
     </tbody>
   </table>
 
-  <h4>Module 84: <code>tests/test_stage2_incoming.py</code> (330 LOC, 25 Test Functions)</h4>
+  <h4>Module 84: <code>tests/test_stage2_incoming.py</code> (329 LOC, 25 Test Functions)</h4>
   <table class="sci-table">
     <thead>
       <tr>
@@ -17731,7 +17867,7 @@
     </tbody>
   </table>
 
-  <h4>Module 85: <code>tests/test_stage2_output.py</code> (224 LOC, 17 Test Functions)</h4>
+  <h4>Module 85: <code>tests/test_stage2_output.py</code> (223 LOC, 17 Test Functions)</h4>
   <table class="sci-table">
     <thead>
       <tr>
@@ -17865,7 +18001,7 @@
     </tbody>
   </table>
 
-  <h4>Module 86: <code>tests/test_stage2_pages.py</code> (159 LOC, 17 Test Functions)</h4>
+  <h4>Module 86: <code>tests/test_stage2_pages.py</code> (158 LOC, 17 Test Functions)</h4>
   <table class="sci-table">
     <thead>
       <tr>
@@ -17999,7 +18135,7 @@
     </tbody>
   </table>
 
-  <h4>Module 87: <code>tests/test_stage2_shapes.py</code> (307 LOC, 26 Test Functions)</h4>
+  <h4>Module 87: <code>tests/test_stage2_shapes.py</code> (306 LOC, 26 Test Functions)</h4>
   <table class="sci-table">
     <thead>
       <tr>
@@ -18196,7 +18332,7 @@
     </tbody>
   </table>
 
-  <h4>Module 88: <code>tests/test_two_commands.py</code> (460 LOC, 37 Test Functions)</h4>
+  <h4>Module 88: <code>tests/test_two_commands.py</code> (459 LOC, 37 Test Functions)</h4>
   <table class="sci-table">
     <thead>
       <tr>
@@ -18470,7 +18606,7 @@
     </tbody>
   </table>
 
-  <h4>Module 89: <code>tests/test_work_delete_bili.py</code> (79 LOC, 5 Test Functions)</h4>
+  <h4>Module 89: <code>tests/test_work_delete_bili.py</code> (78 LOC, 5 Test Functions)</h4>
   <table class="sci-table">
     <thead>
       <tr>
@@ -18520,7 +18656,7 @@
     </tbody>
   </table>
 
-  <h4>Module 90: <code>tests/test_work_delete_coexistence.py</code> (254 LOC, 8 Test Functions)</h4>
+  <h4>Module 90: <code>tests/test_work_delete_coexistence.py</code> (253 LOC, 8 Test Functions)</h4>
   <table class="sci-table">
     <thead>
       <tr>
@@ -18591,7 +18727,7 @@
     </tbody>
   </table>
 
-  <h4>Module 91: <code>tests/test_work_delete_douyin.py</code> (472 LOC, 36 Test Functions)</h4>
+  <h4>Module 91: <code>tests/test_work_delete_douyin.py</code> (471 LOC, 36 Test Functions)</h4>
   <table class="sci-table">
     <thead>
       <tr>
@@ -18858,7 +18994,7 @@
     </tbody>
   </table>
 
-  <h4>Module 92: <code>tests/test_work_delete_instagram_layout.py</code> (1038 LOC, 41 Test Functions)</h4>
+  <h4>Module 92: <code>tests/test_work_delete_instagram_layout.py</code> (1037 LOC, 41 Test Functions)</h4>
   <table class="sci-table">
     <thead>
       <tr>
@@ -19160,7 +19296,7 @@
     </tbody>
   </table>
 
-  <h4>Module 93: <code>tests/test_work_delete_instagram.py</code> (416 LOC, 30 Test Functions)</h4>
+  <h4>Module 93: <code>tests/test_work_delete_instagram.py</code> (415 LOC, 30 Test Functions)</h4>
   <table class="sci-table">
     <thead>
       <tr>
@@ -19385,7 +19521,7 @@
     </tbody>
   </table>
 
-  <h4>Module 94: <code>tests/test_work_delete_paths_review.py</code> (291 LOC, 12 Test Functions)</h4>
+  <h4>Module 94: <code>tests/test_work_delete_paths_review.py</code> (290 LOC, 12 Test Functions)</h4>
   <table class="sci-table">
     <thead>
       <tr>
@@ -19484,7 +19620,7 @@
     </tbody>
   </table>
 
-  <h4>Module 95: <code>tests/test_work_delete_paths.py</code> (286 LOC, 14 Test Functions)</h4>
+  <h4>Module 95: <code>tests/test_work_delete_paths.py</code> (285 LOC, 14 Test Functions)</h4>
   <table class="sci-table">
     <thead>
       <tr>
@@ -19597,7 +19733,7 @@
     </tbody>
   </table>
 
-  <h4>Module 96: <code>tests/test_work_delete_x_dialogs.py</code> (408 LOC, 20 Test Functions)</h4>
+  <h4>Module 96: <code>tests/test_work_delete_x_dialogs.py</code> (407 LOC, 20 Test Functions)</h4>
   <table class="sci-table">
     <thead>
       <tr>
@@ -19752,7 +19888,7 @@
     </tbody>
   </table>
 
-  <h4>Module 97: <code>tests/test_work_delete_x_loading.py</code> (240 LOC, 13 Test Functions)</h4>
+  <h4>Module 97: <code>tests/test_work_delete_x_loading.py</code> (239 LOC, 13 Test Functions)</h4>
   <table class="sci-table">
     <thead>
       <tr>
@@ -19858,7 +19994,7 @@
     </tbody>
   </table>
 
-  <h4>Module 98: <code>tests/test_work_delete_x_readback.py</code> (437 LOC, 25 Test Functions)</h4>
+  <h4>Module 98: <code>tests/test_work_delete_x_readback.py</code> (436 LOC, 25 Test Functions)</h4>
   <table class="sci-table">
     <thead>
       <tr>
@@ -20048,7 +20184,7 @@
     </tbody>
   </table>
 
-  <h4>Module 99: <code>tests/test_work_delete_x_timeline_contract.py</code> (127 LOC, 9 Test Functions)</h4>
+  <h4>Module 99: <code>tests/test_work_delete_x_timeline_contract.py</code> (126 LOC, 9 Test Functions)</h4>
   <table class="sci-table">
     <thead>
       <tr>
@@ -20126,7 +20262,7 @@
     </tbody>
   </table>
 
-  <h4>Module 100: <code>tests/test_work_delete_x_timeline.py</code> (420 LOC, 21 Test Functions)</h4>
+  <h4>Module 100: <code>tests/test_work_delete_x_timeline.py</code> (419 LOC, 21 Test Functions)</h4>
   <table class="sci-table">
     <thead>
       <tr>
@@ -20288,7 +20424,7 @@
     </tbody>
   </table>
 
-  <h4>Module 101: <code>tests/test_work_delete_x.py</code> (854 LOC, 34 Test Functions)</h4>
+  <h4>Module 101: <code>tests/test_work_delete_x.py</code> (853 LOC, 34 Test Functions)</h4>
   <table class="sci-table">
     <thead>
       <tr>
@@ -20541,7 +20677,7 @@
     </tbody>
   </table>
 
-  <h4>Module 102: <code>tests/test_work_delete_youtube_absence.py</code> (72 LOC, 5 Test Functions)</h4>
+  <h4>Module 102: <code>tests/test_work_delete_youtube_absence.py</code> (71 LOC, 5 Test Functions)</h4>
   <table class="sci-table">
     <thead>
       <tr>
@@ -20591,7 +20727,7 @@
     </tbody>
   </table>
 
-  <h4>Module 103: <code>tests/test_work_delete_youtube_menu.py</code> (65 LOC, 4 Test Functions)</h4>
+  <h4>Module 103: <code>tests/test_work_delete_youtube_menu.py</code> (64 LOC, 4 Test Functions)</h4>
   <table class="sci-table">
     <thead>
       <tr>
@@ -20634,7 +20770,7 @@
     </tbody>
   </table>
 
-  <h4>Module 104: <code>tests/test_work_delete_youtube_query.py</code> (38 LOC, 2 Test Functions)</h4>
+  <h4>Module 104: <code>tests/test_work_delete_youtube_query.py</code> (37 LOC, 2 Test Functions)</h4>
   <table class="sci-table">
     <thead>
       <tr>
@@ -20663,7 +20799,7 @@
     </tbody>
   </table>
 
-  <h4>Module 105: <code>tests/test_work_delete_youtube.py</code> (731 LOC, 30 Test Functions)</h4>
+  <h4>Module 105: <code>tests/test_work_delete_youtube.py</code> (730 LOC, 30 Test Functions)</h4>
   <table class="sci-table">
     <thead>
       <tr>
@@ -20888,7 +21024,7 @@
     </tbody>
   </table>
 
-  <h4>Module 106: <code>tests/test_work_delete.py</code> (491 LOC, 27 Test Functions)</h4>
+  <h4>Module 106: <code>tests/test_work_delete.py</code> (490 LOC, 27 Test Functions)</h4>
   <table class="sci-table">
     <thead>
       <tr>
@@ -21092,7 +21228,7 @@
     </tbody>
   </table>
 
-  <h4>Module 107: <code>tests/test_work_discovery_wait.py</code> (391 LOC, 36 Test Functions)</h4>
+  <h4>Module 107: <code>tests/test_work_discovery_wait.py</code> (390 LOC, 36 Test Functions)</h4>
   <table class="sci-table">
     <thead>
       <tr>
@@ -21359,7 +21495,7 @@
     </tbody>
   </table>
 
-  <h4>Module 108: <code>tests/test_workflow.py</code> (679 LOC, 50 Test Functions)</h4>
+  <h4>Module 108: <code>tests/test_workflow.py</code> (678 LOC, 50 Test Functions)</h4>
   <table class="sci-table">
     <thead>
       <tr>
@@ -21724,7 +21860,7 @@
     </tbody>
   </table>
 
-  <h4>Module 109: <code>tests/test_write_answers.py</code> (172 LOC, 26 Test Functions)</h4>
+  <h4>Module 109: <code>tests/test_write_answers.py</code> (171 LOC, 26 Test Functions)</h4>
   <table class="sci-table">
     <thead>
       <tr>
@@ -21921,7 +22057,7 @@
     </tbody>
   </table>
 
-  <h4>Module 110: <code>tests/test_x_composer.py</code> (65 LOC, 4 Test Functions)</h4>
+  <h4>Module 110: <code>tests/test_x_composer.py</code> (64 LOC, 4 Test Functions)</h4>
   <table class="sci-table">
     <thead>
       <tr>
@@ -21964,7 +22100,7 @@
     </tbody>
   </table>
 
-  <h4>Module 111: <code>tests/test_x_discovery.py</code> (386 LOC, 27 Test Functions)</h4>
+  <h4>Module 111: <code>tests/test_x_discovery.py</code> (385 LOC, 27 Test Functions)</h4>
   <table class="sci-table">
     <thead>
       <tr>
@@ -22168,7 +22304,7 @@
     </tbody>
   </table>
 
-  <h4>Module 112: <code>tests/test_x_edit_consistency.py</code> (282 LOC, 19 Test Functions)</h4>
+  <h4>Module 112: <code>tests/test_x_edit_consistency.py</code> (281 LOC, 19 Test Functions)</h4>
   <table class="sci-table">
     <thead>
       <tr>
@@ -22316,7 +22452,7 @@
     </tbody>
   </table>
 
-  <h4>Module 113: <code>tests/test_x_edit_length.py</code> (382 LOC, 27 Test Functions)</h4>
+  <h4>Module 113: <code>tests/test_x_edit_length.py</code> (381 LOC, 27 Test Functions)</h4>
   <table class="sci-table">
     <thead>
       <tr>
@@ -22520,7 +22656,7 @@
     </tbody>
   </table>
 
-  <h4>Module 114: <code>tests/test_x_post_length.py</code> (182 LOC, 23 Test Functions)</h4>
+  <h4>Module 114: <code>tests/test_x_post_length.py</code> (181 LOC, 23 Test Functions)</h4>
   <table class="sci-table">
     <thead>
       <tr>
@@ -22696,7 +22832,7 @@
     </tbody>
   </table>
 
-  <h4>Module 115: <code>tests/test_x_schedule.py</code> (906 LOC, 93 Test Functions)</h4>
+  <h4>Module 115: <code>tests/test_x_schedule.py</code> (905 LOC, 93 Test Functions)</h4>
   <table class="sci-table">
     <thead>
       <tr>
@@ -23362,7 +23498,7 @@
     </tbody>
   </table>
 
-  <h4>Module 116: <code>tests/test_x_site.py</code> (517 LOC, 34 Test Functions)</h4>
+  <h4>Module 116: <code>tests/test_x_site.py</code> (516 LOC, 34 Test Functions)</h4>
   <table class="sci-table">
     <thead>
       <tr>
@@ -23615,7 +23751,7 @@
     </tbody>
   </table>
 
-  <h4>Module 117: <code>tests/test_youtube_browser.py</code> (1236 LOC, 100 Test Functions)</h4>
+  <h4>Module 117: <code>tests/test_youtube_browser.py</code> (1235 LOC, 100 Test Functions)</h4>
   <table class="sci-table">
     <thead>
       <tr>
@@ -24330,7 +24466,7 @@
     </tbody>
   </table>
 
-  <h4>Module 118: <code>tests/test_youtube_picker.py</code> (190 LOC, 15 Test Functions)</h4>
+  <h4>Module 118: <code>tests/test_youtube_picker.py</code> (189 LOC, 15 Test Functions)</h4>
   <table class="sci-table">
     <thead>
       <tr>
@@ -24450,7 +24586,7 @@
     </tbody>
   </table>
 
-  <h4>Module 119: <code>tests/test_youtube_playlist_empty.py</code> (164 LOC, 10 Test Functions)</h4>
+  <h4>Module 119: <code>tests/test_youtube_playlist_empty.py</code> (163 LOC, 10 Test Functions)</h4>
   <table class="sci-table">
     <thead>
       <tr>
@@ -24535,7 +24671,7 @@
     </tbody>
   </table>
 
-  <h4>Module 120: <code>tests/test_youtube_playlists.py</code> (1034 LOC, 101 Test Functions)</h4>
+  <h4>Module 120: <code>tests/test_youtube_playlists.py</code> (1033 LOC, 101 Test Functions)</h4>
   <table class="sci-table">
     <thead>
       <tr>
@@ -25257,7 +25393,7 @@
     </tbody>
   </table>
 
-  <h4>Module 121: <code>tests/test_youtube_schedule_zone.py</code> (229 LOC, 16 Test Functions)</h4>
+  <h4>Module 121: <code>tests/test_youtube_schedule_zone.py</code> (228 LOC, 16 Test Functions)</h4>
   <table class="sci-table">
     <thead>
       <tr>
@@ -25384,7 +25520,7 @@
     </tbody>
   </table>
 
-  <h4>Module 122: <code>tests/test_youtube_studio.py</code> (532 LOC, 39 Test Functions)</h4>
+  <h4>Module 122: <code>tests/test_youtube_studio.py</code> (531 LOC, 39 Test Functions)</h4>
   <table class="sci-table">
     <thead>
       <tr>
@@ -31685,7 +31821,7 @@ Related links: [Draft procedure](DRAFT_TESTING_EN.md)
 
 </pre>
 
-<h2>Appendix H. Verbatim Machine-Readable Audit Receipts &amp; Longitudinal Data Archives</h2>
+<h2>Appendix H. Verbatim Machine-Readable Audit Receipts and Data Archives</h2>
 <p>Below are the verbatim JSON data archives and dated production update receipts from <code>agentic-work-lab/data/</code>.</p>
 <h3>H.1 Primary Data Archive: <code>data/channel-weekly.json</code></h3>
   <pre class="json-box">{

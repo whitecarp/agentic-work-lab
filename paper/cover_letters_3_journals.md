@@ -1,77 +1,80 @@
-# Customized SCI Submission Cover Letters for Top 3 Target Journals
+# Cover Letters for Three Target Journals
 
-This package contains three tailored Cover Letters ready for direct upload depending on which SCI journal you choose first:
-1. **Option A (Primary Software & Systems Engineering Q1 Target):** *Journal of Systems and Software (JSS)* (Elsevier)
-2. **Option B (Primary Project & Engineering Management Q1 Target):** *IEEE Transactions on Engineering Management (IEEE TEM)* (IEEE)
-3. **Option C (Project Management Flagship Q1 Target):** *International Journal of Project Management (IJPM)* (Elsevier)
+## Option A: Journal of Systems and Software (Elsevier)
 
----
+**Date:** November 2026
+**To:** The Editors-in-Chief, Journal of Systems and Software
+**Subject:** Submission of an original research article — "Governing Human–AI Collaborative Project Workflows in Multi-Platform Digital Delivery: A Design Science Study of Auditable Handoffs and Idempotent Release Operations"
 
-## Option A: Cover Letter for *Journal of Systems and Software (JSS)*
+Dear Editor,
 
-**Date:** November 5, 2026  
-**To:** The Editors-in-Chief, *Journal of Systems and Software* (Elsevier)  
-**Subject:** Original Research Manuscript Submission — *"Governing Human–AI Collaborative Project Workflows in Multi-Platform Digital Delivery: A Design Science Study of Auditable Handoffs and Idempotent Release Operations"*
+Please consider the enclosed manuscript, "Governing Human–AI Collaborative Project Workflows in Multi-Platform Digital Delivery: A Design Science Study of Auditable Handoffs and Idempotent Release Operations", for publication in *Journal of Systems and Software*.
 
-Dear Editors-in-Chief,
+LLM agents increasingly act on production systems that cannot undo or de-duplicate their actions. Consumer publishing platforms offer no idempotency key for web submission, so an agent that retries an uncertain upload can publish twice. Following Design Science Research, we design and evaluate a four-layer governance architecture implemented in two open-source artifacts, Agentic Work Lab and PublishOps CrossCast: a deterministic admission gate, binding of each release command to the digest of the reviewed plan, a receipt state machine that is saved as UNKNOWN before the single final submission and never re-submits automatically, and independent read-back with escalation to a person.
 
-Please find enclosed our original research manuscript entitled **"Governing Human–AI Collaborative Project Workflows in Multi-Platform Digital Delivery: A Design Science Study of Auditable Handoffs and Idempotent Release Operations"** for consideration as a full-length research article in the *Journal of Systems and Software*.
+We evaluate the framework in a nine-day field deployment (26 October–3 November 2026) in one creator–engineering laboratory. A 69-record operational journal records one platform write and no replayed upload; when Douyin's programmatic read-back timed out after the single final submission, the receipt stayed UNKNOWN, nothing was re-submitted, and the owner confirmed the work by phone. In one instrumented Instagram publication, 92.32% of the 412.217 s publish command was the wait after Share. The evaluated release software (PublishOps CrossCast, commit 75b7abc) carries 2,737 offline test functions, and 30 video versions (2.21 GB) are archived with recorded SHA-256 digests.
 
-As heterogeneous Large Language Model (LLM) agents (e.g., GPT/Codex, Claude, and DeepSeek) transition into active execution roles in software delivery and digital release pipelines, systems engineering faces three severe reliability hazards: (1) uncoordinated multi-agent handoff drift, (2) non-idempotent external side effects (duplicate publications) when hybrid REST API and browser-automated endpoints experience post-submission verification timeouts, and (3) confounded performance attribution.
+For JSS readers, the contribution is a reusable engineering pattern for agentic release operations: at-most-once submission with an explicit proposition and its assumptions, mapped to concrete code and an offline test suite, together with a reproducible evidence package.
 
-Following the Design Science Research (DSR) paradigm, this study designs, formalizes, and empirically evaluates a four-layer governance architecture (*Agentic Work Lab* and *PublishOps CrossCast*, comprising **27,095 LOC** of production Python source across **123 modules** and **37,155 LOC** of automated tests across **126 test modules / 2,737 unit tests**). Our work makes four primary contributions aligned with the scope of *JSS*:
-1. **Deterministic Stage-Gate Handoff Invariants (RQ1):** We formalize a pure scheduling gate (`planRun`, Algorithm 1) and cryptographic plan-hash locking (`--confirm CURRENT_PLAN_HASH`, Theorem A.3) that eliminated unauthorized writes across **$N=69$ longitudinal operational events** ($68$ non-write gates enforced, $1$ authorized write, $0$ duplicate replays) and locked **$N=30$ video delivery artifacts ($2.21\text{ GB}$)**.
-2. **Idempotent Receipt State Machine under `UNKNOWN` States (RQ2):** We prove and empirically validate an eight-state release state machine (Algorithm 2, Theorem A.2) that latches uncertain post-submission outcomes into `UNKNOWN` rather than triggering naive retries, successfully preventing duplicate publication on Douyin during a live read-back timeout.
-3. **Phase-Level Release Latency Decomposition (RQ3):** Across five platforms (Bilibili, YouTube, X, Douyin, and Instagram), millisecond-level decomposition on Instagram ($423.236\text{ s}$ end-to-end) reveals that **$92.32\%$ ($380.551\text{ s}$)** of command duration resides in post-submission platform confirmation waits—identifying the exact vulnerability window for non-idempotent agent retries.
-4. **Complete Reproducible Open-Science Package (172 Pages Total):** Alongside the **21-page Main Manuscript**, we provide a **150-page Online Supplementary Material & Full Empirical Compendium** (Appendices A–H) containing complete mathematical proofs, all 69 operational logs, all 55 channel records, all 30 64-character SHA-256 digests, all 2,737 test function identifiers, 66 specification documents, and 14 raw JSON audit receipts.
+The study is a single-case design science evaluation. We state the assumptions under which automated re-submission cannot occur, report every figure descriptively, keep human-led and AI-assisted cohorts apart rather than comparing them causally, and publish the data, code and a script that recomputes every reported figure.
 
-This manuscript is original, has not been published previously, and is not under consideration elsewhere. Thank you for your time and consideration.
+The manuscript (22 pages, 11 tables, 5 figures, 3 algorithms) is accompanied by online supplementary material. It is original, has not been published previously, and is not under consideration elsewhere.
 
-Sincerely,  
-**HuaiCheng Sheng**  
-Agentic Work Lab, Hangzhou Chengxin Holding Group Co., Ltd., Hangzhou, Zhejiang, China  
-Email: `ZackSheng@gmail.com` | ORCID: `0009-0003-2900-6377`
+Sincerely,
+HuaiCheng Sheng
+Agentic Work Lab, Hangzhou Chengxin Holding Group Co., Ltd., Hangzhou, Zhejiang, China
+E-mail: ZackSheng@gmail.com | ORCID: 0009-0003-2900-6377
 
 ---
 
-## Option B: Cover Letter for *IEEE Transactions on Engineering Management (IEEE TEM)*
+## Option B: IEEE Transactions on Engineering Management (IEEE)
 
-**Date:** November 5, 2026  
-**To:** The Editor-in-Chief, *IEEE Transactions on Engineering Management*  
-**Subject:** Manuscript Submission — *"Governing Human–AI Collaborative Project Workflows in Multi-Platform Digital Delivery: A Design Science Study of Auditable Handoffs and Idempotent Release Operations"*
+**Date:** November 2026
+**To:** The Editor-in-Chief, IEEE Transactions on Engineering Management
+**Subject:** Submission of an original research article — "Governing Human–AI Collaborative Project Workflows in Multi-Platform Digital Delivery: A Design Science Study of Auditable Handoffs and Idempotent Release Operations"
 
-Dear Editor-in-Chief,
+Dear Editor,
 
-We respectfully submit our original manuscript entitled **"Governing Human–AI Collaborative Project Workflows in Multi-Platform Digital Delivery: A Design Science Study of Auditable Handoffs and Idempotent Release Operations"** for peer review in *IEEE Transactions on Engineering Management*.
+Please consider the enclosed manuscript, "Governing Human–AI Collaborative Project Workflows in Multi-Platform Digital Delivery: A Design Science Study of Auditable Handoffs and Idempotent Release Operations", for publication in *IEEE Transactions on Engineering Management*.
 
-Engineering and project management organizations are rapidly adopting multi-agent AI workflows, yet classical Stage-Gate project governance models lack enforceable computational mechanisms to prevent asynchronous AI role drift, duplicate external commitments during network timeouts, and confounded productivity claims. Bridging Stage-Gate control theory (Cooper, 1990; Bianchi et al., 2022) with fault-tolerant systems engineering, this Design Science study establishes an auditable human-in-the-loop (HITL) governance framework and evaluates it across **$N=69$ operational events**, **$N=55$ longitudinal channel releases**, **$N=30$ cryptographically verified media versions ($2.21\text{ GB}$)**, and **$2,737$ automated verification tests**.
+Engineering managers who delegate delivery work to AI agents must decide who may authorize an irreversible step and on what evidence. Following Design Science Research and stage-gate control theory, we formalize four software-enforced governance layers for human–AI collaborative delivery and implement them in two open-source artifacts, Agentic Work Lab and PublishOps CrossCast. We read stage gates as commit protocols: admission control at the gate, content binding of approvals, at-most-once commitment, end-to-end verification, and human resolution of in-doubt outcomes.
 
-In particular, our non-parametric cohort evaluation (Mann–Whitney $U = 65.5, p = 0.0012$, Algorithm 3) demonstrates how engineering managers can separate exposure-age confounding ($3,477.00$ vs. $95.89$ mean views) from genuine operational reliability gains. The submission includes a **21-page Main Manuscript** and a **150-page Online Supplementary Material** archive for full empirical transparency.
+We evaluate the framework in a nine-day field deployment (26 October–3 November 2026) in one creator–engineering laboratory. A 69-record operational journal records one platform write and no replayed upload; when Douyin's programmatic read-back timed out after the single final submission, the receipt stayed UNKNOWN, nothing was re-submitted, and the owner confirmed the work by phone. In one instrumented Instagram publication, 92.32% of the 412.217 s publish command was the wait after Share. The evaluated release software (PublishOps CrossCast, commit 75b7abc) carries 2,737 offline test functions, and 30 video versions (2.21 GB) are archived with recorded SHA-256 digests.
 
-This work is original and not under review elsewhere.
+For IEEE TEM readers, the contribution links technology-management theory on stage gates, configuration management and human–automation authority to an operational design whose behaviour can be checked, and it shows where human work moves when automation is made safe.
 
-Sincerely,  
-**HuaiCheng Sheng**  
-Agentic Work Lab, Hangzhou Chengxin Holding Group Co., Ltd., Hangzhou, Zhejiang, China  
-Email: `ZackSheng@gmail.com` | ORCID: `0009-0003-2900-6377`
+The study is a single-case design science evaluation. We state the assumptions under which automated re-submission cannot occur, report every figure descriptively, keep human-led and AI-assisted cohorts apart rather than comparing them causally, and publish the data, code and a script that recomputes every reported figure.
+
+The manuscript (22 pages, 11 tables, 5 figures, 3 algorithms) is accompanied by online supplementary material. It is original, has not been published previously, and is not under consideration elsewhere.
+
+Sincerely,
+HuaiCheng Sheng
+Agentic Work Lab, Hangzhou Chengxin Holding Group Co., Ltd., Hangzhou, Zhejiang, China
+E-mail: ZackSheng@gmail.com | ORCID: 0009-0003-2900-6377
 
 ---
 
-## Option C: Cover Letter for *International Journal of Project Management (IJPM)*
+## Option C: International Journal of Project Management (Elsevier)
 
-**Date:** November 5, 2026  
-**To:** The Editor-in-Chief, *International Journal of Project Management*  
-**Subject:** Original Research Submission — *"Governing Human–AI Collaborative Project Workflows in Multi-Platform Digital Delivery: A Design Science Study of Auditable Handoffs and Idempotent Release Operations"*
+**Date:** November 2026
+**To:** The Editors, International Journal of Project Management
+**Subject:** Submission of an original research article — "Governing Human–AI Collaborative Project Workflows in Multi-Platform Digital Delivery: A Design Science Study of Auditable Handoffs and Idempotent Release Operations"
 
-Dear Editor-in-Chief,
+Dear Editor,
 
-We are pleased to submit our manuscript **"Governing Human–AI Collaborative Project Workflows in Multi-Platform Digital Delivery: A Design Science Study of Auditable Handoffs and Idempotent Release Operations"** for consideration in the *International Journal of Project Management*.
+Please consider the enclosed manuscript, "Governing Human–AI Collaborative Project Workflows in Multi-Platform Digital Delivery: A Design Science Study of Auditable Handoffs and Idempotent Release Operations", for publication in *International Journal of Project Management*.
 
-Recent project management scholarship highlights urgent questions surrounding how artificial intelligence transforms project governance, accountability, and human–machine agency (Holzmann et al., 2022; Müller et al., 2024; Raisch & Krakowski, 2021). However, empirical studies demonstrating how project managers govern heterogeneous foundation models (GPT/Codex, Claude, and DeepSeek) in live, multi-platform delivery environments remain scarce. Grounded in Design Science Research and Stage-Gate governance theory, our study demonstrates how project managers retain sole-operator authority through four enforceable governance layers: deterministic scheduling gates, cryptographic plan-hash locking, idempotent `UNKNOWN`-latching release state machines, and epistemic audit protocols.
+Project governance research separates the framework that assigns decision rights from the management of execution. When AI agents execute project work, that separation must hold at the moment of action. Following Design Science Research, we design and evaluate a human-in-the-loop governance framework for multi-agent, multi-platform delivery, implemented in two open-source artifacts, Agentic Work Lab and PublishOps CrossCast, and we propose reading stage gates as commit protocols in which approvals bind to content and irreversible steps happen at most once.
 
-The **21-page Main Manuscript** is accompanied by a **150-page Online Supplementary Material** compendium documenting every proof, operational log ($N=69$), cohort record ($N=55$), artifact hash ($N=30$), and verification test ($2,737$ tests). This manuscript is solely submitted to *IJPM*.
+We evaluate the framework in a nine-day field deployment (26 October–3 November 2026) in one creator–engineering laboratory. A 69-record operational journal records one platform write and no replayed upload; when Douyin's programmatic read-back timed out after the single final submission, the receipt stayed UNKNOWN, nothing was re-submitted, and the owner confirmed the work by phone. In one instrumented Instagram publication, 92.32% of the 412.217 s publish command was the wait after Share. The evaluated release software (PublishOps CrossCast, commit 75b7abc) carries 2,737 offline test functions, and 30 video versions (2.21 GB) are archived with recorded SHA-256 digests.
 
-Sincerely,  
-**HuaiCheng Sheng**  
-Agentic Work Lab, Hangzhou Chengxin Holding Group Co., Ltd., Hangzhou, Zhejiang, China  
-Email: `ZackSheng@gmail.com` | ORCID: `0009-0003-2900-6377`
+For IJPM readers, the contribution extends project governance and stage-gate theory to AI-executed project work and demonstrates a reporting protocol that keeps descriptive project evidence apart from causal claims about AI.
+
+The study is a single-case design science evaluation. We state the assumptions under which automated re-submission cannot occur, report every figure descriptively, keep human-led and AI-assisted cohorts apart rather than comparing them causally, and publish the data, code and a script that recomputes every reported figure.
+
+The manuscript (22 pages, 11 tables, 5 figures, 3 algorithms) is accompanied by online supplementary material. It is original, has not been published previously, and is not under consideration elsewhere.
+
+Sincerely,
+HuaiCheng Sheng
+Agentic Work Lab, Hangzhou Chengxin Holding Group Co., Ltd., Hangzhou, Zhejiang, China
+E-mail: ZackSheng@gmail.com | ORCID: 0009-0003-2900-6377

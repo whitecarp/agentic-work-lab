@@ -1,3 +1,7 @@
+> **SUPERSEDED - do not use for submission or rebuttal. This document predates the peer-review revision of 4 November 2026 (branch paper/claude-review-fork). It quotes figures the data do not support (a Mann-Whitney U = 65.5, p = 0.0012 result; cohort means of 3,477, 95.89 and 32.56 views; "4 cohorts"; 27,095 and 37,155 lines of code) and describes algorithms and theorems that differ from the revised manuscript. Use main.tex / manuscript.pdf and CLAUDE_PEER_REVIEW_REPORT.md instead.**
+>
+> **已作废——请勿用于投稿或答辩。本文件写于 2026-11-04 同行评审修订之前，引用了数据不支持的数字（Mann–Whitney U = 65.5、p = 0.0012；播放均值 3,477 / 95.89 / 32.56；“4 个队列”；27,095 与 37,155 行代码），所述算法与定理也与修订稿不同。请以 main.tex / manuscript.pdf 及 CLAUDE_PEER_REVIEW_REPORT.md 为准。**
+
 # SCI 论文完整手稿与投稿全套方案（基于 `agentic-work-lab` & `publishops-crosscast`）
 
 > [!IMPORTANT]

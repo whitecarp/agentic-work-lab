@@ -1,0 +1,11 @@
+\begin{equation}
+\mathcal{G}_{\text{plan}}(\mathcal{S}) =
+\begin{cases}
+(\texttt{skip}, \texttt{not\_owner}, \emptyset) & \text{if } e = \varnothing \lor e \neq o, \\
+(\texttt{skip}, \texttt{stop\_flag}, \emptyset) & \text{else if } f_{\text{stop}} = \text{true}, \\
+(\texttt{skip}, \texttt{already\_running}, \emptyset) & \text{else if } f_{\text{run}} = \text{true}, \\
+(\texttt{plan\_only}, \texttt{checked}, \mathcal{D}) & \text{else if } \mathcal{D} \neq \emptyset, \\
+(\texttt{no\_work\_due}, \texttt{checked}, \emptyset) & \text{otherwise},
+\end{cases}
+\label{eq:planrun}
+\end{equation}

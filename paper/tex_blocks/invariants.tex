@@ -1,0 +1,7 @@
+\begin{invariant}[Media Integrity]
+Let $M = \{m_1, \dots, m_K\}$ be the release manifest, where each entry $m_i = (\text{fname}_i, B_i, H_i)$ gives a file name, an exact byte length $B_i$ and an expected SHA-256 digest $H_i$. An artifact $f_i$ passes the delivery check if and only if $\text{basename}(\text{fname}_i) = \text{fname}_i \land \text{size}(f_i) = B_i \land \text{SHA256}(f_i) = H_i$. Decode and frame checks are recorded separately in production receipts.
+\end{invariant}
+
+\begin{invariant}[Plan-Hash Confirmation Binding]
+Before any platform write through \texttt{vpub publish}, the release plan $P$---target platforms, account identities, video and cover SHA-256 digests, aspect ratio, visibility and platform copy---is serialized as JSON with sorted keys and compact separators and hashed, $H(P) = \text{SHA256}(\text{CanonicalJSON}(P))$. Execution is refused unless the command supplies \texttt{--confirm}~$H_{\text{user}}$ with $H_{\text{user}} = H(P)$; a changed plan has a new digest, so a stale code is refused.
+\end{invariant}

@@ -1,24 +1,18 @@
-# Research Highlights (Elsevier Strict <= 85 Characters Standard)
+# Highlights
 
-**Manuscript Title:** Governing Human–AI Collaborative Project Workflows in Multi-Platform Digital Delivery: A Design Science Study of Auditable Handoffs and Idempotent Release Operations  
-**Author:** HuaiCheng Sheng (Agentic Work Lab, Hangzhou Chengxin Holding Group Co., Ltd.)
+**Manuscript:** Governing Human–AI Collaborative Project Workflows in Multi-Platform Digital Delivery: A Design Science Study of Auditable Handoffs and Idempotent Release Operations
+**Author:** HuaiCheng Sheng (Agentic Work Lab, Hangzhou Chengxin Holding Group Co., Ltd., Hangzhou, Zhejiang, China | ORCID: 0009-0003-2900-6377)
 
-## Highlights (Upload as `Highlights` item in Elsevier Editorial Manager)
+- A four-layer stage-gate design governs human–AI delivery to five platforms
+- Receipts are saved as UNKNOWN before the one final submit; no auto re-submit
+- A 69-record field journal shows one platform write and no replayed upload
+- In one Instagram run, 92.32% of the publish command was the wait after Share
+- Descriptive channel data are kept apart from causal claims about AI output
 
-- Four-layer stage-gate architecture governs human-AI project handoffs.
-- Idempotent receipt state machine blocks duplicate releases on timeout.
-- Cryptographic plan-hash and SHA-256 gates lock 30 release artifacts.
-- Post-submit confirmation waits consume 92.32% of browser release time.
-- Epistemic audit rules separate cohort metrics (N=55) from causation.
-
----
-
-## Character-Count Verification Audit (Limit: <= 85 characters including spaces)
-
-| # | Highlight Bullet Text | Character Count (with spaces) | Status |
-| :--- | :--- | :---: | :---: |
-| 1 | `Four-layer stage-gate architecture governs human-AI project handoffs.` | **69 / 85** | PASS |
-| 2 | `Idempotent receipt state machine blocks duplicate releases on timeout.` | **70 / 85** | PASS |
-| 3 | `Cryptographic plan-hash and SHA-256 gates lock 30 release artifacts.` | **68 / 85** | PASS |
-| 4 | `Post-submit confirmation waits consume 92.32% of browser release time.` | **70 / 85** | PASS |
-| 5 | `Epistemic audit rules separate cohort metrics (N=55) from causation.` | **68 / 85** | PASS |
+| # | Highlight | Characters (incl. spaces) |
+| :--- | :--- | :---: |
+| 1 | A four-layer stage-gate design governs human–AI delivery to five platforms | 74 / 85 |
+| 2 | Receipts are saved as UNKNOWN before the one final submit; no auto re-submit | 76 / 85 |
+| 3 | A 69-record field journal shows one platform write and no replayed upload | 73 / 85 |
+| 4 | In one Instagram run, 92.32% of the publish command was the wait after Share | 76 / 85 |
+| 5 | Descriptive channel data are kept apart from causal claims about AI output | 74 / 85 |

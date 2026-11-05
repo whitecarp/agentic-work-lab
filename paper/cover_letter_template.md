@@ -1,35 +1,24 @@
-# Cover Letter for SCI / SSCI Journal Submission
+# Cover Letter (journal-neutral template)
 
-**Date:** November 5, 2026
+**Date:** November 2026
+**To:** The Editor-in-Chief, [Journal name]
+**Subject:** Submission of an original research article — "Governing Human–AI Collaborative Project Workflows in Multi-Platform Digital Delivery: A Design Science Study of Auditable Handoffs and Idempotent Release Operations"
 
-**To:**
-The Editor-in-Chief
-*Journal of Systems and Software / IEEE Transactions on Engineering Management*
+Dear Editor,
 
-**Subject:** Submission of Original Research Manuscript: *"Governing Human–AI Collaborative Project Workflows in Multi-Platform Digital Delivery: A Design Science Study of Auditable Handoffs and Idempotent Release Operations"*
+Please consider the enclosed manuscript, "Governing Human–AI Collaborative Project Workflows in Multi-Platform Digital Delivery: A Design Science Study of Auditable Handoffs and Idempotent Release Operations", for publication in *[Journal name]*.
 
-Dear Editor-in-Chief,
+LLM agents increasingly act on production systems that cannot undo or de-duplicate their actions. Consumer publishing platforms offer no idempotency key for web submission, so an agent that retries an uncertain upload can publish twice. Following Design Science Research, we design and evaluate a four-layer governance architecture implemented in two open-source artifacts, Agentic Work Lab and PublishOps CrossCast: a deterministic admission gate, binding of each release command to the digest of the reviewed plan, a receipt state machine that is saved as UNKNOWN before the single final submission and never re-submits automatically, and independent read-back with escalation to a person.
 
-I am pleased to submit our original research manuscript entitled **"Governing Human–AI Collaborative Project Workflows in Multi-Platform Digital Delivery: A Design Science Study of Auditable Handoffs and Idempotent Release Operations"** for consideration for publication.
+We evaluate the framework in a nine-day field deployment (26 October–3 November 2026) in one creator–engineering laboratory. A 69-record operational journal records one platform write and no replayed upload; when Douyin's programmatic read-back timed out after the single final submission, the receipt stayed UNKNOWN, nothing was re-submitted, and the owner confirmed the work by phone. In one instrumented Instagram publication, 92.32% of the 412.217 s publish command was the wait after Share. The evaluated release software (PublishOps CrossCast, commit 75b7abc) carries 2,737 offline test functions, and 30 video versions (2.21 GB) are archived with recorded SHA-256 digests.
 
-As Large Language Model (LLM) agents increasingly transition from passive chat assistants to autonomous execution actors in project delivery and operations, project managers face severe governance challenges: uncoordinated multi-agent role handoffs, non-idempotent external side effects (such as duplicate publications when platform read-backs time out), and confounded performance claims. Grounded in the Design Science Research (DSR) paradigm and stage-gate project control theory, this study presents the design, formalization, and empirical evaluation of **Agentic Work Lab** and **PublishOps CrossCast (`vpub`)**—an open-source human-in-the-loop (HITL) project governance framework and multi-platform release operations console.
+The contribution is a governance design for AI-executed project work whose behaviour can be checked: deterministic gates, approvals bound to content, at-most-once submission with human reconciliation, and a reporting protocol that keeps descriptive evidence apart from causal claims.
 
-The primary contributions of this manuscript include:
-1. **A Four-Layer Agentic Project Governance Architecture:** Formalizing stage-gate controls into deterministic software invariants across (i) sole-operator and temporal scheduling gates (`planRun`), (ii) cryptographic plan-hash locking (`--confirm CURRENT_PLAN_HASH`) and streaming SHA-256 media verification, (iii) an idempotent receipt state machine that latches uncertain post-submission outcomes (`UNKNOWN` states) to suppress automatic retry faults, and (iv) independent read-back and HITL verification handoffs.
-2. **Comprehensive Empirical & Software Evaluation:** Validating the architecture across **69 de-identified operational event records** (achieving 68 zero-write monitoring intervals, 1 authorized write, 0 duplicate upload replays, and 0 new risk incidents), **30 cryptographically verified video delivery versions** (2.21 GB total), **55 channel cohort records**, and **2,737 automated unit/integration test cases** across 126 test modules in *PublishOps CrossCast* (`v0.16.0`).
-3. **Cross-Platform Release & Latency Bottleneck Discovery:** Demonstrating live release governance across five major platforms (Bilibili, YouTube, X, Douyin, and Instagram), showing how `UNKNOWN`-state latching prevented duplicate publication during a Douyin read-back timeout, and proving via phase-level timing decomposition that **92.32% (380.551 s out of 412.217 s)** of browser-mediated publication latency occurs during the post-submission platform confirmation wait.
-4. **Epistemic Hygiene Protocol for AI Project Reporting:** Establishing machine-readable boundaries between descriptive cohort metrics and causal inference to prevent exposure-age confounding in human–AI comparative studies.
+The study is a single-case design science evaluation. We state the assumptions under which automated re-submission cannot occur, report every figure descriptively, keep human-led and AI-assisted cohorts apart rather than comparing them causally, and publish the data, code and a script that recomputes every reported figure.
 
-All source code, schemas, and de-identified empirical datasets are publicly archived on GitHub (`https://github.com/whitecarp/agentic-work-lab` and `https://github.com/whitecarp/publishops-crosscast`) to ensure complete reproducibility.
-
-This manuscript is original, has not been published previously, and is not under consideration for publication elsewhere. The author declares no competing financial or personal interests.
-
-Thank you very much for your time and consideration of this manuscript. I look forward to hearing from you.
+The manuscript (22 pages, 11 tables, 5 figures, 3 algorithms) is accompanied by online supplementary material. It is original, has not been published previously, and is not under consideration elsewhere.
 
 Sincerely,
-
-**HuaiCheng Sheng**
+HuaiCheng Sheng
 Agentic Work Lab, Hangzhou Chengxin Holding Group Co., Ltd., Hangzhou, Zhejiang, China
-E-mail: `ZackSheng@gmail.com`
-ORCID: `https://orcid.org/0009-0003-2900-6377`
-GitHub: `https://github.com/whitecarp`
+E-mail: ZackSheng@gmail.com | ORCID: 0009-0003-2900-6377

@@ -1,8 +1,9 @@
 import fs from 'fs';
 import path from 'path';
 import { execFileSync } from 'child_process';
+import { fileURLToPath } from 'url';
 
-const paperDir = 'C:\\Users\\ROG\\.gemini\\antigravity\\scratch\\agentic-sci-paper\\paper';
+const paperDir = path.dirname(fileURLToPath(import.meta.url));
 
 const edgePaths = [
   'C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe',
@@ -22,6 +23,8 @@ function htmlToPdf(htmlPath, pdfPath) {
   ], { stdio: 'ignore' });
 }
 
+const SUPERSEDED_MD = "> **SUPERSEDED - do not use for submission or rebuttal. This document predates the peer-review revision of 4 November 2026 (branch paper/claude-review-fork). It quotes figures the data do not support (a Mann-Whitney U = 65.5, p = 0.0012 result; cohort means of 3,477, 95.89 and 32.56 views; \"4 cohorts\"; 27,095 and 37,155 lines of code) and describes algorithms and theorems that differ from the revised manuscript. Use main.tex / manuscript.pdf and CLAUDE_PEER_REVIEW_REPORT.md instead.**\n>\n> **已作废——请勿用于投稿或答辩。本文件写于 2026-11-04 同行评审修订之前，引用了数据不支持的数字（Mann–Whitney U = 65.5、p = 0.0012；播放均值 3,477 / 95.89 / 32.56；“4 个队列”；27,095 与 37,155 行代码），所述算法与定理也与修订稿不同。请以 main.tex / manuscript.pdf 及 CLAUDE_PEER_REVIEW_REPORT.md 为准。**\n\n";
+const SUPERSEDED_HTML = "<div style=\"border:2pt solid #b91c1c;background:#fef2f2;color:#7f1d1d;padding:8pt 10pt;margin:0 0 12pt 0;font-weight:bold;font-size:10pt;line-height:1.45\">SUPERSEDED - do not use for submission or rebuttal. This document predates the peer-review revision of 4 November 2026 (branch paper/claude-review-fork). It quotes figures the data do not support (a Mann-Whitney U = 65.5, p = 0.0012 result; cohort means of 3,477, 95.89 and 32.56 views; \"4 cohorts\"; 27,095 and 37,155 lines of code) and describes algorithms and theorems that differ from the revised manuscript. Use main.tex / manuscript.pdf and CLAUDE_PEER_REVIEW_REPORT.md instead.<br><br>已作废——请勿用于投稿或答辩。本文件写于 2026-11-04 同行评审修订之前，引用了数据不支持的数字（Mann–Whitney U = 65.5、p = 0.0012；播放均值 3,477 / 95.89 / 32.56；“4 个队列”；27,095 与 37,155 行代码），所述算法与定理也与修订稿不同。请以 main.tex / manuscript.pdf 及 CLAUDE_PEER_REVIEW_REPORT.md 为准。</div>";
 const css = `
   @page { size: A4 portrait; margin: 16mm 16mm 16mm 16mm; }
   body {
@@ -191,9 +194,9 @@ for (const item of defenseQuestions) {
   defenseMd += `### 核心防御逻辑总结（供作者快速掌握）：\n${item.a_cn}\n\n---\n\n`;
 }
 
-fs.writeFileSync(path.join(paperDir, 'reviewer_defense_playbook.md'), defenseMd, 'utf8');
+fs.writeFileSync(path.join(paperDir, 'reviewer_defense_playbook.md'), SUPERSEDED_MD + defenseMd, 'utf8');
 
-const defenseHtml = `<!DOCTYPE html><html><head><meta charset="utf-8"><style>${css}</style></head><body>
+const defenseHtml = `<!DOCTYPE html><html><head><meta charset="utf-8"><style>${css}</style></head><body>${SUPERSEDED_HTML}
 <h1>SCI Peer-Review Defense &amp; Rebuttal Playbook (15 Questions)</h1>
 <p><strong>Manuscript:</strong> Governing Human–AI Collaborative Project Workflows in Multi-Platform Digital Delivery: A Design Science Study of Auditable Handoffs and Idempotent Release Operations<br/>
 <strong>Author:</strong> HuaiCheng Sheng (Agentic Work Lab, Hangzhou Chengxin Holding Group Co., Ltd. | ORCID: <code>0009-0003-2900-6377</code>)</p>
@@ -217,7 +220,7 @@ htmlToPdf(defHtmlPath, path.join(paperDir, 'reviewer_defense_playbook.pdf'));
 // ============================================================================
 // PART B: FULL CHINESE ACADEMIC COMPANION EDITION (全中文完整学术对照精读本)
 // ============================================================================
-const cnCompanionHtml = `<!DOCTYPE html><html><head><meta charset="utf-8"><style>${css}</style></head><body>
+const cnCompanionHtml = `<!DOCTYPE html><html><head><meta charset="utf-8"><style>${css}</style></head><body>${SUPERSEDED_HTML}
 <h1>SCI 论文全中文完整学术对照版与核心公式/算法/图表精读手册</h1>
 <p><strong>英文原题：</strong> Governing Human–AI Collaborative Project Workflows in Multi-Platform Digital Delivery: A Design Science Study of Auditable Handoffs and Idempotent Release Operations<br/>
 <strong>中文标题：</strong> 多平台数字交付中人机协同项目工作流的治理研究：基于设计科学的可审计交接与幂等发布运维<br/>
