@@ -28,7 +28,8 @@ Thank you very much for your time and consideration of this manuscript. I look f
 
 Sincerely,
 
-**Zack Sheng**
-Department of Project Management, Agentic Work Lab
-E-mail: `zacksheng2000@gmail.com`
+**HuaiCheng Sheng**
+Agentic Work Lab, Hangzhou Chengxin Holding Group Co., Ltd., Hangzhou, Zhejiang, China
+E-mail: `ZackSheng@gmail.com`
+ORCID: `https://orcid.org/0009-0003-2900-6377`
 GitHub: `https://github.com/whitecarp`
