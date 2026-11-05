@@ -1,0 +1,605 @@
+\documentclass[11pt,a4paper]{article}
+
+% Standard packages compatible with Elsevier (elsarticle), IEEE, and Springer SCI submissions
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{geometry}
+\geometry{margin=1in}
+\usepackage{amsmath,amssymb,amsfonts,amsthm}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{multirow}
+\usepackage{longtable}
+\usepackage{graphicx}
+\usepackage{tikz}
+\usetikzlibrary{shapes.geometric, arrows.meta, positioning, fit, calc, backgrounds}
+\usepackage{hyperref}
+\usepackage{xcolor}
+\usepackage{enumitem}
+\usepackage{caption}
+\usepackage{subcaption}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+\usepackage{natbib}
+\usepackage{setspace}
+\onehalfspacing
+
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue!70!black,
+    citecolor=blue!70!black,
+    urlcolor=blue!70!black
+}
+
+\theoremstyle{definition}
+\newtheorem{definition}{Definition}
+\newtheorem{proposition}{Proposition}
+\newtheorem{invariant}{Governance Invariant}
+
+\title{\textbf{Governing Human--AI Collaborative Project Workflows in Multi-Platform Digital Delivery: A Design Science Study of Auditable Handoffs and Idempotent Release Operations}}
+
+\author{
+  \textbf{Zack Sheng}$^{1,*}$ \\
+  \small $^{1}$Department of Project Management, Agentic Work Lab, Independent Researcher \\
+  \small $^{*}$Corresponding author. E-mail: \texttt{zacksheng2000@gmail.com} \,|\, GitHub: \texttt{https://github.com/whitecarp}
+}
+
+\date{November 2026}
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+\noindent
+\textbf{Context:} As Large Language Model (LLM) agents transition from conversational assistants to autonomous execution actors in digital engineering and media production projects, project management faces a critical governance gap. Multi-agent workflows frequently suffer from uncoordinated role handoffs, non-idempotent external side effects (such as duplicate platform publications following network timeouts), silent quality degradation, and confounded performance attribution. \\
+\textbf{Objective:} Grounded in the Design Science Research (DSR) paradigm and stage-gate project control theory, this study designs, implements, and empirically evaluates an auditable human-in-the-loop (HITL) project governance framework and release operations system (\emph{Agentic Work Lab} and \emph{PublishOps CrossCast}) for multi-agent, multi-platform digital delivery. \\
+\textbf{Method:} We formalize a four-layer governance architecture comprising: (1) a deterministic sole-operator and temporal scheduling gate (\texttt{planRun}); (2) cryptographic plan-hash locking (\texttt{--confirm CURRENT_PLAN_HASH}) coupled with stream-based SHA-256 media integrity verification; (3) an idempotent receipt state machine that latches uncertain post-submission outcomes (\texttt{UNKNOWN} states) to suppress automatic retry faults across heterogeneous API and browser-automated endpoints; and (4) an independent read-back verification and HITL exception handoff protocol. The framework is evaluated using real-world longitudinal project artifacts spanning $N=69$ de-identified operational event logs, $N=55$ channel publication records, $N=30$ cryptographically verified video delivery versions ($2.21\text{ GB}$), and $2,737$ automated verification test cases across $126$ test modules. \\
+\textbf{Results:} Across $69$ operational checkpoints involving multi-agent coordination (GPT/Codex, Claude, and DeepSeek under human project management), the governance gates suppressed unauthorized mutations in $68$ non-write intervals while executing exactly one authorized write ($0$ duplicate upload replays, $0$ new risk incidents). A verified autonomous heartbeat run demonstrated a $24.992\text{ s}$ trigger delay and $31.175\text{ s}$ execution duration with zero task errors. Cross-platform release evaluation across five platforms (Bilibili, YouTube, X, Douyin, and Instagram) confirmed that latching \texttt{UNKNOWN} states during programmatic read-back timeouts prevented duplicate publication on Douyin while preserving audit trails. Phase-level latency decomposition on Instagram ($423.236\text{ s}$ end-to-end; $412.217\text{ s}$ publication command) revealed that $92.32\%$ ($380.551\text{ s}$) of command duration resides in post-submission platform confirmation wait, identifying the primary vulnerability window for non-idempotent agent retries. \\
+\textbf{Conclusions:} Effective project management of agentic workflows requires shifting from prompt-level persuasion to deterministic stage-gate invariants, cryptographic artifact locking, and idempotent state-machine recovery. All source code, schemas, and de-identified empirical datasets are publicly archived to establish a reproducible benchmark for agentic project governance.
+
+\vspace{0.5em}
+\noindent
+\textbf{Keywords:} Project Management Governance; Human--AI Collaboration; Multi-Agent Workflows; Design Science Research; Idempotent Release Engineering; Stage-Gate Control; PublishOps
+\end{abstract}
+
+\newpage
+\section*{Highlights}
+\begin{itemize}[leftmargin=1.5em]
+    \item Proposes a four-layer Design Science governance framework for human--AI collaborative project delivery.
+    \item Formalizes an idempotent receipt state machine that prevents duplicate side effects under \texttt{UNKNOWN} network/UI states.
+    \item Evaluates multi-agent handoffs (GPT/Codex, Claude, DeepSeek) across $69$ operational events and $30$ SHA-256 verified artifacts.
+    \item Demonstrates across $5$ platforms that $92.32\%$ of browser-mediated release latency occurs in post-submission confirmation waits.
+    \item Establishes epistemic audit rules separating descriptive cohort metrics ($N=55$) from confounded causal claims.
+\end{itemize}
+
+\newpage
+\section{Introduction}
+\label{sec:intro}
+
+The rapid maturation of Large Language Models (LLMs) and autonomous tool-using agents has initiated a structural transformation in project management and systems engineering \citep{Holzmann2022, Muller2024, Wang2024Agent}. Unlike traditional software scripts that execute fixed, deterministic subroutines, agentic workflows deploy heterogeneous foundation models---such as reasoning-oriented coding agents, interface construction agents, and scheduled monitoring agents---to collaborate on complex, multi-stage deliverables \citep{Wu2023AutoGen, Hong2023MetaGPT}. In digital content production, software release engineering, and routine operations, these multi-agent topologies promise substantial reductions in manual coordination overhead \citep{Raisch2021, Berente2021}.
+
+However, deploying autonomous or semi-autonomous AI agents into real-world production environments exposes severe project governance vulnerabilities that classical project management frameworks were not designed to address \citep{PMI2021, Kerzner2022}. From a project control perspective, three fundamental failure modes emerge when LLM agents interact with external production platforms:
+
+\begin{enumerate}[leftmargin=1.8em]
+    \item \textbf{Multi-Agent Handoff Drift and Role Ambiguity:} When multiple specialized models (e.g., GPT/Codex for script synthesis and backend verification, Claude for interface construction, and DeepSeek for scheduled operational monitoring) operate asynchronously on shared project state, context boundaries frequently degrade. Without formal ownership locks and explicit acceptance gates, an agent may re-execute a task already claimed by another instance, overwrite human-approved revisions, or act on stale schedule checklists \citep{Whyte2016, Qian2024ChatDev}.
+    \item \textbf{Non-Idempotent External Side Effects under Uncertainty:} Real-world release operations across heterogeneous platforms (such as Bilibili, YouTube, X, Douyin, and Instagram) rely on a mixture of official REST APIs and stateful browser sessions. Network interruptions, platform review queues, CAPTCHA challenges, or DOM read-back timeouts frequently leave a submission in an indeterminate (\texttt{UNKNOWN}) state \citep{Schneider1990, Kleppmann2017}. Naive agentic retry loops interpret a missing confirmation receipt as a failed upload and automatically re-trigger submission, resulting in duplicate public posts, corrupted metadata, or account rate-limiting penalties.
+    \item \textbf{Epistemic Confounding in Performance Evaluation:} In industry and academic reports alike, the introduction of AI workflows is frequently accompanied by unverified claims of productivity speedup or audience growth \citep{Raisch2021}. When comparing historical human-led project outputs against newly launched AI-assisted series, differences in artifact exposure age, topic selection, and platform recommendation dynamics confound naive metric aggregation. Furthermore, treating generated draft volume as equivalent to verified, production-ready delivery obscures the substantial human review and rework required to achieve release acceptance.
+\end{enumerate}
+
+To address these challenges, this study adopts the Design Science Research (DSR) methodology \citep{Hevner2004, Peffers2007, Gregor2013} to conceptualize, build, and evaluate a comprehensive human-in-the-loop (HITL) project governance framework and release operations console: \textbf{Agentic Work Lab} and its core release engine \textbf{PublishOps CrossCast} (\texttt{vpub}). Rather than treating AI governance as an informal prompt-engineering exercise, we formulate multi-agent project delivery as a verifiable stage-gate control system \citep{Cooper1990, Bianchi2020} backed by cryptographic artifact locking and fault-tolerant state-machine transitions.
+
+Specifically, this paper investigates the following three research questions (RQs):
+\begin{itemize}[leftmargin=1.8em]
+    \item \textbf{RQ1 (Governance Architecture):} How can stage-gate project management principles be formalized into deterministic software invariants to govern multi-model handoffs and prevent unauthorized or duplicate autonomous actions?
+    \item \textbf{RQ2 (Fault-Tolerant Release Engineering):} How can an idempotent receipt state machine coordinate multi-platform digital releases across hybrid API and browser-automated channels when post-submission verification encounters timeouts or human authentication barriers?
+    \item \textbf{RQ3 (Empirical & Epistemic Validation):} What are the empirical operational characteristics, latency bottlenecks, and methodological boundaries observed when deploying this governance architecture across longitudinal multi-platform production workflows?
+\end{itemize}
+
+The primary contributions of this work are fourfold:
+\begin{enumerate}[leftmargin=1.8em]
+    \item \textbf{A Four-Layer Agentic Project Governance Framework:} We synthesize stage-gate project control \citep{Cooper1990} and human-centered automation theory \citep{Parasuraman2000, Shneiderman2020} into four enforceable governance layers: (i) Sole-Operator and Temporal Scheduling Gate, (ii) Cryptographic Plan-Hash and Media Digest Gate, (iii) Idempotent Receipt State Machine with \texttt{UNKNOWN}-State Suppression, and (iv) Independent Read-Back and HITL Verification Handoff.
+    \item \textbf{Open-Source Reference Implementation (\emph{PublishOps CrossCast}):} We present the architecture and verification suite of \emph{PublishOps CrossCast} (\texttt{v0.16.0}), comprising $123$ Python source modules ($27,095$ lines of code) and $126$ automated test modules ($37,155$ lines of test code across $2,737$ test functions), alongside zero-dependency Node.js governance verification scripts in \emph{Agentic Work Lab}.
+    \item \textbf{Longitudinal Empirical Trace and Latency Analysis:} We evaluate the system across $69$ de-identified operational event records, $30$ SHA-256 verified video delivery versions ($2.21\text{ GB}$), and live cross-platform publication of a multi-lingual production artifact across five major platforms. Our phase-by-phase timing decomposition demonstrates that post-submission platform confirmation accounts for $92.32\%$ ($380.551\text{ s}$ out of $412.217\text{ s}$) of browser-mediated publication latency, empirically validating the necessity of state-locked wait handling over timeout-based retries.
+    \item \textbf{Methodological Protocol for Auditable AI Project Reporting:} We establish and demonstrate a strict reporting protocol that separates primary observational receipts from causal inferences, preventing survivorship bias and exposure-age confounding when evaluating human-led ($n=45$) versus AI-assisted ($n=10$) project cohorts.
+\end{enumerate}
+
+The remainder of this paper is structured as follows. Section~\ref{sec:related} reviews related literature on AI in project management, multi-agent systems, and release engineering. Section~\ref{sec:methodology} outlines the Design Science Research methodology and epistemic hygiene rules. Section~\ref{sec:architecture} formalizes the four-layer governance architecture and idempotent receipt state machine. Section~\ref{sec:implementation} details the system implementation across \emph{Agentic Work Lab} and \emph{PublishOps CrossCast}. Section~\ref{sec:evaluation} presents the empirical evaluation across operational traces, software verification suites, cross-platform release records, and cohort analytics. Section~\ref{sec:discussion} discusses theoretical and managerial implications alongside threats to validity, and Section~\ref{sec:conclusion} concludes the study.
+
+---
+
+\section{Related Work and Theoretical Background}
+\label{sec:related}
+
+\subsection{Project Management Governance and Stage-Gate Control in the AI Era}
+Classical project management theory emphasizes structured control mechanisms---such as Work Breakdown Structures (WBS), configuration management, and Stage-Gate reviews---to manage uncertainty and enforce accountability across project phases \citep{Cooper1990, Whyte2016, PMI2021, Kerzner2022}. In hybrid agile--stage-gate models \citep{Bianchi2020}, iterative execution within a sprint is bounded by formal quality gates that verify deliverable completeness before authorizing downstream commitment.
+
+Recent scholarship in project management has begun examining how artificial intelligence alters project governance, decision-making authority, and human--machine agency \citep{Holzmann2022, Muller2024}. \citet{Raisch2021} highlight the twin perils of over-automation (where removing human judgment leads to systemic drift and brittle failure) and isolated augmentation, arguing that organizations must design explicit coupling protocols between human managers and algorithmic actors. Similarly, \citet{Parasuraman2000} and \citet{Shneiderman2020} emphasize that high-reliability systems require combining high levels of automation with high levels of human control through transparent audit trails, explicit pre-authorization, and graceful handoff under exception states. Despite these theoretical advances, existing project management literature largely relies on conceptual typologies or Delphi surveys \citep{Holzmann2022}; there remains a scarcity of concrete, software-enforced governance architectures that operationalize stage-gate controls for live, multi-model AI agents.
+
+\subsection{Multi-Agent LLM Workflows and Coordination Failures}
+The emergence of tool-augmented LLM agents \citep{Yao2023ReAct, Shinn2023Reflexion} has spurred the development of multi-agent collaborative frameworks such as AutoGen \citep{Wu2023AutoGen}, MetaGPT \citep{Hong2023MetaGPT}, and ChatDev \citep{Qian2024ChatDev}. By decomposing complex workflows into specialized agent roles (e.g., product manager, architect, coder, reviewer) and employing Standardized Operating Procedures (SOPs), these frameworks reduce single-context hallucination and improve task completion rates on synthetic benchmarks \citep{Wang2024Agent}.
+
+Nevertheless, empirical deployments of multi-agent systems in continuous operations reveal persistent coordination vulnerabilities. First, conversational handoffs between agents lack transactional atomicity: if an operational agent (e.g., DeepSeek executing a scheduled check) reads an intermediate checklist while a production agent (e.g., GPT/Codex) is still rendering or re-encoding a media asset, premature external actions may be triggered. Second, unlike sandboxed coding benchmarks where failed tests can be re-run without external cost, production workflows interact with stateful external platforms where unauthorized writes, duplicate submissions, or unintended deletions are irreversible \citep{Amershi2019}. Consequently, governing heterogeneous models in production requires externalizing state management from volatile LLM context windows into deterministic, auditable file and lock structures.
+
+\subsection{DevOps, Release Engineering, and Idempotent State Machines}
+In software engineering, Continuous Integration and Continuous Delivery (CI/CD) pipelines manage deployment risk through automated build verification, immutable artifact digests, and staged rollouts \citep{Humble2010, Bass2015, Adams2016, Shahin2017, Leite2019}. A foundational principle of reliable distributed systems and transaction processing is \emph{idempotency}---the guarantee that repeating an operation or recovering from an interrupted request does not produce duplicate side effects \citep{Schneider1990, gray1992transaction, Kleppmann2017}.
+
+Extending DevOps principles to multi-platform digital media delivery (which we term \emph{PublishOps}) introduces unique socio-technical constraints. Unlike cloud infrastructure APIs that natively support idempotency keys, consumer content platforms (e.g., Bilibili, YouTube, X, Douyin, Instagram) exhibit heterogeneous access modalities: some provide OAuth REST APIs with resumable byte-offset protocols, whereas others require driving authenticated web interfaces where anti-bot verifications, asynchronous transcoding queues, and DOM layout shifts obscure submission outcomes. Bridging stage-gate project governance with fault-tolerant state-machine design is therefore essential to enable safe human--AI collaboration in multi-platform release operations.
+
+---
+
+\section{Research Methodology}
+\label{sec:methodology}
+
+\subsection{Design Science Research (DSR) Framework}
+We structure this investigation following the six-step Design Science Research Methodology (DSRM) established by \citet{Peffers2007} and the evaluation principles of \citet{Hevner2004} and \citet{Venable2016}:
+
+\begin{enumerate}[leftmargin=1.8em]
+    \item \textbf{Problem Identification and Motivation:} Uncontrolled multi-agent handoffs, duplicate external writes during uncertain platform states, and confounded efficiency claims in AI-assisted project delivery (Section~\ref{sec:intro}).
+    \item \textbf{Definition of Objectives for a Solution:} Establish a deterministic governance architecture that enforces sole-operator scheduling, cryptographic plan-to-artifact binding, zero-duplicate submission under \texttt{UNKNOWN} states, and strict separation of observational evidence from causal inference.
+    \item \textbf{Design and Development:} Formulation of the four-layer governance model and state-machine invariants (Section~\ref{sec:architecture}), realized through two open-source artifacts: \emph{Agentic Work Lab} (workflow orchestration, checklists, and audit dataset) and \emph{PublishOps CrossCast} (multi-platform release console \texttt{vpub}, Section~\ref{sec:implementation}).
+    \item \textbf{Demonstration:} Deployment of the artifacts in an authentic longitudinal digital media production and cross-platform publishing project spanning two active series (\emph{GPT Duty Log} and \emph{Whale Girl Shift Log}) and standalone short films across five platforms.
+    \item \textbf{Evaluation:} Rigorous multi-method evaluation combining (a) trace analysis of $N=69$ operational events, (b) automated unit and integration testing ($2,737$ test cases in \emph{CrossCast} plus $10$ workflow gate tests), (c) cross-platform publication and phase-latency measurement, and (d) descriptive cohort analysis of $N=55$ channel records (Section~\ref{sec:evaluation}).
+    \item \textbf{Communication:} Archival of all code, SHA-256 verified media deliverables ($N=30$), and machine-readable JSON/CSV receipts in public repositories to ensure full scientific reproducibility.
+\end{enumerate}
+
+\subsection{Epistemic Hygiene and Evidence Classification Protocol}
+A central methodological contribution of this study is the enforcement of an explicit epistemic hygiene protocol across all project documentation and data exports \citep{Runeson2009}. Every operational record and research note in the laboratory is governed by four mandatory reporting rules:
+\begin{enumerate}[leftmargin=1.8em]
+    \item \textbf{Separation of Observation and Inference:} Direct platform metrics (e.g., view counts, completion percentages, elapsed command times) are recorded with exact sampling timestamps and provenance labels. Causal attributions (e.g., claiming that an AI editing technique or specific LLM caused traffic growth) are strictly prohibited unless supported by controlled, matched-sample experiments.
+    \item \textbf{Explicit State Granularity:} The system distinguishes between local preparation, rehearsal, preflight authentication, submission execution, platform review queues, and verified public visibility. An unverified or timed-out read-back is recorded explicitly as \texttt{UNKNOWN} rather than coerced into success or failure.
+    \item \textbf{Immutable Snapshot Preservation:} Repeated data collections are stored as distinct timestamped snapshots (e.g., archiving the earlier 52-record snapshot separately from the 55-record snapshot and subsequent daily production updates) rather than overwriting historical states or merging incompatible sampling windows.
+    \item \textbf{Explicit Documentation of Unrun Tests and Limits:} Planned evaluations (such as blinded identical-task multi-model merchant comparisons or live concurrent-publishing speedup benchmarks) are explicitly labeled as unexecuted plans until live request logs and blind review receipts are generated.
+\end{enumerate}
+
+---
+
+\section{The Four-Layer Human--AI Project Governance Architecture}
+\label{sec:architecture}
+
+To answer \textbf{RQ1} and \textbf{RQ2}, we formalize the project governance architecture as a four-layer hierarchical control system that mediates between the human Project Manager, specialized LLM agents, local media/code artifacts, and external publishing platforms. Figure~\ref{fig:architecture} illustrates the structural topology and information flows across the four layers.
+
+\begin{figure}[htbp]
+\centering
+\begin{tikzpicture}[
+    node distance=0.8cm and 1.2cm,
+    layerbox/.style={draw=black!75, rounded corners=4pt, thick, fill=gray!6, inner sep=8pt, minimum width=14.2cm},
+    modbox/.style={draw=blue!65!black, rounded corners=3pt, fill=white, thick, align=center, font=\footnotesize, minimum height=1.05cm, inner sep=5pt},
+    agentbox/.style={draw=teal!70!black, rounded corners=3pt, fill=teal!6, thick, align=center, font=\footnotesize, minimum height=1.0cm, inner sep=5pt},
+    gatebox/.style={draw=orange!80!black, rounded corners=3pt, fill=orange!10, thick, align=center, font=\footnotesize\bfseries, minimum height=0.95cm, inner sep=5pt},
+    platbox/.style={draw=purple!70!black, rounded corners=3pt, fill=purple!6, thick, align=center, font=\scriptsize, minimum height=0.85cm, minimum width=2.3cm, inner sep=4pt},
+    arrow/.style={-{Stealth[length=2.5mm, width=1.8mm]}, thick, draw=black!75},
+    dashedarrow/.style={-{Stealth[length=2.5mm, width=1.8mm]}, thick, dashed, draw=red!70!black}
+]
+
+% Layer 0: Human & Multi-Agent Role Layer
+\node[agentbox, minimum width=3.2cm] (human) {\textbf{Human Project Manager}\\Requirements, Editorial\\Direction \& Auth Gates};
+\node[agentbox, right=0.5cm of human, minimum width=3.2cm] (gpt) {\textbf{GPT / Codex Agent}\\Script, Programmable Video\\Synthesis \& Backend QA};
+\node[agentbox, right=0.5cm of gpt, minimum width=3.2cm] (claude) {\textbf{Claude Agent}\\Interface Construction\\\& Workflow Tooling};
+\node[agentbox, right=0.5cm of claude, minimum width=3.2cm] (deepseek) {\textbf{DeepSeek Agent}\\Scheduled Heartbeat\\\& Checklist Monitoring};
+
+% Layer 1: Gate 1
+\node[gatebox, below=0.65cm of $(gpt.south)!0.5!(claude.south)$, minimum width=14.1cm] (gate1) {Layer 1: Sole-Operator \& Temporal Scheduling Gate (\texttt{planRun}: Owner Lock, Stop Flag, Due-Time \& Auth Check)};
+
+% Layer 2: Gate 2
+\node[modbox, below=0.55cm of gate1, xshift=-3.6cm, minimum width=6.7cm] (manifest) {\textbf{Artifact Integrity Verification (\texttt{check-delivery})}\\Stream SHA-256 Digest, Exact Byte Count,\\FFmpeg Full Decode (0 Errors) \& Frame Sampling};
+\node[modbox, below=0.55cm of gate1, xshift=3.6cm, minimum width=6.7cm] (planhash) {\textbf{Cryptographic Release Plan (\texttt{vpub plan})}\\Platform Copy, Aspect Ratio, Cover Hash,\\Bound via \texttt{--confirm CURRENT\_PLAN\_HASH}};
+
+% Layer 3: Gate 3
+\node[gatebox, below=0.55cm of $(manifest.south)!0.5!(planhash.south)$, minimum width=14.1cm] (gate3) {Layer 3: Idempotent Receipt State Machine (\texttt{process\_lock}, Pipe Browser Reuse, \texttt{UNKNOWN}-State Retry Suppression)};
+
+% Layer 4: Gate 4
+\node[modbox, below=0.55cm of gate3, xshift=-3.6cm, minimum width=6.7cm] (readback) {\textbf{Independent Read-Back Verification (\texttt{vpub verify})}\\Native Receipt Capture, Caption/Visibility Read-Back,\\Timing Audit (\texttt{scheduled-run-evidence.json})};
+\node[modbox, below=0.55cm of gate3, xshift=3.6cm, minimum width=6.7cm] (hitl) {\textbf{HITL Exception \& Auth Handoff}\\Preserves Draft/Session on Verification Challenge;\\User Mobile/Browser Confirmation without Re-Upload};
+
+% External Platforms
+\node[platbox, below=0.65cm of readback, xshift=-2.1cm] (bili) {\textbf{Bilibili}\\(\texttt{bili-cli} / Session)};
+\node[platbox, right=0.45cm of bili] (yt) {\textbf{YouTube}\\(OAuth API / Studio)};
+\node[platbox, right=0.45cm of yt] (xplat) {\textbf{X (Twitter)}\\(Web / Media Studio)};
+\node[platbox, right=0.45cm of xplat] (douyin) {\textbf{Douyin}\\(CLI Browser / HITL)};
+\node[platbox, right=0.45cm of douyin] (ig) {\textbf{Instagram}\\(CLI Browser / Reels)};
+
+% Arrows
+\draw[arrow] (human.south) -- (human.south |- gate1.north);
+\draw[arrow] (gpt.south) -- (gpt.south |- gate1.north);
+\draw[arrow] (claude.south) -- (claude.south |- gate1.north);
+\draw[arrow] (deepseek.south) -- (deepseek.south |- gate1.north);
+
+\draw[arrow] (gate1.south -| manifest.north) -- (manifest.north);
+\draw[arrow] (gate1.south -| planhash.north) -- (planhash.north);
+
+\draw[arrow] (manifest.south) -- (manifest.south |- gate3.north);
+\draw[arrow] (planhash.south) -- (planhash.south |- gate3.north);
+
+\draw[arrow] (gate3.south -| readback.north) -- (readback.north);
+\draw[arrow] (gate3.south -| hitl.north) -- (hitl.north);
+
+\draw[arrow] (readback.south) -- (yt.north);
+\draw[arrow] (readback.south) -- (bili.north);
+\draw[arrow] (readback.south) -- (xplat.north);
+\draw[arrow] (hitl.south) -- (douyin.north);
+\draw[arrow] (hitl.south) -- (ig.north);
+\draw[dashedarrow] (hitl.east) to[out=15, in=-15] node[right, font=\scriptsize, align=left, text=red!70!black] {Audit Escalation\\to Human PM} (human.east);
+
+\end{tikzpicture}
+\caption{The four-layer human--AI collaborative project governance and multi-platform release architecture implemented in \emph{Agentic Work Lab} and \emph{PublishOps CrossCast}.}
+\label{fig:architecture}
+\end{figure}
+
+\subsection{Multi-Agent Role Allocation and Handoff Boundaries}
+Within the laboratory environment, project execution is partitioned across four distinct actors: the Human Project Manager and three specialized AI agent workflows (GPT/Codex, Claude, and DeepSeek). Rather than allowing agents to communicate through unstructured free-text loops, all inter-agent handoffs are mediated through version-controlled state files (\texttt{operations-checklist.md}, \texttt{delivery-manifest.json}, and \texttt{production-update-*.json}). Table~\ref{tab:roles} defines the task scope, handoff artifacts, and operational constraints for each actor.
+
+\begin{table}[htbp]
+\centering
+\caption{Multi-agent role allocation, handoff artifacts, and governance boundaries across the project lifecycle.}
+\label{tab:roles}
+\footnotesize
+\begin{tabular}{p{2.3cm} p{3.4cm} p{3.5cm} p{4.6cm}}
+\toprule
+\textbf{Project Actor} & \textbf{Assigned Functional Scope} & \textbf{Observable Evidence \& Handoff Artifacts} & \textbf{Enforced Governance \& Safety Constraints} \\
+\midrule
+\textbf{Human Project Manager} (Sole Operator / Architect) & Requirements definition, editorial direction, creative acceptance, platform authentication, and final release authorization. & Explicit authorization events (\texttt{USER\_AUTHORIZED\_*}), mobile/browser verification receipts, and plan confirmation hashes. & Retains exclusive sign-off on public releases, deletions, and schedule overrides; resolves \texttt{UNKNOWN} platform states. \\
+\addlinespace
+\textbf{GPT / Codex Workflow} (Production \& Backend QA) & Topic/merchant research, script synthesis, programmable video timeline assembly, FFmpeg encoding checks, and backend repository review. & SHA-256 verified \texttt{.mp4} exports, frame-sampling logs, decode error counts, and pull request verification records. & Cannot self-authorize public platform writes; unapproved or in-progress renders (\texttt{RENDER\_OR\_QA\_PENDING}) are excluded from release. \\
+\addlinespace
+\textbf{Claude Workflow} (Interface \& Tool Construction) & CLI interface construction, layout adaptation, portrait cut tooling, and developer user-experience refinements in \emph{CrossCast}. & Scoped pull requests (e.g., PR~8 capability list, PR~9 first-run checks, PR~10 two-command flow) and unit test suites. & Changes remain commit-scoped until verified by regression suites; local mock tests are never reported as live speedups. \\
+\addlinespace
+\textbf{DeepSeek Workflow} (Scheduled Operations Monitor) & Hourly automated heartbeat inspections, reading operational checklists, checking due times, and synchronizing user instructions. & Machine-readable execution traces (\texttt{scheduled-run-evidence.json}) and de-identified event logs (\texttt{operations-events.json}). & Strictly read-only when no authorized task is due; forbidden from launching duplicate runs or retrying uncertain submissions. \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Layer 1: Deterministic Sole-Operator and Temporal Scheduling Gate}
+To prevent race conditions and unauthorized autonomous execution during scheduled heartbeats (e.g., when DeepSeek wakes up on an hourly cron timer), Layer~1 enforces a pure offline decision function $\mathcal{G}_{\text{plan}}$ before any network or platform adapter is invoked.
+
+Let $\mathcal{S} = (e, o, f_{\text{stop}}, f_{\text{run}}, t_{\text{now}}, \mathcal{J})$ denote the operational context tuple, where $e$ is the requesting executor identifier, $o$ is the registered instance owner, $f_{\text{stop}} \in \{\text{true}, \text{false}\}$ is the emergency halt flag, $f_{\text{run}} \in \{\text{true}, \text{false}\}$ indicates whether an execution lock is currently active, $t_{\text{now}} \in \mathbb{R}^{+}$ is the current epoch timestamp, and $\mathcal{J} = \{j_1, j_2, \dots, j_m\}$ is the set of candidate jobs. Each job $j_k = (\text{id}_k, t_{\text{due},k}, \text{auth}_k, \text{done}_k)$ specifies a unique identifier, a scheduled due timestamp, an explicit human authorization boolean, and a completion boolean.
+
+\begin{definition}[Deterministic Scheduling Gate $\mathcal{G}_{\text{plan}}$]
+\label{def:planrun}
+The gate function $\mathcal{G}_{\text{plan}}(\mathcal{S})$ validates input well-formedness (throwing a hard exception if $t_{\text{now}}$ or any $t_{\text{due},k}$ is non-finite, or if $\exists k \neq l$ such that $\text{id}_k = \text{id}_l$) and evaluates the following ordered decision rules:
+\begin{equation}
+\mathcal{G}_{\text{plan}}(\mathcal{S}) =
+\begin{cases}
+(\texttt{skip}, \texttt{not\_owner}, \emptyset) & \text{if } e = \varnothing \lor e \neq o, \\
+(\texttt{skip}, \texttt{stop\_flag}, \emptyset) & \text{else if } f_{\text{stop}} = \text{true}, \\
+(\texttt{skip}, \texttt{already\_running}, \emptyset) & \text{else if } f_{\text{run}} = \text{true}, \\
+(\texttt{plan\_only}, \texttt{checked}, \mathcal{D}) & \text{else if } \mathcal{D} \neq \emptyset, \\
+(\texttt{no\_work\_due}, \texttt{checked}, \emptyset) & \text{otherwise},
+\end{cases}
+\label{eq:planrun}
+\end{equation}
+where the due set $\mathcal{D}$ is strictly filtered as:
+\begin{equation}
+\mathcal{D} = \left\{ \text{id}_k \;\middle|\; j_k \in \mathcal{J} \;\land\; \text{done}_k = \text{false} \;\land\; \text{auth}_k = \text{true} \;\land\; t_{\text{due},k} \le t_{\text{now}} \right\}.
+\label{eq:dueset}
+\end{equation}
+\end{definition}
+
+Furthermore, for any automated run record $R = (\text{trig}, \text{status}, f_{\text{manual}}, t_{\text{start}}, t_{\text{end}}, E_{\text{err}})$, post-execution verification $\mathcal{V}_{\text{sched}}(R)$ holds if and only if:
+\begin{equation}
+\begin{aligned}
+\mathcal{V}_{\text{sched}}(R) \iff\;& (\text{trig} = \texttt{automation\_heartbeat\_scheduled}) \\
+&\land (\text{status} = \texttt{VERIFIED\_AUTOMATIC\_RUN\_COMPLETED}) \\
+&\land (f_{\text{manual}} = \text{false}) \land (0 < t_{\text{start}} \le t_{\text{end}} < \infty) \land (|E_{\text{err}}| = 0).
+\end{aligned}
+\label{eq:verify_sched}
+\end{equation}
+
+\subsection{Layer 2: Cryptographic Plan-Hash Locking and Artifact Verification}
+Even when a task is due and authorized, multi-agent pipelines risk publishing mismatched media versions (e.g., an earlier unpatched render) or altered platform captions. Layer~2 enforces two cryptographic invariants:
+
+\begin{invariant}[Binary Media Integrity]
+Let $M = \{m_1, \dots, m_K\}$ be the release manifest where each entry $m_i = (\text{fname}_i, B_i, H_i)$ specifies a basename-sanitized file ($\text{basename}(\text{fname}_i) = \text{fname}_i$), exact byte length $B_i$, and expected SHA-256 digest $H_i$. An artifact $f_i$ on disk passes verification if and only if $\text{size}(f_i) = B_i \land \text{SHA256}(f_i) = H_i \land \text{DecodeErrors}(f_i) = 0$.
+\end{invariant}
+
+\begin{invariant}[Plan-Hash Confirmation Binding]
+Before invoking any platform write via \texttt{vpub publish}, the operator generates a canonical release plan $P$ specifying target platforms, account identities, visibility flags, localized titles/descriptions, cover image digests, and media SHA-256 hashes. A cryptographic plan digest $H(P) = \text{SHA256}(\text{CanonicalJSON}(P))$ is computed. Live publication is rejected unless the execution command explicitly supplies $\texttt{--confirm } H_{\text{user}}$ such that $H_{\text{user}} = H(P)$.
+\end{invariant}
+
+\subsection{Layer 3: Idempotent Receipt State Machine and \texttt{UNKNOWN}-State Suppression}
+To answer \textbf{RQ2}, we model cross-platform publication in \emph{PublishOps CrossCast} as a persistent state machine $\mathcal{M} = (\Sigma, \sigma_0, \Delta)$ backed by cross-process OS locks (\texttt{process\_lock.py}) and durable local receipt journals. Figure~\ref{fig:statemachine} depicts the state transition topology.
+
+\begin{figure}[htbp]
+\centering
+\begin{tikzpicture}[
+    node distance=1.3cm and 1.8cm,
+    state/.style={draw=blue!75!black, thick, rounded corners=4pt, fill=blue!5, align=center, font=\footnotesize\bfseries, minimum width=2.8cm, minimum height=0.95cm, inner sep=4pt},
+    warnstate/.style={draw=red!80!black, very thick, rounded corners=4pt, fill=red!10, align=center, font=\footnotesize\bfseries, minimum width=3.1cm, minimum height=1.05cm, inner sep=4pt},
+    okstate/.style={draw=green!60!black, very thick, rounded corners=4pt, fill=green!10, align=center, font=\footnotesize\bfseries, minimum width=2.9cm, minimum height=0.95cm, inner sep=4pt},
+    trans/.style={-{Stealth[length=2.4mm, width=1.7mm]}, thick, draw=black!75, font=\scriptsize},
+    blocktrans/.style={-{Stealth[length=2.4mm, width=1.7mm]}, very thick, dashed, draw=red!80!black, font=\scriptsize\bfseries}
+]
+
+\node[state] (planned) {1. \texttt{PLANNED}\\Plan Hash $H(P)$ Locked};
+\node[state, right=2.0cm of planned] (preflight) {2. \texttt{PREFLIGHT\_OK}\\Lock \& Auth Verified};
+\node[state, right=2.0cm of preflight] (staged) {3. \texttt{MEDIA\_STAGED}\\Offset / Studio Uploaded};
+
+\node[state, below=1.4cm of staged] (submitted) {4. \texttt{SUBMITTED\_WAIT}\\Final Submit Flag = \texttt{true}};
+\node[warnstate, left=1.8cm of submitted] (unknown) {5a. \texttt{UNKNOWN\_LATCHED}\\Read-Back Timeout /\\Auth Challenge};
+\node[okstate, below=1.4cm of submitted] (verified) {5b. \texttt{SUBMISSION\_VERIFIED}\\Native Receipt \&\\Metadata Read-Back OK};
+\node[okstate, left=1.8cm of verified] (hitl_ok) {6. \texttt{USER\_CONFIRMED}\\HITL Mobile / Studio\\Inspection Verified};
+
+\draw[trans] (planned) -- node[above, align=center] {\texttt{--confirm} $H(P)$\\$= H_{\text{current}}$} (preflight);
+\draw[trans] (preflight) -- node[above, align=center] {Resumable API /\\Pipe Browser} (staged);
+\draw[trans] (staged) -- node[right, align=center] {Single Submit Click\\(Persisted to Receipt)} (submitted);
+
+\draw[trans] (submitted) -- node[above, align=center] {Timeout / 429 /\\DOM Unconfirmed} (unknown);
+\draw[trans] (submitted) -- node[right, align=center] {Immediate Read-Back\\Match (YT / IG / X)} (verified);
+
+\draw[trans] (unknown) -- node[left, align=center] {\texttt{vpub verify} or\\Operator Phone Check\\(Douyin Case)} (hitl_ok);
+\draw[trans] (unknown) -- node[sloped, above, align=center] {Delayed Read-Back\\Finds Unique Match} (verified);
+
+% Blocked automatic retry loop
+\draw[blocktrans] (unknown.north) to[out=90, in=-90] node[pos=0.5, fill=white, inner sep=2pt, text=red!80!black, align=center] {BLOCKED: Automatic Re-Submit\\Strictly Forbidden ($f_{\text{submit}}=\text{true}$)} (preflight.south);
+
+\end{tikzpicture}
+\caption{The idempotent receipt state machine in \emph{PublishOps CrossCast}. Once the final-submit flag is persisted at State~4, any subsequent timeout or verification failure transitions to \texttt{UNKNOWN\_LATCHED} (State~5a), strictly blocking automatic retries.}
+\label{fig:statemachine}
+\end{figure}
+
+Let a platform publication receipt be represented as the tuple:
+\begin{equation}
+\mathcal{R}_p = \left( \text{key}, \text{acct}_p, H_{\text{media}}, H_{\text{meta}}, f_{\text{submit}}, \sigma_p, \text{wid}_p, \tau_{\text{log}} \right),
+\end{equation}
+where $\text{acct}_p$ is the bound platform account identity, $H_{\text{media}}$ and $H_{\text{meta}}$ are the source media and caption digests, $f_{\text{submit}} \in \{\text{false}, \text{true}\}$ is the durable final-submission latch, $\sigma_p \in \Sigma$ is the current verification state, $\text{wid}_p$ is the remote platform work identifier (initially $\varnothing$), and $\tau_{\text{log}}$ is the append-only timestamped phase trace.
+
+\begin{proposition}[Zero-Duplicate Submission under Uncertain Read-Back]
+\label{prop:idempotency}
+Suppose an execution instance initiates publication for plan $P$ on platform $p$. Immediately prior to dispatching the final platform commit action (e.g., clicking ``Share'' on Instagram/Douyin or issuing the final commit call), the receipt journal atomically persists $f_{\text{submit}} \leftarrow \text{true}$. If the subsequent platform confirmation wait times out or fails programmatic read-back, the state transitions to $\sigma_p = \texttt{UNKNOWN}$ (State~5a) while retaining $f_{\text{submit}} = \text{true}$. Because the publication guard requires $f_{\text{submit}} = \text{false}$ to enter State~3/4, no automated agent or retry loop can re-submit the payload. Resolution proceeds exclusively via non-mutating reconciliation (\texttt{vpub verify}), which queries the account's visible catalog for a unique work matching $(\text{acct}_p, H_{\text{meta}}, \text{duration})$, or via human operator visual confirmation (State~6).
+\end{proposition}
+
+---
+
+\section{System Implementation: \emph{Agentic Work Lab} and \emph{PublishOps CrossCast}}
+\label{sec:implementation}
+
+The governance architecture is implemented across two coupled open-source repositories: \emph{Agentic Work Lab} (providing workflow gate scripts, operational templates, SHA-256 delivery checkers, and empirical datasets) and \emph{PublishOps CrossCast} (providing the \texttt{vpub} multi-platform release operations CLI, browser automation adapters, and recovery engines).
+
+\subsection{Programmable Video Synthesis and Multi-Modal Quality Gates}
+Within \emph{Agentic Work Lab}, video production is engineered as an editable, code-driven workflow (\texttt{editable-video-workflow.md}) rather than opaque one-shot generative video prompting. Audio narration timelines, character pose transitions, camera movements, and bilingual subtitles are defined programmatically so that individual defects (such as visual flash artifacts in \emph{GPT Duty Log 05} or heel-sound synchronization in \emph{Whale Girl} transformation studies) can be patched deterministically without regenerating unaffected segments.
+
+Before any video version is staged for release or archived to GitHub Releases, it undergoes a multi-stage technical verification pipeline:
+\begin{enumerate}[leftmargin=1.8em]
+    \item \textbf{Stream Cryptographic Check (\texttt{check-delivery.mjs}):} Verifies basename safety, exact byte length, and streaming SHA-256 digest against \texttt{media/manifest.json}.
+    \item \textbf{Full Stream Decode Verification:} Executes full FFmpeg decoding across the H.264/AAC container to ensure $\text{full\_decode\_errors} = 0$.
+    \item \textbf{Temporal and Frame Sampling (\texttt{temporal-quality.md}):} Samples keyframes across the timeline (e.g., $37$ sampled frames for the $176.4\text{ s}$ short film \emph{I Watched It For You v3}) to verify cover lead-in frames, aspect ratio preservation ($1920\times 1080$ landscape vs. $1080\times 1920$ portrait cuts), and motion continuity.
+\end{enumerate}
+
+\subsection{CrossCast Multi-Platform Subsystem Architecture}
+\emph{PublishOps CrossCast} (public release \texttt{v0.16.0}, commit \texttt{a46bd19}; main-branch evolution through commit \texttt{75b7abc}, PR~\#30) is implemented in Python across $123$ source modules ($27,095$ LOC) and validated by $126$ test modules ($37,155$ LOC, $2,737$ test functions). Following the \texttt{v0.16.0} baseline snapshot (\texttt{69aa590}), subsequent main-branch engineering (PRs~\#10--\#30) delivered the two-command \texttt{prepare}/\texttt{go} release workflow, bounded two-slot concurrent browser publication (\texttt{066c49f}, \texttt{6f7b62b}), explicit post-submission confirmation wait reporting (\texttt{c33dcfc}), and durable-consent single-work deletion with absence read-back verification (\texttt{3b56bdc}, \texttt{75b7abc}). Its core engineering subsystems include:
+
+\begin{itemize}[leftmargin=1.8em]
+    \item \textbf{Cross-Process Exclusion and Session Reuse (\texttt{process\_lock.py}, \texttt{browser\_session.py}):} Enforces OS-level process locks so concurrent agent invocations cannot collide on browser profiles. Stale lock markers are recovered only after confirming OS process termination. Authenticated browser contexts communicate via private local pipes, eliminating repeated login prompts while isolating credentials from public logs.
+    \item \textbf{Resumable Upload and Offset Recovery (\texttt{upload\_resume.py}):} For API-backed channels (YouTube Data API v3) and Studio uploads (X Media Studio), upload sessions persist server byte offsets locally, enabling interrupted transfers of large media files (up to $285.86\text{ MB}$) to resume without duplicating work creation.
+    \item \textbf{Bounded Platform Concurrency and Atomic Pagination (\texttt{read\_scheduler.py}, \texttt{full\_read.py}, \texttt{full\_read\_browser.py}):} Coordinates read operations across platforms with independent page checkpoints and explicit end-of-list markers, preventing partial page loads from being misclassified as deleted works or empty collections.
+    \item \textbf{In-Place Metadata Revision and Collection Governance (\texttt{collections.py}, \texttt{playlists.py}):} Supports post-publication edits (\texttt{vpub edit KEY PATCH --verify-only}) guarded by \texttt{expected\_identity}. If live caption read-back matches the target patch, no redundant save is triggered; if a mismatch is detected (\texttt{EDIT\_MISMATCH}), in-place correction is applied to the existing work ID without altering video bytes or visibility, followed by mandatory reopening of the editor to confirm persistence.
+\end{itemize}
+
+---
+
+\section{Empirical Evaluation and Results}
+\label{sec:evaluation}
+
+We evaluate the proposed governance framework across four complementary empirical dimensions: (1) longitudinal operational event trace analysis ($N=69$), (2) deterministic software verification coverage ($2,747$ total automated tests across both repositories), (3) live five-platform publication and latency profiling, and (4) descriptive cohort and 24-hour checkpoint analysis ($N=55$ channel records).
+
+\subsection{Operational Event Trace Analysis and Write Suppression (RQ1)}
+To assess how effectively Layer~1 and Layer~3 govern day-to-day multi-agent operations, we analyzed the complete de-identified operational event journal (\texttt{data/operations-events.json}, $N=69$ events recorded between 26~October and 28~October 2026) alongside the verified autonomous heartbeat trace (\texttt{data/scheduled-run-evidence.json}). Table~\ref{tab:opsevents} summarizes the taxonomy and quantitative distribution of these $69$ operational events.
+
+\begin{table}[htbp]
+\centering
+\caption{Taxonomy and governance metrics across $N=69$ de-identified operational event records in \emph{Agentic Work Lab}.}
+\label{tab:opsevents}
+\footnotesize
+\begin{tabular}{p{4.6cm} r r r r p{4.2cm}}
+\toprule
+\textbf{Operational Event Category} & \textbf{Events ($N$)} & \textbf{Share ($\%$)} & \textbf{Platform Reads} & \textbf{Platform Writes} & \textbf{Primary Governance Mechanism Verified} \\
+\midrule
+Scheduled Zero-Write Heartbeat \& Idle Checks & 32 & 46.38\% & 9 & 0 & Layer~1 (\texttt{planRun}): Suppresses platform writes when no task is due (\texttt{no\_work\_due}). \\
+\addlinespace
+Human Governance, Topic \& Release Authorization Gates & 16 & 23.19\% & 4 & 0 & Layer~1 \& Layer~4: Explicit human sign-off (\texttt{USER\_AUTHORIZED\_*}), schedule retention, and preview reply gates. \\
+\addlinespace
+Production Delivery, Temporal QA \& Revision Dispatch & 16 & 23.19\% & 4 & 0 & Layer~2: Frame/decode checks, visual revision loops (\texttt{LOCAL\_TEMPORAL\_PILOT\_*}), and spare preservation. \\
+\addlinespace
+Station Sampling \& Trend Research Queries & 4 & 5.80\% & 0 (26 CLI) & 0 & Bounded read-only CLI sampling (\texttt{cli\_calls = 26}) without triggering outreach or platform writes. \\
+\addlinespace
+Authorized Platform Write Execution & 1 & 1.45\% & 4 & 1 & Controlled single-write execution with pre/post read verification (\texttt{new\_risk = false}). \\
+\midrule
+\textbf{Total / Aggregate Audit Metrics} & \textbf{69} & \textbf{100.00\%} & \textbf{17} & \textbf{1} & \textbf{Duplicate Replays: $0$ \,|\, New Risk Events: $0$} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Three critical empirical findings emerge from Table~\ref{tab:opsevents}:
+\begin{enumerate}[leftmargin=1.8em]
+    \item \textbf{Strict Write Suppression under Continuous Monitoring:} Out of $69$ recorded operational events across the multi-agent workflow, $68$ events ($98.55\%$) executed with zero platform writes ($\text{platform\_writes} = 0$). Specifically, $32$ scheduled monitoring checkpoints and $4$ trend-sampling runs (\texttt{cli\_calls} $= 26$) inspected state and synchronized checklists without generating a single unauthorized external mutation.
+    \item \textbf{Zero Duplicate Upload Replays:} Across all $69$ operational events, the count of replayed upload attempts was $\text{upload\_attempts\_replayed} = 0$, and the count of new operational risk incidents was $\text{new\_risk} = 0$.
+    \item \textbf{Verified Autonomous Heartbeat Timing:} In the audited DeepSeek scheduled run (\texttt{scheduled-run-evidence.json}, planned at \texttt{2026-10-28T12:37:13.943+08:00}), the automation heartbeat triggered after a scheduling delay of $\Delta t_{\text{trig}} = 24,992\text{ ms}$ ($24.992\text{ s}$) and completed its four-step inspection protocol (checking instance ownership, operational checklist, stop conditions, and instruction synchronization) in $\Delta t_{\text{exec}} = 31,175\text{ ms}$ ($31.175\text{ s}$), with $\text{task\_errors} = 0$, $\text{manual\_test\_triggered} = \text{false}$, and $\text{duplicate\_run\_started} = \text{false}$.
+\end{enumerate}
+
+\subsection{Software Verification and Fault-Injection Test Coverage (RQ1 \& RQ2)}
+Because live platform experiments must avoid polluting public accounts with deliberate fault injections (such as intentionally double-posting or deleting production videos), deterministic offline test suites serve as the primary mechanism for verifying edge-case state transitions. Table~\ref{tab:testcoverage} presents the complete software verification breakdown across \emph{PublishOps CrossCast} and \emph{Agentic Work Lab}.
+
+\begin{table}[htbp]
+\centering
+\caption{Subsystem code volume and automated fault-injection verification coverage across \emph{PublishOps CrossCast} and \emph{Agentic Work Lab}.}
+\label{tab:testcoverage}
+\footnotesize
+\begin{tabular}{p{5.2cm} r r r p{4.6cm}}
+\toprule
+\textbf{Subsystem / Verification Category} & \textbf{Test Files} & \textbf{Test LOC} & \textbf{Test Cases} & \textbf{Key Fault Modes \& Invariants Tested} \\
+\midrule
+\multicolumn{5}{l}{\textit{A. PublishOps CrossCast (\texttt{v0.16.0} / main \texttt{69aa590}: $123$ source files, $27,095$ source LOC)}} \\
+1. Workflow, CLI, Scheduling \& Notifications & 66 & 17,020 & 1,266 & Two-command \texttt{prepare}/\texttt{go} gates, plan-hash validation, Gmail self-send claims, and duplicate alert suppression. \\
+2. Platform Adapters \& Publishing (Bili, YT, X, DY, IG) & 18 & 7,016 & 562 & Aspect-ratio guards, FFmpeg cover lead-in synthesis, X character limits, YouTube Studio zones, and TikTok suspension guards. \\
+3. Deletions, Edits \& Read-Back Verification & 24 & 8,575 & 485 & \texttt{expected\_identity} binding, \texttt{EDIT\_MISMATCH} handling, absence verification before replacement, and non-deletion on missing X edit access. \\
+4. Collections, Playlists \& Catalog Discovery & 10 & 3,577 & 322 & Account-bound collection IDs, partial-page scroll guards, lost-response recovery, and YouTube playlist deduplication. \\
+5. Idempotency, Receipts, Locks \& Recovery & 8 & 967 & 102 & OS process lock recovery after confirmed exit, resumable upload byte offsets, and \texttt{UNKNOWN} receipt retry blocking. \\
+\midrule
+\textbf{Subtotal (\emph{PublishOps CrossCast})} & \textbf{126} & \textbf{37,155} & \textbf{2,737} & \textbf{Test-to-Source LOC Ratio: $1.37 : 1$} \\
+\midrule
+\multicolumn{5}{l}{\textit{B. Agentic Work Lab Reproducible Entry Points (Node.js v26.11.1)}} \\
+6. Workflow Gate \& Merchant Demo Suite (\texttt{workflows.test.mjs}) & 1 & 38 & 10 & Non-owner rejection, stop-flag blocking, running-task lock, invalid due-time exception, and malformed score guards ($10/10$ passed in $108.5\text{ ms}$). \\
+7. Archive Cryptographic Integrity (\texttt{manifest.json}) & --- & --- & 30 & Stream SHA-256 and exact byte verification across $30$ downloadable video versions ($2,211,716,129$ bytes total; $0$ mismatches). \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+As shown in Table~\ref{tab:testcoverage}, the test suite in \emph{PublishOps CrossCast} exceeds the source code volume ($37,155$ test LOC vs. $27,095$ source LOC, a ratio of $1.37:1$) and enforces $2,737$ distinct assertions covering account switching, partial DOM loads, lost network responses, and duplicate submission prevention.
+
+\subsection{Cross-Platform Release Verification and Latency Bottleneck Analysis (RQ2 \& RQ3)}
+To evaluate the end-to-end effectiveness of the framework in live multi-platform delivery, we examine the release of the $176.4\text{ s}$ ($1920\times 1080$, $30\text{ fps}$, H.264/AAC, $285,855,005\text{ bytes}$, SHA-256 \texttt{7d6fd760...}) production film \emph{I Watched It For You (v3)} across all five target platforms (Table~\ref{tab:platforms}).
+
+\begin{table}[htbp]
+\centering
+\caption{Cross-platform publication verification matrix for \emph{I Watched It For You (v3)} (\texttt{production-update-2026-11-03.json}).}
+\label{tab:platforms}
+\footnotesize
+\begin{tabular}{p{1.8cm} p{2.8cm} p{2.9cm} p{3.1cm} p{3.2cm}}
+\toprule
+\textbf{Platform} & \textbf{Access \& Transport Route} & \textbf{Native Receipt State ($\sigma_p$)} & \textbf{System Verification State} & \textbf{Observed Governance Outcome \& Audit Evidence} \\
+\midrule
+\textbf{Bilibili} & \texttt{bili-cli} Session Reuse & \texttt{REPORTED\_PUBLIC} & \texttt{PUBLIC\_PER\_SESSION} (\texttt{BV15B4F6hEYr}) & Public availability recorded at 2~Nov 21:00 UTC+8; historical state preserved without redundant re-query. \\
+\addlinespace
+\textbf{YouTube} & Official API / Studio Draft Continuation & \texttt{SUBMISSION\_VERIFIED} & \texttt{PUBLIC\_VERIFIED} (\texttt{AzW6vr8nvDM}) & Continued from original draft; native receipt, bilingual copy, and public visibility passed automated read-back. \\
+\addlinespace
+\textbf{X (Twitter)} & Official Web / Media Studio Asset Reuse & \texttt{SUBMISSION\_VERIFIED} & \texttt{PUBLIC\_VERIFIED} (\texttt{2117261340633161838}) & Reused original uploaded media; receipt and $176.4\text{ s}$ duration verified; stored resolution flagged as unestablished. \\
+\addlinespace
+\textbf{Douyin} & CLI Background Browser + HITL & \textbf{\texttt{UNKNOWN}} (Programmatic Read-Back Timed Out) & \texttt{USER\_CONFIRMED\_VISIBLE} (Native Verify Blocked) & \textbf{Idempotency Validation:} Timeout latched \texttt{UNKNOWN}; blocked automatic re-upload; operator phone screenshot confirmed live work \& cover. \\
+\addlinespace
+\textbf{Instagram} & CLI Background Browser (Reels) & \texttt{SUBMISSION\_VERIFIED} & \texttt{PUBLIC\_VERIFIED} (\texttt{DfQ9iCiCWYN}) & Single upload and single Share; native receipt, full ZH/EN caption, 16:9 ratio, and AI label verified via read-back. \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+The Douyin and Instagram releases in Table~\ref{tab:platforms} provide crucial empirical validation of Proposition~\ref{prop:idempotency}:
+\begin{itemize}[leftmargin=1.8em]
+    \item \textbf{Empirical Validation of \texttt{UNKNOWN}-State Latching (Douyin):} Following submission on Douyin, programmatic read-back timed out due to platform UI verification constraints. Under a conventional retry policy, an automation agent would treat the timeout as a failed upload and re-submit the $285.86\text{ MB}$ video, creating a duplicate post. Instead, \emph{CrossCast} latched the native receipt state as \texttt{UNKNOWN}, suppressed automatic retry, and escalated to Layer~4 HITL verification, where the human operator's mobile inspection confirmed that both the video and production cover were already live.
+    \item \textbf{Phase-by-Phase Publication Latency Profile (Instagram):} Table~\ref{tab:igtiming} presents the exact phase timing recorded during the verified single-upload, single-Share Instagram publication run (\texttt{DfQ9iCiCWYN}).
+\end{itemize}
+
+\begin{table}[htbp]
+\centering
+\caption{Phase-level latency decomposition of the live Instagram publication workflow ($N=1$ instrumented observation, \texttt{production-update-2026-11-03.json}).}
+\label{tab:igtiming}
+\footnotesize
+\begin{tabular}{p{6.2cm} p{2.6cm} r r r}
+\toprule
+\textbf{Execution Phase} & \textbf{Execution Scope} & \textbf{Duration ($\text{s}$)} & \textbf{Share of Cmd ($\%$)} & \textbf{Share of E2E ($\%$)} \\
+\midrule
+1. Source \& Release Plan Cryptographic Checks & Pre-Publish (Outside Cmd) & 0.438 & --- & 0.10\% \\
+2. Local Dry-Run Rehearsal & Pre-Publish (Outside Cmd) & 0.444 & --- & 0.10\% \\
+3. Sign-In Preflight \& Session Close & Pre-Publish (Outside Cmd) & 10.137 & --- & 2.40\% \\
+\cmidrule{1-5}
+\textit{Subtotal: Pre-Publication Governance Checks} & \textit{Outside Publish Command} & \textit{11.019} & --- & \textit{2.60\%} \\
+\midrule
+4. Browser Start to Media File Entry & Inside \texttt{vpub publish} & 11.058 & 2.68\% & 2.61\% \\
+5. \textbf{Post-Submission Wait (Transfer, Processing \& Platform Confirmation)} & Inside \texttt{vpub publish} & \textbf{380.551} & \textbf{92.32\%} & \textbf{89.91\%} \\
+6. Independent Post-Publication Read-Back & Inside \texttt{vpub publish} & 5.224 & 1.27\% & 1.23\% \\
+7. Residual In-Command Form/UI Overhead & Inside \texttt{vpub publish} & 15.384 & 3.73\% & 3.63\% \\
+\cmidrule{1-5}
+\textit{Subtotal: Publication Command Total} & \textit{Inside \texttt{vpub publish}} & \textit{412.217} & \textit{100.00\%} & \textit{97.40\%} \\
+\midrule
+\textbf{Total End-to-End Observed Workflow Time} & \textbf{All Recorded Phases} & \textbf{423.236} & --- & \textbf{100.00\%} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Table~\ref{tab:igtiming} reveals a striking operational reality: pre-publication governance checks (plan hash verification, rehearsal, and auth preflight) add only $11.019\text{ s}$ ($2.60\%$ of end-to-end time), and independent post-publication read-back requires only $5.224\text{ s}$ ($1.27\%$ of command time). Conversely, $380.551\text{ s}$ ($92.32\%$ of the $412.217\text{ s}$ publication command) is consumed waiting between clicking ``Share'' and receiving platform confirmation. This $6.3$-minute post-submission window is precisely where unguarded automation agents experience timeout anxiety and trigger destructive duplicate retries, empirically explaining why persistent pre-wait commit latching ($f_{\text{submit}} = \text{true}$) is the cornerstone of reliable agentic release engineering.
+
+\subsection{Descriptive Cohort Analytics and Epistemic Boundary Control (RQ3)}
+Finally, to demonstrate how our methodological protocol prevents confounded efficiency claims, we analyze the full channel dataset (\texttt{data/creator-video-snapshot.json}, $N=55$ total records sampled on 28~October 2026) and the two matched 24-hour post-publication checkpoints (\texttt{episode03-24h-2026-10-28.json} and \texttt{whale-log02-24h-2026-10-29.json}). Table~\ref{tab:cohorts} reports the statistical distributions across both cohorts.
+
+\begin{table}[htbp]
+\centering
+\caption{Descriptive statistical comparison of the historical human-led cohort ($n=45$ published) and the AI-assisted series cohort ($n=10$ total: $5$ published, $5$ scheduled) at the 28~October 2026 snapshot, alongside 24-hour checkpoints.}
+\label{tab:cohorts}
+\footnotesize
+\begin{tabular}{p{3.5cm} r r r r r r}
+\toprule
+\textbf{Cohort / Metric} & \textbf{Mean} & \textbf{SD} & \textbf{Median} & \textbf{IQR ($Q_1\text{--}Q_3$)} & \textbf{Min--Max} & \textbf{Cohort Sum} \\
+\midrule
+\multicolumn{7}{l}{\textit{A. Historical Human-Led Cohort (\texttt{human\_led\_history}: $n=45$ published, Oct 2019 -- Oct 2026)}} \\
+Lifetime Views & 40,884.31 & 64,604.81 & 15,407.0 & 1,722--67,502 & 274--333,725 & 1,839,794 \\
+Likes & 4,022.36 & 7,281.57 & 729.0 & 89--3,765 & 8--30,299 & 181,006 \\
+Comments & 78.18 & 132.65 & 14.0 & 4--113 & 0--597 & 3,518 \\
+Favorites & 1,584.31 & 2,048.27 & 473.0 & 19--2,746 & 2--6,158 & 71,294 \\
+Coins & 356.38 & 751.32 & 54.0 & 6--237 & 2--3,044 & 16,037 \\
+Shares & 764.76 & 1,594.05 & 31.0 & 1--996 & 0--5,571 & 34,414 \\
+Danmaku (Bullet Chats) & 190.27 & 232.37 & 105.0 & 41--279 & 0--1,045 & 8,562 \\
+\midrule
+\multicolumn{7}{l}{\textit{B. Current AI-Assisted Series (\texttt{current\_ai\_series}: $n=5$ published, $5$ scheduled, 25--28 Oct 2026)}} \\
+Early Views ($\le 3$ days age) & 133.20 & 99.53 & 183.0 & 42--199 & 11--231 & 666 \\
+Likes & 10.60 & 7.70 & 9.0 & 8--11 & 2--23 & 53 \\
+Comments & 29.40 & 46.94 & 12.0 & 7--13 & 2--113 & 147 \\
+Favorites & 4.20 & 5.26 & 2.0 & 1--5 & 0--13 & 21 \\
+Coins & 1.20 & 1.10 & 2.0 & 0--2 & 0--2 & 6 \\
+Shares & 0.20 & 0.45 & 0.0 & 0--0 & 0--1 & 1 \\
+Danmaku (Bullet Chats) & 0.00 & 0.00 & 0.0 & 0--0 & 0--0 & 0 \\
+\midrule
+\multicolumn{7}{l}{\textit{C. Age-Matched 24-Hour Post-Publication Checkpoints (Single-Work Descriptive Records)}} \\
+\multicolumn{7}{l}{\textbf{GPT Duty Log 03} (\texttt{BV1UXxN6aECf}, $70\text{ s}$, age $24.38\text{ h}$): $229$ views, $8$ likes ($3.49\%$), $7$ replies ($3.06\%$), $44.64\%$ completion ($31\text{ s}$ avg).} \\
+\multicolumn{7}{l}{\textbf{Whale Girl 02} (\texttt{BV1Wfx56JEih}, $117\text{ s}$, age $24.05\text{ h}$): $308$ views, $24$ likes ($7.79\%$), $51$ replies ($16.56\%$), $36.63\%$ completion ($42\text{ s}$ avg).} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+As documented in Table~\ref{tab:cohorts}, a naive comparison of lifetime views ($40,884.31$ mean views for historical uploads vs. $133.20$ for the newly launched AI series) or weekly channel plays ($76,162$ plays vs. $21,398$ in the prior week, \texttt{channel-weekly.json}) could easily be misused to claim either catastrophic AI underperformance or massive channel-wide AI growth. Our epistemic governance protocol (\texttt{summarize-channel.mjs}) automatically attaches machine-readable limitation metadata (\texttt{descriptive\_snapshot\_not\_causal\_model\_comparison}) to every summary export, proving that:
+\begin{enumerate}[leftmargin=1.8em]
+    \item The historical cohort ($n=45$) spans seven years of cumulative platform exposure (October 2019 to October 2026) across diverse travel and lifestyle topics, whereas the published AI cohort ($n=5$) had only $1\text{--}3$ days of exposure at the snapshot timestamp.
+    \item Even when holding exposure age constant at 24~hours (Panel~C of Table~\ref{tab:cohorts}: $229$ views and $44.64\%$ completion for \emph{GPT Duty Log 03} vs. $308$ views and $36.63\%$ completion for \emph{Whale Girl 02}), differences in video duration ($70\text{ s}$ vs. $117\text{ s}$), narrative persona, and non-unique comment threads preclude attributing performance variance to the underlying foundation models (GPT vs. DeepSeek).
+\end{enumerate}
+
+---
+
+\section{Discussion}
+\label{sec:discussion}
+
+\subsection{Theoretical Implications for Project Management and Human--AI Governance}
+Our findings contribute to the emerging theory of AI-augmented project management \citep{Holzmann2022, Muller2024, Raisch2021} in three fundamental ways:
+\begin{enumerate}[leftmargin=1.8em]
+    \item \textbf{From Conversational Alignment to Cryptographic Stage-Gates:} Prior multi-agent frameworks \citep{Wu2023AutoGen, Hong2023MetaGPT, Qian2024ChatDev} rely primarily on natural-language role prompts to coordinate task handoffs. Our empirical trace shows that in continuous operations, safe delegation requires externalizing stage-gate controls into deterministic code invariants (\texttt{planRun}, OS process locks, and `--confirm CURRENT_PLAN_HASH`). This bridges classical project configuration management \citep{Whyte2016, Cooper1990} with modern agentic systems engineering.
+    \item \textbf{The Asymmetric Cost of Uncertainty in Agentic Actuation:} In human--automation interaction theory \citep{Parasuraman2000, Shneiderman2020}, automation levels are often treated as a static design choice. Our cross-platform release architecture demonstrates that automation authority must be \emph{state-dependent}: agents can operate with high autonomy during preflight verification and byte staging (States~1--3), but must immediately surrender retry authority to a conservative latch (\texttt{UNKNOWN\_LATCHED}, State~5a) once an external commit flag is set.
+    \item \textbf{Epistemic Governance as a Project Management Deliverable:} As organizations increasingly adopt generative AI, project managers face pressure to report immediate efficiency gains. By embedding provenance tracking, SHA-256 artifact manifests, and non-causal limitation tags directly into the reporting pipeline, \emph{Agentic Work Lab} provides a reusable blueprint for honest, auditable AI project evaluation.
+\end{enumerate}
+
+\subsection{Managerial and Engineering Lessons Learned}
+For practitioners engineering multi-agent workflows in media production, e-commerce outreach, or software operations, three actionable guidelines emerge from our laboratory records:
+\begin{itemize}[leftmargin=1.8em]
+    \item \textbf{Measure the Wait Before Optimizing Concurrency:} As Table~\ref{tab:igtiming} demonstrates, $92.32\%$ of live browser-mediated publication time occurs inside platform confirmation waits after submission. Optimizing local script startup or preflight checks yields negligible end-to-end speedup; engineering effort should instead focus on safe session isolation and bounded cross-platform concurrency.
+    \item \textbf{Design Editable Intermediate Representations:} Generating monolithic video or text outputs hinders targeted quality control. Decomposing deliverables into code-driven timelines, separate audio tracks, and structured JSON patches allows human project managers to enforce surgical revisions (such as fixing flash frames or portrait overlay coordinates) without discarding validated upstream work.
+    \item \textbf{Preserve Original State on Verification Interruptions:} When platform security challenges or missing edit permissions occur (as observed on Douyin and X), tools must never automatically delete, repost, or overwrite existing works. Preserving the draft or native state and notifying the human operator prevents cascading operational failures.
+\end{itemize}
+
+\subsection{Threats to Validity and Limitations}
+Consistent with our epistemic protocol and software engineering case study guidelines \citep{Runeson2009}, we explicitly document the boundaries and limitations of this study:
+\begin{itemize}[leftmargin=1.8em]
+    \item \textbf{Internal Validity:} The Instagram latency decomposition ($412.217\text{ s}$) and the verified DeepSeek scheduled run ($31.175\text{ s}$) represent exact instrumented observations ($N=1$ each) rather than multi-trial statistical benchmarks. Network conditions, file sizes, and platform server load vary over time. Furthermore, during the post-submission wait ($380.551\text{ s}$), client-side instrumentation cannot disambiguate network upload completion from server-side transcoding and database indexing.
+    \item \textbf{Construct Validity:} While our $69$ operational events and $2,737$ unit/integration tests verify governance correctness and fault suppression, the planned blinded identical-task multi-model evaluation (comparing GPT and DeepSeek on identical merchant-research prompts with complete token-cost logging, documented in \texttt{docs/model-workflow\_EN.md}) has not yet been executed in live production. Consequently, this paper makes no comparative claims regarding the intrinsic reasoning speed, cost, or accuracy of GPT versus DeepSeek.
+    \item \textbf{External Validity:} Our empirical deployment focuses on a single multi-platform creator and engineering laboratory across five video platforms (with TikTok integration suspended following regional phone-authentication constraints). Generalizing the quantitative latency figures to enterprise-scale multi-tenant clusters requires further multi-account empirical trials.
+\end{itemize}
+
+---
+
+\section{Conclusion and Future Work}
+\label{sec:conclusion}
+
+This paper presented a Design Science study addressing how to govern human--AI collaborative project workflows in multi-platform digital delivery. By architecting and evaluating \emph{Agentic Work Lab} and \emph{PublishOps CrossCast}, we demonstrated that reliable multi-agent operations require combining clear role handoff boundaries (across human project management, GPT/Codex, Claude, and DeepSeek) with a four-layer deterministic governance framework: (1) sole-operator and temporal scheduling gates, (2) cryptographic plan-hash and media SHA-256 verification, (3) an idempotent receipt state machine that latches \texttt{UNKNOWN} post-submission states to eliminate duplicate retries, and (4) independent read-back and human-in-the-loop verification handoffs. Empirical evidence across $69$ operational events, $30$ SHA-256 verified video versions ($2.21\text{ GB}$), $2,747$ automated tests, and five live publishing platforms confirms that the architecture prevents unauthorized writes and duplicate publications while maintaining a transparent, reproducible audit trail.
+
+Future work will proceed along three directions already scaffolded in the repository: (1) merging and empirically benchmarking bounded concurrent cross-platform publication to quantify live wall-clock speedups across heterogeneous platforms; (2) executing the pre-registered blinded identical-task multi-model evaluation to measure model-specific rework rates, factual traceability, and API token costs; and (3) extending automated post-publication verification to cover mobile subtitle legibility and remote cover pixel comparison.
+
+---
+
+\section*{Data and Code Availability Statement}
+All source code, workflow verification scripts, de-identified operational event logs ($N=69$), channel cohort snapshots ($N=55$), and SHA-256 verified media release manifests ($N=30$) supporting the findings of this study are openly available in the following public GitHub repositories:
+\begin{itemize}[leftmargin=1.8em]
+    \item \textbf{Agentic Work Lab (Workflows, Datasets \& Media Archives):} \url{https://github.com/whitecarp/agentic-work-lab}
+    \item \textbf{PublishOps CrossCast (Standalone Release Console \texttt{v0.16.0}):} \url{https://github.com/whitecarp/publishops-crosscast}
+\end{itemize}
+
+\section*{Declaration of Competing Interest}
+The author declares no known competing financial interests or personal relationships that could have appeared to influence the work reported in this paper.
+
+\bibliographystyle{apalike}
+\bibliography{references}
+
+\end{document}
