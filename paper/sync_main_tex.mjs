@@ -23,7 +23,9 @@ const citeMap = {
   muller2024: 'Muller2024', parasuraman2000: 'Parasuraman2000', peffers2007: 'Peffers2007', pmi2021: 'PMI2021', qian2024: 'Qian2024ChatDev',
   raisch2021: 'Raisch2021', runeson2009: 'Runeson2009', saltzer1984: 'Saltzer1984', schneider1990: 'Schneider1990', sein2011: 'Sein2011',
   shahin2017: 'Shahin2017', shinn2023: 'Shinn2023Reflexion', shneiderman2020: 'Shneiderman2020', too2014: 'Too2014', venable2016: 'Venable2016',
-  wang2024: 'Wang2024Agent', whyte2016: 'Whyte2016', wieringa2014: 'Wieringa2014', wieringa2015: 'Wieringa2015', wu2024: 'Wu2023AutoGen', yao2023: 'Yao2023ReAct'
+  wang2024: 'Wang2024Agent', whyte2016: 'Whyte2016', wieringa2014: 'Wieringa2014', wieringa2015: 'Wieringa2015', wu2024: 'Wu2023AutoGen', yao2023: 'Yao2023ReAct',
+  bakhshi2026: 'Bakhshi2026', dacre2026: 'Dacre2026', getiryaman2025: 'GetirYaman2025', khoee2026: 'Khoee2026', liu2025: 'Liu2025',
+  liu2026: 'Liu2026', mcgrath2025: 'McGrath2025', papadonikolaki2026: 'Papadonikolaki2026', shin2026: 'Shin2026'
 };
 const cited = new Set();
 const keyFor = (names, year) => {

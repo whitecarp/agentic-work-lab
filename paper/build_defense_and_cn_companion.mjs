@@ -2,7 +2,7 @@
 //   1. manuscript_full_EN.md          (converted directly from manuscript_print.html)
 //   2. reviewer_defense_playbook.md   (15-question peer-review rebuttal playbook aligned with commit 801b3cc)
 //   3. reviewer_defense_playbook.pdf
-//   4. manuscript_CN_companion.pdf    (Full Chinese companion aligned with all 11 tables & 41 references)
+//   4. manuscript_CN_companion.pdf    (Full Chinese companion aligned with all 11 tables & 50 references)
 import fs from 'fs';
 import path from 'path';
 import { execFileSync } from 'child_process';
@@ -252,7 +252,7 @@ const defenseHtml = `<!DOCTYPE html><html><head><meta charset="utf-8"><style>${c
 <h1>SCI Peer-Review Defense &amp; Rebuttal Playbook (15 Questions — 4 Nov Revision)</h1>
 <p><strong>Manuscript:</strong> Governing Human–AI Collaborative Project Workflows in Multi-Platform Digital Delivery: A Design Science Study of Auditable Handoffs and Idempotent Release Operations<br/>
 <strong>Author:</strong> HuaiCheng Sheng (Agentic Work Lab, Hangzhou Chengxin Holding Group Co., Ltd. | ORCID: <code>0009-0003-2900-6377</code>)</p>
-<p>This playbook is 100% synchronized with the revised 24-page manuscript (41 references, 11 tables, 5 figures) and <code>paper/reproduce_paper_tables.mjs</code>, providing ready-to-copy English responses and Chinese strategic summaries.</p>
+<p>This playbook is 100% synchronized with the revised 24-page manuscript (50 references, 11 tables, 5 figures) and <code>paper/reproduce_paper_tables.mjs</code>, providing ready-to-copy English responses and Chinese strategic summaries.</p>
 ${defenseQuestions.map(item => `
   <div class="qbox">
     <strong>${item.id} [${item.category}]</strong><br/>

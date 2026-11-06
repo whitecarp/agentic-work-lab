@@ -18,7 +18,7 @@ For JSS readers, the contribution is a reusable engineering pattern for agentic 
 
 The study is a single-case design science evaluation. The manuscript states the assumptions under which automated re-submission cannot occur, reports every figure descriptively, keeps human-led and AI-assisted cohorts apart rather than comparing them causally, and publishes the data, code and a script that recomputes every reported figure.
 
-The manuscript (11 tables, 5 figures, 3 algorithms, 41 references; 24 pages as a single-column PDF, 31 pages in the single-column LaTeX build) is accompanied by online supplementary material. It is original, has not been published previously, and is not under consideration elsewhere.
+The manuscript (11 tables, 5 figures, 3 algorithms, 50 references; 24 pages as a single-column PDF, 32 pages in the single-column LaTeX build) is accompanied by online supplementary material. It is original, has not been published previously, and is not under consideration elsewhere.
 
 Sincerely,
 HuaiCheng Sheng
@@ -45,7 +45,7 @@ For IEEE TEM readers, the contribution links technology-management theory on sta
 
 The study is a single-case design science evaluation. The manuscript states the assumptions under which automated re-submission cannot occur, reports every figure descriptively, keeps human-led and AI-assisted cohorts apart rather than comparing them causally, and publishes the data, code and a script that recomputes every reported figure.
 
-The manuscript (11 tables, 5 figures, 3 algorithms, 41 references; 24 pages as a single-column PDF, 31 pages in the single-column LaTeX build) is accompanied by online supplementary material. It is original, has not been published previously, and is not under consideration elsewhere.
+The manuscript (11 tables, 5 figures, 3 algorithms, 50 references; 24 pages as a single-column PDF, 32 pages in the single-column LaTeX build) is accompanied by online supplementary material. It is original, has not been published previously, and is not under consideration elsewhere.
 
 Sincerely,
 HuaiCheng Sheng
@@ -72,7 +72,7 @@ For IJPM readers, the contribution extends project governance and stage-gate the
 
 The study is a single-case design science evaluation. The manuscript states the assumptions under which automated re-submission cannot occur, reports every figure descriptively, keeps human-led and AI-assisted cohorts apart rather than comparing them causally, and publishes the data, code and a script that recomputes every reported figure.
 
-The manuscript (11 tables, 5 figures, 3 algorithms, 41 references; 24 pages as a single-column PDF, 31 pages in the single-column LaTeX build) is accompanied by online supplementary material. It is original, has not been published previously, and is not under consideration elsewhere.
+The manuscript (11 tables, 5 figures, 3 algorithms, 50 references; 24 pages as a single-column PDF, 32 pages in the single-column LaTeX build) is accompanied by online supplementary material. It is original, has not been published previously, and is not under consideration elsewhere.
 
 Sincerely,
 HuaiCheng Sheng

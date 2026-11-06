@@ -29,7 +29,7 @@ const requiredDeliverables = [
   { file: 'reviewer_defense_playbook.pdf', role: 'Reviewer defense playbook (15 questions, rewritten to match the 4 Nov revision)' },
   { file: 'manuscript_CN_companion.pdf', role: 'Chinese academic companion (rewritten to match the 4 Nov revision & all 11 tables)' },
   { file: 'main.tex', role: 'LaTeX source generated from the same HTML as manuscript.pdf (sync_main_tex.mjs)' },
-  { file: 'references.bib', role: 'BibTeX references (41 entries, all cited; DOIs checked against Crossref)' },
+  { file: 'references.bib', role: 'BibTeX references (50 entries, all cited; DOIs checked against Crossref)' },
   { file: 'figures/fig1.pdf', role: 'Figure 1 for main.tex (exported from the manuscript SVG)' },
   { file: 'figures/fig2.pdf', role: 'Figure 2 for main.tex' },
   { file: 'figures/fig3.pdf', role: 'Figure 3 for main.tex' },

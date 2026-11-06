@@ -71,13 +71,13 @@ The study is a single-case design science evaluation: its claims concern how the
 
 ### 2.1 Project Management Governance and Stage-Gate Control in the AI Era
 
-Classical project management emphasizes structured control mechanisms—Work Breakdown Structures, configuration management and Stage-Gate reviews—to manage technical uncertainty and enforce accountability across project phases (Cooper, 1990; Whyte et al., 2016; PMI, 2021; Kerzner, 2022). In Cooper's Stage-Gate model and in hybrid agile–stage-gate frameworks (Conforto & Amaral, 2016; Bianchi et al., 2022), iterative work within a stage is separated from downstream commitment by decision gates, each with predefined deliverables, explicit criteria and a gatekeeper who decides whether to proceed, recycle, hold or stop. Project governance research separates the framework that assigns decision rights and accountability from the management of execution itself (Too & Weaver, 2014); in delivery terms, governance decides who may authorize an irreversible step, and on what evidence.
+Classical project management emphasizes structured control mechanisms—Work Breakdown Structures, configuration management and Stage-Gate reviews—to manage technical uncertainty and enforce accountability across project phases (Cooper, 1990; Whyte et al., 2016; PMI, 2021; Kerzner, 2022). In Cooper's Stage-Gate model and in hybrid agile–stage-gate frameworks (Conforto & Amaral, 2016; Bianchi et al., 2022), iterative work within a stage is separated from downstream commitment by decision gates, each with predefined deliverables, explicit criteria and a gatekeeper who decides whether to proceed, recycle, hold or stop. Project governance research separates the framework that assigns decision rights and accountability from the management of execution itself (Too & Weaver, 2014; Bakhshi et al., 2026); in delivery terms, governance decides who may authorize an irreversible step, and on what evidence.
 
-Recent scholarship examines how artificial intelligence changes project governance, decision authority and human–machine agency (Holzmann et al., 2022; M&uuml;ller et al., 2024). Raisch & Krakowski (2021) describe the tension between automation and augmentation in management: removing human judgment from critical loops invites drift and brittle failure under novel cases, whereas isolated augmentation fails to scale. Work on human–automation interaction argues that reliable socio-technical systems combine high automation with high human control through transparent audit trails, explicit pre-authorization and graceful exception handoffs (Parasuraman et al., 2000; Amershi et al., 2019; Shneiderman, 2020). Much of the project management literature on AI, however, relies on conceptual typologies or expert Delphi surveys (Holzmann et al., 2022); translating stage-gate governance into software-enforced invariants for live, multi-model agents remains largely unaddressed.
+Recent scholarship examines how artificial intelligence changes project governance, decision authority and human–machine agency (Holzmann et al., 2022; M&uuml;ller et al., 2024; Dacre, 2026; Papadonikolaki, 2026). Raisch & Krakowski (2021) describe the tension between automation and augmentation in management: removing human judgment from critical loops invites drift and brittle failure under novel cases, whereas isolated augmentation fails to scale. Work on human–automation interaction argues that reliable socio-technical systems combine high automation with high human control through transparent audit trails, explicit pre-authorization and graceful exception handoffs (Parasuraman et al., 2000; Amershi et al., 2019; Shneiderman, 2020), and recent engineering-management research extends such oversight to enterprise risk management of the ethical risks of AI applications (McGrath et al., 2025). Much of the project management literature on AI, however, relies on conceptual typologies, expert Delphi surveys or frameworks for managing AI system development (Holzmann et al., 2022; Shin, 2026); translating stage-gate governance into software-enforced invariants for live, multi-model agents remains largely unaddressed.
 
 ### 2.2 Multi-Agent LLM Workflows and Coordination Vulnerabilities
 
-Reasoning-and-acting paradigms such as ReAct (Yao et al., 2023) and Reflexion (Shinn et al., 2023) have led to multi-agent frameworks including AutoGen (Wu et al., 2024), MetaGPT (Hong et al., 2024) and ChatDev (Qian et al., 2024). MetaGPT encodes Standardized Operating Procedures into role-specific prompts (product manager, architect, engineer, QA), while ChatDev structures software development as a sequential chat chain. These frameworks perform well on self-contained coding benchmarks (Wang et al., 2024), but continuous multi-platform operations expose three gaps:
+Reasoning-and-acting paradigms such as ReAct (Yao et al., 2023) and Reflexion (Shinn et al., 2023) have led to multi-agent frameworks including AutoGen (Wu et al., 2024), MetaGPT (Hong et al., 2024) and ChatDev (Qian et al., 2024). MetaGPT encodes Standardized Operating Procedures into role-specific prompts (product manager, architect, engineer, QA), while ChatDev structures software development as a sequential chat chain. These frameworks perform well on self-contained coding benchmarks (Wang et al., 2024; Liu et al., 2026), but continuous multi-platform operations expose three gaps:
 
   - **No Cross-Process Execution Locks:** Prompt-based procedures do not prevent two agent sessions (for example, an interactive coding session and a scheduled heartbeat) from mutating the same browser profile or checklist at once.
 
@@ -85,9 +85,11 @@ Reasoning-and-acting paradigms such as ReAct (Yao et al., 2023) and Reflexion (S
 
   - **Unbounded Retries on External Timeouts:** Tool-calling loops commonly treat timeouts or selector failures as transient errors and invoke the tool again, which duplicates a publication whenever the platform had in fact accepted the first submission.
 
+Recent software architecture research catalogues design patterns for foundation-model-based agents, such as goal creators, plan generators and multi-agent cooperation patterns, and analyses their trade-offs (Liu et al., 2025). Formal methods for the social, legal and ethical rules of autonomous agents detect rule conflicts and redundancies at design time (Getir Yaman et al., 2025); they complement, rather than replace, runtime controls such as process locks, content-hash bindings and receipt latches when agents act on external platforms.
+
 ### 2.3 DevOps, Release Engineering, and Idempotent State Machines
 
-In software engineering, Continuous Integration and Continuous Delivery (CI/CD) pipelines reduce deployment risk through automated build verification, immutable artifact digests and staged rollouts (Humble & Farley, 2010; Bass et al., 2015; Adams & McIntosh, 2016; Shahin et al., 2017; Leite et al., 2019). A cornerstone of fault-tolerant distributed systems and transaction processing is *idempotency*: repeating an operation, or recovering from an interrupted request, must not produce duplicate side effects (Schneider, 1990; Gray & Reuter, 1992; Kleppmann, 2017). Payment and cloud APIs commonly accept a client-chosen idempotency key so that the server can discard duplicates (Helland, 2012); browser-driven submission to consumer platforms offers no such key, so the client alone must decide whether a second attempt is safe. Table 1 contrasts multi-agent frameworks, CI/CD pipelines and generic upload scripts with the proposed *Agentic Work Lab* and *PublishOps CrossCast* architecture across eight governance dimensions.
+In software engineering, Continuous Integration and Continuous Delivery (CI/CD) pipelines reduce deployment risk through automated build verification, immutable artifact digests and staged rollouts (Humble & Farley, 2010; Bass et al., 2015; Adams & McIntosh, 2016; Shahin et al., 2017; Leite et al., 2019). A cornerstone of fault-tolerant distributed systems and transaction processing is *idempotency*: repeating an operation, or recovering from an interrupted request, must not produce duplicate side effects (Schneider, 1990; Gray & Reuter, 1992; Kleppmann, 2017). Payment and cloud APIs commonly accept a client-chosen idempotency key so that the server can discard duplicates (Helland, 2012); browser-driven submission to consumer platforms offers no such key, so the client alone must decide whether a second attempt is safe. LLM agents are also entering release engineering, where a formal intermediate representation between natural-language queries and generated code makes release analytics more transparent and reliable (Khoee et al., 2026); release execution against endpoints without idempotency keys needs an equally explicit artifact, which in this study is the persistent client-side receipt. Table 1 contrasts multi-agent frameworks, CI/CD pipelines and generic upload scripts with the proposed *Agentic Work Lab* and *PublishOps CrossCast* architecture across eight governance dimensions.
 
    Table 1: Comparative analysis of multi-agent frameworks, release pipelines and the proposed governance architecture across eight governance dimensions. Entries describe built-in mechanisms as documented; "No" means not provided as a built-in mechanism, not that it cannot be built on top. Upload helpers are characterized generically.
 
@@ -186,7 +188,7 @@ This study follows the six-step Design Science Research Methodology of Peffers e
 
   - **Communication:** Publication of source code, SHA-256-recorded media deliverables (*N* = 30 versions, 2.21 GB), machine-readable JSON/CSV receipts and a script that recomputes every reported figure (`paper/reproduce_paper_tables.mjs`).
 
-**Researcher role.** The author designed, operated and evaluated both artifacts and owns the publishing accounts; the owner confirmations and cover edits reported in Section 6 are therefore the author's own. The study is therefore treated as researcher–practitioner intervention in the sense of action design research (Sein et al., 2011) and technical action research (Wieringa, 2014). Two choices limit the resulting bias: the evidence consists of machine-readable receipts written when each event happened rather than retrospective accounts, and every receipt, script and dataset is public so that each figure can be recomputed independently.
+**Researcher role.** The author designed, operated and evaluated both artifacts and owns the publishing accounts; the owner confirmations and cover edits reported in Section 6 are the author's own. The study is therefore treated as researcher–practitioner intervention in the sense of action design research (Sein et al., 2011) and technical action research (Wieringa, 2014). Two choices limit the resulting bias: the evidence consists of machine-readable receipts written when each event happened rather than retrospective accounts, and every receipt, script and dataset is public so that each figure can be recomputed independently.
 
 ### 3.2 Epistemic Hygiene and Evidence Classification Protocol
 
@@ -1268,6 +1270,8 @@ The author is affiliated with Agentic Work Lab, Hangzhou Chengxin Holding Group 
 
   - Bainbridge, L. (1983). Ironies of automation. *Automatica*, 19(6), 775–779.
 
+  - Bakhshi, J., Matous, P., & Crawford, L. (2026). From control to adaptation: Mapping theoretical developments of project governance research. *Project Management Journal*, 57(3), 402–422.
+
   - Bass, L., Weber, I., & Zhu, L. (2015). *DevOps: A Software Architect's Perspective*. Addison-Wesley Professional.
 
   - Berente, N., Gu, B., Recker, J., & Santhanam, R. (2021). Managing artificial intelligence. *MIS Quarterly*, 45(3), 1433–1450.
@@ -1278,9 +1282,13 @@ The author is affiliated with Agentic Work Lab, Hangzhou Chengxin Holding Group 
 
   - Cooper, R. G. (1990). Stage-gate systems: A new tool for managing new products. *Business Horizons*, 33(3), 44–54.
 
+  - Dacre, N. (2026). AI readiness is not enough: Towards purpose-led AI governance in projects. *International Journal of Project Management*, 44(4), 102850.
+
   - Flyvbjerg, B. (2006). Five misunderstandings about case-study research. *Qualitative Inquiry*, 12(2), 219–245.
 
   - Garcia-Molina, H., & Salem, K. (1987). Sagas. In *Proceedings of the 1987 ACM SIGMOD International Conference on Management of Data* (pp. 249–259). ACM.
+
+  - Getir Yaman, S., Ribeiro, P., Cavalcanti, A., Calinescu, R., Paterson, C., & Townsend, B. (2025). Specification, validation and verification of social, legal, ethical, empathetic and cultural requirements for autonomous agents. *Journal of Systems and Software*, 220, 112229.
 
   - Gray, J., & Reuter, A. (1992). *Transaction Processing: Concepts and Techniques*. Morgan Kaufmann.
 
@@ -1298,11 +1306,21 @@ The author is affiliated with Agentic Work Lab, Hangzhou Chengxin Holding Group 
 
   - Kerzner, H. (2022). *Project Management: A Systems Approach to Planning, Scheduling, and Controlling* (13th ed.). Wiley.
 
+  - Khoee, A. G., Wang, S., Feldt, R., Parthasarathy, D., & Yu, Y. (2026). GateLens: A reasoning-enhanced LLM agent for automotive software release analytics. *Journal of Systems and Software*, 240, 112961.
+
   - Kleppmann, M. (2017). *Designing Data-Intensive Applications*. O'Reilly Media.
 
   - Leite, L., Rocha, C., Kon, F., Milojicic, D., & Meirelles, P. (2019). A survey of DevOps concepts and challenges. *ACM Computing Surveys*, 52(6), 1–35.
 
+  - Liu, J., Wang, K., Chen, Y., et al. (2026). Large language model-based agents for software engineering: A survey. *ACM Transactions on Software Engineering and Methodology*. Advance online publication. https://doi.org/10.1145/3796507
+
+  - Liu, Y., Lo, S. K., Lu, Q., et al. (2025). Agent design pattern catalogue: A collection of architectural patterns for foundation model based agents. *Journal of Systems and Software*, 220, 112278.
+
+  - McGrath, Q. P., Hevner, A. R., & de Vreede, G.-J. (2025). Designing an enhanced enterprise risk management system to mitigate ethical risks of artificial intelligence applications. *IEEE Transactions on Engineering Management*, 72, 1813–1830.
+
   - M&uuml;ller, R., Locatelli, G., Holzmann, V., Nilsson, M., & Sagay, T. (2024). Artificial intelligence and project management: Empirical overview, state of the art, and guidelines for future research. *Project Management Journal*, 55(1), 9–15.
+
+  - Papadonikolaki, E. (2026). Rethinking artificial intelligence in projects: A paradox lens. *International Journal of Project Management*, 44(4), 102857.
 
   - Parasuraman, R., Sheridan, T. B., & Wickens, C. D. (2000). A model for types and levels of human interaction with automation. *IEEE Transactions on Systems, Man, and Cybernetics—Part A: Systems and Humans*, 30(3), 286–297.
 
@@ -1323,6 +1341,8 @@ The author is affiliated with Agentic Work Lab, Hangzhou Chengxin Holding Group 
   - Sein, M. K., Henfridsson, O., Purao, S., Rossi, M., & Lindgren, R. (2011). Action design research. *MIS Quarterly*, 35(1), 37–56.
 
   - Shahin, M., Ali Babar, M., & Zhu, L. (2017). Continuous integration, delivery and deployment: A systematic review on approaches, tools, challenges and practices. *IEEE Access*, 5, 3909–3943.
+
+  - Shin, Y. (2026). From data to experience: Framework for managing artificial intelligence system development projects. *International Journal of Project Management*, 44(4), 102856.
 
   - Shinn, N., Cassano, F., Gopinath, A., Narasimhan, K., & Yao, S. (2023). Reflexion: Language agents with verbal reinforcement learning. In *Advances in Neural Information Processing Systems (NeurIPS)*, 36.
 
