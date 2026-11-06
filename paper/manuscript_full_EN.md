@@ -186,7 +186,7 @@ This study follows the six-step Design Science Research Methodology of Peffers e
 
   - **Communication:** Publication of source code, SHA-256-recorded media deliverables (*N* = 30 versions, 2.21 GB), machine-readable JSON/CSV receipts and a script that recomputes every reported figure (`paper/reproduce_paper_tables.mjs`).
 
-**Researcher role.** The author designed, operated and evaluated both artifacts. The study is therefore treated as researcher–practitioner intervention in the sense of action design research (Sein et al., 2011) and technical action research (Wieringa, 2014). Two choices limit the resulting bias: the evidence consists of machine-readable receipts written when each event happened rather than retrospective accounts, and every receipt, script and dataset is public so that each figure can be recomputed independently.
+**Researcher role.** The author designed, operated and evaluated both artifacts and owns the publishing accounts; the owner confirmations and cover edits reported in Section 6 are therefore the author's own. The study is therefore treated as researcher–practitioner intervention in the sense of action design research (Sein et al., 2011) and technical action research (Wieringa, 2014). Two choices limit the resulting bias: the evidence consists of machine-readable receipts written when each event happened rather than retrospective accounts, and every receipt, script and dataset is public so that each figure can be recomputed independently.
 
 ### 3.2 Epistemic Hygiene and Evidence Classification Protocol
 
