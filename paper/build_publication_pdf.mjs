@@ -30,7 +30,7 @@ const htmlManuscript = `<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Governing Human-AI Collaborative Project Workflows in Multi-Platform Digital Delivery</title>
+<title>Governing Human–AI Collaborative Project Workflows in Multi-Platform Digital Delivery: A Design Science Study of Auditable Handoffs and Idempotent Release Operations</title>
 <style>
   @page {
     size: A4;
@@ -256,11 +256,14 @@ const htmlManuscript = `<!DOCTYPE html>
   .ref-list {
     font-size: 8.9pt;
     line-height: 1.35;
+    list-style: none;
     margin-left: 0;
-    padding-left: 18pt;
+    padding-left: 0;
   }
   .ref-list li {
     margin-bottom: 4pt;
+    padding-left: 18pt;
+    text-indent: -18pt;
     text-align: left;
   }
 </style>

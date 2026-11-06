@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-11-06T01:25:34.163Z",
+  "generatedAt": "2026-11-06T01:37:19.021Z",
   "author": "HuaiCheng Sheng",
   "affiliation": "Agentic Work Lab, Hangzhou Chengxin Holding Group Co., Ltd., Hangzhou, Zhejiang, China",
   "orcid": "0009-0003-2900-6377",
@@ -9,8 +9,8 @@
     {
       "file": "manuscript.pdf",
       "role": "Main manuscript (24 pages, single-column A4), built by build_publication_pdf.mjs",
-      "bytes": 1267685,
-      "sha256": "9368322a6e2356b8949a99bdd8234daa0993e23cdd85ee1481b24ab9dd78954f"
+      "bytes": 1263021,
+      "sha256": "1386ac52008fe1ce6b0fc61e63fa7b110bc3cb9eb5495393bebae9843a94b44a"
     },
     {
       "file": "supplementary_material.pdf",
@@ -22,7 +22,7 @@
       "file": "graphical_abstract.pdf",
       "role": "Graphical Abstract PDF (1 Page Landscape Vector Diagram)",
       "bytes": 69840,
-      "sha256": "b479a573320fe61a7526ce3d5d5af096a6d17e4bc2d5d22624078097ce49433e"
+      "sha256": "7f575a5c09cb87994458e5b042e4047a6ce3cf93de396e30571b24ad7fd5c04c"
     },
     {
       "file": "graphical_abstract.svg",
@@ -34,7 +34,7 @@
       "file": "highlights.pdf",
       "role": "Highlights (five bullets, each at most 85 characters)",
       "bytes": 72290,
-      "sha256": "56a137ebe6fc04e29eb81f719849ce0e07cf4cea7fd037260e7bb113cc3499e2"
+      "sha256": "fd796624277fbd6ae7ec6289ab6716b8842aa9e7ca238cf2fbc6f3d147b6f47c"
     },
     {
       "file": "highlights.md",
@@ -45,26 +45,26 @@
     {
       "file": "declarations_and_credit.pdf",
       "role": "CRediT Author Statement, Competing Interest, Funding & Code Metadata Table (C1–C9)",
-      "bytes": 137370,
-      "sha256": "1d780882c4e8ddae546955a9acac87f65c863929b2b042123e49edb46dc2f214"
+      "bytes": 137346,
+      "sha256": "c1bc32ce00173e6d33841700ec2ed72295247225edd805ec2d953620858631e7"
     },
     {
       "file": "declarations_and_credit.md",
       "role": "Declarations & CRediT Source",
-      "bytes": 4242,
-      "sha256": "93a0fc823657ee7487535497b7df7e3910bafa704e2a7573c57cb5067e7cdecd"
+      "bytes": 4245,
+      "sha256": "e33b5373e3b6d67dd9453b881d3afdf5231e29610cb15a54b98a14b90b406590"
     },
     {
       "file": "cover_letter.pdf",
       "role": "Journal-neutral cover letter",
       "bytes": 82010,
-      "sha256": "9695e78a77a1fb0704bf46ac4430c2dc15d5c6cf15a25c993ab873dee09fe8a8"
+      "sha256": "1c6ef8fc83097aa2f36b1bf641715eda57d20c236e4c4d65505085b14818030e"
     },
     {
       "file": "cover_letters_3_journals.pdf",
       "role": "Cover letters for JSS, IEEE TEM and IJPM",
       "bytes": 111542,
-      "sha256": "ad30e0da84202c68ccd3aed4c8e2163d999c6b835a989cf9c5bcca531123b4e2"
+      "sha256": "e553a8284c98cf6b9477fe06ea5e61169e8345e6747d907b8d9a32f436f0c0f7"
     },
     {
       "file": "reviewer_defense_playbook.pdf",
@@ -94,31 +94,31 @@
       "file": "figures/fig1.pdf",
       "role": "Figure 1 for main.tex (exported from the manuscript SVG)",
       "bytes": 70877,
-      "sha256": "ccda0e38ea6d52f1bd4935f72575866f19570d2d76d4c4c2a5efcf415e783552"
+      "sha256": "0d397f86598b98e3205f4acecd115ea4713072bc51fa4aeed9a57b70bce0bedf"
     },
     {
       "file": "figures/fig2.pdf",
       "role": "Figure 2 for main.tex",
       "bytes": 63200,
-      "sha256": "3d0f80144f55b1067786ed7a934bb0033bd0c8d9e35f2f1cff57608b2d33cb56"
+      "sha256": "5d256416ba433eec510bf505921bb0d164a726eef6ab09aea5e0e4f4884c1fd1"
     },
     {
       "file": "figures/fig3.pdf",
       "role": "Figure 3 for main.tex",
       "bytes": 64220,
-      "sha256": "e9762266a61cf7ffb18f901c25308d816f18e1184e557e65a8d1539643cbf737"
+      "sha256": "442fc59e876bb1e7caecfb0f70f7248fe93d9ca2ab32f90ceb8918a513070497"
     },
     {
       "file": "figures/fig4.pdf",
       "role": "Figure 4 for main.tex",
       "bytes": 57486,
-      "sha256": "05af3005ddff88494de83576f9e9d7f1ef09caacffd67598fa4cd924a22a49cf"
+      "sha256": "3e33dadf2038f87df463e62d155179bb37259640c3b277e018c5c4ff08c15648"
     },
     {
       "file": "figures/fig5.pdf",
       "role": "Figure 5 for main.tex",
       "bytes": 51368,
-      "sha256": "1a15183393dfc192f3966852e67142f288da11b6b4cac1b810f84f4d88c94707"
+      "sha256": "56d7cef3c4e261c2f4b7425ca5dcb44ad8b8e6fdaf5dee745ddbc8c2bdae04f4"
     },
     {
       "file": "CLAUDE_PEER_REVIEW_REPORT.md",
