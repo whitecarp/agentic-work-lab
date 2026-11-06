@@ -38,7 +38,7 @@ All numbers reported in the manuscript and companion deliverables are determinis
 ## 4. Build & Synchronization Pipeline (`paper/`)
 ```bash
 node paper/reproduce_paper_tables.mjs          # Recomputes paper/paper_metrics_summary.json
-node paper/build_publication_pdf.mjs           # Builds manuscript.pdf (22 pages) + figures/fig1..5.pdf
+node paper/build_publication_pdf.mjs           # Builds manuscript.pdf (24 pages) + figures/fig1..5.pdf
 node paper/sync_main_tex.mjs                   # Generates main.tex from manuscript_print.html + tex_blocks/
 node paper/build_supplementary_pdf.mjs         # Builds supplementary_material.pdf (142 pages, Appendices A–H)
 node paper/build_extra_sci_deliverables.mjs    # Builds highlights, graphical_abstract, declarations, cover_letters

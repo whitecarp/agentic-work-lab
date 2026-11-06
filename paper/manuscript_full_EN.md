@@ -146,7 +146,7 @@ In software engineering, Continuous Integration and Continuous Delivery (CI/CD) 
        No
 
        **Agentic Work Lab & CrossCast (This Study)**
-       File-mediated state handoffs (GPT/Claude/DS)
+       File-mediated state handoffs (GPT, Claude, DS)
        Deterministic `planRun` + OS lock
        `--confirm` Plan Hash + Stream SHA-256
        Browser sessions + `bili-cli`; API routes in a separate add-on
@@ -437,7 +437,7 @@ The operational journal (`data/operations-events.json`) is an export of selected
        1
        No record reports a replayed upload.
 
-Table 3 supports three statements and rules out a fourth. (i) One record reports a platform write (record 52: one write and four reads, `new_risk` = false); the export does not name the action. (ii) No record reports a replayed upload: the replay counter appears in one record (value 0), and all eight records that carry `new_risk` report false. (iii) Together with the single write record (record 52), 59 records carry an explicit zero count of writes or platform calls, and the remaining nine records (record 22 with one platform call and no write field, plus eight records with neither call nor write fields) are silent on writes (59 + 1 + 9 = 69). What the journal cannot show is that a gate blocked an attempted write: it records outcomes, not refused attempts, so the 59 explicit zero-write records (and the nine records without a write field) are consistent with, but not evidence of, suppression. Evidence that Layer 1 makes the intended decisions comes instead from the four automation-triggered records (all without writes and with the stop flag off), the heartbeat trace below, and the workflow tests (10/10 passed, `results/validation.json`).
+Table 3 supports three statements and rules out a fourth. (i) One record reports a platform write (record 52: one write and four reads, `new_risk` = false); the export does not name the action. (ii) No record reports a replayed upload: the replay counter appears in one record (value 0), and all eight records that carry `new_risk` report false. (iii) Besides the single write record (record 52), 59 records carry an explicit zero count of writes or platform calls, and the remaining nine records (record 22 with one platform call and no write field, plus eight records with neither call nor write fields) are silent on writes (59 + 1 + 9 = 69). What the journal cannot show is that a gate blocked an attempted write: it records outcomes, not refused attempts, so the 59 records with explicit zero counts (and the nine records silent on writes) are consistent with, but not evidence of, suppression. Evidence that Layer 1 makes the intended decisions comes instead from the four automation-triggered records (all without writes and with the stop flag off), the heartbeat trace below, and the workflow tests (10/10 passed, `results/validation.json`).
 
 The audited DeepSeek heartbeat (`scheduled-run-evidence.json`, planned for `2026-10-28T12:37:13.943+08:00`) started after a delay of 24,992 ms (24.992 s) and completed its four recorded work items—reading ownership, checklist, stop conditions and checkpoints; finding no comment, component, research or analytics work due; synchronizing instructions; and needing no Bilibili operation—in 31,175 ms (31.175 s), with no task errors, no manual test trigger and no duplicate run. The record satisfies *V*sched (Eq. 3).
 

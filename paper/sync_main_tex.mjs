@@ -53,6 +53,8 @@ const escText = s => s.replace(/[\\{}$&#%_~^]/g, c => ({ '\\': '\\textbackslash{
   .replace(/[\u00D7\u2264\u2265\u2260\u2248\u2192\u2190\u2191\u2208\u222A\u2227\u2228\u00AC\u2205\u21D4\u221E\u211D\u03A3\u03C3\u03C4\u0394\u2212\u220E]/g, c => `$${mathChar[c]}$`);
 const escCode = s => {
   let out = escText(s).replace(/--/g, '-{}-');
+  // let short CLI flags such as --verify-only break at their inner hyphen inside narrow table cells
+  if (s.length <= 14 && /^--[a-z]+(-[a-z]+)+$/.test(s)) out = out.replace(/([a-z])-([a-z])/g, '$1-\\allowbreak{}$2');
   // allow fine-grained line breaks in long identifiers and 64-character SHA-256 digests so nothing overflows the margin
   if (s.length > 14) out = out.replace(/(\\_|[\/.\-]|[0-9a-f]{4})/g, '$1\\allowbreak{}');
   return out;
@@ -233,6 +235,7 @@ const preamble = String.raw`\documentclass[11pt,a4paper]{article}
 \usepackage{natbib}
 \usepackage{setspace}
 \onehalfspacing
+\setlength{\emergencystretch}{2em}
 
 \hypersetup{
     colorlinks=true,

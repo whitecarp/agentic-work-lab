@@ -19,6 +19,7 @@
 \usepackage{natbib}
 \usepackage{setspace}
 \onehalfspacing
+\setlength{\emergencystretch}{2em}
 
 \hypersetup{
     colorlinks=true,
@@ -148,7 +149,7 @@ In software engineering, Continuous Integration and Continuous Delivery (CI/CD) 
 \textbf{Standard CI/CD} \citep{Humble2010} & Static pipeline stages & Runner queue locks & Artifact SHA-256 & REST APIs only & API-dependent & Rollback scripts & Build logs only \\
 \textbf{Open-Source Upload Helpers} (generic) & Single-script execution & Cron timer only & No plan-hash lock & Browser form fill & No (risks double post) & No read-back verification & No \\
 \midrule
-\textbf{\textbf{Agentic Work Lab \& CrossCast (This Study)}} & \textbf{File-mediated state handoffs (GPT/Claude/DS)} & \textbf{Deterministic \texttt{planRun} + OS lock} & \textbf{\texttt{-{}-confirm} Plan Hash + Stream SHA-256} & \textbf{Browser sessions + \texttt{bili-cli}; API routes in a separate add-on} & \textbf{Receipt saved as \texttt{UNKNOWN} before the one final press} & \textbf{\texttt{-{}-verify-only} + Absence Read-Back} & \textbf{Enforced machine-readable limits} \\
+\textbf{\textbf{Agentic Work Lab \& CrossCast (This Study)}} & \textbf{File-mediated state handoffs (GPT, Claude, DS)} & \textbf{Deterministic \texttt{planRun} + OS lock} & \textbf{\texttt{-{}-confirm} Plan Hash + Stream SHA-256} & \textbf{Browser sessions + \texttt{bili-cli}; API routes in a separate add-on} & \textbf{Receipt saved as \texttt{UNKNOWN} before the one final press} & \textbf{\texttt{-{}-verify-\allowbreak{}only} + Absence Read-Back} & \textbf{Enforced machine-readable limits} \\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -450,7 +451,7 @@ No call or write field & 8 & 11.59\% & --- & --- & Silent on writes; the absence
 \end{tabular}
 \end{table}
 
-Table 3 supports three statements and rules out a fourth. (i) One record reports a platform write (record 52: one write and four reads, \texttt{new\_risk} = false); the export does not name the action. (ii) No record reports a replayed upload: the replay counter appears in one record (value 0), and all eight records that carry \texttt{new\_risk} report false. (iii) Together with the single write record (record 52), 59 records carry an explicit zero count of writes or platform calls, and the remaining nine records (record 22 with one platform call and no write field, plus eight records with neither call nor write fields) are silent on writes (59 + 1 + 9 = 69). What the journal cannot show is that a gate blocked an attempted write: it records outcomes, not refused attempts, so the 59 explicit zero-write records (and the nine records without a write field) are consistent with, but not evidence of, suppression. Evidence that Layer 1 makes the intended decisions comes instead from the four automation-triggered records (all without writes and with the stop flag off), the heartbeat trace below, and the workflow tests (10/10 passed, \texttt{results/\allowbreak{}validation.\allowbreak{}json}).
+Table 3 supports three statements and rules out a fourth. (i) One record reports a platform write (record 52: one write and four reads, \texttt{new\_risk} = false); the export does not name the action. (ii) No record reports a replayed upload: the replay counter appears in one record (value 0), and all eight records that carry \texttt{new\_risk} report false. (iii) Besides the single write record (record 52), 59 records carry an explicit zero count of writes or platform calls, and the remaining nine records (record 22 with one platform call and no write field, plus eight records with neither call nor write fields) are silent on writes (59 + 1 + 9 = 69). What the journal cannot show is that a gate blocked an attempted write: it records outcomes, not refused attempts, so the 59 records with explicit zero counts (and the nine records silent on writes) are consistent with, but not evidence of, suppression. Evidence that Layer 1 makes the intended decisions comes instead from the four automation-triggered records (all without writes and with the stop flag off), the heartbeat trace below, and the workflow tests (10/10 passed, \texttt{results/\allowbreak{}validation.\allowbreak{}json}).
 
 The audited DeepSeek heartbeat (\texttt{scheduled-\allowbreak{}run-\allowbreak{}evidence.\allowbreak{}json}, planned for \texttt{2026\allowbreak{}-\allowbreak{}10-\allowbreak{}28T12:37:13.\allowbreak{}943+08:00}) started after a delay of 24,992 ms (24.992 s) and completed its four recorded work items---reading ownership, checklist, stop conditions and checkpoints; finding no comment, component, research or analytics work due; synchronizing instructions; and needing no Bilibili operation---in 31,175 ms (31.175 s), with no task errors, no manual test trigger and no duplicate run. The record satisfies $\mathcal{V}_{\text{sched}}$ (Eq. 3).
 

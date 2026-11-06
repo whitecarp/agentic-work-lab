@@ -16,7 +16,7 @@ function sha256File(filePath) {
 }
 
 const requiredDeliverables = [
-  { file: 'manuscript.pdf', role: 'Main manuscript (22 pages, single-column A4), built by build_publication_pdf.mjs' },
+  { file: 'manuscript.pdf', role: 'Main manuscript (24 pages, single-column A4), built by build_publication_pdf.mjs' },
   { file: 'supplementary_material.pdf', role: 'Online supplementary material (142 pages, Appendices A–H)' },
   { file: 'graphical_abstract.pdf', role: 'Graphical Abstract PDF (1 Page Landscape Vector Diagram)' },
   { file: 'graphical_abstract.svg', role: 'Graphical Abstract Vector Source (1328x531 SVG)' },
