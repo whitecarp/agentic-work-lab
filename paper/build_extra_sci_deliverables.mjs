@@ -238,6 +238,28 @@ ${letters.map((l, i) => `${i ? '<div class="page-break"></div>' : ''}
 </body></html>`, 'utf8');
 htmlToPdf(path.join(paperDir, 'cover_letters_3_print.html'), path.join(paperDir, 'cover_letters_3_journals.pdf'));
 
+const slugByKey = { A: 'JSS', B: 'IEEE_TEM', C: 'IJPM' };
+for (const l of letters) {
+  const slug = slugByKey[l.key];
+  const singleMd = letterMd(l).replace(/^## Option [A-C]: [^\n]+\n\n/, '');
+  fs.writeFileSync(path.join(paperDir, `cover_letter_${slug}.md`), singleMd, 'utf8');
+  const tmpHtml = path.join(paperDir, `cover_letter_${slug}_print.html`);
+  fs.writeFileSync(tmpHtml, `<!DOCTYPE html><html><head><meta charset="utf-8"><style>${baseCss}</style></head><body>
+<h1>Cover Letter — ${esc(l.journal)}</h1>
+<p><strong>Date:</strong> November 2026<br><strong>To:</strong> ${esc(l.to)}<br><strong>Subject:</strong> Submission of an original research article — &ldquo;${esc(title)}&rdquo;</p>
+<p>Dear Editor,</p>
+<p>Please consider the enclosed manuscript, &ldquo;${esc(title)}&rdquo;, for publication in <em>${esc(l.journal)}</em>.</p>
+<p>${esc(l.pitch)}</p>
+<p>${esc(shared.evidence)}</p>
+<p>${esc(l.fit)}</p>
+<p>${esc(shared.honesty)}</p>
+<p>${esc(shared.close)}</p>
+<p>Sincerely,<br>HuaiCheng Sheng<br>Agentic Work Lab, Hangzhou Chengxin Holding Group Co., Ltd., Hangzhou, Zhejiang, China<br>E-mail: ZackSheng@gmail.com | ORCID: 0009-0003-2900-6377</p>
+</body></html>`, 'utf8');
+  htmlToPdf(tmpHtml, path.join(paperDir, `cover_letter_${slug}.pdf`));
+  fs.unlinkSync(tmpHtml);
+}
+
 // 5. Journal-neutral cover letter (cover_letter.md, cover_letter_template.md, cover_letter.pdf)
 const generic = { key: '', journal: '[Journal name]', publisher: '', to: 'The Editor-in-Chief, [Journal name]',
   pitch: letters[0].pitch,

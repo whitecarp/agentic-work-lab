@@ -1,3 +1,5 @@
+> Superseded: these are the pre-review candidates. The reviewed, corrected set (9 references; Zhan2026 not integrated) is in paper/references.bib, applied by paper/reference_update/apply_ref_edits.py.
+
 # Candidate 2025–2026 References for Review (`paper/reference_update/CANDIDATES.md`)
 
 All 10 candidates below are peer-reviewed journal articles published in 2025–2026 (0 preprints), verified against Crossref (`paper/reference_update/crossref/<key>.json`):
