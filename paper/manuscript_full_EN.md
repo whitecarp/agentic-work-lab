@@ -15,7 +15,7 @@
 
   **Conclusions:** Deterministic gates, content-bound approvals and at-most-once receipts with human reconciliation governed agentic delivery where prompt instructions could not. Code, data and recomputation scripts for this single-case study are public.
 
-   **Keywords:** Project Management Governance; Human–AI Collaboration; Multi-Agent Workflows; Design Science Research; Idempotent Release Engineering; Stage-Gate Control; PublishOps
+   **Keywords:** Project Management Governance; Human–AI Collaboration; Multi-Agent Workflows; Design Science Research; Idempotent Release Engineering; Stage-Gate Control
 
   **Research Highlights**
 
@@ -324,8 +324,8 @@ To answer **RQ2**, each browser publication attempt in *PublishOps CrossCast* is
      4:  **if** Exists(path) ∧ &not;resume **then abort** `attempt_exists`  // never reset an attempt to upload again
      5:  **if** resume ∧ Exists(path) **then** *Rp* ← Load(path); require same *H*media and acct*p*, else **abort** `receipt_conflict`
      6:  **if** resume ∧ &not;Exists(path) ∧ the publication record shows media selected or a press attempted **then abort** `receipt_missing`
-     7:  VerifySHA256(*P*.media, *P*.covers); select media; *Rp*.media_selected ← true; PersistAtomically(*Rp*)
-     8:  **if** *Rp*.*f*submit = true ∧ &not;PlatformShowsUnsubmittedDraft() **then abort** `already_submitted`
+     7:  **if** *Rp*.*f*submit = true ∧ &not;PlatformShowsUnsubmittedDraft() **then abort** `already_submitted`
+     8:  VerifySHA256(*P*.media, *P*.covers); select media; *Rp*.media_selected ← true; PersistAtomically(*Rp*)
      9:  *Rp*.&sigma;*p* ← `UNKNOWN`; *Rp*.*f*submit ← true; PersistAtomically(*Rp*)  // before the click
      10: PressFinalSubmitOnce()  // a single Share / Post / Publish press
      11: outcome ← AwaitConfirmationAndReadBack(acct*p*, new works not listed before the press)
@@ -335,7 +335,7 @@ To answer **RQ2**, each browser publication attempt in *PublishOps CrossCast* is
 
   **Proposition 1 (At-Most-Once Automated Final Submission).** Assume (A1) every final submission for plan *P* on platform *p* goes through the receipt transaction of Algorithm 2; (A2) receipt writes are atomic and durable; and (A3) receipts are not edited by hand. Then automated runs issue at most one final press per (*P*, *p*), with one exception: (A4) a resumed run may press again when the platform shows that the earlier work is still an unsubmitted draft.
 
-  *Proof sketch.* The receipt is saved with &sigma;*p* = `UNKNOWN` and *f*submit = true before the press (line 9). A later run on the same plan either finds the receipt and stops (line 4) or resumes it, in which case line 8 refuses another press while *f*submit = true unless (A4) holds. If the receipt file has disappeared while the publication record shows a selected file or an attempted press, the run stops (line 6) instead of uploading again. &#8718;
+  *Proof sketch.* The receipt is saved with &sigma;*p* = `UNKNOWN` and *f*submit = true before the press (line 9). A later run on the same plan either finds the receipt and stops (line 4) or resumes it, in which case line 7 refuses another press while *f*submit = true unless (A4) holds. If the receipt file has disappeared while the publication record shows a selected file or an attempted press, the run stops (line 6) instead of uploading again. &#8718;
 
 Proposition 1 is a safety guarantee, not a liveness one. A crash between saving the receipt and pressing leaves an `UNKNOWN` receipt for a submission that never happened; the design accepts such false alarms because the opposite error, a duplicate public post, cannot be undone. Whether an `UNKNOWN` submission published is settled afterwards by `vpub verify`, which checks that the signed-in account is the receipt's account and upgrades the receipt only when it finds exactly one matching new work, or by a person whose confirmation is recorded beside the receipt without relabelling it. Resumable byte offsets belong to API routes (`upload_resume.py` in the laboratory's 0.15.1 snapshot); the browser route instead refuses to upload again once its record shows that a file was selected.
 
@@ -437,7 +437,7 @@ The operational journal (`data/operations-events.json`) is an export of selected
        1
        No record reports a replayed upload.
 
-Table 3 supports three statements and rules out a fourth. (i) One record reports a platform write (record 52: one write and four reads, `new_risk` = false); the export does not name the action. (ii) No record reports a replayed upload: the replay counter appears in one record (value 0), and all eight records that carry `new_risk` report false. (iii) 59 records carry an explicit zero count of writes or platform calls; the other nine are silent on writes. What the journal cannot show is that a gate blocked an attempted write: it records outcomes, not refused attempts, so the absence of writes in 68 records is consistent with, but not evidence of, suppression. Evidence that Layer 1 makes the intended decisions comes instead from the four automation-triggered records (all without writes and with the stop flag off), the heartbeat trace below, and the workflow tests (10/10 passed, `results/validation.json`).
+Table 3 supports three statements and rules out a fourth. (i) One record reports a platform write (record 52: one write and four reads, `new_risk` = false); the export does not name the action. (ii) No record reports a replayed upload: the replay counter appears in one record (value 0), and all eight records that carry `new_risk` report false. (iii) Together with the single write record (record 52), 59 records carry an explicit zero count of writes or platform calls, and the remaining nine records (record 22 with one platform call and no write field, plus eight records with neither call nor write fields) are silent on writes (59 + 1 + 9 = 69). What the journal cannot show is that a gate blocked an attempted write: it records outcomes, not refused attempts, so the 59 explicit zero-write records (and the nine records without a write field) are consistent with, but not evidence of, suppression. Evidence that Layer 1 makes the intended decisions comes instead from the four automation-triggered records (all without writes and with the stop flag off), the heartbeat trace below, and the workflow tests (10/10 passed, `results/validation.json`).
 
 The audited DeepSeek heartbeat (`scheduled-run-evidence.json`, planned for `2026-10-28T12:37:13.943+08:00`) started after a delay of 24,992 ms (24.992 s) and completed its four recorded work items—reading ownership, checklist, stop conditions and checkpoints; finding no comment, component, research or analytics work due; synchronizing instructions; and needing no Bilibili operation—in 31,175 ms (31.175 s), with no task errors, no manual test trigger and no duplicate run. The record satisfies *V*sched (Eq. 3).
 
@@ -532,8 +532,8 @@ Live experiments must not pollute public accounts with deliberate faults such as
 
        `v0.15.1`
 (Lab Snapshot)
-       OS process lock (`process_lock.py`), private pipe browser context reuse, resumable byte-offset recovery.
-       417 offline tests passed; a private YouTube upload forced to exit after 8,388,608 acknowledged bytes resumed in a second process and kept the same video ID (30 Oct).
+       OS process lock (`process_lock.py`), private pipe browser context reuse, resumable byte-offset recovery (API upload route, outside the evaluated `75b7abc` browser snapshot).
+       417 offline tests passed; on the `0.15.1` API upload route, a private YouTube upload forced to exit twice—first after 8,388,608 acknowledged bytes and then in a second process after saving the video ID—completed its thumbnail in a third process and kept the same video ID (30 Oct).
        Needed independent CI matrix verification and stricter schedule/pin counterexample checks.
 
        Candidates
@@ -543,14 +543,14 @@ Live experiments must not pollute public accounts with deliberate faults such as
        Counterexample found imprecise pinned-comment ID (live pin held); X schedule row lacked post/media ID pair (kept `SUBMITTED_UNVERIFIED`).
 
        `v0.16.0` Release
-(`a46bd19` / PR #8–#9)
-       Public standalone CLI release; shortened default capability list (`--full`) and separated rehearsal from live readiness.
+(`a46bd19`)
+       Public standalone CLI release packaging the five browser/CLI platform adapters and receipt state machine.
        Suite of 2,009 test functions in 84 files at `a46bd19`. Field release of *I Watched It For You (v3)* on 2–3 Nov with one instrumented Instagram run (412.217 s); the release record does not name the code version used per platform.
        Post-submit wait consumed 92.32% of publish time; motivated explicit wait progress and bounded concurrency.
 
-       PRs #10–#28
-(`d97835f`–`439c038`)
-       Two-command `prepare`/`go` flow (#10), two-slot browser concurrency (#11/#15), YouTube single-Save guard (#16), X edit consistency (#21).
+       PRs #8–#28
+(post-`a46bd19` to `439c038`)
+       Shortened default capability list (`--full`) & rehearsal/live-readiness split (#8–#9), two-command `prepare`/`go` flow (#10), two-slot browser concurrency (#11/#15), YouTube single-Save guard (#16), X edit consistency (#21).
        Python 3.13/3.14 support (#14); prompt login return & interrupted worker recovery (#27); runtime cleanup isolated (#28).
        Required durable consent and post-deletion absence read-back for single-work deletions across all platforms.
 
@@ -1206,7 +1206,7 @@ The study adds to work on AI in project management (Holzmann et al., 2022; M&uum
 
   - **RQ1 (governance architecture and handoff control).** Stage-gate principles can be expressed as four software-enforced layers whose decisions are deterministic and testable (Section 4). Evidence: the gate's decision function and its ten passing tests, four automation-triggered records and one audited heartbeat without writes, and a journal recording one write and no replay (Table 3). Limit: the journal records outcomes, so it cannot show blocked attempts, and `planRun` binds only agents that call it.
 
-  - **RQ2 (idempotent release engineering and recovery).** A receipt saved as `UNKNOWN` before a single final press yields at-most-once automated submission under assumptions A1–A4 (Proposition 1), with read-back or a person deciding the outcome. Evidence: the code path at `75b7abc`, 2,737 offline test functions including fault paths, a private crash-recovery check that kept one YouTube video ID across two forced exits, and two Douyin read-back timeouts handled without re-submission or relabelling. Limit: few field instances, and safety is paid for with false in-doubt cases.
+  - **RQ2 (idempotent release engineering and recovery).** A receipt saved as `UNKNOWN` before a single final press yields at-most-once automated submission under assumptions A1–A4 (Proposition 1), with read-back or a person deciding the outcome. Evidence: the code path at `75b7abc`, 2,737 offline test functions including fault paths, a private crash-recovery check on the `0.15.1` API upload route (outside the evaluated `75b7abc` browser snapshot) that kept one YouTube video ID across two forced exits, and two Douyin read-back timeouts handled without re-submission or relabelling. Limit: few field instances, and safety is paid for with false in-doubt cases.
 
   - **RQ3 (empirical characteristics and boundaries).** Local governance checks were small next to platform waiting: in one Instagram run, pre-publication checks took 11.019 s and the wait after Share 380.551 s (92.32% of the publish command). Quality checks caught frame and audio defects (Table 8), and the reporting protocol kept non-comparable cohorts apart (Table 10). Limit: single observations from one laboratory over nine days (Section 7.4).
 
@@ -1239,6 +1239,18 @@ Following case-study guidance for software engineering (Runeson & H&ouml;st, 200
 This Design Science study asked how to govern human–AI collaborative delivery when agents act on external platforms that cannot undo or de-duplicate their actions. *Agentic Work Lab* and *PublishOps CrossCast* combine clear role boundaries between a human project manager and three AI workflows (GPT/Codex, Claude and DeepSeek) with four layers: an owner, stop-flag and due-time gate; plan-hash binding with SHA-256 media checks; a receipt state machine that saves an `UNKNOWN` state before a single final submission and never re-submits automatically; and independent read-back with human escalation. Over nine days, the field records show one recorded platform write and no recorded replay in a 69-record journal, an in-doubt Douyin submission held without re-submission, 30 SHA-256-recorded video versions, and a five-platform release whose evidence is kept per platform; 2,737 offline test functions exercise the corresponding code at commit `75b7abc`. These results support the mechanisms' design intent within the limits of a single case.
 
 Future work follows from those limits: (1) record gate decisions and refused attempts, not only outcomes, so that suppression becomes measurable; (2) time bounded concurrent publication against sequential runs; (3) run the planned blinded identical-task comparison of models with logged costs; and (4) replicate the framework with other teams and accounts.
+
+## CRediT Authorship Contribution Statement
+
+**HuaiCheng Sheng:** Conceptualization, Methodology, Software, Validation, Formal analysis, Investigation, Resources, Data curation, Writing – original draft, Writing – review & editing, Visualization, Supervision, Project administration.
+
+## Funding
+
+This research was supported by the internal research and engineering resources of Agentic Work Lab, Hangzhou Chengxin Holding Group Co., Ltd., Hangzhou, Zhejiang, China. It did not receive any specific grant from funding agencies in the public, commercial or not-for-profit sectors.
+
+## Ethics and Data Protection Statement
+
+No human-subjects experiment was conducted. The study analyses the author's own operational records, the author's channel analytics and public platform metadata. The exported records exclude credentials, raw client logs, private messages and viewer personal data (`data/production-update-2026-11-03.json`, field `excluded`).
 
 ## Data and Code Availability Statement
 

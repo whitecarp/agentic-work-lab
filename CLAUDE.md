@@ -1,9 +1,9 @@
 # Agentic Work Lab — SCI Manuscript & Multi-Agent Handoff Protocol (`CLAUDE.md`)
 
 ## 1. Repository & Branch Isolation
-- **Fork Workspace:** `C:\Users\ROG\.gemini\antigravity\scratch\agentic-sci-paper\agentic-work-lab-claude-fork` (Branch: `paper/claude-review-fork`)
-- **Primary Workspace:** `C:\Users\ROG\.gemini\antigravity\scratch\agentic-sci-paper\agentic-work-lab` (Branch: `paper/sci-manuscript`)
-- **Sibling Code Checkout (Read-Only):** `C:\Users\ROG\.gemini\antigravity\scratch\agentic-sci-paper\publishops-crosscast` (Evaluated commit: `75b7abc`; `v0.16.0` tag: `a46bd19`)
+- **Fork Branch:** `paper/claude-review-fork` (`https://github.com/whitecarp/agentic-work-lab/tree/paper/claude-review-fork`)
+- **Primary Baseline Branch (Do Not Modify):** `paper/sci-manuscript` (`https://github.com/whitecarp/agentic-work-lab/tree/paper/sci-manuscript`)
+- **Evaluated Software Repository (Read-Only):** `https://github.com/whitecarp/publishops-crosscast` (Evaluated commit: `75b7abc`; `v0.16.0` tag: `a46bd19`)
 
 ## 2. Locked Author Identity & Affiliation (Do Not Alter)
 - **Author:** `HuaiCheng Sheng`
@@ -20,19 +20,19 @@ All numbers reported in the manuscript and companion deliverables are determinis
    - `platform_call_without_write_field`: `1` record (`#22`)
    - `platform_write`: `1` record (`#52`: `4` reads, `1` write, `replay = 0`, `new_risk = false`)
    - `no_call_or_write_field`: `8` records (`11.59%`, early local checks)
-   - Timed task runs (`#67–#69`, $n = 3$): mean start delay `24.992 s`, mean duration `31.175 s`, `0` task errors; `tests/workflows.test.mjs`: `10/10` passed.
+   - Audited scheduled heartbeat run (`data/scheduled-run-evidence.json`, $N = 1$): trigger delay `24.992 s` (`24,992 ms`), duration `31.175 s` (`31,175 ms`), `0` task errors; `tests/workflows.test.mjs`: `10/10` passed.
 2. **Software & Test Volume (`publishops-crosscast` at commit `75b7abc` vs. `v0.16.0` `a46bd19`):**
    - `123` Python source files (`26,972` physical lines) = `81` first-party `CrossCast` files (`18,005` lines) + `42` unmodified bundled `bili-cli` v1.2.1 files (`8,967` lines, MIT).
    - `126` test files (`122` test modules + `4` helpers, `37,029` physical lines, `2,737` `def test_*` functions; test-to-source line ratio `1.37` overall, `2.06` against `CrossCast`'s own package).
 3. **Hybrid 5-Platform Release & Recovery Evidence:**
    - Platforms evaluated: Bilibili, YouTube, X, Douyin, Instagram.
-   - Two Douyin post-submit read-back timeouts latched safely in `UNKNOWN` (`final_submit_attempted = true` persisted before `PressFinalSubmitOnce()`), preventing duplicate submission; one private YouTube upload killed at `8,388,608` acknowledged bytes resumed in a second process under the same video ID.
-   - Timed Instagram run ($N = 1$): `423.236 s` end-to-end, `412.217 s` inside `vpub publish`, of which `380.551 s` (`92.32%`) is spent in the post-press transfer/processing/confirmation wait (`0.289 s` derived remainder).
-4. **Media Manifest (`data/media-manifest.json`, $N = 30$ MP4 versions):**
+   - Two Douyin post-submit read-back timeouts latched safely in `UNKNOWN` (`final_submit_attempted = true` persisted before `PressFinalSubmitOnce()`), preventing duplicate submission; on the `0.15.1` API upload route (outside the evaluated `75b7abc` browser snapshot), a private YouTube upload forced to exit twice—first after `8,388,608` acknowledged bytes and then in a second process after saving the video ID—completed its thumbnail in a third process and kept the same video ID.
+   - Timed Instagram run ($N = 1$): `423.236 s` end-to-end, `412.217 s` inside `vpub publish`, of which `380.551 s` (`92.32%`) is spent in the post-Share transfer/processing/confirmation wait (`15.384 s` derived residual).
+4. **Media Manifest (`media/manifest.json`, $N = 30$ MP4 versions):**
    - Exact total size: `2,211,716,129 bytes` (`2,109.26 MiB` / `2.21 GB` decimal), `0` SHA-256 mismatches against `media/SHA256SUMS.txt`.
 5. **Channel Snapshot (`data/creator-video-snapshot.json`, $N = 55$ records):**
-   - `human_led_history` ($n = 45$, Oct 2019–Oct 2026): views mean `40,884.31`, SD `64,604.81`, median `15,407.0`, IQR `26,315.0`, range `274–333,725`.
-   - `current_ai_series` ($n = 10$: `5` published aged `1.6 h–3.1 days`, `5` scheduled): published views mean `133.20`, SD `99.53`, median `183.0`, IQR `148.0`, range `11–231`.
+   - `human_led_history` ($n = 45$, Oct 2019–Oct 2026): views mean `40,884.31`, SD `64,604.81`, median `15,407.0`, Q1–Q3 `1,722–67,502`, range `274–333,725`.
+   - `current_ai_series` ($n = 10$: `5` published aged `1.6 h–3.1 days`, `5` scheduled): published views mean `133.20`, SD `99.53`, median `183.0`, Q1–Q3 `42–199`, range `11–231`.
    - Complete separation ($\min(\text{human}) = 274 > \max(\text{AI}) = 231$).
 
 ## 4. Build & Synchronization Pipeline (`paper/`)

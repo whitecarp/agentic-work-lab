@@ -254,7 +254,7 @@
   <strong>Method:</strong> The architecture enforces four layers: (1) a deterministic owner, stop-flag and due-time gate (<code>planRun</code>); (2) release commands bound to SHA-256 digests of the reviewed plan and media; (3) a persistent receipt state machine that saves an <code>UNKNOWN</code> state before the single final submission and never re-submits automatically; and (4) independent read-back with human escalation. A nine-day deployment (26 October&ndash;3 November 2026) evaluates a 69-record operational journal, a scheduled heartbeat trace, a five-platform film release, 2,737 offline test functions, 30 SHA-256-recorded video versions (2.21 GB) and a 55-record channel snapshot.<br>
   <strong>Results:</strong> The journal records one platform write and no replayed upload; the heartbeat started 24.992 s late and ran 31.175 s without errors. When Douyin read-back timed out, the receipt stayed <code>UNKNOWN</code> without re-submission until mobile confirmation. In one Instagram run, the post-Share wait spanned 380.551 s of the 412.217 s publish command (92.32%).<br>
   <strong>Conclusions:</strong> Deterministic gates, content-bound approvals and at-most-once receipts with human reconciliation governed agentic delivery where prompt instructions could not. Code, data and recomputation scripts for this single-case study are public.</p>
-  <div class="keywords"><strong>Keywords:</strong> Project Management Governance; Human&ndash;AI Collaboration; Multi-Agent Workflows; Design Science Research; Idempotent Release Engineering; Stage-Gate Control; PublishOps</div>
+  <div class="keywords"><strong>Keywords:</strong> Project Management Governance; Human&ndash;AI Collaboration; Multi-Agent Workflows; Design Science Research; Idempotent Release Engineering; Stage-Gate Control</div>
 </div>
 
 <div class="highlights-box">
@@ -718,8 +718,8 @@
     <div>4: &nbsp;<strong>if</strong> Exists(path) &and; &not;resume <strong>then abort</strong> <code>attempt_exists</code> &nbsp;// never reset an attempt to upload again</div>
     <div>5: &nbsp;<strong>if</strong> resume &and; Exists(path) <strong>then</strong> <em>R<sub>p</sub></em> &larr; Load(path); require same <em>H</em><sub>media</sub> and acct<sub><em>p</em></sub>, else <strong>abort</strong> <code>receipt_conflict</code></div>
     <div>6: &nbsp;<strong>if</strong> resume &and; &not;Exists(path) &and; the publication record shows media selected or a press attempted <strong>then abort</strong> <code>receipt_missing</code></div>
-    <div>7: &nbsp;VerifySHA256(<em>P</em>.media, <em>P</em>.covers); select media; <em>R<sub>p</sub></em>.media_selected &larr; true; PersistAtomically(<em>R<sub>p</sub></em>)</div>
-    <div>8: &nbsp;<strong>if</strong> <em>R<sub>p</sub></em>.<em>f</em><sub>submit</sub> = true &and; &not;PlatformShowsUnsubmittedDraft() <strong>then abort</strong> <code>already_submitted</code></div>
+    <div>7: &nbsp;<strong>if</strong> <em>R<sub>p</sub></em>.<em>f</em><sub>submit</sub> = true &and; &not;PlatformShowsUnsubmittedDraft() <strong>then abort</strong> <code>already_submitted</code></div>
+    <div>8: &nbsp;VerifySHA256(<em>P</em>.media, <em>P</em>.covers); select media; <em>R<sub>p</sub></em>.media_selected &larr; true; PersistAtomically(<em>R<sub>p</sub></em>)</div>
     <div>9: &nbsp;<em>R<sub>p</sub></em>.&sigma;<sub><em>p</em></sub> &larr; <code>UNKNOWN</code>; <em>R<sub>p</sub></em>.<em>f</em><sub>submit</sub> &larr; true; PersistAtomically(<em>R<sub>p</sub></em>) &nbsp;// before the click</div>
     <div>10: PressFinalSubmitOnce() &nbsp;// a single Share / Post / Publish press</div>
     <div>11: outcome &larr; AwaitConfirmationAndReadBack(acct<sub><em>p</em></sub>, new works not listed before the press)</div>
@@ -731,7 +731,7 @@
 
 <div class="theorem-box" data-tex="prop1">
   <strong>Proposition 1 (At-Most-Once Automated Final Submission).</strong> Assume (A1) every final submission for plan <em>P</em> on platform <em>p</em> goes through the receipt transaction of Algorithm 2; (A2) receipt writes are atomic and durable; and (A3) receipts are not edited by hand. Then automated runs issue at most one final press per (<em>P</em>, <em>p</em>), with one exception: (A4) a resumed run may press again when the platform shows that the earlier work is still an unsubmitted draft.<br>
-  <em>Proof sketch.</em> The receipt is saved with &sigma;<sub><em>p</em></sub> = <code>UNKNOWN</code> and <em>f</em><sub>submit</sub> = true before the press (line 9). A later run on the same plan either finds the receipt and stops (line 4) or resumes it, in which case line 8 refuses another press while <em>f</em><sub>submit</sub> = true unless (A4) holds. If the receipt file has disappeared while the publication record shows a selected file or an attempted press, the run stops (line 6) instead of uploading again. &#8718;
+  <em>Proof sketch.</em> The receipt is saved with &sigma;<sub><em>p</em></sub> = <code>UNKNOWN</code> and <em>f</em><sub>submit</sub> = true before the press (line 9). A later run on the same plan either finds the receipt and stops (line 4) or resumes it, in which case line 7 refuses another press while <em>f</em><sub>submit</sub> = true unless (A4) holds. If the receipt file has disappeared while the publication record shows a selected file or an attempted press, the run stops (line 6) instead of uploading again. &#8718;
 </div>
 
 <p class="noindent">Proposition 1 is a safety guarantee, not a liveness one. A crash between saving the receipt and pressing leaves an <code>UNKNOWN</code> receipt for a submission that never happened; the design accepts such false alarms because the opposite error, a duplicate public post, cannot be undone. Whether an <code>UNKNOWN</code> submission published is settled afterwards by <code>vpub verify</code>, which checks that the signed-in account is the receipt's account and upgrades the receipt only when it finds exactly one matching new work, or by a person whose confirmation is recorded beside the receipt without relabelling it. Resumable byte offsets belong to API routes (<code>upload_resume.py</code> in the laboratory's 0.15.1 snapshot); the browser route instead refuses to upload again once its record shows that a file was selected.</p>
@@ -925,7 +925,7 @@
   </tbody>
 </table>
 
-<p class="noindent">Table 3 supports three statements and rules out a fourth. (i) One record reports a platform write (record 52: one write and four reads, <code>new_risk</code> = false); the export does not name the action. (ii) No record reports a replayed upload: the replay counter appears in one record (value 0), and all eight records that carry <code>new_risk</code> report false. (iii) 59 records carry an explicit zero count of writes or platform calls; the other nine are silent on writes. What the journal cannot show is that a gate blocked an attempted write: it records outcomes, not refused attempts, so the absence of writes in 68 records is consistent with, but not evidence of, suppression. Evidence that Layer 1 makes the intended decisions comes instead from the four automation-triggered records (all without writes and with the stop flag off), the heartbeat trace below, and the workflow tests (10/10 passed, <code>results/validation.json</code>).</p>
+<p class="noindent">Table 3 supports three statements and rules out a fourth. (i) One record reports a platform write (record 52: one write and four reads, <code>new_risk</code> = false); the export does not name the action. (ii) No record reports a replayed upload: the replay counter appears in one record (value 0), and all eight records that carry <code>new_risk</code> report false. (iii) Together with the single write record (record 52), 59 records carry an explicit zero count of writes or platform calls, and the remaining nine records (record 22 with one platform call and no write field, plus eight records with neither call nor write fields) are silent on writes (59 + 1 + 9 = 69). What the journal cannot show is that a gate blocked an attempted write: it records outcomes, not refused attempts, so the 59 explicit zero-write records (and the nine records without a write field) are consistent with, but not evidence of, suppression. Evidence that Layer 1 makes the intended decisions comes instead from the four automation-triggered records (all without writes and with the stop flag off), the heartbeat trace below, and the workflow tests (10/10 passed, <code>results/validation.json</code>).</p>
 
 <p class="noindent">The audited DeepSeek heartbeat (<code>scheduled-run-evidence.json</code>, planned for <code>2026-10-28T12:37:13.943+08:00</code>) started after a delay of 24,992 ms (24.992 s) and completed its four recorded work items&mdash;reading ownership, checklist, stop conditions and checkpoints; finding no comment, component, research or analytics work due; synchronizing instructions; and needing no Bilibili operation&mdash;in 31,175 ms (31.175 s), with no task errors, no manual test trigger and no duplicate run. The record satisfies <em>V</em><sub>sched</sub> (Eq. 3).</p>
 
@@ -1042,8 +1042,8 @@
     </tr>
     <tr>
       <td><code>v0.15.1</code><br>(Lab Snapshot)</td>
-      <td>OS process lock (<code>process_lock.py</code>), private pipe browser context reuse, resumable byte-offset recovery.</td>
-      <td>417 offline tests passed; a private YouTube upload forced to exit after 8,388,608 acknowledged bytes resumed in a second process and kept the same video ID (30 Oct).</td>
+      <td>OS process lock (<code>process_lock.py</code>), private pipe browser context reuse, resumable byte-offset recovery (API upload route, outside the evaluated <code>75b7abc</code> browser snapshot).</td>
+      <td>417 offline tests passed; on the <code>0.15.1</code> API upload route, a private YouTube upload forced to exit twice&mdash;first after 8,388,608 acknowledged bytes and then in a second process after saving the video ID&mdash;completed its thumbnail in a third process and kept the same video ID (30 Oct).</td>
       <td>Needed independent CI matrix verification and stricter schedule/pin counterexample checks.</td>
     </tr>
     <tr>
@@ -1053,14 +1053,14 @@
       <td>Counterexample found imprecise pinned-comment ID (live pin held); X schedule row lacked post/media ID pair (kept <code>SUBMITTED_UNVERIFIED</code>).</td>
     </tr>
     <tr>
-      <td><code>v0.16.0</code> Release<br>(<code>a46bd19</code> / PR #8–#9)</td>
-      <td>Public standalone CLI release; shortened default capability list (<code>--full</code>) and separated rehearsal from live readiness.</td>
+      <td><code>v0.16.0</code> Release<br>(<code>a46bd19</code>)</td>
+      <td>Public standalone CLI release packaging the five browser/CLI platform adapters and receipt state machine.</td>
       <td>Suite of 2,009 test functions in 84 files at <code>a46bd19</code>. Field release of <em>I Watched It For You (v3)</em> on 2&ndash;3 Nov with one instrumented Instagram run (412.217 s); the release record does not name the code version used per platform.</td>
       <td>Post-submit wait consumed 92.32% of publish time; motivated explicit wait progress and bounded concurrency.</td>
     </tr>
     <tr>
-      <td>PRs #10–#28<br>(<code>d97835f</code>–<code>439c038</code>)</td>
-      <td>Two-command <code>prepare</code>/<code>go</code> flow (#10), two-slot browser concurrency (#11/#15), YouTube single-Save guard (#16), X edit consistency (#21).</td>
+      <td>PRs #8–#28<br>(post-<code>a46bd19</code> to <code>439c038</code>)</td>
+      <td>Shortened default capability list (<code>--full</code>) &amp; rehearsal/live-readiness split (#8–#9), two-command <code>prepare</code>/<code>go</code> flow (#10), two-slot browser concurrency (#11/#15), YouTube single-Save guard (#16), X edit consistency (#21).</td>
       <td>Python 3.13/3.14 support (#14); prompt login return &amp; interrupted worker recovery (#27); runtime cleanup isolated (#28).</td>
       <td>Required durable consent and post-deletion absence read-back for single-work deletions across all platforms.</td>
     </tr>
@@ -1287,14 +1287,14 @@
   <caption>Table 9: All <em>N</em> = 30 downloadable video versions archived in <em>Agentic Work Lab</em> (2,211,716,129 bytes; 2.21 GB or 2,109.26 MiB). GitHub asset sizes and SHA-256 digests were recorded as verified on 3 November 2026, and <code>SHA256SUMS.txt</code> matches the manifest. State: Bilibili state, current where recorded, otherwise at snapshot.</caption>
   <thead>
     <tr>
-      <th class="num" style="width:4%;">#</th>
-      <th style="width:26%;">Archive Filename</th>
-      <th style="width:27%;">Deliverable Title / Scope</th>
-      <th class="num" style="width:7%;">MiB</th>
-      <th class="num" style="width:11%;">Exact Bytes</th>
+      <th class="num" style="width:3%;">#</th>
+      <th style="width:23%;">Archive Filename</th>
+      <th style="width:24%;">Deliverable Title / Scope</th>
+      <th class="num" style="width:6%;">MiB</th>
+      <th class="num" style="width:10%;">Exact Bytes</th>
       <th style="width:11%;">SHA-256 Prefix</th>
       <th class="num" style="width:6%;">Dur (s)</th>
-      <th style="width:8%;">State</th>
+      <th style="width:17%;">State</th>
     </tr>
   </thead>
   <tbody>
@@ -1847,7 +1847,7 @@
 <h3>7.2 Answers to the Research Questions</h3>
 <ul>
   <li><strong>RQ1 (governance architecture and handoff control).</strong> Stage-gate principles can be expressed as four software-enforced layers whose decisions are deterministic and testable (Section 4). Evidence: the gate's decision function and its ten passing tests, four automation-triggered records and one audited heartbeat without writes, and a journal recording one write and no replay (Table 3). Limit: the journal records outcomes, so it cannot show blocked attempts, and <code>planRun</code> binds only agents that call it.</li>
-  <li><strong>RQ2 (idempotent release engineering and recovery).</strong> A receipt saved as <code>UNKNOWN</code> before a single final press yields at-most-once automated submission under assumptions A1&ndash;A4 (Proposition 1), with read-back or a person deciding the outcome. Evidence: the code path at <code>75b7abc</code>, 2,737 offline test functions including fault paths, a private crash-recovery check that kept one YouTube video ID across two forced exits, and two Douyin read-back timeouts handled without re-submission or relabelling. Limit: few field instances, and safety is paid for with false in-doubt cases.</li>
+  <li><strong>RQ2 (idempotent release engineering and recovery).</strong> A receipt saved as <code>UNKNOWN</code> before a single final press yields at-most-once automated submission under assumptions A1&ndash;A4 (Proposition 1), with read-back or a person deciding the outcome. Evidence: the code path at <code>75b7abc</code>, 2,737 offline test functions including fault paths, a private crash-recovery check on the <code>0.15.1</code> API upload route (outside the evaluated <code>75b7abc</code> browser snapshot) that kept one YouTube video ID across two forced exits, and two Douyin read-back timeouts handled without re-submission or relabelling. Limit: few field instances, and safety is paid for with false in-doubt cases.</li>
   <li><strong>RQ3 (empirical characteristics and boundaries).</strong> Local governance checks were small next to platform waiting: in one Instagram run, pre-publication checks took 11.019 s and the wait after Share 380.551 s (92.32% of the publish command). Quality checks caught frame and audio defects (Table 8), and the reporting protocol kept non-comparable cohorts apart (Table 10). Limit: single observations from one laboratory over nine days (Section 7.4).</li>
 </ul>
 
@@ -1872,6 +1872,15 @@
 <h2>8. Conclusion and Future Work</h2>
 <p class="noindent">This Design Science study asked how to govern human&ndash;AI collaborative delivery when agents act on external platforms that cannot undo or de-duplicate their actions. <em>Agentic Work Lab</em> and <em>PublishOps CrossCast</em> combine clear role boundaries between a human project manager and three AI workflows (GPT/Codex, Claude and DeepSeek) with four layers: an owner, stop-flag and due-time gate; plan-hash binding with SHA-256 media checks; a receipt state machine that saves an <code>UNKNOWN</code> state before a single final submission and never re-submits automatically; and independent read-back with human escalation. Over nine days, the field records show one recorded platform write and no recorded replay in a 69-record journal, an in-doubt Douyin submission held without re-submission, 30 SHA-256-recorded video versions, and a five-platform release whose evidence is kept per platform; 2,737 offline test functions exercise the corresponding code at commit <code>75b7abc</code>. These results support the mechanisms' design intent within the limits of a single case.</p>
 <p class="noindent">Future work follows from those limits: (1) record gate decisions and refused attempts, not only outcomes, so that suppression becomes measurable; (2) time bounded concurrent publication against sequential runs; (3) run the planned blinded identical-task comparison of models with logged costs; and (4) replicate the framework with other teams and accounts.</p>
+
+<h2>CRediT Authorship Contribution Statement</h2>
+<p class="noindent"><strong>HuaiCheng Sheng:</strong> Conceptualization, Methodology, Software, Validation, Formal analysis, Investigation, Resources, Data curation, Writing &ndash; original draft, Writing &ndash; review &amp; editing, Visualization, Supervision, Project administration.</p>
+
+<h2>Funding</h2>
+<p class="noindent">This research was supported by the internal research and engineering resources of Agentic Work Lab, Hangzhou Chengxin Holding Group Co., Ltd., Hangzhou, Zhejiang, China. It did not receive any specific grant from funding agencies in the public, commercial or not-for-profit sectors.</p>
+
+<h2>Ethics and Data Protection Statement</h2>
+<p class="noindent">No human-subjects experiment was conducted. The study analyses the author's own operational records, the author's channel analytics and public platform metadata. The exported records exclude credentials, raw client logs, private messages and viewer personal data (<code>data/production-update-2026-11-03.json</code>, field <code>excluded</code>).</p>
 
 <h2>Data and Code Availability Statement</h2>
 <p class="noindent">Source code, workflow verification scripts, the 69-record operational journal, the 55-record channel snapshot and the 30-entry media manifest are openly available at <code>https://github.com/whitecarp/agentic-work-lab</code> (data files as of commit <code>e3205d6</code>) and <code>https://github.com/whitecarp/publishops-crosscast</code> (evaluated code at commit <code>75b7abc</code>). The script <code>paper/reproduce_paper_tables.mjs</code> recomputes every figure reported here. <code>bili-cli</code> v1.2.1 (MIT) is bundled unchanged in <em>CrossCast</em>; API routes for YouTube, X and Instagram are distributed separately and lie outside the evaluated snapshot.</p>

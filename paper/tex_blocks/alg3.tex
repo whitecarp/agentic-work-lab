@@ -14,7 +14,7 @@
     \State checkpoint \texttt{EDIT\_PREPARING}; $\text{ApplyInPlace}(\mathcal{R}_p.\text{wid}_p, \Delta P)$ \Comment{video bytes and visibility unchanged}
     \State reopen the editor; \Return \texttt{EDIT\_VERIFIED} if read-back equals $\Delta P.\text{target}$, else \texttt{EDIT\_SUBMITTED\_UNVERIFIED}
 \ElsIf{$\text{mode} = \texttt{DELETE\_WORK}$}
-    \State require a dry run and a person's approval of this exact work (\texttt{--confirm} code, \texttt{--person-approved}), stored durably
+    \State require a dry run and a person's approval of this exact work (\texttt{-{}-confirm} code, \texttt{-{}-person-approved}), stored durably
     \State wait until the deletion control is ready; $\text{DeleteSingleWork}(\mathcal{R}_p.\text{wid}_p)$
     \State refresh the catalogue; report success only if the work is absent
 \EndIf

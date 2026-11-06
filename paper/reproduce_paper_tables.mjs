@@ -163,7 +163,7 @@ function codeVolume(rev) {
 }
 let crosscast;
 try {
-  crosscast = { repository: cc, pinned: codeVolume(ccCommit), release_v0_16_0: codeVolume(ccReleaseCommit), group_rules: groupRules.map(([g, re]) => [g, String(re)]) };
+  crosscast = { repository: 'https://github.com/whitecarp/publishops-crosscast', pinned: codeVolume(ccCommit), release_v0_16_0: codeVolume(ccReleaseCommit), group_rules: groupRules.map(([g, re]) => [g, String(re)]) };
 } catch (e) {
   crosscast = { error: `Could not read ${cc} at ${ccCommit}: ${e.message.split('\n')[0]}` };
 }

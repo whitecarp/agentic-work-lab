@@ -53,8 +53,8 @@ const escText = s => s.replace(/[\\{}$&#%_~^]/g, c => ({ '\\': '\\textbackslash{
   .replace(/[\u00D7\u2264\u2265\u2260\u2248\u2192\u2190\u2191\u2208\u222A\u2227\u2228\u00AC\u2205\u21D4\u221E\u211D\u03A3\u03C3\u03C4\u0394\u2212\u220E]/g, c => `$${mathChar[c]}$`);
 const escCode = s => {
   let out = escText(s).replace(/--/g, '-{}-');
-  // allow line breaks in long identifiers such as SHA-256 digests
-  if (s.length > 22) out = out.replace(/(\\_|[\/.\-]|[0-9a-f]{12})/g, '$1\\allowbreak{}');
+  // allow fine-grained line breaks in long identifiers and 64-character SHA-256 digests so nothing overflows the margin
+  if (s.length > 14) out = out.replace(/(\\_|[\/.\-]|[0-9a-f]{4})/g, '$1\\allowbreak{}');
   return out;
 };
 const stash = [];
@@ -132,12 +132,13 @@ function table(el, n) {
   const head = el.inner.match(/<thead>([\s\S]*?)<\/thead>/)[1];
   const ths = [...head.matchAll(/<th([^>]*)>([\s\S]*?)<\/th>/g)].map(m => ({ num: /class="num"/.test(m[1]), w: +((m[1].match(/width:\s*([\d.]+)%/) || [])[1] || 10), text: m[2] }));
   const ncol = ths.length;
-  const factor = 1 - (2 * 3 * ncol) / textWidthPt;
-  const spec = ths.map(c => `>{${c.num ? '\\raggedleft' : '\\raggedright'}\\arraybackslash}p{${(c.w / 100 * factor).toFixed(3)}\\textwidth}`).join('');
+  const tabSepPt = ncol >= 7 ? 2.2 : 3;
+  const factor = (1 - (2 * tabSepPt * ncol + 12) / textWidthPt) * (ncol >= 8 ? 0.96 : 0.985);
+  const spec = ths.map(c => `>{${c.num ? '\\raggedleft' : '\\raggedright\\hspace{0pt}'}\\arraybackslash}p{${(c.w / 100 * factor).toFixed(3)}\\textwidth}`).join('');
   const rows = [...el.inner.match(/<tbody>([\s\S]*?)<\/tbody>/)[1].matchAll(/<tr([^>]*)>([\s\S]*?)<\/tr>/g)];
   const big = /allow-break/.test(el.attrs);
   const lines = [];
-  lines.push('\\begin{table}[htbp]', '\\centering', `\\caption{${caption}}`, `\\label{tab:${n}}`, big ? '\\tiny' : '\\scriptsize', '\\setlength{\\tabcolsep}{3pt}', `\\begin{tabular}{${spec}}`, '\\toprule');
+  lines.push('\\begin{table}[htbp]', '\\centering', `\\caption{${caption}}`, `\\label{tab:${n}}`, big ? '\\tiny' : '\\scriptsize', `\\setlength{\\tabcolsep}{${tabSepPt}pt}`, `\\begin{tabular}{${spec}}`, '\\toprule');
   lines.push(ths.map(c => `\\textbf{${inline(c.text, { tableCell: true })}}`).join(' & ') + ' \\\\', '\\midrule');
   for (const [, rattrs, rinner] of rows) {
     const cls = attr(rattrs, 'class');

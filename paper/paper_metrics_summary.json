@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-11-05T05:33:12.335Z",
+  "generated_at": "2026-11-06T00:39:31.043Z",
   "table3_operational_journal": {
     "source": "data/operations-events.json",
     "exported_at": "2026-10-28T07:55:26.609Z",
@@ -445,7 +445,7 @@
     }
   },
   "table4_crosscast": {
-    "repository": "C:\\Users\\ROG\\.gemini\\antigravity\\scratch\\agentic-sci-paper\\publishops-crosscast",
+    "repository": "https://github.com/whitecarp/publishops-crosscast",
     "pinned": {
       "commit": "75b7abcdd97de3e6a0b11df70742ea275d2422f2",
       "src_files": 123,

@@ -16,7 +16,7 @@ The contribution is a governance design for AI-executed project work whose behav
 
 The study is a single-case design science evaluation. The manuscript states the assumptions under which automated re-submission cannot occur, reports every figure descriptively, keeps human-led and AI-assisted cohorts apart rather than comparing them causally, and publishes the data, code and a script that recomputes every reported figure.
 
-The manuscript (22 pages, 11 tables, 5 figures, 3 algorithms) is accompanied by online supplementary material. It is original, has not been published previously, and is not under consideration elsewhere.
+The manuscript (11 tables, 5 figures, 3 algorithms, 41 references; 22 pages in two-column layout, 31 pages in single-column LaTeX preprint format) is accompanied by online supplementary material. It is original, has not been published previously, and is not under consideration elsewhere.
 
 Sincerely,
 HuaiCheng Sheng

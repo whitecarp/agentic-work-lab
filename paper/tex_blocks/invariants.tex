@@ -3,5 +3,5 @@ Let $M = \{m_1, \dots, m_K\}$ be the release manifest, where each entry $m_i = (
 \end{invariant}
 
 \begin{invariant}[Plan-Hash Confirmation Binding]
-Before any platform write through \texttt{vpub publish}, the release plan $P$---target platforms, account identities, video and cover SHA-256 digests, aspect ratio, visibility and platform copy---is serialized as JSON with sorted keys and compact separators and hashed, $H(P) = \text{SHA256}(\text{CanonicalJSON}(P))$. Execution is refused unless the command supplies \texttt{--confirm}~$H_{\text{user}}$ with $H_{\text{user}} = H(P)$; a changed plan has a new digest, so a stale code is refused.
+Before any platform write through \texttt{vpub publish}, the release plan $P$---target platforms, account identities, video and cover SHA-256 digests, aspect ratio, visibility and platform copy---is serialized as JSON with sorted keys and compact separators and hashed, $H(P) = \text{SHA256}(\text{CanonicalJSON}(P))$. Execution is refused unless the command supplies \texttt{-{}-confirm}~$H_{\text{user}}$ with $H_{\text{user}} = H(P)$; a changed plan has a new digest, so a stale code is refused.
 \end{invariant}
