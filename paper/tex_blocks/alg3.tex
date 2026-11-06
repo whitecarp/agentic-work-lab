@@ -1,0 +1,22 @@
+\begin{algorithm}[htbp]
+\caption{Identity-Bound In-Place Revision \& Consent-Bound Single-Work Deletion (\texttt{vpub edit} \& \texttt{vpub delete})}
+\label{alg:editdelete}
+\footnotesize
+\begin{algorithmic}[1]
+\Require Receipt key $K$, patch $\Delta P$ or deletion request, mode $\in \{\texttt{VERIFY\_ONLY}, \texttt{APPLY\_EDIT}, \texttt{DELETE\_WORK}\}$
+\Ensure Edit or deletion state and audit entry
+\State $\mathcal{R}_p \gets \text{LoadReceipt}(K)$; require the signed-in account $= \mathcal{R}_p.\text{acct}_p$ (\texttt{expected\_identity})
+\If{$\text{mode} \in \{\texttt{VERIFY\_ONLY}, \texttt{APPLY\_EDIT}\}$}
+    \State $\text{live} \gets \text{ReadNativeEditorFields}(\mathcal{R}_p.\text{wid}_p)$ \Comment{page translations and comments are ignored}
+    \If{$\text{live} = \Delta P.\text{target}$} \Return \texttt{EDIT\_VERIFIED} \Comment{nothing to save} \EndIf
+    \If{$\text{mode} = \texttt{VERIFY\_ONLY}$} \Return \texttt{EDIT\_MISMATCH} \EndIf
+    \If{the platform offers no in-place edit for this work} \Return \texttt{EDIT\_UNAVAILABLE} \Comment{never delete or repost instead} \EndIf
+    \State checkpoint \texttt{EDIT\_PREPARING}; $\text{ApplyInPlace}(\mathcal{R}_p.\text{wid}_p, \Delta P)$ \Comment{video bytes and visibility unchanged}
+    \State reopen the editor; \Return \texttt{EDIT\_VERIFIED} if read-back equals $\Delta P.\text{target}$, else \texttt{EDIT\_SUBMITTED\_UNVERIFIED}
+\ElsIf{$\text{mode} = \texttt{DELETE\_WORK}$}
+    \State require a dry run and a person's approval of this exact work (\texttt{-{}-confirm} code, \texttt{-{}-person-approved}), stored durably
+    \State wait until the deletion control is ready; $\text{DeleteSingleWork}(\mathcal{R}_p.\text{wid}_p)$
+    \State refresh the catalogue; report success only if the work is absent
+\EndIf
+\end{algorithmic}
+\end{algorithm}

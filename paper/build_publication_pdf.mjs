@@ -1,0 +1,1701 @@
+import fs from 'node:fs';
+import path from 'node:path';
+import { execFileSync } from 'node:child_process';
+import { fileURLToPath } from 'node:url';
+
+const __here = path.dirname(fileURLToPath(import.meta.url)); // this script's folder (the fork's paper/)
+const outDir = __here;
+const labDir = path.resolve(__here, '..');
+
+// Load all 30 manifest items dynamically so Table 9 is 100% exact
+const manifest = JSON.parse(fs.readFileSync(path.join(labDir, 'media/manifest.json'), 'utf8'));
+const manifestRowsHtml = manifest.items.map((it, idx) => {
+  const mb = (it.bytes / (1024 * 1024)).toFixed(2);
+  const dur = it.duration_seconds ? Number(it.duration_seconds).toFixed(2) : '—';
+  const res = it.width ? `${it.width}&times;${it.height}` : '1920&times;1080*';
+  const st = it.bilibili_current_state || it.bilibili_state_at_snapshot || '—';
+  return `<tr>
+    <td class="num">${idx + 1}</td>
+    <td><code>${it.file}</code></td>
+    <td>${it.title_en}</td>
+    <td class="num">${mb}</td>
+    <td class="num">${it.bytes.toLocaleString('en-US')}</td>
+    <td><code>${it.sha256.slice(0, 14)}&hellip;</code></td>
+    <td class="num">${dur}</td>
+    <td><code>${ st }</code></td>
+  </tr>`;
+}).join('\n');
+
+const htmlManuscript = `<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Governing Human–AI Collaborative Project Workflows in Multi-Platform Digital Delivery: A Design Science Study of Auditable Handoffs and Idempotent Release Operations</title>
+<style>
+  @page {
+    size: A4;
+    margin: 20mm 18mm 20mm 18mm;
+  }
+  body {
+    font-family: "Times New Roman", Times, Georgia, serif;
+    font-size: 10.5pt;
+    line-height: 1.5;
+    color: #111;
+    margin: 0;
+    padding: 0;
+    text-align: justify;
+  }
+  h1.paper-title {
+    font-size: 16pt;
+    line-height: 1.28;
+    text-align: center;
+    font-weight: bold;
+    margin: 0 0 10pt 0;
+  }
+  .author-block {
+    text-align: center;
+    font-size: 10.2pt;
+    margin-bottom: 12pt;
+  }
+  .author-name {
+    font-weight: bold;
+    font-size: 11.5pt;
+  }
+  .affiliation {
+    font-size: 9.5pt;
+    color: #222;
+    margin-top: 3pt;
+  }
+  .abstract-box {
+    border-top: 1.2pt solid #000;
+    border-bottom: 1.2pt solid #000;
+    padding: 8pt 8pt;
+    margin: 10pt 0;
+    font-size: 9.5pt;
+    line-height: 1.42;
+    background-color: #fcfcfc;
+    page-break-inside: avoid;
+  }
+  .abstract-title {
+    font-weight: bold;
+    font-size: 10.2pt;
+    margin-bottom: 4pt;
+    text-transform: uppercase;
+    letter-spacing: 0.5pt;
+  }
+  .keywords {
+    margin-top: 6pt;
+    font-size: 9.3pt;
+  }
+  .highlights-box {
+    border: 0.8pt solid #444;
+    padding: 7pt 12pt;
+    margin: 10pt 0 14pt 0;
+    font-size: 9.5pt;
+    background: #fafafa;
+    page-break-inside: avoid;
+  }
+  .highlights-box ul {
+    margin: 4pt 0 2pt 16pt;
+    padding: 0;
+  }
+  h2 {
+    font-size: 12.2pt;
+    font-weight: bold;
+    margin: 16pt 0 6pt 0;
+    border-bottom: 0.6pt solid #bbb;
+    padding-bottom: 2pt;
+    page-break-after: avoid;
+  }
+  h3 {
+    font-size: 10.8pt;
+    font-weight: bold;
+    font-style: italic;
+    margin: 12pt 0 4pt 0;
+    page-break-after: avoid;
+  }
+  h4 {
+    font-size: 10.2pt;
+    font-weight: bold;
+    margin: 9pt 0 3pt 0;
+    page-break-after: avoid;
+  }
+  p {
+    margin: 0 0 7pt 0;
+    text-indent: 1.5em;
+  }
+  p.noindent {
+    text-indent: 0;
+  }
+  ul, ol {
+    margin: 4pt 0 8pt 20pt;
+    padding: 0;
+  }
+  li {
+    margin-bottom: 3.5pt;
+  }
+  code, .mono {
+    font-family: "Courier New", Consolas, monospace;
+    font-size: 9.1pt;
+    background: #f4f4f4;
+    padding: 0.5pt 2.5pt;
+    border-radius: 2pt;
+  }
+  .math-block {
+    margin: 8pt 0;
+    padding: 6pt 10pt;
+    background: #fbfbfb;
+    border-left: 2.2pt solid #1f4e78;
+    font-family: "Cambria Math", "Times New Roman", serif;
+    font-size: 10pt;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    page-break-inside: avoid;
+  }
+  .eq-num {
+    font-weight: normal;
+    color: #333;
+    margin-left: 12pt;
+  }
+  .theorem-box {
+    margin: 8pt 0;
+    padding: 7pt 10pt;
+    border: 0.8pt solid #555;
+    background: #fcfcfc;
+    font-size: 9.7pt;
+    page-break-inside: avoid;
+  }
+  .algo-box {
+    margin: 10pt 0;
+    border-top: 1.4pt solid #000;
+    border-bottom: 1.4pt solid #000;
+    background: #fdfdfd;
+    font-size: 9pt;
+    line-height: 1.38;
+    page-break-inside: avoid;
+  }
+  .algo-header {
+    font-weight: bold;
+    font-size: 9.5pt;
+    padding: 4pt 6pt;
+    border-bottom: 0.7pt solid #333;
+    background: #f4f4f4;
+  }
+  .algo-body {
+    padding: 6pt 10pt;
+    font-family: "Courier New", Consolas, monospace;
+    font-size: 8.7pt;
+  }
+  .algo-body div {
+    margin-bottom: 2pt;
+  }
+  table.sci-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 10pt 0 12pt 0;
+    font-size: 8.4pt;
+    line-height: 1.3;
+    page-break-inside: avoid;
+  }
+  table.sci-table.allow-break {
+    page-break-inside: auto;
+  }
+  table.sci-table.allow-break tr {
+    page-break-inside: avoid;
+    page-break-after: auto;
+  }
+  table.sci-table caption {
+    text-align: left;
+    font-weight: bold;
+    font-size: 9.3pt;
+    margin-bottom: 4pt;
+  }
+  table.sci-table thead tr {
+    border-top: 1.4pt solid #000;
+    border-bottom: 0.9pt solid #000;
+  }
+  table.sci-table tbody tr:last-child {
+    border-bottom: 1.4pt solid #000;
+  }
+  table.sci-table th, table.sci-table td {
+    padding: 3.5pt 4.5pt;
+    vertical-align: top;
+    text-align: left;
+  }
+  table.sci-table th.num, table.sci-table td.num {
+    text-align: right;
+    white-space: nowrap;
+  }
+  table.sci-table tr.subhead td {
+    font-style: italic;
+    font-weight: bold;
+    background: #f3f3f3;
+    border-top: 0.5pt solid #888;
+    border-bottom: 0.5pt solid #888;
+  }
+  table.sci-table tr.total-row td {
+    font-weight: bold;
+    border-top: 0.8pt solid #000;
+    background: #f8f8f8;
+  }
+  .figure-box {
+    margin: 11pt 0;
+    padding: 8pt;
+    border: 0.6pt solid #bbb;
+    background: #fff;
+    text-align: center;
+    page-break-inside: avoid;
+  }
+  .figure-caption {
+    font-size: 9.1pt;
+    text-align: left;
+    margin-top: 6pt;
+    line-height: 1.34;
+  }
+  .ref-list {
+    font-size: 8.9pt;
+    line-height: 1.35;
+    list-style: none;
+    margin-left: 0;
+    padding-left: 0;
+  }
+  .ref-list li {
+    margin-bottom: 4pt;
+    padding-left: 18pt;
+    text-indent: -18pt;
+    text-align: left;
+  }
+</style>
+</head>
+<body>
+
+<h1 class="paper-title">Governing Human–AI Collaborative Project Workflows in Multi-Platform Digital Delivery: A Design Science Study of Auditable Handoffs and Idempotent Release Operations</h1>
+
+<div class="author-block">
+  <div class="author-name">HuaiCheng Sheng<sup>1,*</sup></div>
+  <div class="affiliation"><sup>1</sup>Agentic Work Lab, Hangzhou Chengxin Holding Group Co., Ltd., Hangzhou, Zhejiang, China</div>
+  <div class="affiliation"><sup>*</sup>Corresponding author. E-mail: <code>ZackSheng@gmail.com</code> &nbsp;|&nbsp; ORCID: <code>0009-0003-2900-6377</code> &nbsp;|&nbsp; GitHub: <code>https://github.com/whitecarp</code></div>
+</div>
+
+<div class="abstract-box">
+  <div class="abstract-title">Abstract</div>
+  <p class="noindent"><strong>Context:</strong> When large language model (LLM) agents act on external platforms lacking idempotency keys, retrying an uncertain submission can duplicate public releases, and descriptive metrics are easily confounded with causal AI gains.<br>
+  <strong>Objective:</strong> Following Design Science Research (DSR) and stage-gate control theory, this study designs and evaluates a human-in-the-loop (HITL) governance framework for multi-agent, multi-platform delivery, implemented in open-source artifacts <em>Agentic Work Lab</em> and <em>PublishOps CrossCast</em>.<br>
+  <strong>Method:</strong> The architecture enforces four layers: (1) a deterministic owner, stop-flag and due-time gate (<code>planRun</code>); (2) release commands bound to SHA-256 digests of the reviewed plan and media; (3) a persistent receipt state machine that saves an <code>UNKNOWN</code> state before the single final submission and never re-submits automatically; and (4) independent read-back with human escalation. A nine-day deployment (26 October&ndash;3 November 2026) evaluates a 69-record operational journal, a scheduled heartbeat trace, a five-platform film release, 2,737 offline test functions, 30 SHA-256-recorded video versions (2.21 GB) and a 55-record channel snapshot.<br>
+  <strong>Results:</strong> The journal records one platform write and no replayed upload; the heartbeat started 24.992 s late and ran 31.175 s without errors. When Douyin read-back timed out, the receipt stayed <code>UNKNOWN</code> without re-submission until mobile confirmation. In one Instagram run, the post-Share wait spanned 380.551 s of the 412.217 s publish command (92.32%).<br>
+  <strong>Conclusions:</strong> Deterministic gates, content-bound approvals and at-most-once receipts with human reconciliation governed agentic delivery where prompt instructions could not. Code, data and recomputation scripts for this single-case study are public.</p>
+  <div class="keywords"><strong>Keywords:</strong> Project Management Governance; Human&ndash;AI Collaboration; Multi-Agent Workflows; Design Science Research; Idempotent Release Engineering; Stage-Gate Control</div>
+</div>
+
+<div class="highlights-box">
+  <strong>Research Highlights</strong>
+  <ul>
+    <li>A four-layer stage-gate design governs human&ndash;AI delivery to five platforms</li>
+    <li>Receipts are saved as UNKNOWN before the one final submit; no auto re-submit</li>
+    <li>A 69-record field journal shows one platform write and no replayed upload</li>
+    <li>In one Instagram run, 92.32% of the publish command was the wait after Share</li>
+    <li>Descriptive channel data are kept apart from causal claims about AI output</li>
+  </ul>
+</div>
+
+<h2>1. Introduction</h2>
+<p class="noindent">The rapid maturation of Large Language Models (LLMs) and tool-using agents is changing how projects in software engineering and digital operations are run (Holzmann et al., 2022; M&uuml;ller et al., 2024; Wang et al., 2024). Unlike automation scripts that execute fixed subroutines within narrow integration boundaries, agentic workflows deploy heterogeneous foundation models&mdash;reasoning-oriented coding agents, interface construction agents and scheduled monitoring agents&mdash;to collaborate on multi-stage deliverables (Wu et al., 2024; Hong et al., 2024; Qian et al., 2024). In digital media production, release engineering and outreach operations, such multi-agent arrangements promise less manual coordination and shorter turnaround (Raisch &amp; Krakowski, 2021; Berente et al., 2021).</p>
+
+<p>Deploying autonomous or semi-autonomous agents into production, however, exposes governance problems that classical project management methods (PMI, 2021; Kerzner, 2022) and conversational multi-agent frameworks were not designed to address. Four failure modes can arise when LLM agents act on shared repositories and external platforms:</p>
+
+<ol>
+  <li><strong>Multi-Agent Handoff Drift and Role Ambiguity:</strong> When several specialized models (here, GPT/Codex for scripts, code-driven video and backend verification; Claude for interface construction; and DeepSeek for scheduled monitoring) work asynchronously on shared project state, context boundaries can degrade. Without ownership locks and explicit acceptance gates, an agent woken by a schedule may repeat a task another instance has claimed, overwrite approved revisions or act on a stale checklist (Whyte et al., 2016; Qian et al., 2024).</li>
+  <li><strong>Non-Idempotent External Side Effects under Platform Uncertainty:</strong> Release operations across Bilibili, YouTube, X, Douyin and Instagram mix official APIs with stateful browser sessions. Network interruptions, transcoding queues, verification challenges or read-back timeouts can leave a submission in an indeterminate (<code>UNKNOWN</code>) state (Schneider, 1990; Kleppmann, 2017). Unlike payment and cloud APIs, these web submission flows offer no idempotency key that would let the platform discard a duplicate (Helland, 2012), so a retry loop that reads a missing confirmation as failure may publish twice, disturb playlist order or trigger rate limits.</li>
+  <li><strong>Opaque Quality Degradation in Generative Deliverables:</strong> One-shot generative pipelines can introduce localized defects&mdash;single-frame flashes before transitions, audio&ndash;video drift, clipped audio or mobile overlay cropping&mdash;that pass superficial completion checks. Without editable intermediate representations and signal-level checks, repairing one defect means regenerating the whole deliverable and discarding validated segments.</li>
+  <li><strong>Epistemic Confounding in Project Performance Evaluation:</strong> AI adoption is often reported with claims of labour savings or audience growth that the underlying data cannot support (Raisch &amp; Krakowski, 2021). Comparing historical human-led output with a newly launched AI-assisted series confounds exposure age (years of cumulative traffic versus days), topic and platform recommendation dynamics, and counting generated drafts as delivered work hides the human review and rework that acceptance required.</li>
+</ol>
+
+<p>To address these problems, this study adopts Design Science Research (DSR) (Hevner et al., 2004; Peffers et al., 2007; Gregor &amp; Hevner, 2013; Venable et al., 2016) to build and evaluate a human-in-the-loop (HITL) governance framework and release operations system: <strong>Agentic Work Lab</strong> and its standalone multi-platform release engine <strong>PublishOps CrossCast</strong> (<code>vpub</code>). Rather than treating AI governance as prompt engineering, this study formulates multi-agent delivery as a verifiable stage-gate control system (Cooper, 1990; Conforto &amp; Amaral, 2016; Bianchi et al., 2022) backed by content digests, frame-level quality checks and fault-tolerant state transitions.</p>
+
+<p>Specifically, this paper investigates three research questions (RQs):</p>
+<ul>
+  <li><strong>RQ1 (Governance Architecture &amp; Handoff Control):</strong> How can stage-gate project management principles be formalized into deterministic software invariants to govern multi-model handoffs (GPT/Codex, Claude and DeepSeek) and prevent unauthorized or duplicate autonomous actions?</li>
+  <li><strong>RQ2 (Idempotent Release Engineering &amp; Fault Recovery):</strong> How can a persistent receipt state machine coordinate multi-platform releases, in-place revisions and authorized deletions across API and browser-automated channels when post-submission verification meets timeouts or human authentication barriers?</li>
+  <li><strong>RQ3 (Empirical Latency, Quality &amp; Epistemic Validation):</strong> What operational characteristics, latency bottlenecks, defect-repair patterns and methodological boundaries are observed when this architecture is used in a nine-day field deployment across five platforms?</li>
+</ul>
+
+<p>The contributions are fivefold:</p>
+<ol>
+  <li><strong>A Four-Layer Agentic Project Governance Framework:</strong> This study synthesizes stage-gate control (Cooper, 1990), configuration management (Whyte et al., 2016) and human-centered automation (Parasuraman et al., 2000; Shneiderman, 2020) with commit-protocol reasoning from distributed systems (Section 2.4) into four enforceable layers: (i) a sole-operator and temporal scheduling gate, (ii) plan-hash and media-integrity binding, (iii) an idempotent receipt state machine with <code>UNKNOWN</code>-state suppression, and (iv) independent read-back, in-place revision and HITL handoff.</li>
+  <li><strong>Algorithms with Stated Assumptions:</strong> Three algorithms govern job planning (Algorithm 1), publication with a receipt persisted before the final submission (Algorithm 2), and identity-bound revision and consent-bound deletion (Algorithm 3); Proposition 1 states the conditions under which automated re-submission cannot occur.</li>
+  <li><strong>Open-Source Reference Implementation:</strong> This paper describes the architecture and evolution of <em>PublishOps CrossCast</em> from <code>v0.2.2</code> to commit <code>75b7abc</code> (PR #30), whose test suite grew from 2,009 to 2,737 test functions between the <code>v0.16.0</code> release and that commit, together with dependency-free Node.js verification scripts in <em>Agentic Work Lab</em>.</li>
+  <li><strong>Field Evidence and a Latency Profile:</strong> The study reports the system's behaviour in a 69-record operational journal, 30 SHA-256-recorded video versions (2.21 GB), a 13,034-frame defect scan, a crash-recovery check on a private upload, and a five-platform release in which one in-doubt submission was held without re-submission. In one Instagram publication, the wait after Share accounted for 92.32% of the publish command, which motivates persisting submission state before that wait.</li>
+  <li><strong>A Protocol for Auditable AI Project Reporting:</strong> The study demonstrates reporting rules that keep observational receipts apart from causal inference, guarding against exposure-age confounding when human-led (<em>n</em> = 45) and AI-assisted (<em>n</em> = 10) cohorts are compared.</li>
+</ol>
+<p>The study is a single-case design science evaluation: its claims concern how the mechanisms behaved and why, not how often such failures occur across projects (Section 7.4).</p>
+
+<h2>2. Related Work and Theoretical Background</h2>
+
+<h3>2.1 Project Management Governance and Stage-Gate Control in the AI Era</h3>
+<p class="noindent">Classical project management emphasizes structured control mechanisms&mdash;Work Breakdown Structures, configuration management and Stage-Gate reviews&mdash;to manage technical uncertainty and enforce accountability across project phases (Cooper, 1990; Whyte et al., 2016; PMI, 2021; Kerzner, 2022). In Cooper's Stage-Gate model and in hybrid agile&ndash;stage-gate frameworks (Conforto &amp; Amaral, 2016; Bianchi et al., 2022), iterative work within a stage is separated from downstream commitment by decision gates, each with predefined deliverables, explicit criteria and a gatekeeper who decides whether to proceed, recycle, hold or stop. Project governance research separates the framework that assigns decision rights and accountability from the management of execution itself (Too &amp; Weaver, 2014); in delivery terms, governance decides who may authorize an irreversible step, and on what evidence.</p>
+
+<p>Recent scholarship examines how artificial intelligence changes project governance, decision authority and human&ndash;machine agency (Holzmann et al., 2022; M&uuml;ller et al., 2024). Raisch &amp; Krakowski (2021) describe the tension between automation and augmentation in management: removing human judgment from critical loops invites drift and brittle failure under novel cases, whereas isolated augmentation fails to scale. Work on human&ndash;automation interaction argues that reliable socio-technical systems combine high automation with high human control through transparent audit trails, explicit pre-authorization and graceful exception handoffs (Parasuraman et al., 2000; Amershi et al., 2019; Shneiderman, 2020). Much of the project management literature on AI, however, relies on conceptual typologies or expert Delphi surveys (Holzmann et al., 2022); translating stage-gate governance into software-enforced invariants for live, multi-model agents remains largely unaddressed.</p>
+
+<h3>2.2 Multi-Agent LLM Workflows and Coordination Vulnerabilities</h3>
+<p class="noindent">Reasoning-and-acting paradigms such as ReAct (Yao et al., 2023) and Reflexion (Shinn et al., 2023) have led to multi-agent frameworks including AutoGen (Wu et al., 2024), MetaGPT (Hong et al., 2024) and ChatDev (Qian et al., 2024). MetaGPT encodes Standardized Operating Procedures into role-specific prompts (product manager, architect, engineer, QA), while ChatDev structures software development as a sequential chat chain. These frameworks perform well on self-contained coding benchmarks (Wang et al., 2024), but continuous multi-platform operations expose three gaps:</p>
+<ul>
+  <li><strong>No Cross-Process Execution Locks:</strong> Prompt-based procedures do not prevent two agent sessions (for example, an interactive coding session and a scheduled heartbeat) from mutating the same browser profile or checklist at once.</li>
+  <li><strong>No Binding of Approval to Artifact Content:</strong> In conversational handoffs, an agent may approve a text summary while the binary artifact on disk is an older, unpatched version or has been misread.</li>
+  <li><strong>Unbounded Retries on External Timeouts:</strong> Tool-calling loops commonly treat timeouts or selector failures as transient errors and invoke the tool again, which duplicates a publication whenever the platform had in fact accepted the first submission.</li>
+</ul>
+
+<h3>2.3 DevOps, Release Engineering, and Idempotent State Machines</h3>
+<p class="noindent">In software engineering, Continuous Integration and Continuous Delivery (CI/CD) pipelines reduce deployment risk through automated build verification, immutable artifact digests and staged rollouts (Humble &amp; Farley, 2010; Bass et al., 2015; Adams &amp; McIntosh, 2016; Shahin et al., 2017; Leite et al., 2019). A cornerstone of fault-tolerant distributed systems and transaction processing is <em>idempotency</em>: repeating an operation, or recovering from an interrupted request, must not produce duplicate side effects (Schneider, 1990; Gray &amp; Reuter, 1992; Kleppmann, 2017). Payment and cloud APIs commonly accept a client-chosen idempotency key so that the server can discard duplicates (Helland, 2012); browser-driven submission to consumer platforms offers no such key, so the client alone must decide whether a second attempt is safe. Table 1 contrasts multi-agent frameworks, CI/CD pipelines and generic upload scripts with the proposed <em>Agentic Work Lab</em> and <em>PublishOps CrossCast</em> architecture across eight governance dimensions.</p>
+
+<table class="sci-table">
+  <caption>Table 1: Comparative analysis of multi-agent frameworks, release pipelines and the proposed governance architecture across eight governance dimensions. Entries describe built-in mechanisms as documented; &ldquo;No&rdquo; means not provided as a built-in mechanism, not that it cannot be built on top. Upload helpers are characterized generically.</caption>
+  <thead>
+    <tr>
+      <th style="width:19%;">Framework / System</th>
+      <th style="width:11%;">Multi-Model Handoffs</th>
+      <th style="width:11%;">Temporal &amp; Owner Gate</th>
+      <th style="width:11%;">Crypto Plan &amp; SHA-256 Lock</th>
+      <th style="width:11%;">Hybrid API + Pipe Browser</th>
+      <th style="width:12%;"><code>UNKNOWN</code> Latch (Zero Retry)</th>
+      <th style="width:12%;">Identity-Bound Edit/Delete</th>
+      <th style="width:13%;">Epistemic &amp; Non-Causal Audit</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><strong>AutoGen</strong> (Wu et al., 2024)</td>
+      <td>Conversational chat loops</td>
+      <td>No native lock</td>
+      <td>No</td>
+      <td>External tools only</td>
+      <td>No (standard retry)</td>
+      <td>No</td>
+      <td>No</td>
+    </tr>
+    <tr>
+      <td><strong>MetaGPT</strong> (Hong et al., 2024)</td>
+      <td>Prompt-level SOP roles</td>
+      <td>Sequential memory</td>
+      <td>No</td>
+      <td>No</td>
+      <td>No</td>
+      <td>No</td>
+      <td>No</td>
+    </tr>
+    <tr>
+      <td><strong>ChatDev</strong> (Qian et al., 2024)</td>
+      <td>Dual-agent chat chain</td>
+      <td>Phase-level only</td>
+      <td>Git commit only</td>
+      <td>No</td>
+      <td>No</td>
+      <td>No</td>
+      <td>No</td>
+    </tr>
+    <tr>
+      <td><strong>Standard CI/CD</strong> (Humble &amp; Farley, 2010)</td>
+      <td>Static pipeline stages</td>
+      <td>Runner queue locks</td>
+      <td>Artifact SHA-256</td>
+      <td>REST APIs only</td>
+      <td>API-dependent</td>
+      <td>Rollback scripts</td>
+      <td>Build logs only</td>
+    </tr>
+    <tr>
+      <td><strong>Open-Source Upload Helpers</strong> (generic)</td>
+      <td>Single-script execution</td>
+      <td>Cron timer only</td>
+      <td>No plan-hash lock</td>
+      <td>Browser form fill</td>
+      <td>No (risks double post)</td>
+      <td>No read-back verification</td>
+      <td>No</td>
+    </tr>
+    <tr class="total-row">
+      <td><strong>Agentic Work Lab &amp; CrossCast (This Study)</strong></td>
+      <td>File-mediated state handoffs (GPT, Claude, DS)</td>
+      <td>Deterministic <code>planRun</code> + OS lock</td>
+      <td><code>--confirm</code> Plan Hash + Stream SHA-256</td>
+      <td>Browser sessions + <code>bili-cli</code>; API routes in a separate add-on</td>
+      <td>Receipt saved as <code>UNKNOWN</code> before the one final press</td>
+      <td><code>--verify-only</code> + Absence Read-Back</td>
+      <td>Enforced machine-readable limits</td>
+    </tr>
+  </tbody>
+</table>
+
+<h3>2.4 Synthesis: Reading Stage-Gate Control as a Commit Protocol</h3>
+<p class="noindent">This study reads the two literatures together through one observation: a stage gate and a distributed commit protocol solve the same problem, namely how to make an irreversible step happen at most once, on the right object and under the right authority, when parts of the system may fail or disagree. The last row of Table 1 is the resulting design; the correspondence below states it as five design propositions that Section 4 implements and Section 6 examines.</p>
+<ul>
+  <li><strong>Gatekeeping as admission control.</strong> A stage gate admits work only when its owner, state and criteria allow (Cooper, 1990; Too &amp; Weaver, 2014). In software, the same decision becomes a pure function of the operating context that returns <em>skip</em>, <em>no work due</em> or a plan, never an action (Layer 1).</li>
+  <li><strong>Configuration baselines as content addresses.</strong> Configuration management fixes a reviewed baseline so that what is delivered equals what was approved (Whyte et al., 2016). Hashing the reviewed plan and the media, and requiring that digest to run the command, turns approval into a binding on content rather than on a description of it (Layer 2).</li>
+  <li><strong>The go decision as an at-most-once commit.</strong> Where the receiving platform cannot discard duplicates, exactly-once submission is out of the client's reach; the client can only choose between at-least-once (retry) and at-most-once (never retry) behaviour (Helland, 2012; Kleppmann, 2017). Recording the intent to submit durably before acting, as a write-ahead log does (Gray &amp; Reuter, 1992), selects at-most-once and makes every uncertain outcome visible (Layer 3).</li>
+  <li><strong>Post-gate review as an end-to-end check.</strong> Only the endpoint can confirm that an effect occurred (Saltzer et al., 1984); a local log shows only that a command was sent. Read-back from the platform is therefore the evidence that closes a gate (Layer 4).</li>
+  <li><strong>Escalation as resolution of in-doubt transactions.</strong> In two-phase commit, a participant that loses contact after voting is <em>in doubt</em> and cannot decide alone (Gray &amp; Reuter, 1992). An <code>UNKNOWN</code> receipt is the same state, and resolving it is a human decision&mdash;which also leaves people with exactly the residual cases automation cannot settle (Bainbridge, 1983). Compensation by deleting and reposting, the usual saga remedy (Garcia-Molina &amp; Salem, 1987), is unsafe here because a public post carries replies, an identifier and reach that a repost cannot restore.</li>
+</ul>
+
+<h2>3. Research Methodology</h2>
+
+<h3>3.1 Design Science Research (DSR) Framework</h3>
+<p class="noindent">This study follows the six-step Design Science Research Methodology of Peffers et al. (2007) and the evaluation guidance of Hevner et al. (2004), Gregor &amp; Hevner (2013) and Venable et al. (2016):</p>
+<ol>
+  <li><strong>Problem Identification and Motivation:</strong> Uncontrolled multi-agent handoffs, duplicate external writes during uncertain platform states, localized defects in generative media, and confounded efficiency claims in AI-assisted delivery (Section 1).</li>
+  <li><strong>Definition of Solution Objectives:</strong> A deterministic governance architecture that enforces sole-operator scheduling, binds approvals to artifact content, never re-submits automatically once a final submission may have occurred, supports targeted frame and audio repair, and keeps observational evidence apart from causal inference.</li>
+  <li><strong>Design and Development:</strong> The four-layer governance model, its invariants and algorithms (Section 4), realized in two coupled open-source artifacts, <em>Agentic Work Lab</em> and <em>PublishOps CrossCast</em> (Section 5).</li>
+  <li><strong>Field Demonstration:</strong> Use of the artifacts from 26 October to 3 November 2026 in one creator&ndash;engineering laboratory, spanning two episodic series (<em>GPT Duty Log</em> Ep 01&ndash;06 and <em>Whale Girl Shift Log</em> Ep 01&ndash;07), standalone experimental studies and the cross-platform short film <em>I Watched It For You (v3)</em>.</li>
+  <li><strong>Evaluation:</strong> Following FEDS (Venable et al., 2016), the evaluation combines naturalistic field evidence (a 69-record operational journal, a scheduled heartbeat trace, a five-platform release and a 55-record channel snapshot) with artificial evaluation through offline regression tests (2,737 test functions in <em>CrossCast</em> at commit <code>75b7abc</code>, many of which simulate faults, and 10 workflow gate tests in <em>Agentic Work Lab</em>) (Section 6).</li>
+  <li><strong>Communication:</strong> Publication of source code, SHA-256-recorded media deliverables (<em>N</em> = 30 versions, 2.21 GB), machine-readable JSON/CSV receipts and a script that recomputes every reported figure (<code>paper/reproduce_paper_tables.mjs</code>).</li>
+</ol>
+<p><strong>Researcher role.</strong> The author designed, operated and evaluated both artifacts. The study is therefore treated as researcher&ndash;practitioner intervention in the sense of action design research (Sein et al., 2011) and technical action research (Wieringa, 2014). Two choices limit the resulting bias: the evidence consists of machine-readable receipts written when each event happened rather than retrospective accounts, and every receipt, script and dataset is public so that each figure can be recomputed independently.</p>
+
+<h3>3.2 Epistemic Hygiene and Evidence Classification Protocol</h3>
+<p class="noindent">A central methodological element of the study is an explicit epistemic hygiene protocol applied to all project documentation and data exports (Runeson &amp; H&ouml;st, 2009). For every research topic and operational update, the laboratory records four elements: <strong>(i) the original claim, (ii) visible primary evidence, (iii) an independent verification test, and (iv) applicable limits</strong>. Specifically:</p>
+<ul>
+  <li><strong>Separation of Observation and Causal Inference:</strong> Platform observations (lifetime views, 24-hour completion rates, command durations) are stored with sampling timestamps and provenance notes. Causal inferences, such as asserting that an AI editing technique increased recommendations, are rejected unless backed by controlled, age- and topic-matched comparisons.</li>
+  <li><strong>Granular State Differentiation:</strong> Local preparation, dry-run rehearsal, sign-in preflight, submission, platform review and verified public visibility are distinct states. UI observations and API verifications occupy separate fields, and an unverified or timed-out read-back is recorded as <code>UNKNOWN</code> rather than coerced into success or failure.</li>
+  <li><strong>Immutable Snapshot Preservation:</strong> Repeated data collections are archived as separate observations (for example, the 28 October afternoon snapshot of 52 records is kept apart from the evening snapshot of 55 records and from the daily updates of 29 October&ndash;3 November) rather than overwritten.</li>
+  <li><strong>Explicit Tagging of Unexecuted Plans:</strong> Planned designs (such as a blinded identical-task comparison of models on merchant research) and unmeasured optimizations (such as the wall-clock gain of concurrent publication) stay labelled as unrun until live receipts exist.</li>
+</ul>
+
+<h3>3.3 Data Sources and Evidence Window</h3>
+<p class="noindent">The evaluation draws on records with different sampling windows, which are kept separate: the operational journal (69 records; 46 timestamped between 26 October 01:27 and 27 October 02:45, UTC+8; exported on 28 October); the scheduled heartbeat trace (28 October); the channel snapshot (55 records sampled on 28 October at 21:04, UTC+8); the release record of <em>I Watched It For You (v3)</em> (2&ndash;3 November); the media manifest (30 versions, GitHub assets checked on 3 November); and the <em>CrossCast</em> code at commit <code>75b7abc</code> (3 November). Both repositories have changed since; every figure refers to these files and commits.</p>
+
+<h2>4. The Four-Layer Human–AI Project Governance Architecture</h2>
+
+<p class="noindent">To answer <strong>RQ1</strong> and <strong>RQ2</strong>, this section formalizes the project governance architecture as a four-layer hierarchical control system mediating between the human Project Manager, specialized LLM agents, local media/code artifacts, and external publishing platforms (Figure 1).</p>
+
+<div class="figure-box">
+  <svg width="100%" viewBox="0 0 760 390" xmlns="http://www.w3.org/2000/svg" style="font-family: Arial, sans-serif;">
+    <defs>
+      <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+        <path d="M 0 1 L 10 5 L 0 9 z" fill="#222"/>
+      </marker>
+    </defs>
+    <rect x="10" y="10" width="175" height="58" rx="5" fill="#e8f4f4" stroke="#006666" stroke-width="1.5"/>
+    <text x="97" y="28" font-size="10.5" font-weight="bold" text-anchor="middle" fill="#003333">Human Project Manager</text>
+    <text x="97" y="43" font-size="9" text-anchor="middle" fill="#222">Requirements, Editorial Direction</text>
+    <text x="97" y="56" font-size="9" text-anchor="middle" fill="#222">&amp; Exclusive Auth Gates</text>
+
+    <rect x="198" y="10" width="175" height="58" rx="5" fill="#e8f4f4" stroke="#006666" stroke-width="1.5"/>
+    <text x="285" y="28" font-size="10.5" font-weight="bold" text-anchor="middle" fill="#003333">GPT / Codex Workflow</text>
+    <text x="285" y="43" font-size="9" text-anchor="middle" fill="#222">Scripts, Code-Driven Video</text>
+    <text x="285" y="56" font-size="9" text-anchor="middle" fill="#222">Synthesis &amp; Backend QA</text>
+
+    <rect x="386" y="10" width="175" height="58" rx="5" fill="#e8f4f4" stroke="#006666" stroke-width="1.5"/>
+    <text x="473" y="28" font-size="10.5" font-weight="bold" text-anchor="middle" fill="#003333">Claude Workflow</text>
+    <text x="473" y="43" font-size="9" text-anchor="middle" fill="#222">CLI Interface Construction</text>
+    <text x="473" y="56" font-size="9" text-anchor="middle" fill="#222">&amp; Layout Adaptation</text>
+
+    <rect x="574" y="10" width="175" height="58" rx="5" fill="#e8f4f4" stroke="#006666" stroke-width="1.5"/>
+    <text x="661" y="28" font-size="10.5" font-weight="bold" text-anchor="middle" fill="#003333">DeepSeek Workflow</text>
+    <text x="661" y="43" font-size="9" text-anchor="middle" fill="#222">Scheduled Heartbeat</text>
+    <text x="661" y="56" font-size="9" text-anchor="middle" fill="#222">&amp; Checklist Monitoring</text>
+
+    <rect x="10" y="92" width="739" height="40" rx="5" fill="#fff3e0" stroke="#cc6600" stroke-width="1.6"/>
+    <text x="380" y="110" font-size="10.5" font-weight="bold" text-anchor="middle" fill="#663300">Layer 1: Sole-Operator &amp; Temporal Scheduling Gate (planRun)</text>
+    <text x="380" y="124" font-size="9" text-anchor="middle" fill="#333">Enforces Executor == Owner, Stop Flag == False, Running Lock == False, and Due &amp; Authorized Job Filtering</text>
+
+    <rect x="10" y="156" width="360" height="54" rx="5" fill="#eef4fa" stroke="#1f4e78" stroke-width="1.5"/>
+    <text x="190" y="174" font-size="10" font-weight="bold" text-anchor="middle" fill="#1f4e78">Layer 2a: Artifact Integrity Gate (check-delivery)</text>
+    <text x="190" y="188" font-size="9" text-anchor="middle" fill="#222">Streaming SHA-256 Digest, Exact Byte Length,</text>
+    <text x="190" y="201" font-size="9" text-anchor="middle" fill="#222">Decode &amp; Frame Checks Recorded in Production Receipts</text>
+
+    <rect x="389" y="156" width="360" height="54" rx="5" fill="#eef4fa" stroke="#1f4e78" stroke-width="1.5"/>
+    <text x="569" y="174" font-size="10" font-weight="bold" text-anchor="middle" fill="#1f4e78">Layer 2b: Cryptographic Release Plan (vpub plan)</text>
+    <text x="569" y="188" font-size="9" text-anchor="middle" fill="#222">Binds Platform Copy, Aspect Ratio &amp; Cover Hash;</text>
+    <text x="569" y="201" font-size="9" text-anchor="middle" fill="#222">Requires --confirm CURRENT_PLAN_HASH</text>
+
+    <rect x="10" y="234" width="739" height="40" rx="5" fill="#fff3e0" stroke="#cc6600" stroke-width="1.6"/>
+    <text x="380" y="252" font-size="10.5" font-weight="bold" text-anchor="middle" fill="#663300">Layer 3: Idempotent Receipt State Machine (PublishOps CrossCast, commit 75b7abc)</text>
+    <text x="380" y="266" font-size="9" text-anchor="middle" fill="#333">OS Process Lock (process_lock.py), Receipt Saved as UNKNOWN Before the One Final Press, No Automatic Re-Press</text>
+
+    <rect x="10" y="296" width="360" height="46" rx="5" fill="#eef4fa" stroke="#1f4e78" stroke-width="1.5"/>
+    <text x="190" y="314" font-size="10" font-weight="bold" text-anchor="middle" fill="#1f4e78">Layer 4a: Independent Read-Back (vpub verify)</text>
+    <text x="190" y="329" font-size="9" text-anchor="middle" fill="#222">Native Receipt Capture, Caption/Visibility Read-Back &amp; Timing Audit</text>
+
+    <rect x="389" y="296" width="360" height="46" rx="5" fill="#fceef2" stroke="#800040" stroke-width="1.5"/>
+    <text x="569" y="314" font-size="10" font-weight="bold" text-anchor="middle" fill="#800040">Layer 4b: HITL Exception &amp; Auth Handoff</text>
+    <text x="569" y="329" font-size="9" text-anchor="middle" fill="#222">Preserves Draft on Challenge; User Mobile/Browser Verification</text>
+
+    <rect x="10" y="358" width="135" height="26" rx="4" fill="#f3eef8" stroke="#5c2d91" stroke-width="1.2"/>
+    <text x="77" y="375" font-size="9.5" font-weight="bold" text-anchor="middle" fill="#3b1d5e">Bilibili (bili-cli)</text>
+
+    <rect x="161" y="358" width="135" height="26" rx="4" fill="#f3eef8" stroke="#5c2d91" stroke-width="1.2"/>
+    <text x="228" y="375" font-size="9.5" font-weight="bold" text-anchor="middle" fill="#3b1d5e">YouTube (API/Studio)</text>
+
+    <rect x="312" y="358" width="135" height="26" rx="4" fill="#f3eef8" stroke="#5c2d91" stroke-width="1.2"/>
+    <text x="379" y="375" font-size="9.5" font-weight="bold" text-anchor="middle" fill="#3b1d5e">X / Twitter (Studio)</text>
+
+    <rect x="463" y="358" width="135" height="26" rx="4" fill="#f3eef8" stroke="#5c2d91" stroke-width="1.2"/>
+    <text x="530" y="375" font-size="9.5" font-weight="bold" text-anchor="middle" fill="#3b1d5e">Douyin (Browser+HITL)</text>
+
+    <rect x="614" y="358" width="135" height="26" rx="4" fill="#f3eef8" stroke="#5c2d91" stroke-width="1.2"/>
+    <text x="681" y="375" font-size="9.5" font-weight="bold" text-anchor="middle" fill="#3b1d5e">Instagram (Reels CLI)</text>
+
+    <line x1="97" y1="68" x2="97" y2="92" stroke="#222" stroke-width="1.3" marker-end="url(#arrow)"/>
+    <line x1="285" y1="68" x2="285" y2="92" stroke="#222" stroke-width="1.3" marker-end="url(#arrow)"/>
+    <line x1="473" y1="68" x2="473" y2="92" stroke="#222" stroke-width="1.3" marker-end="url(#arrow)"/>
+    <line x1="661" y1="68" x2="661" y2="92" stroke="#222" stroke-width="1.3" marker-end="url(#arrow)"/>
+
+    <line x1="190" y1="132" x2="190" y2="156" stroke="#222" stroke-width="1.3" marker-end="url(#arrow)"/>
+    <line x1="569" y1="132" x2="569" y2="156" stroke="#222" stroke-width="1.3" marker-end="url(#arrow)"/>
+
+    <line x1="190" y1="210" x2="190" y2="234" stroke="#222" stroke-width="1.3" marker-end="url(#arrow)"/>
+    <line x1="569" y1="210" x2="569" y2="234" stroke="#222" stroke-width="1.3" marker-end="url(#arrow)"/>
+
+    <line x1="190" y1="274" x2="190" y2="296" stroke="#222" stroke-width="1.3" marker-end="url(#arrow)"/>
+    <line x1="569" y1="274" x2="569" y2="296" stroke="#222" stroke-width="1.3" marker-end="url(#arrow)"/>
+
+    <line x1="120" y1="342" x2="77" y2="358" stroke="#222" stroke-width="1.2" marker-end="url(#arrow)"/>
+    <line x1="190" y1="342" x2="228" y2="358" stroke="#222" stroke-width="1.2" marker-end="url(#arrow)"/>
+    <line x1="280" y1="342" x2="379" y2="358" stroke="#222" stroke-width="1.2" marker-end="url(#arrow)"/>
+    <line x1="520" y1="342" x2="530" y2="358" stroke="#222" stroke-width="1.2" marker-end="url(#arrow)"/>
+    <line x1="630" y1="342" x2="681" y2="358" stroke="#222" stroke-width="1.2" marker-end="url(#arrow)"/>
+  </svg>
+  <div class="figure-caption"><strong>Figure 1.</strong> The four-layer human–AI collaborative project governance and multi-platform release architecture implemented in <em>Agentic Work Lab</em> and <em>PublishOps CrossCast</em>.</div>
+</div>
+
+<h3>4.1 Multi-Agent Role Allocation and Handoff Boundaries</h3>
+<p class="noindent">Within the laboratory environment, project execution is partitioned across four distinct actors: the Human Project Manager and three specialized AI agent workflows (GPT/Codex, Claude, and DeepSeek). Rather than allowing agents to communicate via unstructured conversational loops, all inter-agent handoffs are mediated through version-controlled state files (<code>operations-checklist.md</code>, <code>delivery-manifest.json</code>, and <code>production-update-*.json</code>). Table 2 defines the task scope, handoff artifacts, and operational constraints for each actor.</p>
+
+<table class="sci-table">
+  <caption>Table 2: Multi-agent role allocation, handoff artifacts, and governance boundaries across the project lifecycle.</caption>
+  <thead>
+    <tr>
+      <th style="width:18%;">Project Actor</th>
+      <th style="width:26%;">Assigned Functional Scope</th>
+      <th style="width:27%;">Observable Evidence &amp; Handoff Artifacts</th>
+      <th style="width:29%;">Enforced Governance &amp; Safety Constraints</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><strong>Human Project Manager</strong><br>(Sole Operator / Architect)</td>
+      <td>Requirements definition, editorial direction, creative acceptance, platform authentication, and final release authorization.</td>
+      <td>Explicit authorization events (<code>USER_AUTHORIZED_*</code>), mobile/browser verification receipts, and plan confirmation hashes.</td>
+      <td>Retains exclusive sign-off on public releases, deletions, and schedule overrides; resolves <code>UNKNOWN</code> platform states.</td>
+    </tr>
+    <tr>
+      <td><strong>GPT / Codex Workflow</strong><br>(Production &amp; Backend QA)</td>
+      <td>Topic/merchant research, script synthesis, programmable video timeline assembly, FFmpeg encoding checks, and backend repository review.</td>
+      <td>SHA-256 verified <code>.mp4</code> exports, frame-sampling logs, decode error counts, and pull request verification records.</td>
+      <td>Cannot self-authorize public platform writes; unapproved or in-progress renders (<code>RENDER_OR_QA_PENDING</code>) are excluded from release.</td>
+    </tr>
+    <tr>
+      <td><strong>Claude Workflow</strong><br>(Interface &amp; Tool Construction)</td>
+      <td>CLI interface construction, layout adaptation, portrait cut tooling, and developer user-experience refinements in <em>CrossCast</em>.</td>
+      <td>Interface and first-run changes in scoped pull requests (e.g., PRs 8&ndash;10) with unit tests; commit metadata does not record which model authored a change.</td>
+      <td>Changes remain commit-scoped until verified by regression suites; local mock tests are never reported as live speedups.</td>
+    </tr>
+    <tr>
+      <td><strong>DeepSeek Workflow</strong><br>(Scheduled Operations Monitor)</td>
+      <td>Hourly automated heartbeat inspections, reading operational checklists, checking due times, and synchronizing user instructions.</td>
+      <td>Machine-readable execution traces (<code>scheduled-run-evidence.json</code>) and de-identified event logs (<code>operations-events.json</code>).</td>
+      <td>Strictly read-only when no authorized task is due; forbidden from launching duplicate runs or retrying uncertain submissions.</td>
+    </tr>
+  </tbody>
+</table>
+
+<p class="noindent">Model names denote workflow roles: the records do not authenticate the model version behind each request (<code>docs/model-workflow_EN.md</code>), and the 3 November record describes the person as setting requirements and acceptance, Claude as supporting construction and interfaces, and Codex as leading backend review and final repository updates.</p>
+
+<h3>4.2 Layer 1: Deterministic Sole-Operator and Temporal Scheduling Gate</h3>
+<p class="noindent">To prevent race conditions and unauthorized autonomous execution during scheduled heartbeats, Layer 1 enforces a pure offline decision function <em>G</em><sub>plan</sub> before any network or platform adapter is invoked. Let <em>S</em> = (<em>e</em>, <em>o</em>, <em>f</em><sub>stop</sub>, <em>f</em><sub>run</sub>, <em>t</em><sub>now</sub>, <em>J</em>) denote the operational context tuple, where <em>e</em> is the requesting executor identifier, <em>o</em> is the registered instance owner, <em>f</em><sub>stop</sub> &isin; {true, false} is the emergency halt flag, <em>f</em><sub>run</sub> &isin; {true, false} indicates whether an execution lock is active, <em>t</em><sub>now</sub> &isin; &Ropf;<sup>+</sup> is the current epoch timestamp, and <em>J</em> = {<em>j</em><sub>1</sub>, &hellip;, <em>j<sub>m</sub></em>} is the set of candidate jobs.</p>
+
+<div class="math-block" data-tex="eq1">
+  <div>
+    <em>G</em><sub>plan</sub>(<em>S</em>) = 
+    [ (<code>skip</code>, <code>not_owner</code>, &empty;) if <em>e</em> = &empty; &or; <em>e</em> &ne; <em>o</em>; &nbsp;
+      (<code>skip</code>, <code>stop_flag</code>, &empty;) if <em>f</em><sub>stop</sub> = true; &nbsp;
+      (<code>skip</code>, <code>already_running</code>, &empty;) if <em>f</em><sub>run</sub> = true; &nbsp;
+      (<code>plan_only</code>, <code>checked</code>, <em>D</em>) if <em>D</em> &ne; &empty;; &nbsp;
+      (<code>no_work_due</code>, <code>checked</code>, &empty;) otherwise ]
+  </div>
+  <div class="eq-num">(1)</div>
+</div>
+
+<p class="noindent">where the due set <em>D</em> is strictly filtered as:</p>
+
+<div class="math-block" data-tex="eq2">
+  <div>
+    <em>D</em> = { id<sub><em>k</em></sub> &nbsp;|&nbsp; <em>j<sub>k</sub></em> &isin; <em>J</em> &nbsp;&and;&nbsp; done<sub><em>k</em></sub> = false &nbsp;&and;&nbsp; auth<sub><em>k</em></sub> = true &nbsp;&and;&nbsp; <em>t</em><sub>due,<em>k</em></sub> &le; <em>t</em><sub>now</sub> }
+  </div>
+  <div class="eq-num">(2)</div>
+</div>
+
+<p class="noindent">Furthermore, for any automated run record <em>R</em> = (trig, status, <em>f</em><sub>manual</sub>, <em>t</em><sub>start</sub>, <em>t</em><sub>end</sub>, <em>E</em><sub>err</sub>), post-execution verification <em>V</em><sub>sched</sub>(<em>R</em>) holds if and only if:</p>
+
+<div class="math-block" data-tex="eq3">
+  <div>
+    <em>V</em><sub>sched</sub>(<em>R</em>) &hArr; (trig = <code>automation_heartbeat_scheduled</code>) &and; (status = <code>VERIFIED_AUTOMATIC_RUN_COMPLETED</code>) &and; (<em>f</em><sub>manual</sub> = false) &and; (<em>t</em><sub>start</sub>, <em>t</em><sub>end</sub> finite &and; <em>t</em><sub>start</sub> &le; <em>t</em><sub>end</sub>) &and; (|<em>E</em><sub>err</sub>| = 0)
+  </div>
+  <div class="eq-num">(3)</div>
+</div>
+
+<div class="algo-box" data-tex="alg1">
+  <div class="algo-header">Algorithm 1: Deterministic Sole-Operator &amp; Temporal Scheduling Gate (<code>planRun</code> &amp; <code>verifyScheduledRun</code>)</div>
+  <div class="algo-body">
+    <div><strong>Input:</strong> Context tuple <em>S</em> = (<em>e</em>, <em>o</em>, <em>f</em><sub>stop</sub>, <em>f</em><sub>run</sub>, <em>t</em><sub>now</sub>, <em>J</em>); Run trace record <em>R</em></div>
+    <div><strong>Output:</strong> Gate decision tuple (decision, reason, <em>D</em>) and boolean verification result <em>v</em></div>
+    <div>1: &nbsp;<em>t</em><sub>cur</sub> &larr; ParseEpoch(<em>t</em><sub>now</sub>)</div>
+    <div>2: &nbsp;<strong>if</strong> &not;IsFinite(<em>t</em><sub>cur</sub>) <strong>then throw</strong> <code>Error("Invalid current time")</code></div>
+    <div>3: &nbsp;<strong>if</strong> <em>e</em> = &empty; &or; <em>e</em> &ne; <em>o</em> <strong>then return</strong> (<code>"skip"</code>, <code>"not_owner"</code>, &empty;)</div>
+    <div>4: &nbsp;<strong>if</strong> <em>f</em><sub>stop</sub> = true <strong>then return</strong> (<code>"skip"</code>, <code>"stop_flag"</code>, &empty;)</div>
+    <div>5: &nbsp;<strong>if</strong> <em>f</em><sub>run</sub> = true <strong>then return</strong> (<code>"skip"</code>, <code>"already_running"</code>, &empty;)</div>
+    <div>6: &nbsp;<em>I</em><sub>seen</sub> &larr; &empty;; &nbsp;<em>D</em> &larr; []</div>
+    <div>7: &nbsp;<strong>for each</strong> job <em>j<sub>k</sub></em> = (id<sub><em>k</em></sub>, <em>t</em><sub>due,<em>k</em></sub>, auth<sub><em>k</em></sub>, done<sub><em>k</em></sub>) &isin; <em>J</em> <strong>do</strong></div>
+    <div>8: &nbsp;&nbsp;&nbsp;&nbsp;<strong>if</strong> id<sub><em>k</em></sub> = &empty; &or; id<sub><em>k</em></sub> &isin; <em>I</em><sub>seen</sub> <strong>then throw</strong> <code>Error("Missing or duplicate job id")</code></div>
+    <div>9: &nbsp;&nbsp;&nbsp;&nbsp;<em>I</em><sub>seen</sub> &larr; <em>I</em><sub>seen</sub> &cup; {id<sub><em>k</em></sub>}</div>
+    <div>10: &nbsp;&nbsp;&nbsp;<strong>if</strong> done<sub><em>k</em></sub> = true &or; auth<sub><em>k</em></sub> &ne; true <strong>then continue</strong></div>
+    <div>11: &nbsp;&nbsp;&nbsp;<em>t</em><sub>at</sub> &larr; ParseEpoch(<em>t</em><sub>due,<em>k</em></sub>)</div>
+    <div>12: &nbsp;&nbsp;&nbsp;<strong>if</strong> &not;IsFinite(<em>t</em><sub>at</sub>) <strong>then throw</strong> <code>Error("Invalid due time for " + id_k)</code></div>
+    <div>13: &nbsp;&nbsp;&nbsp;<strong>if</strong> <em>t</em><sub>at</sub> &le; <em>t</em><sub>cur</sub> <strong>then</strong> Append(<em>D</em>, id<sub><em>k</em></sub>)</div>
+    <div>14: decision &larr; (|<em>D</em>| &gt; 0) ? <code>"plan_only"</code> : <code>"no_work_due"</code></div>
+    <div>15: <strong>return</strong> (decision, <code>"checked"</code>, <em>D</em>)</div>
+  </div>
+</div>
+
+<p class="noindent">As formalized in Algorithm 1, <code>planRun</code> is a side-effect-free admission filter. It first checks that the reference clock parses to a finite epoch value (lines 1&ndash;2), then applies three ordered circuit breakers: executor ownership (line 3), the stop flag (line 4) and the running lock (line 5). Only when all three pass does it scan the candidate jobs, rejecting missing or repeated identifiers (lines 6&ndash;9) and skipping jobs that are completed or lack explicit human authorization (line 10). Even when due jobs exist, it returns <code>plan_only</code> rather than acting, leaving content checks and confirmation to the later layers. Two properties of the implementation (<code>scripts/operations-gate.mjs</code>) matter for interpretation. A non-finite due time raises an error only for jobs that are authorized and not completed, because other jobs are skipped before their due time is parsed. And <code>planRun</code> is advisory: it returns a decision but cannot stop an agent that never calls it. In the laboratory the operations checklist requires the call; enforcement at the platform boundary comes from Layers 2 and 3, which sit inside the release command itself.</p>
+
+<h3>4.3 Layer 2: Plan-Hash Binding and Artifact Verification</h3>
+<p class="noindent">Between plan approval and execution, an agent or background process may change a video export, swap a cover or alter platform copy after the project manager has reviewed the preview. Large deliverables (2.6 MB to 285.9 MB in the archive) can also be written incompletely or misread; the release record of the v3 film notes one earlier local read discrepancy that remains unexplained. Layer 2 closes this time-of-check-to-time-of-use gap with two invariants:</p>
+
+<div class="theorem-box" data-tex="invariants">
+  <strong>Governance Invariant 1 (Media Integrity):</strong> Let <em>M</em> = {<em>m</em><sub>1</sub>, &hellip;, <em>m<sub>K</sub></em>} be the release manifest, where each entry <em>m<sub>i</sub></em> = (fname<sub><em>i</em></sub>, <em>B<sub>i</sub></em>, <em>H<sub>i</sub></em>) gives a file name, an exact byte length <em>B<sub>i</sub></em> and an expected SHA-256 digest <em>H<sub>i</sub></em>. An artifact <em>f<sub>i</sub></em> passes the delivery check iff basename(fname<sub><em>i</em></sub>) = fname<sub><em>i</em></sub> &and; size(<em>f<sub>i</sub></em>) = <em>B<sub>i</sub></em> &and; SHA256(<em>f<sub>i</sub></em>) = <em>H<sub>i</sub></em>. Decode and frame checks are recorded separately in production receipts.<br>
+  <strong>Governance Invariant 2 (Plan-Hash Confirmation Binding):</strong> Before any platform write through <code>vpub publish</code>, the release plan <em>P</em>&mdash;target platforms, account identities, video and cover SHA-256 digests, aspect ratio, visibility and platform copy&mdash;is serialized as JSON with sorted keys and compact separators and hashed, <em>H</em>(<em>P</em>) = SHA256(CanonicalJSON(<em>P</em>)). Execution is refused unless the command supplies <code>--confirm</code> <em>H</em><sub>user</sub> with <em>H</em><sub>user</sub> = <em>H</em>(<em>P</em>); a changed plan has a new digest, so a stale code is refused.
+</div>
+
+<p class="noindent">Both <code>check-delivery.mjs</code> (Node.js) and <code>vpub</code> (Python) hash media in streamed chunks rather than loading whole files, and the delivery check rejects manifest names that are not plain file names. The manifest records a zero-error full decode for five of the 30 deliveries (entries 26&ndash;30); update notes record decode checks for several others. The plan digest also names the receipt file&mdash;one per plan and platform&mdash;so a second attempt at the same plan finds the first attempt's receipt instead of starting afresh (Section 4.4). Invariant 2 binds the command to the exact content that was reviewed; it does not authenticate who approved it. The CLI records <code>--person-approved</code> as the caller's attestation and states that it cannot verify who supplied it, so human authority rests on procedure (the agent must stop and show the plan) while the digest guarantees that what runs is what was shown. Loudness, clipping, silence-window and frame-scan measurements that accompany deliveries are reported per case in Table 8.</p>
+
+<h3>4.4 Layer 3: Idempotent Receipt State Machine and UNKNOWN-State Suppression</h3>
+<p class="noindent">To answer <strong>RQ2</strong>, each browser publication attempt in <em>PublishOps CrossCast</em> is modelled as a durable receipt whose changes are written atomically under a file lock, while cross-process OS locks (<code>process_lock.py</code>) keep two runs from driving the same browser profile (Figure 2, Algorithm 2). The receipt is stored at a path named by the plan digest and the platform and holds <em>R<sub>p</sub></em> = (key, acct<sub><em>p</em></sub>, <em>H</em><sub>media</sub>, <em>H</em><sub>meta</sub>, <em>f</em><sub>submit</sub>, &sigma;<sub><em>p</em></sub>, wid<sub><em>p</em></sub>, &tau;<sub>log</sub>), where <em>f</em><sub>submit</sub> is the implementation's <code>final_submit_attempted</code> field and &sigma;<sub><em>p</em></sub> its state. Before pressing, the receipt also records the account's existing work identifiers, so that read-back can later look for exactly one new work. Figure 2 shows the states used at commit <code>75b7abc</code> (<code>browser_backends.py</code>).</p>
+
+<div class="figure-box">
+  <svg width="100%" viewBox="0 0 750 236" xmlns="http://www.w3.org/2000/svg" style="font-family: Arial, sans-serif;">
+    <defs>
+      <marker id="arr2" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+        <path d="M 0 1 L 10 5 L 0 9 z" fill="#222"/>
+      </marker>
+      <marker id="redarr2" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+        <path d="M 0 1 L 10 5 L 0 9 z" fill="#c00000"/>
+      </marker>
+    </defs>
+    <rect x="10" y="14" width="160" height="52" rx="5" fill="#eef4fa" stroke="#1f4e78" stroke-width="1.5"/>
+    <text x="90" y="34" font-size="10" font-weight="bold" text-anchor="middle" fill="#1f4e78">1. PREPARING</text>
+    <text x="90" y="49" font-size="8.2" text-anchor="middle" fill="#222">Receipt path named by H(P)</text>
+    <text x="90" y="60" font-size="8.2" text-anchor="middle" fill="#222">and platform</text>
+
+    <rect x="205" y="14" width="160" height="52" rx="5" fill="#eef4fa" stroke="#1f4e78" stroke-width="1.5"/>
+    <text x="285" y="34" font-size="10" font-weight="bold" text-anchor="middle" fill="#1f4e78">2. Media selected</text>
+    <text x="285" y="49" font-size="8.2" text-anchor="middle" fill="#222">Assets re-hashed; saved</text>
+    <text x="285" y="60" font-size="8.2" text-anchor="middle" fill="#222">media_selected = true</text>
+
+    <rect x="400" y="14" width="165" height="52" rx="5" fill="#fdeaea" stroke="#c00000" stroke-width="1.8"/>
+    <text x="482" y="34" font-size="10" font-weight="bold" text-anchor="middle" fill="#900000">3. UNKNOWN (saved)</text>
+    <text x="482" y="49" font-size="8.2" text-anchor="middle" fill="#222">final_submit_attempted = true</text>
+    <text x="482" y="60" font-size="8.2" text-anchor="middle" fill="#222">persisted before the press</text>
+
+    <rect x="600" y="14" width="140" height="52" rx="5" fill="#fff3e0" stroke="#cc6600" stroke-width="1.5"/>
+    <text x="670" y="34" font-size="10" font-weight="bold" text-anchor="middle" fill="#663300">4. One final press</text>
+    <text x="670" y="49" font-size="8.2" text-anchor="middle" fill="#222">Share / Post / Publish,</text>
+    <text x="670" y="60" font-size="8.2" text-anchor="middle" fill="#222">then wait and read back</text>
+
+    <rect x="548" y="124" width="192" height="52" rx="5" fill="#eaf7ea" stroke="#1e7e34" stroke-width="1.8"/>
+    <text x="644" y="144" font-size="10" font-weight="bold" text-anchor="middle" fill="#145523">5a. SUBMISSION_VERIFIED</text>
+    <text x="644" y="159" font-size="8.2" text-anchor="middle" fill="#222">Exactly one new matching work</text>
+    <text x="644" y="170" font-size="8.2" text-anchor="middle" fill="#222">found on the platform</text>
+
+    <rect x="290" y="124" width="215" height="52" rx="5" fill="#fdeaea" stroke="#c00000" stroke-width="1.8"/>
+    <text x="397" y="144" font-size="10" font-weight="bold" text-anchor="middle" fill="#900000">5b. UNKNOWN / SUBMITTED_UNVERIFIED</text>
+    <text x="397" y="159" font-size="8.2" text-anchor="middle" fill="#222">Timeout, challenge, or no unique</text>
+    <text x="397" y="170" font-size="8.2" text-anchor="middle" fill="#222">match; never re-uploaded</text>
+
+    <rect x="10" y="124" width="235" height="52" rx="5" fill="#eaf7ea" stroke="#1e7e34" stroke-width="1.5"/>
+    <text x="127" y="144" font-size="10" font-weight="bold" text-anchor="middle" fill="#145523">6. Human check (recorded beside)</text>
+    <text x="127" y="159" font-size="8.2" text-anchor="middle" fill="#222">Owner confirms on phone or Studio;</text>
+    <text x="127" y="170" font-size="8.2" text-anchor="middle" fill="#222">receipt is not relabelled</text>
+
+    <line x1="170" y1="40" x2="205" y2="40" stroke="#222" stroke-width="1.3" marker-end="url(#arr2)"/>
+    <line x1="365" y1="40" x2="400" y2="40" stroke="#222" stroke-width="1.3" marker-end="url(#arr2)"/>
+    <line x1="565" y1="40" x2="600" y2="40" stroke="#222" stroke-width="1.3" marker-end="url(#arr2)"/>
+    <line x1="690" y1="66" x2="690" y2="124" stroke="#222" stroke-width="1.3" marker-end="url(#arr2)"/>
+    <text x="696" y="98" font-size="8" fill="#222">match</text>
+    <line x1="630" y1="66" x2="470" y2="124" stroke="#222" stroke-width="1.3" marker-end="url(#arr2)"/>
+    <text x="548" y="117" font-size="8" fill="#222">no confirmation</text>
+    <line x1="505" y1="160" x2="548" y2="160" stroke="#222" stroke-width="1.3" marker-end="url(#arr2)"/>
+    <text x="526" y="190" font-size="8" text-anchor="middle" fill="#222">vpub verify:</text>
+    <text x="526" y="200" font-size="8" text-anchor="middle" fill="#222">unique match</text>
+    <line x1="290" y1="150" x2="245" y2="150" stroke="#222" stroke-width="1.3" marker-end="url(#arr2)"/>
+    <text x="268" y="142" font-size="8" text-anchor="middle" fill="#222">escalate</text>
+
+    <path d="M 360 124 L 360 92 L 640 92 L 640 66" fill="none" stroke="#c00000" stroke-width="1.6" stroke-dasharray="4,3" marker-end="url(#redarr2)"/>
+    <rect x="236" y="80" width="250" height="20" fill="#fff" stroke="#c00000" stroke-width="0.8"/>
+    <text x="361" y="93" font-size="8.3" font-weight="bold" text-anchor="middle" fill="#c00000">BLOCKED: second press refused (already_submitted)</text>
+    <text x="375" y="218" font-size="8.2" text-anchor="middle" fill="#444">Exception (Proposition 1, A4): a resumed run may press again only if the platform shows the work is still an unsubmitted draft.</text>
+    <text x="375" y="231" font-size="8.2" text-anchor="middle" fill="#444">A verification page before the press sets WAITING_FOR_USER, and nothing is pressed.</text>
+  </svg>
+  <div class="figure-caption"><strong>Figure 2.</strong> Receipt states of a browser publication attempt in <em>PublishOps CrossCast</em> (commit <code>75b7abc</code>). The receipt is saved as <code>UNKNOWN</code> with <code>final_submit_attempted = true</code> before the single final press; a later run refuses a second press unless the platform shows the work is still a draft, and only read-back or a person settles the outcome.</div>
+</div>
+
+<div class="algo-box" data-tex="alg2">
+  <div class="algo-header">Algorithm 2: Idempotent Cross-Platform Publication &amp; <code>UNKNOWN</code>-State Latching (<code>vpub publish</code> &amp; <code>vpub verify</code>)</div>
+  <div class="algo-body">
+    <div><strong>Input:</strong> Release plan <em>P</em> with digest <em>H</em>(<em>P</em>), confirmation code <em>H</em><sub>user</sub>, platform <em>p</em>, account acct<sub><em>p</em></sub>, resume flag</div>
+    <div><strong>Output:</strong> Persistent receipt <em>R<sub>p</sub></em> = (key, acct<sub><em>p</em></sub>, <em>H</em><sub>media</sub>, <em>H</em><sub>meta</sub>, <em>f</em><sub>submit</sub>, &sigma;<sub><em>p</em></sub>, wid<sub><em>p</em></sub>, &tau;<sub>log</sub>)</div>
+    <div>1: &nbsp;<strong>if</strong> <em>H</em><sub>user</sub> &ne; <em>H</em>(<em>P</em>) <strong>then abort</strong> (stale or wrong plan code)</div>
+    <div>2: &nbsp;AcquireProcessLock(<em>p</em>, acct<sub><em>p</em></sub>) &nbsp;// a stale lock is taken over only after its owner process has exited</div>
+    <div>3: &nbsp;path &larr; ReceiptPath(<em>H</em>(<em>P</em>), <em>p</em>)</div>
+    <div>4: &nbsp;<strong>if</strong> Exists(path) &and; &not;resume <strong>then abort</strong> <code>attempt_exists</code> &nbsp;// never reset an attempt to upload again</div>
+    <div>5: &nbsp;<strong>if</strong> resume &and; Exists(path) <strong>then</strong> <em>R<sub>p</sub></em> &larr; Load(path); require same <em>H</em><sub>media</sub> and acct<sub><em>p</em></sub>, else <strong>abort</strong> <code>receipt_conflict</code></div>
+    <div>6: &nbsp;<strong>if</strong> resume &and; &not;Exists(path) &and; the publication record shows media selected or a press attempted <strong>then abort</strong> <code>receipt_missing</code></div>
+    <div>7: &nbsp;<strong>if</strong> <em>R<sub>p</sub></em>.<em>f</em><sub>submit</sub> = true &and; &not;PlatformShowsUnsubmittedDraft() <strong>then abort</strong> <code>already_submitted</code></div>
+    <div>8: &nbsp;VerifySHA256(<em>P</em>.media, <em>P</em>.covers); select media; <em>R<sub>p</sub></em>.media_selected &larr; true; PersistAtomically(<em>R<sub>p</sub></em>)</div>
+    <div>9: &nbsp;<em>R<sub>p</sub></em>.&sigma;<sub><em>p</em></sub> &larr; <code>UNKNOWN</code>; <em>R<sub>p</sub></em>.<em>f</em><sub>submit</sub> &larr; true; PersistAtomically(<em>R<sub>p</sub></em>) &nbsp;// before the click</div>
+    <div>10: PressFinalSubmitOnce() &nbsp;// a single Share / Post / Publish press</div>
+    <div>11: outcome &larr; AwaitConfirmationAndReadBack(acct<sub><em>p</em></sub>, new works not listed before the press)</div>
+    <div>12: <strong>if</strong> outcome holds exactly one matching new work <strong>then</strong> <em>R<sub>p</sub></em>.&sigma;<sub><em>p</em></sub> &larr; <code>SUBMISSION_VERIFIED</code>; <em>R<sub>p</sub></em>.wid<sub><em>p</em></sub> &larr; outcome.work_id</div>
+    <div>13: <strong>else</strong> keep <em>R<sub>p</sub></em>.&sigma;<sub><em>p</em></sub> &isin; {<code>UNKNOWN</code>, <code>SUBMITTED_UNVERIFIED</code>} &nbsp;// never re-press; escalate to <code>vpub verify</code> or a person</div>
+    <div>14: PersistAtomically(<em>R<sub>p</sub></em>); &nbsp;ReleaseProcessLock(<em>p</em>, acct<sub><em>p</em></sub>); &nbsp;<strong>return</strong> <em>R<sub>p</sub></em></div>
+  </div>
+</div>
+
+<div class="theorem-box" data-tex="prop1">
+  <strong>Proposition 1 (At-Most-Once Automated Final Submission).</strong> Assume (A1) every final submission for plan <em>P</em> on platform <em>p</em> goes through the receipt transaction of Algorithm 2; (A2) receipt writes are atomic and durable; and (A3) receipts are not edited by hand. Then automated runs issue at most one final press per (<em>P</em>, <em>p</em>), with one exception: (A4) a resumed run may press again when the platform shows that the earlier work is still an unsubmitted draft.<br>
+  <em>Proof sketch.</em> The receipt is saved with &sigma;<sub><em>p</em></sub> = <code>UNKNOWN</code> and <em>f</em><sub>submit</sub> = true before the press (line 9). A later run on the same plan either finds the receipt and stops (line 4) or resumes it, in which case line 7 refuses another press while <em>f</em><sub>submit</sub> = true unless (A4) holds. If the receipt file has disappeared while the publication record shows a selected file or an attempted press, the run stops (line 6) instead of uploading again. &#8718;
+</div>
+
+<p class="noindent">Proposition 1 is a safety guarantee, not a liveness one. A crash between saving the receipt and pressing leaves an <code>UNKNOWN</code> receipt for a submission that never happened; the design accepts such false alarms because the opposite error, a duplicate public post, cannot be undone. Whether an <code>UNKNOWN</code> submission published is settled afterwards by <code>vpub verify</code>, which checks that the signed-in account is the receipt's account and upgrades the receipt only when it finds exactly one matching new work, or by a person whose confirmation is recorded beside the receipt without relabelling it. Resumable byte offsets belong to API routes (<code>upload_resume.py</code> in the laboratory's 0.15.1 snapshot); the browser route instead refuses to upload again once its record shows that a file was selected.</p>
+
+<h3>4.5 Layer 4: Identity-Bound In-Place Revision and Consent-Bound Deletion</h3>
+<p class="noindent">Beyond first publication, channel operations revise captions and covers, assign chapters and occasionally delete test works. An agent that implements an edit as delete-and-repost, or deletes without confirming the target's identity, turns a reversible correction into an irreversible loss. Layer 4 binds every revision and deletion to the receipt's account and work identifier (Algorithm 3), developed across PRs #20, #21, #25, #29 and #30.</p>
+
+<div class="algo-box" data-tex="alg3">
+  <div class="algo-header">Algorithm 3: Identity-Bound In-Place Revision &amp; Consent-Bound Single-Work Deletion (<code>vpub edit</code> &amp; <code>vpub delete</code>)</div>
+  <div class="algo-body">
+    <div><strong>Input:</strong> Receipt key <em>K</em>, patch &Delta;<em>P</em> or deletion request, mode &isin; {<code>VERIFY_ONLY</code>, <code>APPLY_EDIT</code>, <code>DELETE_WORK</code>}</div>
+    <div><strong>Output:</strong> Edit or deletion state and audit entry</div>
+    <div>1: &nbsp;<em>R<sub>p</sub></em> &larr; LoadReceipt(<em>K</em>); require the signed-in account = <em>R<sub>p</sub></em>.acct<sub><em>p</em></sub> (<code>expected_identity</code>)</div>
+    <div>2: &nbsp;<strong>if</strong> mode &isin; {<code>VERIFY_ONLY</code>, <code>APPLY_EDIT</code>} <strong>then</strong></div>
+    <div>3: &nbsp;&nbsp;&nbsp;&nbsp;live &larr; ReadNativeEditorFields(<em>R<sub>p</sub></em>.wid<sub><em>p</em></sub>) &nbsp;// page translations and comments are ignored</div>
+    <div>4: &nbsp;&nbsp;&nbsp;&nbsp;<strong>if</strong> live = &Delta;<em>P</em>.target <strong>then return</strong> <code>EDIT_VERIFIED</code> &nbsp;// nothing to save</div>
+    <div>5: &nbsp;&nbsp;&nbsp;&nbsp;<strong>if</strong> mode = <code>VERIFY_ONLY</code> <strong>then return</strong> <code>EDIT_MISMATCH</code></div>
+    <div>6: &nbsp;&nbsp;&nbsp;&nbsp;<strong>if</strong> the platform offers no in-place edit for this work <strong>then return</strong> <code>EDIT_UNAVAILABLE</code> &nbsp;// never delete or repost instead</div>
+    <div>7: &nbsp;&nbsp;&nbsp;&nbsp;checkpoint <code>EDIT_PREPARING</code>; ApplyInPlace(<em>R<sub>p</sub></em>.wid<sub><em>p</em></sub>, &Delta;<em>P</em>) &nbsp;// video bytes and visibility unchanged</div>
+    <div>8: &nbsp;&nbsp;&nbsp;&nbsp;reopen the editor; <strong>return</strong> <code>EDIT_VERIFIED</code> if read-back equals &Delta;<em>P</em>.target, else <code>EDIT_SUBMITTED_UNVERIFIED</code></div>
+    <div>9: &nbsp;<strong>else if</strong> mode = <code>DELETE_WORK</code> <strong>then</strong></div>
+    <div>10: &nbsp;&nbsp;&nbsp;require a dry run and a person's approval of this exact work (<code>--confirm</code> code, <code>--person-approved</code>), stored durably</div>
+    <div>11: &nbsp;&nbsp;&nbsp;wait until the deletion control is ready; DeleteSingleWork(<em>R<sub>p</sub></em>.wid<sub><em>p</em></sub>)</div>
+    <div>12: &nbsp;&nbsp;&nbsp;refresh the catalogue; report success only if the work is absent</div>
+  </div>
+</div>
+
+<p class="noindent">Algorithm 3 adds three safeguards. First, every read or change begins by confirming that the active session belongs to the receipt's account (<code>expected_identity</code>), preventing cross-account changes. Second, an edit compares native editor fields rather than the rendered page, and where the platform offers no in-place edit&mdash;as for an X post whose menu has no Edit action&mdash;the run ends with <code>EDIT_UNAVAILABLE</code> and attempts no deletion, repost or reply: compensation by repost would lose the post's identifier, replies and reach (Section 2.4). Third, a deletion requires a dry run and a person's approval of that exact work, waits until the deletion control is ready (PR #30), and counts as done only when a refreshed catalogue no longer lists the work (PR #29).</p>
+
+<h2>5. System Implementation: Agentic Work Lab and PublishOps CrossCast</h2>
+
+<h3>5.1 Programmable Video Synthesis and Multi-Modal Quality Gates</h3>
+<p class="noindent">Within <em>Agentic Work Lab</em>, video production is engineered as an editable, code-driven workflow (<code>editable-video-workflow.md</code>) rather than opaque one-shot video generation. Audio narration timelines, character pose transitions, camera movements, and bilingual subtitles are defined programmatically so that localized defects can be repaired in place without regenerating unaffected segments (Figure 3).</p>
+
+<div class="figure-box">
+  <svg width="100%" viewBox="0 0 750 185" xmlns="http://www.w3.org/2000/svg" style="font-family: Arial, sans-serif;">
+    <defs>
+      <marker id="arr3" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+        <path d="M 0 1 L 10 5 L 0 9 z" fill="#222"/>
+      </marker>
+    </defs>
+    <rect x="10" y="15" width="165" height="68" rx="5" fill="#eef4fa" stroke="#1f4e78" stroke-width="1.5"/>
+    <text x="92" y="34" font-size="9.5" font-weight="bold" text-anchor="middle" fill="#1f4e78">1. Code-Driven Timeline</text>
+    <text x="92" y="49" font-size="8.2" text-anchor="middle" fill="#222">Editable Pose/Camera/Subtitle</text>
+    <text x="92" y="62" font-size="8.2" text-anchor="middle" fill="#222">Specs &amp; Separate Audio Master</text>
+    <text x="92" y="75" font-size="8.2" text-anchor="middle" fill="#222">(24/30 fps Exposure Control)</text>
+
+    <rect x="200" y="15" width="170" height="68" rx="5" fill="#eef4fa" stroke="#1f4e78" stroke-width="1.5"/>
+    <text x="285" y="34" font-size="9.5" font-weight="bold" text-anchor="middle" fill="#1f4e78">2. Frame &amp; Pulse QA Scan</text>
+    <text x="285" y="49" font-size="8.2" text-anchor="middle" fill="#222">Full Decode (0 Errors);</text>
+    <text x="285" y="62" font-size="8.2" text-anchor="middle" fill="#222">13,034-Frame Scan at 320x180;</text>
+    <text x="285" y="75" font-size="8.2" text-anchor="middle" fill="#222">0 ABA / Black / White Pulses</text>
+
+    <rect x="395" y="15" width="170" height="68" rx="5" fill="#eef4fa" stroke="#1f4e78" stroke-width="1.5"/>
+    <text x="480" y="34" font-size="9.5" font-weight="bold" text-anchor="middle" fill="#1f4e78">3. Audio Signal &amp; Sync Gate</text>
+    <text x="480" y="49" font-size="8.2" text-anchor="middle" fill="#222">LUFS (-15.97 to -17.5 LUFS);</text>
+    <text x="480" y="62" font-size="8.2" text-anchor="middle" fill="#222">0 Clipped Samples; Silence Window</text>
+    <text x="480" y="75" font-size="8.2" text-anchor="middle" fill="#222">(50.763–62.503 s All-Zero Check)</text>
+
+    <rect x="590" y="15" width="150" height="68" rx="5" fill="#eaf7ea" stroke="#1e7e34" stroke-width="1.5"/>
+    <text x="665" y="34" font-size="9.5" font-weight="bold" text-anchor="middle" fill="#145523">4. Manifest &amp; Layout</text>
+    <text x="665" y="49" font-size="8.2" text-anchor="middle" fill="#222">Landscape (1920x1080) &amp;</text>
+    <text x="665" y="62" font-size="8.2" text-anchor="middle" fill="#222">Portrait Re-Layout (1080x1920);</text>
+    <text x="665" y="75" font-size="8.2" text-anchor="middle" fill="#222">Stream SHA-256 Locked</text>
+
+    <line x1="175" y1="49" x2="200" y2="49" stroke="#222" stroke-width="1.3" marker-end="url(#arr3)"/>
+    <line x1="370" y1="49" x2="395" y2="49" stroke="#222" stroke-width="1.3" marker-end="url(#arr3)"/>
+    <line x1="565" y1="49" x2="590" y2="49" stroke="#222" stroke-width="1.3" marker-end="url(#arr3)"/>
+
+    <!-- Surgical Feedback Loop -->
+    <rect x="130" y="112" width="490" height="54" rx="5" fill="#fff3e0" stroke="#cc6600" stroke-width="1.4"/>
+    <text x="375" y="130" font-size="9.5" font-weight="bold" text-anchor="middle" fill="#663300">Targeted Defect Repair Loop (Preserving Validated Audio/Video Streams)</text>
+    <text x="375" y="144" font-size="8.3" text-anchor="middle" fill="#222">Examples: 11 flash sequences reported fixed with the v2 audio master kept (0 ms offset); interpolate eye gaze endpoints only (v4);</text>
+    <text x="375" y="157" font-size="8.3" text-anchor="middle" fill="#222">protect blue tail mask during heel-sound revision (r5); rearrange portrait panels (y &isin; [168, 1330]) instead of cropping.</text>
+
+    <path d="M 285 83 L 285 112" stroke="#cc6600" stroke-width="1.3" marker-end="url(#arr3)"/>
+    <path d="M 480 83 L 480 112" stroke="#cc6600" stroke-width="1.3" marker-end="url(#arr3)"/>
+    <path d="M 130 139 L 92 139 L 92 83" fill="none" stroke="#cc6600" stroke-width="1.3" stroke-dasharray="4,2" marker-end="url(#arr3)"/>
+  </svg>
+  <div class="figure-caption"><strong>Figure 3.</strong> The programmable video synthesis and multi-modal quality verification pipeline in <em>Agentic Work Lab</em> (values from the delivery records summarized in Table 8).</div>
+</div>
+
+<h3>5.2 CrossCast Two-Slot Concurrent Browser Architecture and Session Reuse</h3>
+<p class="noindent"><em>PublishOps CrossCast</em> was released publicly as <code>v0.16.0</code> (commit <code>a46bd19</code>) and developed on its main branch to commit <code>75b7abc</code> (PR #30, 3 November 2026), the snapshot evaluated here. At that commit the repository holds 123 Python source files (26,972 physical lines): 81 files (18,005 lines) form <em>CrossCast</em>'s own package, and 42 files (8,967 lines) are an unmodified copy of the MIT-licensed <code>bili-cli</code> v1.2.1, bundled for Bilibili access (<code>NOTICE.md</code>). Its 126 test files (122 test modules and four shared helpers; 37,029 lines) define 2,737 test functions, up from 2,009 in 84 files at <code>v0.16.0</code>, and GitHub's continuous-integration checks for <code>75b7abc</code> passed on Python 3.10&ndash;3.14. Because one Instagram run spent most of its time waiting after submission (Table 7), PRs #11 and #15 (<code>066c49f</code>, <code>6f7b62b</code>) added a bounded two-slot scheduler for browser platforms (Figure 4): each platform keeps its own account lock, browser session and receipt, up to two browser platforms publish at once, and the next queued platform starts when a slot frees. No concurrent publication has yet been timed, so no speedup is claimed. API routes for YouTube, X and Instagram are distributed separately from the public repository and lie outside the evaluated snapshot.</p>
+
+<div class="figure-box">
+  <svg width="100%" viewBox="0 0 750 175" xmlns="http://www.w3.org/2000/svg" style="font-family: Arial, sans-serif;">
+    <defs>
+      <marker id="arr4" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+        <path d="M 0 1 L 10 5 L 0 9 z" fill="#222"/>
+      </marker>
+    </defs>
+    <rect x="10" y="35" width="165" height="95" rx="5" fill="#eef4fa" stroke="#1f4e78" stroke-width="1.5"/>
+    <text x="92" y="58" font-size="9.5" font-weight="bold" text-anchor="middle" fill="#1f4e78">Two-Command CLI</text>
+    <text x="92" y="74" font-size="8.5" text-anchor="middle" fill="#222">1. vpub prepare</text>
+    <text x="92" y="88" font-size="8.2" text-anchor="middle" fill="#444">(Preflight &amp; Plan Hash)</text>
+    <text x="92" y="104" font-size="8.5" text-anchor="middle" fill="#222">2. vpub go --confirm</text>
+    <text x="92" y="118" font-size="8.2" text-anchor="middle" fill="#444">(Dispatches Scheduler)</text>
+
+    <rect x="205" y="15" width="295" height="58" rx="5" fill="#fff3e0" stroke="#cc6600" stroke-width="1.5"/>
+    <text x="352" y="33" font-size="9.5" font-weight="bold" text-anchor="middle" fill="#663300">Browser Slot 1 (process_lock: Acct/Platform A)</text>
+    <text x="352" y="48" font-size="8.3" text-anchor="middle" fill="#222">Instagram Reels Pipe Session &rarr; Upload &rarr; 380.55s Wait &rarr; Read-Back</text>
+    <text x="352" y="62" font-size="8.3" text-anchor="middle" fill="#222">Slot Frees Automatically Upon Verification / UNKNOWN Latch</text>
+
+    <rect x="205" y="92" width="295" height="58" rx="5" fill="#fff3e0" stroke="#cc6600" stroke-width="1.5"/>
+    <text x="352" y="110" font-size="9.5" font-weight="bold" text-anchor="middle" fill="#663300">Browser Slot 2 (process_lock: Acct/Platform B)</text>
+    <text x="352" y="125" font-size="8.3" text-anchor="middle" fill="#222">Douyin / X Studio Pipe Session &rarr; Upload &rarr; Wait &rarr; Read-Back</text>
+    <text x="352" y="139" font-size="8.3" text-anchor="middle" fill="#222">Next Queued Browser Platform Starts Immediately on Slot Release</text>
+
+    <rect x="530" y="35" width="208" height="95" rx="5" fill="#eaf7ea" stroke="#1e7e34" stroke-width="1.5"/>
+    <text x="634" y="56" font-size="9.5" font-weight="bold" text-anchor="middle" fill="#145523">Isolated Per-Platform Receipts</text>
+    <text x="634" y="73" font-size="8.3" text-anchor="middle" fill="#222">&bull; Failure in Slot 1 never aborts Slot 2</text>
+    <text x="634" y="88" font-size="8.3" text-anchor="middle" fill="#222">&bull; Runtime cleanup kept out of</text>
+    <text x="634" y="100" font-size="8.3" text-anchor="middle" fill="#222">  active publish path (PR #28)</text>
+    <text x="634" y="115" font-size="8.3" text-anchor="middle" fill="#222">&bull; Interrupted workers recovered (#27)</text>
+
+    <line x1="175" y1="65" x2="205" y2="44" stroke="#222" stroke-width="1.3" marker-end="url(#arr4)"/>
+    <line x1="175" y1="95" x2="205" y2="121" stroke="#222" stroke-width="1.3" marker-end="url(#arr4)"/>
+    <line x1="500" y1="44" x2="530" y2="65" stroke="#222" stroke-width="1.3" marker-end="url(#arr4)"/>
+    <line x1="500" y1="121" x2="530" y2="95" stroke="#222" stroke-width="1.3" marker-end="url(#arr4)"/>
+  </svg>
+  <div class="figure-caption"><strong>Figure 4.</strong> Two-command release workflow (<code>prepare</code>/<code>go</code>) and bounded two-slot concurrent browser publication in <em>PublishOps CrossCast</em> (PRs #10, #11, #15, #27, #28). Architecture only: the Instagram wait shown in Slot 1 comes from a sequential run, and no concurrent run has been timed.</div>
+</div>
+
+<h2>6. Empirical Evaluation and Results</h2>
+
+<h3>6.1 Operational Journal and Write Evidence (RQ1)</h3>
+<p class="noindent">The operational journal (<code>data/operations-events.json</code>) is an export of selected fields from the laboratory's local event logs. It holds 69 records, of which 46 are timestamped, between 26 October 01:27 and 27 October 02:45 (UTC+8, a 25.3-hour window); it was exported on 28 October. Because the export kept different fields for different records&mdash;33 carry an event name, 5 only a state name and 31 neither&mdash;Table 3 classifies the records by the write evidence each one carries rather than by a coding of their purpose.</p>
+
+<table class="sci-table">
+  <caption>Table 3: Write evidence in the <em>N</em> = 69 records of the operational journal, classified by the fields each record carries (recomputed by <code>reproduce_paper_tables.mjs</code>).</caption>
+  <thead>
+    <tr>
+      <th style="width:31%;">Evidence Carried by the Record</th>
+      <th class="num" style="width:8%;">Records</th>
+      <th class="num" style="width:9%;">Share</th>
+      <th class="num" style="width:9%;">Platform Reads</th>
+      <th class="num" style="width:9%;">Platform Writes</th>
+      <th style="width:34%;">What the Record Shows</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Explicit zero-write field (<code>platform_writes</code>, <code>write_calls</code> or <code>platform_write_calls</code> = 0)</td>
+      <td class="num">20</td>
+      <td class="num">28.99%</td>
+      <td class="num">13</td>
+      <td class="num">0</td>
+      <td>States that no write occurred; includes the four read-only sampling runs (26 CLI calls) and the four automation-triggered checks.</td>
+    </tr>
+    <tr>
+      <td>Zero platform calls (<code>platform_calls</code> = 0; no write field)</td>
+      <td class="num">39</td>
+      <td class="num">56.52%</td>
+      <td class="num">0</td>
+      <td class="num">0</td>
+      <td>No platform call, hence no write.</td>
+    </tr>
+    <tr>
+      <td>One platform call, no write field (record 22)</td>
+      <td class="num">1</td>
+      <td class="num">1.45%</td>
+      <td class="num">&mdash;</td>
+      <td class="num">&mdash;</td>
+      <td>Event name indicates a sign-in check after a title choice; reads and writes not recorded.</td>
+    </tr>
+    <tr>
+      <td>One platform write (record 52)</td>
+      <td class="num">1</td>
+      <td class="num">1.45%</td>
+      <td class="num">4</td>
+      <td class="num">1</td>
+      <td>Unnamed in the export; four reads recorded with it; <code>new_risk</code> = false.</td>
+    </tr>
+    <tr>
+      <td>No call or write field</td>
+      <td class="num">8</td>
+      <td class="num">11.59%</td>
+      <td class="num">&mdash;</td>
+      <td class="num">&mdash;</td>
+      <td>Silent on writes; the absence of a write is not shown.</td>
+    </tr>
+    <tr class="total-row">
+      <td>Total</td>
+      <td class="num">69</td>
+      <td class="num">100.00%</td>
+      <td class="num">17</td>
+      <td class="num">1</td>
+      <td>No record reports a replayed upload.</td>
+    </tr>
+  </tbody>
+</table>
+
+<p class="noindent">Table 3 supports three statements and rules out a fourth. (i) One record reports a platform write (record 52: one write and four reads, <code>new_risk</code> = false); the export does not name the action. (ii) No record reports a replayed upload: the replay counter appears in one record (value 0), and all eight records that carry <code>new_risk</code> report false. (iii) Besides the single write record (record 52), 59 records carry an explicit zero count of writes or platform calls, and the remaining nine records (record 22 with one platform call and no write field, plus eight records with neither call nor write fields) are silent on writes (59 + 1 + 9 = 69). What the journal cannot show is that a gate blocked an attempted write: it records outcomes, not refused attempts, so the 59 records with explicit zero counts (and the nine records silent on writes) are consistent with, but not evidence of, suppression. Evidence that Layer 1 makes the intended decisions comes instead from the four automation-triggered records (all without writes and with the stop flag off), the heartbeat trace below, and the workflow tests (10/10 passed, <code>results/validation.json</code>).</p>
+
+<p class="noindent">The audited DeepSeek heartbeat (<code>scheduled-run-evidence.json</code>, planned for <code>2026-10-28T12:37:13.943+08:00</code>) started after a delay of 24,992 ms (24.992 s) and completed its four recorded work items&mdash;reading ownership, checklist, stop conditions and checkpoints; finding no comment, component, research or analytics work due; synchronizing instructions; and needing no Bilibili operation&mdash;in 31,175 ms (31.175 s), with no task errors, no manual test trigger and no duplicate run. The record satisfies <em>V</em><sub>sched</sub> (Eq. 3).</p>
+
+<h3>6.2 Software Verification and Design Science Evolution (RQ1 &amp; RQ2)</h3>
+<p class="noindent">Live experiments must not pollute public accounts with deliberate faults such as double posting or deleting production videos, so offline tests are the main evidence for edge-case transitions; one live crash-recovery check was run on a private clip (Table 5). Table 4 summarizes the <em>CrossCast</em> test suite at commit <code>75b7abc</code>, grouped by file name, and Table 5 traces the design iterations. Test-function counts measure the volume of checking, not coverage; no coverage tool was run.</p>
+
+<table class="sci-table">
+  <caption>Table 4: Code and offline test volume of <em>PublishOps CrossCast</em> at commit <code>75b7abc</code>, with test files grouped by file name (first matching rule; a file may exercise several concerns), and the <em>Agentic Work Lab</em> entry points. Lines are physical lines.</caption>
+  <thead>
+    <tr>
+      <th style="width:34%;">Group / Entry Point</th>
+      <th class="num" style="width:8%;">Files</th>
+      <th class="num" style="width:10%;">Lines</th>
+      <th class="num" style="width:11%;">Test Functions</th>
+      <th style="width:37%;">Examples of Behaviour Exercised</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr class="subhead">
+      <td colspan="5">A. PublishOps CrossCast at <code>75b7abc</code> (123 source files, 26,972 lines, of which 42 files are bundled <code>bili-cli</code> v1.2.1)</td>
+    </tr>
+    <tr>
+      <td>1. Publishing workflow, receipts, locks &amp; recovery</td>
+      <td class="num">20</td>
+      <td class="num">7,547</td>
+      <td class="num">494</td>
+      <td>Two-command <code>prepare</code>/<code>go</code> flow, publish-plan safety, worker slots and refill, checkpoint de-duplication, browser broker and lock lifecycle.</td>
+    </tr>
+    <tr>
+      <td>2. Deletion &amp; absence read-back</td>
+      <td class="num">19</td>
+      <td class="num">6,830</td>
+      <td class="num">340</td>
+      <td>Consent, dialogs, loading, timelines and absence read-back for single-work deletion across platforms.</td>
+    </tr>
+    <tr>
+      <td>3. Edits &amp; metadata read-back</td>
+      <td class="num">5</td>
+      <td class="num">1,615</td>
+      <td class="num">128</td>
+      <td>X edit consistency and length, Bilibili mention links, staged edits.</td>
+    </tr>
+    <tr>
+      <td>4. Platform pages &amp; adapters</td>
+      <td class="num">20</td>
+      <td class="num">7,154</td>
+      <td class="num">590</td>
+      <td>YouTube Studio, X site and schedules, Douyin forms, Instagram media and comments.</td>
+    </tr>
+    <tr>
+      <td>5. Collections &amp; playlists</td>
+      <td class="num">8</td>
+      <td class="num">2,792</td>
+      <td class="num">259</td>
+      <td>Collection membership, page redraws, empty and incomplete playlists.</td>
+    </tr>
+    <tr>
+      <td>6. Messages, comments, engagement &amp; safety</td>
+      <td class="num">18</td>
+      <td class="num">4,300</td>
+      <td class="num">402</td>
+      <td>Comment snapshots, replies, likes, hostile-message flags and rate limits.</td>
+    </tr>
+    <tr>
+      <td>7. Other CLI, documentation &amp; installation</td>
+      <td class="num">32</td>
+      <td class="num">6,383</td>
+      <td class="num">524</td>
+      <td>Capabilities, first run, preferences, covers, installer and documentation checks.</td>
+    </tr>
+    <tr class="total-row">
+      <td>Subtotal (incl. 4 shared helper files, 408 lines)</td>
+      <td class="num">126</td>
+      <td class="num">37,029</td>
+      <td class="num">2,737</td>
+      <td>Test-to-source line ratio 1.37 (2.06 against <em>CrossCast</em>'s own 18,005-line package).</td>
+    </tr>
+    <tr class="subhead">
+      <td colspan="5">B. Agentic Work Lab Entry Points (Node.js v26.11.1)</td>
+    </tr>
+    <tr>
+      <td>8. Workflow gate &amp; merchant demo (<code>workflows.test.mjs</code>)</td>
+      <td class="num">1</td>
+      <td class="num">27</td>
+      <td class="num">10</td>
+      <td>Non-owner rejection, stop flag, running lock, invalid due time, scheduled-run verification (10/10 passed; <code>results/validation.json</code>, 28 Oct).</td>
+    </tr>
+    <tr>
+      <td>9. Archive integrity record (<code>media/manifest.json</code>)</td>
+      <td class="num">1</td>
+      <td class="num">&mdash;</td>
+      <td class="num">30 records</td>
+      <td>Size and SHA-256 of 30 GitHub assets recorded as verified on 3 Nov; <code>SHA256SUMS.txt</code> matches the manifest.</td>
+    </tr>
+  </tbody>
+</table>
+
+<table class="sci-table">
+  <caption>Table 5: Design Science evolution of <em>PublishOps CrossCast</em> from early prototypes to commit <code>75b7abc</code> (PR #30).</caption>
+  <thead>
+    <tr>
+      <th style="width:18%;">Version / Commit</th>
+      <th style="width:26%;">Architectural Milestone</th>
+      <th style="width:28%;">Empirical &amp; CI Verification Evidence</th>
+      <th style="width:28%;">Identified Boundary &amp; Subsequent DSR Refinement</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code>v0.2.2–v0.3.0</code><br>(lab commit <code>596e951</code>)</td>
+      <td>Initial 5-platform adapters, X Media Studio 16:9 thumbnail persistence, FFmpeg 79.5s cover-lead synthesis.</td>
+      <td>86 offline tests passed; verified YouTube Studio category change &amp; 1,327-char Instagram caption read-back.</td>
+      <td>Instagram profile grid cropped landscape cover text; TikTok suspended after a sign-in with a Hong Kong (+852) number failed.</td>
+    </tr>
+    <tr>
+      <td><code>v0.15.1</code><br>(Lab Snapshot)</td>
+      <td>OS process lock (<code>process_lock.py</code>), private pipe browser context reuse, resumable byte-offset recovery (API upload route, outside the evaluated <code>75b7abc</code> browser snapshot).</td>
+      <td>417 offline tests passed; on the <code>0.15.1</code> API upload route, a private YouTube upload forced to exit twice&mdash;first after 8,388,608 acknowledged bytes and then in a second process after saving the video ID&mdash;completed its thumbnail in a third process and kept the same video ID (30 Oct).</td>
+      <td>Needed independent CI matrix verification and stricter schedule/pin counterexample checks.</td>
+    </tr>
+    <tr>
+      <td>Candidates<br><code>eaa1aab</code> / <code>80e166b</code> / <code>2d54c8f</code></td>
+      <td>Separated development from independent validation; tested X schedule submission and cleanup.</td>
+      <td>GitHub CI passed on Python 3.10–3.12; 143 + 16 targeted local checks passed; X temp media deleted &amp; confirmed absent.</td>
+      <td>Counterexample found imprecise pinned-comment ID (live pin held); X schedule row lacked post/media ID pair (kept <code>SUBMITTED_UNVERIFIED</code>).</td>
+    </tr>
+    <tr>
+      <td><code>v0.16.0</code> Release<br>(<code>a46bd19</code>)</td>
+      <td>Public standalone CLI release packaging the five browser/CLI platform adapters and receipt state machine.</td>
+      <td>Suite of 2,009 test functions in 84 files at <code>a46bd19</code>. Field release of <em>I Watched It For You (v3)</em> on 2&ndash;3 Nov with one instrumented Instagram run (412.217 s); the release record does not name the code version used per platform.</td>
+      <td>Post-submit wait consumed 92.32% of publish time; motivated explicit wait progress and bounded concurrency.</td>
+    </tr>
+    <tr>
+      <td>PRs #8–#28<br>(post-<code>a46bd19</code> to <code>439c038</code>)</td>
+      <td>Shortened default capability list (<code>--full</code>) &amp; rehearsal/live-readiness split (#8–#9), two-command <code>prepare</code>/<code>go</code> flow (#10), two-slot browser concurrency (#11/#15), YouTube single-Save guard (#16), X edit consistency (#21).</td>
+      <td>Python 3.13/3.14 support (#14); prompt login return &amp; interrupted worker recovery (#27); runtime cleanup isolated (#28).</td>
+      <td>Required durable consent and post-deletion absence read-back for single-work deletions across all platforms.</td>
+    </tr>
+    <tr>
+      <td>PRs #29–#30<br>(<code>3b56bdc</code> / <code>75b7abc</code>)</td>
+      <td>Durable-consent single-work deletion with absence read-back (#29); deletion control readiness &amp; layout guards (#30).</td>
+      <td>Suite at <strong>126 test files (37,029 lines, 2,737 test functions)</strong>; GitHub CI checks passed on Python 3.10&ndash;3.14.</td>
+      <td>Live multi-platform concurrent speedup benchmarking scheduled as next empirical evaluation phase.</td>
+    </tr>
+  </tbody>
+</table>
+
+<h3>6.3 Cross-Platform Release Verification and Latency Bottleneck Analysis (RQ2 &amp; RQ3)</h3>
+<p class="noindent">To examine the release layers under real platform conditions, this section analyzes the release of the 176.4 s short film <em>I Watched It For You (v3)</em> (<code>i-watched-it-for-you-v3-20261102.mp4</code>, 285,855,005 bytes, SHA-256 <code>7d6fd76090f7a93b2711e15db4bb924f741d3a904a01fc4b7628fc2130dbafdc</code>) on five platforms on 2&ndash;3 November 2026 (Table 6), and the phase timing recorded for its Instagram publication (Table 7, Figure 5). Each platform entry comes from its own publication run or from the owner's confirmation; the 3 November record made no fresh platform queries.</p>
+
+<table class="sci-table">
+  <caption>Table 6: Cross-platform publication record for <em>I Watched It For You (v3)</em> (<code>production-update-2026-11-03.json</code>). States are quoted as recorded; &ldquo;&mdash;&rdquo; means the record holds no such field.</caption>
+  <thead>
+    <tr>
+      <th style="width:11%;">Platform</th>
+      <th style="width:21%;">Route or Continuity (as Recorded)</th>
+      <th style="width:17%;">Native Receipt State</th>
+      <th style="width:23%;">Recorded Verification State</th>
+      <th style="width:28%;">Outcome and Evidence</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><strong>Bilibili</strong></td>
+      <td>Production-session report; not re-queried (<code>fresh_check</code> = false)</td>
+      <td>&mdash;</td>
+      <td><code>public_reported_by_production_session</code> (<code>BV15B4F6hEYr</code>)</td>
+      <td>Public availability recorded on 2 Nov at 21:01 UTC+8.</td>
+    </tr>
+    <tr>
+      <td><strong>YouTube</strong></td>
+      <td>Continued from the original draft</td>
+      <td><code>SUBMISSION_VERIFIED</code></td>
+      <td><code>PUBLIC_VERIFIED</code> (<code>AzW6vr8nvDM</code>)</td>
+      <td>Native receipt, full copy and public visibility passed read-back.</td>
+    </tr>
+    <tr>
+      <td><strong>X</strong></td>
+      <td>Reused the original uploaded media</td>
+      <td><code>SUBMISSION_VERIFIED</code></td>
+      <td><code>PUBLIC_VERIFIED</code> (<code>2117261340633161838</code>)</td>
+      <td>Receipt and 176.4 s duration verified; stored resolution not established.</td>
+    </tr>
+    <tr>
+      <td><strong>Douyin</strong></td>
+      <td>Programmatic read-back timed out</td>
+      <td><strong><code>UNKNOWN</code></strong></td>
+      <td><code>USER_CONFIRMED_VISIBLE_NATIVE_VERIFY_BLOCKED</code></td>
+      <td>Neither relabelled nor republished; the owner's phone screenshot shows the work and production cover.</td>
+    </tr>
+    <tr>
+      <td><strong>Instagram</strong></td>
+      <td>One upload and one Share (3 Nov)</td>
+      <td><code>SUBMISSION_VERIFIED</code></td>
+      <td>&mdash; (<code>metadata_readback</code> = true)</td>
+      <td>Full Chinese/English caption read back; original ratio; AI label on; cover replaced by the owner on mobile.</td>
+    </tr>
+  </tbody>
+</table>
+
+<p class="noindent">The Douyin entry is the field instance of Proposition 1. The run pressed Publish once; its programmatic read-back then timed out, and the receipt kept the <code>UNKNOWN</code> state it had been given before the press. No run submitted the 285.9 MB file again, and the owner's phone confirmed that the work and its production cover were live&mdash;a confirmation recorded beside the receipt rather than written into it. A separate test on 1 November had the same shape: a Douyin scheduled card showed the requested time and private marker, the CLI read-back timed out, and the failure receipt was kept as recorded while the temporary item was removed. These are two instances, not a rate. The records do not say why read-back timed out, and the claim that a retrying agent would have published a duplicate is an inference from the retry policy (Table 11), not an observation. The Instagram row shows a second, benign use of the human channel: the owner replaced the cover on mobile, and the record notes that remote cover pixels were not verified.</p>
+
+<table class="sci-table">
+  <caption>Table 7: Phase timing of one Instagram publication (<em>N</em> = 1; <code>production-update-2026-11-03.json</code>). The source selects major phases rather than an exhaustive additive breakdown; row 7 is derived.</caption>
+  <thead>
+    <tr>
+      <th style="width:44%;">Execution Phase</th>
+      <th style="width:22%;">Execution Scope</th>
+      <th class="num" style="width:11%;">Duration (s)</th>
+      <th class="num" style="width:11%;">% of Cmd</th>
+      <th class="num" style="width:12%;">% of E2E</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>1. Source &amp; Release Plan Cryptographic Checks</td>
+      <td>Outside Publish Cmd</td>
+      <td class="num">0.438</td>
+      <td class="num">—</td>
+      <td class="num">0.10%</td>
+    </tr>
+    <tr>
+      <td>2. Local Dry-Run Rehearsal</td>
+      <td>Outside Publish Cmd</td>
+      <td class="num">0.444</td>
+      <td class="num">—</td>
+      <td class="num">0.10%</td>
+    </tr>
+    <tr>
+      <td>3. Sign-In Preflight &amp; Session Close</td>
+      <td>Outside Publish Cmd</td>
+      <td class="num">10.137</td>
+      <td class="num">—</td>
+      <td class="num">2.40%</td>
+    </tr>
+    <tr class="subhead">
+      <td>Subtotal: Pre-Publication Governance Checks</td>
+      <td>Outside Publish Cmd</td>
+      <td class="num">11.019</td>
+      <td class="num">—</td>
+      <td class="num">2.60%</td>
+    </tr>
+    <tr>
+      <td>4. Browser Start to Media File Entry</td>
+      <td>Inside <code>vpub publish</code></td>
+      <td class="num">11.058</td>
+      <td class="num">2.68%</td>
+      <td class="num">2.61%</td>
+    </tr>
+    <tr>
+      <td><strong>5. Wait after the single Share (transfer, processing &amp; confirmation; not separable)</strong></td>
+      <td><strong>Inside <code>vpub publish</code></strong></td>
+      <td class="num"><strong>380.551</strong></td>
+      <td class="num"><strong>92.32%</strong></td>
+      <td class="num"><strong>89.91%</strong></td>
+    </tr>
+    <tr>
+      <td>6. Independent Post-Publication Read-Back</td>
+      <td>Inside <code>vpub publish</code></td>
+      <td class="num">5.224</td>
+      <td class="num">1.27%</td>
+      <td class="num">1.23%</td>
+    </tr>
+    <tr>
+      <td>7. Residual (derived: command total minus rows 4&ndash;6)</td>
+      <td>Inside <code>vpub publish</code></td>
+      <td class="num">15.384</td>
+      <td class="num">3.73%</td>
+      <td class="num">3.63%</td>
+    </tr>
+    <tr class="subhead">
+      <td>Subtotal: Publication Command Total</td>
+      <td>Inside <code>vpub publish</code></td>
+      <td class="num">412.217</td>
+      <td class="num">100.00%</td>
+      <td class="num">97.40%</td>
+    </tr>
+    <tr class="total-row">
+      <td>Total End-to-End Observed Workflow Time</td>
+      <td>All Recorded Phases</td>
+      <td class="num">423.236</td>
+      <td class="num">—</td>
+      <td class="num">100.00%</td>
+    </tr>
+  </tbody>
+</table>
+
+<div class="figure-box">
+  <svg width="100%" viewBox="0 0 750 155" xmlns="http://www.w3.org/2000/svg" style="font-family: Arial, sans-serif;">
+    <text x="12" y="20" font-size="10" font-weight="bold" fill="#111">A. Instagram End-to-End Publication Latency Profile (Total = 423.236 s; Command = 412.217 s)</text>
+    <!-- Bar chart for Instagram -->
+    <rect x="12" y="30" width="22" height="32" fill="#4a7ebb" stroke="#1f4e78"/>
+    <rect x="34" y="30" width="22" height="32" fill="#6fa8dc" stroke="#1f4e78"/>
+    <rect x="56" y="30" width="635" height="32" fill="#e06666" stroke="#900000"/>
+    <rect x="691" y="30" width="16" height="32" fill="#93c47d" stroke="#1e7e34"/>
+    <rect x="707" y="30" width="30" height="32" fill="#cccccc" stroke="#666666"/>
+
+    <text x="373" y="50" font-size="9.5" font-weight="bold" text-anchor="middle" fill="#fff">Wait after Share: 380.551 s (92.32% of command; the window in which a timeout-driven retry could press twice)</text>
+    <text x="12" y="75" font-size="8.2" fill="#1f4e78">&uarr; Preflight (11.02s, 2.6%) + Browser Init (11.06s, 2.6%)</text>
+    <text x="512" y="75" font-size="8.2" fill="#145523">&uarr; Read-Back (5.22s, 1.2%) + Residual (15.38s, derived)</text>
+
+    <text x="12" y="102" font-size="10" font-weight="bold" fill="#111">B. Verified DeepSeek Autonomous Scheduled Heartbeat Run (Total = 56.167 s from Planned Trigger)</text>
+    <rect x="12" y="110" width="320" height="26" fill="#ffd966" stroke="#b45f06"/>
+    <rect x="332" y="110" width="405" height="26" fill="#76a5af" stroke="#134f5c"/>
+    <text x="172" y="127" font-size="9" font-weight="bold" text-anchor="middle" fill="#333">Cron Trigger Delay: 24.992 s (24,992 ms)</text>
+    <text x="534" y="127" font-size="9" font-weight="bold" text-anchor="middle" fill="#fff">4-Step Checklist Inspection &amp; Sync: 31.175 s (0 Errors, 0 Writes)</text>
+  </svg>
+  <div class="figure-caption"><strong>Figure 5.</strong> Timelines of (A) the instrumented Instagram publication run (<em>N</em> = 1), in which the wait after the single Share made up 92.32% of the publish command and the receipt had been saved before the press, and (B) the verified DeepSeek heartbeat run (<em>N</em> = 1).</div>
+</div>
+
+<h3>6.4 Multi-Modal Quality Engineering and Complete 30-Artifact Catalogue (RQ3)</h3>
+<p class="noindent">To show how Layer 2 governs deliverable quality across revisions, Table 8 summarizes frame-level and audio measurements recorded in the production studies, and Table 9 lists all <em>N</em> = 30 video versions archived in <em>Agentic Work Lab</em> with their recorded SHA-256 digests.</p>
+
+<table class="sci-table">
+  <caption>Table 8: Programmable video quality cases and targeted repairs, with measurements as recorded in the cited documents.</caption>
+  <thead>
+    <tr>
+      <th style="width:20%;">Production Case</th>
+      <th style="width:24%;">Diagnosed Technical Defect</th>
+      <th style="width:28%;">Surgical Code / Timeline Repair</th>
+      <th style="width:28%;">Quantitative Verification &amp; Documented Limits</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><strong>Animation Timing Diagnostic</strong><br>(<code>animation-timing.md</code>)</td>
+      <td>Changing render from 24 to 30 fps failed to create missing contact, load-transfer, and withdrawal actions.</td>
+      <td>Decomposed 24 fps exposure rules (ones = 24, twos = 12, threes = 8 exp/s) and 5-stage physical handoff criteria.</td>
+      <td>66.7 s (2,001 frames at 30 fps): 52 segments, 44 holds (median hold 0.85 s, max 7.0 s). Established diagnostic baseline.</td>
+    </tr>
+    <tr>
+      <td><strong>GPT Duty Log 05</strong><br>(<code>v3-antiflash</code>, 434.47 s)</td>
+      <td>Full-opacity frame before fade, white flashes during right-panel changes, and shot leakage at cuts.</td>
+      <td>Set explicit hidden initial states, frame-aligned boundaries, whole-panel replacement, and 4-frame clean-entry hold; kept v2 audio.</td>
+      <td><strong>13,034 / 13,034 frames scanned</strong> at 320&times;180: 11 sequences reported fixed; 0 ABA/black/white pulses; &minus;15.97 LUFS, &minus;2.21 dBTP, 0 ms audio offset.</td>
+    </tr>
+    <tr>
+      <td><strong>Whale Girl Transformation</strong><br>(<code>v3</code> 67s &rarr; <code>v4</code> 75.23s)</td>
+      <td>Abrupt eye gaze jumps, brightness mismatch across cut, and moving tail fin entering fixed hair mask.</td>
+      <td>Interpolated eye regions only between real source endpoints; matched cut brightness; expanded v4 protection mask; ducked music 12 dB.</td>
+      <td>1080&times;1920, 2,257 frames: 0 decode errors, 0 clipped samples (sample peak &asymp; &minus;1.636 dBFS), all-zero silence verified from 50.763 to 62.503 s, black frame at 1,845 (61.500 s).</td>
+    </tr>
+    <tr>
+      <td><strong>Whale Girl Revisions</strong><br>(<code>r5</code> Colour/Heels &amp; <code>r7</code> Motion)</td>
+      <td>Colour spill onto blue tail during grading (r5); uneven alternating steps in sock/heart gestures (r7).</td>
+      <td>Separated clothing/skin/background masks protecting tail &amp; 6 heel events (r5); reordered real source frames without optical flow (r7).</td>
+      <td>r5: 66.87 s (2,006 frames), full decode passed (+1.11 dBFS inherited float peak noted). r7: 65.37 s (1,961 frames), join &amp; duplicate-frame checks passed.</td>
+    </tr>
+    <tr>
+      <td><strong>Whale Girl Ep 07 &amp; Portrait Cuts A/B/C</strong><br>(179.77 s + 3 cuts)</td>
+      <td>Cropping 1920&times;1080 landscape to 1080&times;1920 portrait cuts off ticket counters and character art.</td>
+      <td>Programmatically rearranged ticket/character panels into <em>y</em> &isin; [168, 1330] (56 px subtitles, 106 px numbers) at 360 px preview width.</td>
+      <td>5,393 landscape frames + 843/897/899 portrait frames; portrait cuts &minus;17.5/&minus;16.6/&minus;17.5 LUFS, peaks &asymp; &minus;1.5 dBFS, 0 clipped samples. Documented 130 ms first-ticket stamp offset vs. earlier 6 ms estimate.</td>
+    </tr>
+  </tbody>
+</table>
+
+<table class="sci-table allow-break">
+  <caption>Table 9: All <em>N</em> = 30 downloadable video versions archived in <em>Agentic Work Lab</em> (2,211,716,129 bytes; 2.21 GB or 2,109.26 MiB). GitHub asset sizes and SHA-256 digests were recorded as verified on 3 November 2026, and <code>SHA256SUMS.txt</code> matches the manifest. State: Bilibili state, current where recorded, otherwise at snapshot.</caption>
+  <thead>
+    <tr>
+      <th class="num" style="width:3%;">#</th>
+      <th style="width:23%;">Archive Filename</th>
+      <th style="width:24%;">Deliverable Title / Scope</th>
+      <th class="num" style="width:6%;">MiB</th>
+      <th class="num" style="width:10%;">Exact Bytes</th>
+      <th style="width:11%;">SHA-256 Prefix</th>
+      <th class="num" style="width:6%;">Dur (s)</th>
+      <th style="width:17%;">State</th>
+    </tr>
+  </thead>
+  <tbody>
+    ${manifestRowsHtml}
+    <tr class="total-row">
+      <td class="num">30</td>
+      <td><strong>Total Verified Archive</strong></td>
+      <td><strong>7 GitHub release tags</strong></td>
+      <td class="num"><strong>2,109.26</strong></td>
+      <td class="num"><strong>2,211,716,129</strong></td>
+      <td><code>0 mismatches</code></td>
+      <td class="num">—</td>
+      <td>&mdash;</td>
+    </tr>
+  </tbody>
+</table>
+
+<h3>6.5 Descriptive Cohort Analytics and Policy Comparison (RQ3)</h3>
+<p class="noindent">Table 10 reports descriptive statistics for all <em>N</em> = 55 channel records (<em>n</em> = 45 human-led history, <em>n</em> = 10 AI-assisted series) and two 24-hour checkpoints. Table 11 then reasons about how two simpler governance policies would have handled twelve scenarios from the project, beside the behaviour the four layers showed.</p>
+
+<table class="sci-table">
+  <caption>Table 10: Descriptive statistics of the human-led cohort (<em>n</em> = 45 published) and the AI-assisted series (<em>n</em> = 10: 5 published, 5 scheduled) in the 28 October 2026 snapshot, with two 24-hour checkpoints (sample SD; linear quartiles).</caption>
+  <thead>
+    <tr>
+      <th style="width:28%;">Cohort / Metric</th>
+      <th class="num" style="width:12%;">Mean</th>
+      <th class="num" style="width:12%;">SD</th>
+      <th class="num" style="width:11%;">Median</th>
+      <th class="num" style="width:14%;">IQR (Q1–Q3)</th>
+      <th class="num" style="width:12%;">Min–Max</th>
+      <th class="num" style="width:11%;">Sum</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr class="subhead">
+      <td colspan="7">A. Historical Human-Led Cohort (human_led_history: n = 45 published, Oct 2019 – Oct 2026)</td>
+    </tr>
+    <tr>
+      <td>Lifetime Views</td>
+      <td class="num">40,884.31</td>
+      <td class="num">64,604.81</td>
+      <td class="num">15,407.0</td>
+      <td class="num">1,722–67,502</td>
+      <td class="num">274–333,725</td>
+      <td class="num">1,839,794</td>
+    </tr>
+    <tr>
+      <td>Likes</td>
+      <td class="num">4,022.36</td>
+      <td class="num">7,281.57</td>
+      <td class="num">729.0</td>
+      <td class="num">89–3,765</td>
+      <td class="num">8–30,299</td>
+      <td class="num">181,006</td>
+    </tr>
+    <tr>
+      <td>Comments</td>
+      <td class="num">78.18</td>
+      <td class="num">132.65</td>
+      <td class="num">14.0</td>
+      <td class="num">4–113</td>
+      <td class="num">0–597</td>
+      <td class="num">3,518</td>
+    </tr>
+    <tr>
+      <td>Favorites</td>
+      <td class="num">1,584.31</td>
+      <td class="num">2,048.27</td>
+      <td class="num">473.0</td>
+      <td class="num">19–2,746</td>
+      <td class="num">2–6,158</td>
+      <td class="num">71,294</td>
+    </tr>
+    <tr>
+      <td>Coins</td>
+      <td class="num">356.38</td>
+      <td class="num">751.32</td>
+      <td class="num">54.0</td>
+      <td class="num">6–237</td>
+      <td class="num">2–3,044</td>
+      <td class="num">16,037</td>
+    </tr>
+    <tr>
+      <td>Shares</td>
+      <td class="num">764.76</td>
+      <td class="num">1,594.05</td>
+      <td class="num">31.0</td>
+      <td class="num">1–996</td>
+      <td class="num">0–5,571</td>
+      <td class="num">34,414</td>
+    </tr>
+    <tr>
+      <td>Danmaku (Bullet Chats)</td>
+      <td class="num">190.27</td>
+      <td class="num">232.37</td>
+      <td class="num">105.0</td>
+      <td class="num">41–279</td>
+      <td class="num">0–1,045</td>
+      <td class="num">8,562</td>
+    </tr>
+    <tr class="subhead">
+      <td colspan="7">B. Current AI-Assisted Series (current_ai_series: n = 5 published, 5 scheduled, 25–28 Oct 2026)</td>
+    </tr>
+    <tr>
+      <td>Early Views (age 1.6 h&ndash;3.1 days)</td>
+      <td class="num">133.20</td>
+      <td class="num">99.53</td>
+      <td class="num">183.0</td>
+      <td class="num">42–199</td>
+      <td class="num">11–231</td>
+      <td class="num">666</td>
+    </tr>
+    <tr>
+      <td>Likes</td>
+      <td class="num">10.60</td>
+      <td class="num">7.70</td>
+      <td class="num">9.0</td>
+      <td class="num">8–11</td>
+      <td class="num">2–23</td>
+      <td class="num">53</td>
+    </tr>
+    <tr>
+      <td>Comments</td>
+      <td class="num">29.40</td>
+      <td class="num">46.94</td>
+      <td class="num">12.0</td>
+      <td class="num">7–13</td>
+      <td class="num">2–113</td>
+      <td class="num">147</td>
+    </tr>
+    <tr>
+      <td>Favorites</td>
+      <td class="num">4.20</td>
+      <td class="num">5.26</td>
+      <td class="num">2.0</td>
+      <td class="num">1–5</td>
+      <td class="num">0–13</td>
+      <td class="num">21</td>
+    </tr>
+    <tr class="subhead">
+      <td colspan="7">C. Age-Matched 24-Hour Post-Publication Checkpoints (Single-Work Descriptive Records)</td>
+    </tr>
+    <tr>
+      <td colspan="7"><strong>GPT Duty Log 03</strong> (<code>BV1UXxN6aECf</code>, 70 s, age 24.38 h): 229 views, 8 likes (3.49%), 7 replies (3.06%), 44.64% completion (31 s avg watch).</td>
+    </tr>
+    <tr>
+      <td colspan="7"><strong>Whale Girl 02</strong> (<code>BV1Wfx56JEih</code>, 117 s, age 24.05 h): 308 views, 24 likes (7.79%), 51 replies (16.56%), 36.63% completion (42 s avg watch).</td>
+    </tr>
+  </tbody>
+</table>
+
+<p class="noindent">The two cohorts are not comparable as samples of production methods. The 45 human-led works were published between October 2019 and October 2026 and accumulated years of exposure (mean 40,884.31 views, median 15,407.0), whereas the five published AI-series works were 1.6 hours to 3.1 days old at sampling (mean 133.20, median 183.0). Every human-led work has more views than every AI-series work (minimum 274 against maximum 231), so a rank test would only restate the exposure gap; no significance test is therefore reported. The cohort label also does not assert that older works used no AI tools (<code>docs/research-method_EN.md</code>). Channel-level figures invite the opposite error: weekly plays rose to 76,162 from 21,398 (<code>channel-weekly.json</code>), but the platform's top-five list for 27 October was led by two older travel vlogs (215 and 210 plays) with AI-series episodes at 30, 18 and 11 plays, and 88.09% of plays came from TV clients&mdash;a pattern that does not support attributing the rise to the new series. The summary script labels its export <code>descriptive_snapshot_not_causal_model_comparison</code>, and the age-matched checkpoints (Panel C) remain single-work descriptions: differences in duration (70 s vs. 117 s), persona and comment threads preclude attributing them to the underlying models.</p>
+
+<table class="sci-table">
+  <caption>Table 11: Analytical comparison of governance policies across twelve scenarios from the project. Baselines A and B were not executed; their entries state what each policy's rules imply for the recorded situation. The right column reports observed or tested behaviour with its evidence type: F = field record, T = offline test, R = review record, C = code change.</caption>
+  <thead>
+    <tr>
+      <th style="width:22%;">Scenario</th>
+      <th style="width:24%;">Baseline A: Retry on Failure (Reasoned)</th>
+      <th style="width:22%;">Baseline B: Schedule Gate Only, No Receipt Latch (Reasoned)</th>
+      <th style="width:32%;">Proposed Four Layers: Observed or Tested Behaviour</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>1. Douyin read-back timeout after Publish (3 Nov film)</td>
+      <td>Would treat the timeout as failure and submit the 285.9 MB file again.</td>
+      <td>Would retry once the timeout expired.</td>
+      <td><strong>F:</strong> receipt stayed <code>UNKNOWN</code>; no re-submission; owner confirmed by phone.</td>
+    </tr>
+    <tr>
+      <td>2. 380.551 s wait after the Instagram Share</td>
+      <td>A client timeout could trigger a second Share.</td>
+      <td>Exposed if the session dropped mid-wait.</td>
+      <td><strong>F:</strong> one upload, one Share, no retry; receipt saved before the wait; wait progress shown (#13).</td>
+    </tr>
+    <tr>
+      <td>3. Wake-up of a non-owner or older executor</td>
+      <td>Would act on the checklist concurrently.</td>
+      <td>Blocked by the owner check.</td>
+      <td><strong>T:</strong> <code>planRun</code> returns <code>(skip, not_owner)</code>; <strong>F:</strong> the earlier instance's schedules were paused; OS lock (<code>process_lock.py</code>).</td>
+    </tr>
+    <tr>
+      <td>4. Heartbeat while a render or QA is pending</td>
+      <td>Could publish an unverified render.</td>
+      <td>Would publish once the due time passed.</td>
+      <td><strong>F:</strong> a daily check recorded <code>RENDER_OR_QA_PENDING</code> and published nothing; jobs also need <code>auth</code> = true.</td>
+    </tr>
+    <tr>
+      <td>5. Flash frames in a tutorial render (GPT Ep 05)</td>
+      <td>Would release the defective render.</td>
+      <td>A hash check would pass the uninspected render.</td>
+      <td><strong>F:</strong> 13,034-frame scan; 11 sequences reported fixed; v2 audio master kept.</td>
+    </tr>
+    <tr>
+      <td>6. No native Edit action on an X post</td>
+      <td>Would delete and repost, losing replies and the post ID.</td>
+      <td>Would stop without reconciling state.</td>
+      <td><strong>C/T:</strong> run ends with <code>EDIT_UNAVAILABLE</code>; no deletion, repost or reply is attempted.</td>
+    </tr>
+    <tr>
+      <td>7. YouTube Studio Save button re-arming</td>
+      <td>Could press Save twice.</td>
+      <td>Save state left unverified.</td>
+      <td><strong>C/T:</strong> verification after one final Save without re-arming (PR #16, <code>0969064</code>).</td>
+    </tr>
+    <tr>
+      <td>8. Imprecise pinned-comment selector (<code>988bee2</code>)</td>
+      <td>Could pin the wrong comment.</td>
+      <td>No counterexample gate before the live action.</td>
+      <td><strong>R:</strong> independent counterexamples found the flaw; live pin actions were held.</td>
+    </tr>
+    <tr>
+      <td>9. X scheduled row without a durable post/media ID</td>
+      <td>Would report a verified public post.</td>
+      <td>Would over-claim verification.</td>
+      <td><strong>F:</strong> receipt kept <code>SUBMITTED_UNVERIFIED</code>; schedule and media deleted and confirmed absent.</td>
+    </tr>
+    <tr>
+      <td>10. Deleting one test upload</td>
+      <td>Could delete the wrong work.</td>
+      <td>No absence check after deletion.</td>
+      <td><strong>C/T:</strong> dry run, a person's approval of the exact work, refreshed absence read-back (PRs #29, #30).</td>
+    </tr>
+    <tr>
+      <td>11. Worker interrupted mid-login or cleanup</td>
+      <td>Could leave a stale lock that blocks later runs.</td>
+      <td>Stale lock needs manual removal.</td>
+      <td><strong>C/T:</strong> a lock is taken over only after its owner process has exited; cleanup kept out of publishing (#27, #28).</td>
+    </tr>
+    <tr>
+      <td>12. Lifetime views compared across cohorts (45 vs. 5 works)</td>
+      <td>Would claim AI under-performance, or credit the series with 76k weekly plays.</td>
+      <td>Would report raw means without age control.</td>
+      <td><strong>F:</strong> export labelled <code>descriptive_snapshot_not_causal_model_comparison</code>; 24-hour checkpoints.</td>
+    </tr>
+  </tbody>
+</table>
+
+<h2>7. Discussion</h2>
+
+<h3>7.1 Theoretical Implications for Project Management and Human&ndash;AI Governance</h3>
+<p class="noindent">The study adds to work on AI in project management (Holzmann et al., 2022; M&uuml;ller et al., 2024; Raisch &amp; Krakowski, 2021) in four ways.</p>
+<ol>
+  <li><strong>Stage gates become commit protocols when agents act.</strong> Prior multi-agent frameworks coordinate handoffs mainly through role prompts (Wu et al., 2024; Hong et al., 2024; Qian et al., 2024). In this case the controls that held were those moved out of prompts into code at the point of action: an admission function, a content digest that the command must present, and a receipt written before the irreversible step. Read through Section 2.4, a stage gate in agentic delivery is less a meeting than a commit protocol, with configuration management (Whyte et al., 2016) supplying its notion of identity.</li>
+  <li><strong>Automation authority is state-dependent.</strong> Levels-of-automation models treat autonomy as a design-time choice (Parasuraman et al., 2000; Shneiderman, 2020). Here autonomy changes with the receipt's state: agents act freely while nothing irreversible has happened and lose the authority to retry as soon as a final submission may have occurred.</li>
+  <li><strong>At-most-once moves work to people, and that work needs design.</strong> Choosing at-most-once over at-least-once converts possible duplicates into in-doubt cases that a person must resolve, which is Bainbridge's (1983) irony in a new setting: the human receives exactly the cases automation cannot settle. The Douyin case was closed with a phone screenshot; governance designs should budget for this work and give the person a read-back command and an evidence bundle rather than a bare alert.</li>
+  <li><strong>Epistemic governance is a project deliverable.</strong> Provenance fields, SHA-256 manifests and non-causal labels in exported summaries made it possible to report what happened without claiming more. Where AI adoption is often reported through gains that cannot be checked, this reporting discipline is itself part of governance.</li>
+</ol>
+
+<h3>7.2 Answers to the Research Questions</h3>
+<ul>
+  <li><strong>RQ1 (governance architecture and handoff control).</strong> Stage-gate principles can be expressed as four software-enforced layers whose decisions are deterministic and testable (Section 4). Evidence: the gate's decision function and its ten passing tests, four automation-triggered records and one audited heartbeat without writes, and a journal recording one write and no replay (Table 3). Limit: the journal records outcomes, so it cannot show blocked attempts, and <code>planRun</code> binds only agents that call it.</li>
+  <li><strong>RQ2 (idempotent release engineering and recovery).</strong> A receipt saved as <code>UNKNOWN</code> before a single final press yields at-most-once automated submission under assumptions A1&ndash;A4 (Proposition 1), with read-back or a person deciding the outcome. Evidence: the code path at <code>75b7abc</code>, 2,737 offline test functions including fault paths, a private crash-recovery check on the <code>0.15.1</code> API upload route (outside the evaluated <code>75b7abc</code> browser snapshot) that kept one YouTube video ID across two forced exits, and two Douyin read-back timeouts handled without re-submission or relabelling. Limit: few field instances, and safety is paid for with false in-doubt cases.</li>
+  <li><strong>RQ3 (empirical characteristics and boundaries).</strong> Local governance checks were small next to platform waiting: in one Instagram run, pre-publication checks took 11.019 s and the wait after Share 380.551 s (92.32% of the publish command). Quality checks caught frame and audio defects (Table 8), and the reporting protocol kept non-comparable cohorts apart (Table 10). Limit: single observations from one laboratory over nine days (Section 7.4).</li>
+</ul>
+
+<h3>7.3 Managerial and Engineering Lessons Learned</h3>
+<ul>
+  <li><strong>Measure the Wait Before Optimizing Concurrency:</strong> In the one instrumented run, local governance checks took 11.019 s and the wait after Share 380.551 s (Table 7). Speeding up local steps would change little; safe session isolation and bounded concurrency (Figure 4) are the more promising levers, although their gain has not yet been measured.</li>
+  <li><strong>Design Editable Intermediate Representations:</strong> Decomposing deliverables into code-driven timelines, separate audio tracks and structured JSON patches lets project managers enforce targeted revisions (Table 8) without discarding validated upstream work.</li>
+  <li><strong>Preserve Original State on Verification Interruptions:</strong> When platform security challenges or missing edit permissions occur, tools should never delete, repost or overwrite existing works automatically, and a human confirmation should be recorded beside the receipt rather than overwriting it.</li>
+  <li><strong>Budget for In-Doubt Resolution:</strong> An at-most-once design produces cases that only a person can close; give that person a read-back command and the evidence, and track how long such cases stay open.</li>
+</ul>
+
+<h3>7.4 Threats to Validity and Limitations</h3>
+<p class="noindent">Following case-study guidance for software engineering (Runeson &amp; H&ouml;st, 2009), the boundaries of the evidence are stated below.</p>
+<ul>
+  <li><strong>Internal validity.</strong> The Instagram timing (412.217 s) and the heartbeat (31.175 s) are single instrumented observations, and client-side timing cannot separate transfer, processing and confirmation within the 380.551 s wait. The operational journal is a selected-fields export: 31 of its 69 records carry no event or state name, nine are silent on writes, and it records outcomes rather than refused attempts. An earlier local read discrepancy on the film's file remains unexplained; later reads matched, which does not show that its cause was removed.</li>
+  <li><strong>Researcher role.</strong> The author built, operated and evaluated the artifacts. The risk of motivated reporting is limited by relying on receipts written when each event happened, publishing all data and code, and recomputing every figure with a script; the study nonetheless remains a single-researcher intervention (Sein et al., 2011; Wieringa, 2014).</li>
+  <li><strong>Construct validity.</strong> Suppression of writes is not directly measurable from outcome logs (Section 6.1). Model names denote workflow roles, not authenticated model versions. Test-function counts measure the volume of checking, not coverage. Plan-hash confirmation binds content, while human approval is attested by the caller. The blinded identical-task comparison of GPT and DeepSeek (<code>docs/model-workflow_EN.md</code>) has not been run, so no claim is made about relative model capability, speed or cost.</li>
+  <li><strong>External validity.</strong> Evidence comes from one laboratory, one account per platform and a nine-day window, with TikTok suspended after a sign-in with a Hong Kong (+852) number failed. Platforms differ structurally&mdash;browser versus API routes, and human confirmation on Douyin&mdash;so the latency figures do not transfer. What is expected to transfer is the mechanism: any agent that submits to an endpoint without server-side idempotency keys faces the same retry dilemma. Generalization is therefore analytical, by architectural similarity, rather than statistical (Flyvbjerg, 2006; Wieringa &amp; Daneva, 2015).</li>
+  <li><strong>Reliability.</strong> The repositories have changed since the snapshot (later <em>CrossCast</em> pull requests add tests, for example); all figures refer to the files and commits named in Section 3.3. Line counts are physical lines, and the descriptive statistics use sample standard deviations and linear quartiles.</li>
+</ul>
+
+<h2>8. Conclusion and Future Work</h2>
+<p class="noindent">This Design Science study asked how to govern human&ndash;AI collaborative delivery when agents act on external platforms that cannot undo or de-duplicate their actions. <em>Agentic Work Lab</em> and <em>PublishOps CrossCast</em> combine clear role boundaries between a human project manager and three AI workflows (GPT/Codex, Claude and DeepSeek) with four layers: an owner, stop-flag and due-time gate; plan-hash binding with SHA-256 media checks; a receipt state machine that saves an <code>UNKNOWN</code> state before a single final submission and never re-submits automatically; and independent read-back with human escalation. Over nine days, the field records show one recorded platform write and no recorded replay in a 69-record journal, an in-doubt Douyin submission held without re-submission, 30 SHA-256-recorded video versions, and a five-platform release whose evidence is kept per platform; 2,737 offline test functions exercise the corresponding code at commit <code>75b7abc</code>. These results support the mechanisms' design intent within the limits of a single case.</p>
+<p class="noindent">Future work follows from those limits: (1) record gate decisions and refused attempts, not only outcomes, so that suppression becomes measurable; (2) time bounded concurrent publication against sequential runs; (3) run the planned blinded identical-task comparison of models with logged costs; and (4) replicate the framework with other teams and accounts.</p>
+
+<h2>CRediT Authorship Contribution Statement</h2>
+<p class="noindent"><strong>HuaiCheng Sheng:</strong> Conceptualization, Methodology, Software, Validation, Formal analysis, Investigation, Resources, Data curation, Writing &ndash; original draft, Writing &ndash; review &amp; editing, Visualization, Supervision, Project administration.</p>
+
+<h2>Funding</h2>
+<p class="noindent">This research was supported by the internal research and engineering resources of Agentic Work Lab, Hangzhou Chengxin Holding Group Co., Ltd., Hangzhou, Zhejiang, China. It did not receive any specific grant from funding agencies in the public, commercial or not-for-profit sectors.</p>
+
+<h2>Ethics and Data Protection Statement</h2>
+<p class="noindent">No human-subjects experiment was conducted. The study analyses the author's own operational records, the author's channel analytics and public platform metadata. The exported records exclude credentials, raw client logs, private messages and viewer personal data (<code>data/production-update-2026-11-03.json</code>, field <code>excluded</code>).</p>
+
+<h2>Data and Code Availability Statement</h2>
+<p class="noindent">Source code, workflow verification scripts, the 69-record operational journal, the 55-record channel snapshot and the 30-entry media manifest are openly available at <code>https://github.com/whitecarp/agentic-work-lab</code> (data files as of commit <code>e3205d6</code>) and <code>https://github.com/whitecarp/publishops-crosscast</code> (evaluated code at commit <code>75b7abc</code>). The script <code>paper/reproduce_paper_tables.mjs</code> recomputes every figure reported here. <code>bili-cli</code> v1.2.1 (MIT) is bundled unchanged in <em>CrossCast</em>; API routes for YouTube, X and Instagram are distributed separately and lie outside the evaluated snapshot.</p>
+
+<h2>Declaration of Competing Interest</h2>
+<p class="noindent">The author is affiliated with Agentic Work Lab, Hangzhou Chengxin Holding Group Co., Ltd., and is the developer and maintainer of the open-source artifacts evaluated in this study (<em>Agentic Work Lab</em> and <em>PublishOps CrossCast</em>); a separate API add-on package outside the evaluated open-source snapshot is distributed independently by the author. The author declares no other competing financial interests or personal relationships that could have appeared to influence the work reported in this paper.</p>
+
+<h2>References</h2>
+<ol class="ref-list">
+  <li>Adams, B., &amp; McIntosh, S. (2016). Modern release engineering in a nutshell&mdash;Why researchers should care. In <em>Proceedings of the IEEE 23rd International Conference on Software Analysis, Evolution, and Reengineering (SANER)</em> (pp. 78&ndash;90). IEEE.</li>
+  <li>Amershi, S., Weld, D., Vorvoreanu, M., et al. (2019). Guidelines for human-AI interaction. In <em>Proceedings of the 2019 CHI Conference on Human Factors in Computing Systems</em> (pp. 1&ndash;13). ACM.</li>
+  <li>Bainbridge, L. (1983). Ironies of automation. <em>Automatica</em>, 19(6), 775&ndash;779.</li>
+  <li>Bass, L., Weber, I., &amp; Zhu, L. (2015). <em>DevOps: A Software Architect's Perspective</em>. Addison-Wesley Professional.</li>
+  <li>Berente, N., Gu, B., Recker, J., &amp; Santhanam, R. (2021). Managing artificial intelligence. <em>MIS Quarterly</em>, 45(3), 1433&ndash;1450.</li>
+  <li>Bianchi, M. J., Conforto, E. C., Rebentisch, E., Amaral, D. C., Rezende, S. O., &amp; de P&aacute;dua, R. (2022). Recommendation of project management practices: A contribution to hybrid models. <em>IEEE Transactions on Engineering Management</em>, 69(6), 3558&ndash;3571.</li>
+  <li>Conforto, E. C., &amp; Amaral, D. C. (2016). Agile project management and stage-gate model&mdash;A hybrid framework for technology-based companies. <em>Journal of Engineering and Technology Management</em>, 40, 1&ndash;14.</li>
+  <li>Cooper, R. G. (1990). Stage-gate systems: A new tool for managing new products. <em>Business Horizons</em>, 33(3), 44&ndash;54.</li>
+  <li>Flyvbjerg, B. (2006). Five misunderstandings about case-study research. <em>Qualitative Inquiry</em>, 12(2), 219&ndash;245.</li>
+  <li>Garcia-Molina, H., &amp; Salem, K. (1987). Sagas. In <em>Proceedings of the 1987 ACM SIGMOD International Conference on Management of Data</em> (pp. 249&ndash;259). ACM.</li>
+  <li>Gray, J., &amp; Reuter, A. (1992). <em>Transaction Processing: Concepts and Techniques</em>. Morgan Kaufmann.</li>
+  <li>Gregor, S., &amp; Hevner, A. R. (2013). Positioning and presenting design science research for maximum impact. <em>MIS Quarterly</em>, 37(2), 337&ndash;355.</li>
+  <li>Helland, P. (2012). Idempotence is not a medical condition. <em>Communications of the ACM</em>, 55(5), 56&ndash;65.</li>
+  <li>Hevner, A. R., March, S. T., Park, J., &amp; Ram, S. (2004). Design science in information systems research. <em>MIS Quarterly</em>, 28(1), 75&ndash;105.</li>
+  <li>Holzmann, V., Zitter, D., &amp; Peshkess, S. (2022). The expectations of project managers from artificial intelligence: A Delphi study. <em>Project Management Journal</em>, 53(5), 438&ndash;455.</li>
+  <li>Hong, S., Zhuge, M., Chen, J., et al. (2024). MetaGPT: Meta programming for a multi-agent collaborative framework. In <em>International Conference on Learning Representations (ICLR)</em>.</li>
+  <li>Humble, J., &amp; Farley, D. (2010). <em>Continuous Delivery: Reliable Software Releases through Build, Test, and Deployment Automation</em>. Addison-Wesley.</li>
+  <li>Kerzner, H. (2022). <em>Project Management: A Systems Approach to Planning, Scheduling, and Controlling</em> (13th ed.). Wiley.</li>
+  <li>Kleppmann, M. (2017). <em>Designing Data-Intensive Applications</em>. O'Reilly Media.</li>
+  <li>Leite, L., Rocha, C., Kon, F., Milojicic, D., &amp; Meirelles, P. (2019). A survey of DevOps concepts and challenges. <em>ACM Computing Surveys</em>, 52(6), 1&ndash;35.</li>
+  <li>M&uuml;ller, R., Locatelli, G., Holzmann, V., Nilsson, M., &amp; Sagay, T. (2024). Artificial intelligence and project management: Empirical overview, state of the art, and guidelines for future research. <em>Project Management Journal</em>, 55(1), 9&ndash;15.</li>
+  <li>Parasuraman, R., Sheridan, T. B., &amp; Wickens, C. D. (2000). A model for types and levels of human interaction with automation. <em>IEEE Transactions on Systems, Man, and Cybernetics&mdash;Part A: Systems and Humans</em>, 30(3), 286&ndash;297.</li>
+  <li>Peffers, K., Tuunanen, T., Rothenberger, M. A., &amp; Chatterjee, S. (2007). A design science research methodology for information systems research. <em>Journal of Management Information Systems</em>, 24(3), 45&ndash;77.</li>
+  <li>Project Management Institute (PMI). (2021). <em>A Guide to the Project Management Body of Knowledge (PMBOK Guide)</em> (7th ed.). PMI.</li>
+  <li>Qian, C., Liu, W., Liu, H., et al. (2024). ChatDev: Communicative agents for software development. In <em>Proceedings of the 62nd Annual Meeting of the Association for Computational Linguistics (ACL)</em> (pp. 15174&ndash;15186).</li>
+  <li>Raisch, S., &amp; Krakowski, S. (2021). Artificial intelligence and management: The automation&ndash;augmentation paradox. <em>Academy of Management Review</em>, 46(1), 192&ndash;210.</li>
+  <li>Runeson, P., &amp; H&ouml;st, M. (2009). Guidelines for conducting and reporting case study research in software engineering. <em>Empirical Software Engineering</em>, 14(2), 131&ndash;164.</li>
+  <li>Saltzer, J. H., Reed, D. P., &amp; Clark, D. D. (1984). End-to-end arguments in system design. <em>ACM Transactions on Computer Systems</em>, 2(4), 277&ndash;288.</li>
+  <li>Schneider, F. B. (1990). Implementing fault-tolerant services using the state machine approach: A tutorial. <em>ACM Computing Surveys</em>, 22(4), 299&ndash;319.</li>
+  <li>Sein, M. K., Henfridsson, O., Purao, S., Rossi, M., &amp; Lindgren, R. (2011). Action design research. <em>MIS Quarterly</em>, 35(1), 37&ndash;56.</li>
+  <li>Shahin, M., Ali Babar, M., &amp; Zhu, L. (2017). Continuous integration, delivery and deployment: A systematic review on approaches, tools, challenges and practices. <em>IEEE Access</em>, 5, 3909&ndash;3943.</li>
+  <li>Shinn, N., Cassano, F., Gopinath, A., Narasimhan, K., &amp; Yao, S. (2023). Reflexion: Language agents with verbal reinforcement learning. In <em>Advances in Neural Information Processing Systems (NeurIPS)</em>, 36.</li>
+  <li>Shneiderman, B. (2020). Human-centered artificial intelligence: Reliable, safe &amp; trustworthy. <em>International Journal of Human&ndash;Computer Interaction</em>, 36(6), 495&ndash;504.</li>
+  <li>Too, E. G., &amp; Weaver, P. (2014). The management of project management: A conceptual framework for project governance. <em>International Journal of Project Management</em>, 32(8), 1382&ndash;1394.</li>
+  <li>Venable, J., Pries-Heje, J., &amp; Baskerville, R. (2016). FEDS: A framework for evaluation in design science research. <em>European Journal of Information Systems</em>, 25(1), 77&ndash;89.</li>
+  <li>Wang, L., Ma, C., Feng, X., et al. (2024). A survey on large language model based autonomous agents. <em>Frontiers of Computer Science</em>, 18(6), 186345.</li>
+  <li>Whyte, J., Stasis, A., &amp; Lindkvist, C. (2016). Managing change in the delivery of complex projects: Configuration management, asset information and &lsquo;big data&rsquo;. <em>International Journal of Project Management</em>, 34(2), 339&ndash;351.</li>
+  <li>Wieringa, R. J. (2014). <em>Design Science Methodology for Information Systems and Software Engineering</em>. Springer.</li>
+  <li>Wieringa, R., &amp; Daneva, M. (2015). Six strategies for generalizing software engineering theories. <em>Science of Computer Programming</em>, 101, 136&ndash;152.</li>
+  <li>Wu, Q., Bansal, G., Zhang, J., et al. (2024). AutoGen: Enabling next-gen LLM applications via multi-agent conversation. In <em>Proceedings of the Conference on Language Modeling (COLM)</em>.</li>
+  <li>Yao, S., Zhao, J., Yu, D., et al. (2023). ReAct: Synergizing reasoning and acting in language models. In <em>International Conference on Learning Representations (ICLR)</em>.</li>
+</ol>
+
+
+</body>
+</html>`;
+
+const htmlPath = path.join(outDir, 'manuscript_print.html');
+const pdfPath = path.join(outDir, 'manuscript.pdf');
+fs.writeFileSync(htmlPath, htmlManuscript, 'utf8');
+
+const edgeExe = 'C:/Program Files (x86)/Microsoft/Edge/Application/msedge.exe';
+execFileSync(edgeExe, [
+  '--headless',
+  '--disable-gpu',
+  '--no-pdf-header-footer',
+  `--print-to-pdf=${pdfPath}`,
+  `file:///${htmlPath.replace(/\\/g, '/')}`
+]);
+
+console.log('Generated expanded manuscript.pdf:', fs.statSync(pdfPath).size, 'bytes');
+
+// Export each figure's SVG as its own PDF (figures/figN.pdf) for main.tex, so both documents use the same drawings.
+const figDir = path.join(outDir, 'figures');
+fs.mkdirSync(figDir, { recursive: true });
+const svgs = [...htmlManuscript.matchAll(/<div class="figure-box">\s*(<svg[\s\S]*?<\/svg>)/g)].map(m => m[1]);
+svgs.forEach((svg, i) => {
+  const [, w, h] = svg.match(/viewBox="0 0 (\d+(?:\.\d+)?) (\d+(?:\.\d+)?)"/);
+  const sized = svg.replace('width="100%"', `width="${w}px" height="${h}px"`);
+  const page = `<!DOCTYPE html><html><head><meta charset="UTF-8"><style>@page{size:${w}px ${h}px;margin:0}html,body{margin:0;padding:0}svg{display:block}</style></head><body>${sized}</body></html>`;
+  const figHtml = path.join(figDir, `fig${i + 1}.html`);
+  const figPdf = path.join(figDir, `fig${i + 1}.pdf`);
+  fs.writeFileSync(figHtml, page, 'utf8');
+  execFileSync(edgeExe, ['--headless', '--disable-gpu', '--no-pdf-header-footer', `--print-to-pdf=${figPdf}`, `file:///${figHtml.replace(/\\/g, '/')}`], { stdio: 'ignore' });
+  fs.unlinkSync(figHtml);
+});
+console.log('Exported', svgs.length, 'figures for main.tex to', figDir, '(figures/figN.pdf)');

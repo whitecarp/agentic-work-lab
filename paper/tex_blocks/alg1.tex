@@ -1,0 +1,25 @@
+\begin{algorithm}[htbp]
+\caption{Deterministic Sole-Operator \& Temporal Scheduling Gate (\texttt{planRun} \& \texttt{verifyScheduledRun})}
+\label{alg:planrun}
+\footnotesize
+\begin{algorithmic}[1]
+\Require Context tuple $\mathcal{S} = (e, o, f_{\text{stop}}, f_{\text{run}}, t_{\text{now}}, \mathcal{J})$; run trace record $R$
+\Ensure Gate decision tuple $(\text{decision}, \text{reason}, \mathcal{D})$ and boolean verification result $v$
+\State $t_{\text{cur}} \gets \text{ParseEpoch}(t_{\text{now}})$
+\If{$\neg \text{IsFinite}(t_{\text{cur}})$} \textbf{throw} \texttt{Error("Invalid current time")} \EndIf
+\If{$e = \varnothing \lor e \neq o$} \Return $(\texttt{"skip"}, \texttt{"not\_owner"}, \emptyset)$ \EndIf
+\If{$f_{\text{stop}} = \text{true}$} \Return $(\texttt{"skip"}, \texttt{"stop\_flag"}, \emptyset)$ \EndIf
+\If{$f_{\text{run}} = \text{true}$} \Return $(\texttt{"skip"}, \texttt{"already\_running"}, \emptyset)$ \EndIf
+\State $I_{\text{seen}} \gets \emptyset$; $\mathcal{D} \gets [\,]$
+\ForAll{$j_k = (\text{id}_k, t_{\text{due},k}, \text{auth}_k, \text{done}_k) \in \mathcal{J}$}
+    \If{$\text{id}_k = \varnothing \lor \text{id}_k \in I_{\text{seen}}$} \textbf{throw} \texttt{Error("Missing or duplicate job id")} \EndIf
+    \State $I_{\text{seen}} \gets I_{\text{seen}} \cup \{\text{id}_k\}$
+    \If{$\text{done}_k = \text{true} \lor \text{auth}_k \neq \text{true}$} \textbf{continue} \EndIf
+    \State $t_{\text{at}} \gets \text{ParseEpoch}(t_{\text{due},k})$
+    \If{$\neg \text{IsFinite}(t_{\text{at}})$} \textbf{throw} \texttt{Error("Invalid due time for " + id\_k)} \EndIf
+    \If{$t_{\text{at}} \le t_{\text{cur}}$} $\text{Append}(\mathcal{D}, \text{id}_k)$ \EndIf
+\EndFor
+\State $\text{decision} \gets (|\mathcal{D}| > 0)\ ?\ \texttt{"plan\_only"} : \texttt{"no\_work\_due"}$
+\State \Return $(\text{decision}, \texttt{"checked"}, \mathcal{D})$
+\end{algorithmic}
+\end{algorithm}

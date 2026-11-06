@@ -1,0 +1,55 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1328 531" width="1328" height="531" font-family="Arial, Helvetica, sans-serif">
+  <rect x="0" y="0" width="1328" height="531" fill="#f8fafc"/>
+  <text x="664" y="34" font-size="21" font-weight="bold" text-anchor="middle" fill="#0f172a">Governing Human–AI Collaborative Project Workflows in Multi-Platform Digital Delivery</text>
+  <text x="664" y="58" font-size="14" text-anchor="middle" fill="#334155">Design Science study · HuaiCheng Sheng, Agentic Work Lab · Agentic Work Lab and PublishOps CrossCast</text>
+  
+  <rect x="20" y="76" width="400" height="400" rx="10" fill="#ffffff" stroke="#9a3412" stroke-width="2"/>
+  <rect x="20" y="76" width="400" height="40" rx="10" fill="#9a3412"/>
+  <rect x="20" y="106" width="400" height="10" fill="#9a3412"/>
+  <text x="220" y="102" font-size="17" font-weight="bold" text-anchor="middle" fill="#ffffff">Problem</text>
+  <text x="38" y="146" font-size="14.2" font-weight="bold" fill="#111827">Agents now act on platforms whose</text>
+  <text x="38" y="169" font-size="14.2" font-weight="bold" fill="#111827">actions cannot be undone</text>
+  <text x="38" y="192" font-size="14.2" fill="#111827">• A retried upload can publish twice:</text>
+  <text x="38" y="215" font-size="14.2" fill="#111827">  web submission offers no idempotency key</text>
+  <text x="38" y="238" font-size="14.2" fill="#111827">• An approved plan can drift from the</text>
+  <text x="38" y="261" font-size="14.2" fill="#111827">  file that is actually uploaded</text>
+  <text x="38" y="284" font-size="14.2" fill="#111827">• Young AI-series videos and years-old</text>
+  <text x="38" y="307" font-size="14.2" fill="#111827">  videos invite false claims of AI gains</text>
+  <text x="38" y="330" font-size="14.2" font-weight="bold" fill="#111827">Research questions: governance design (RQ1),</text>
+  <text x="38" y="353" font-size="14.2" font-weight="bold" fill="#111827">idempotent release (RQ2), evidence (RQ3)</text>
+  
+  <rect x="464" y="76" width="400" height="400" rx="10" fill="#ffffff" stroke="#1e3a8a" stroke-width="2"/>
+  <rect x="464" y="76" width="400" height="40" rx="10" fill="#1e3a8a"/>
+  <rect x="464" y="106" width="400" height="10" fill="#1e3a8a"/>
+  <text x="664" y="102" font-size="17" font-weight="bold" text-anchor="middle" fill="#ffffff">Four governance layers</text>
+  <text x="482" y="146" font-size="14.2" font-weight="bold" fill="#111827">1  Admission gate (planRun)</text>
+  <text x="482" y="169" font-size="14.2" fill="#111827">   owner, stop flag, running lock, authorized</text>
+  <text x="482" y="192" font-size="14.2" fill="#111827">   due jobs → a plan, never an action</text>
+  <text x="482" y="215" font-size="14.2" font-weight="bold" fill="#111827">2  Content binding</text>
+  <text x="482" y="238" font-size="14.2" fill="#111827">   --confirm must present the plan digest;</text>
+  <text x="482" y="261" font-size="14.2" fill="#111827">   media checked by SHA-256</text>
+  <text x="482" y="284" font-size="14.2" font-weight="bold" fill="#111827">3  At-most-once receipt</text>
+  <text x="482" y="307" font-size="14.2" fill="#111827">   saved as UNKNOWN before the one final</text>
+  <text x="482" y="330" font-size="14.2" fill="#111827">   press; no automatic re-press</text>
+  <text x="482" y="353" font-size="14.2" font-weight="bold" fill="#111827">4  End-to-end read-back + people</text>
+  <text x="482" y="376" font-size="14.2" fill="#111827">   read-back closes the gate; a person</text>
+  <text x="482" y="399" font-size="14.2" fill="#111827">   settles in-doubt cases</text>
+  
+  <rect x="908" y="76" width="400" height="400" rx="10" fill="#ffffff" stroke="#166534" stroke-width="2"/>
+  <rect x="908" y="76" width="400" height="40" rx="10" fill="#166534"/>
+  <rect x="908" y="106" width="400" height="10" fill="#166534"/>
+  <text x="1108" y="102" font-size="17" font-weight="bold" text-anchor="middle" fill="#ffffff">Field evidence (26 Oct–3 Nov 2026)</text>
+  <text x="926" y="146" font-size="14.2" fill="#111827">• 69-record journal: 1 platform write,</text>
+  <text x="926" y="169" font-size="14.2" fill="#111827">no replayed upload recorded</text>
+  <text x="926" y="192" font-size="14.2" fill="#111827">• Douyin read-back timed out: receipt kept</text>
+  <text x="926" y="215" font-size="14.2" fill="#111827">UNKNOWN, no re-upload, owner confirmed</text>
+  <text x="926" y="238" font-size="14.2" fill="#111827">• One Instagram run: 92.32% of the 412.217 s</text>
+  <text x="926" y="261" font-size="14.2" fill="#111827">publish command was the wait after Share</text>
+  <text x="926" y="284" font-size="14.2" fill="#111827">• 2,737 offline test functions (commit 75b7abc);</text>
+  <text x="926" y="307" font-size="14.2" fill="#111827">30 video versions, 2.21 GB, SHA-256 recorded</text>
+  <text x="926" y="330" font-size="14.2" fill="#111827">• 55 channel records reported descriptively;</text>
+  <text x="926" y="353" font-size="14.2" fill="#111827">no causal claim about AI production</text>
+  <text x="442" y="282" font-size="30" text-anchor="middle" fill="#64748b">→</text>
+  <text x="886" y="282" font-size="30" text-anchor="middle" fill="#64748b">→</text>
+  <text x="664" y="505" font-size="14" text-anchor="middle" fill="#334155">Single-case evidence from one laboratory · code, data and a script that recomputes every figure are public</text>
+</svg>
