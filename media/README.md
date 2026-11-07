@@ -2,11 +2,11 @@
 
 **繁體中文** · [English](README_EN.md)
 
-2026-11-03 · **30** 個影片版本 · **2.06 GiB**
+2026-11-08 · **47** 個影片版本 · **3.19 GiB**
 
-全部30個遠端附件的大小及 SHA-256 均與索引一致；版本數不等於集數。保留每筆採樣日期與 B站歷史狀態，不把已過的排期時間當作公開證明。完整實驗交付不等於使用者全片驗收。
+全部47個遠端附件的大小及 SHA-256 均與索引一致；版本數不等於集數。保留每筆採樣日期與 B站歷史狀態，不把已過的排期時間當作公開證明。完整實驗交付不等於使用者全片驗收。
 
-[校驗清單](SHA256SUMS.txt) · [完整索引](manifest.json) · [本輪研究與限制](../docs/updates/2026-11-03.md)
+[校驗清單](SHA256SUMS.txt) · [完整索引](manifest.json) · [本輪研究與限制](../docs/updates/2026-11-08.md)
 
 | 檔案 | 作品 | 已記錄的 B站狀態 | MiB |
 |---|---|---|---:|
@@ -35,11 +35,28 @@
 | [study-whale-transformation-v4-20261030.mp4](https://github.com/whitecarp/agentic-work-lab/releases/download/update-2026-10-30-evening/study-whale-transformation-v4-20261030.mp4) | 鯨魚娘變身實驗 v4（定向修正） | 實驗片；原採樣未發布 | 98.33 |
 | [study-whale-color-heels-r5-20261031.mp4](https://github.com/whitecarp/agentic-work-lab/releases/download/update-2026-11-01-studies/study-whale-color-heels-r5-20261031.mp4) | 鯨魚娘變身實驗：局部調色與腳步聲修訂5 | B站狀態未核驗 | 108.10 |
 | [study-whale-motion-r7-20261101.mp4](https://github.com/whitecarp/agentic-work-lab/releases/download/update-2026-11-01-studies/study-whale-motion-r7-20261101.mp4) | 鯨魚娘變身實驗：動作節奏修訂7 | B站狀態未核驗 | 103.48 |
-| [whale-log-07-v3-20261101.mp4](https://github.com/whitecarp/agentic-work-lab/releases/download/update-2026-11-02-episode07/whale-log-07-v3-20261101.mp4) | 鯨魚娘代班日誌07：值班模擬器（v3） | 回執記錄排期；未刷新 | 47.02 |
-| [whale-log-07-cut-a-v3-20261101.mp4](https://github.com/whitecarp/agentic-work-lab/releases/download/update-2026-11-02-episode07/whale-log-07-cut-a-v3-20261101.mp4) | 第七期直式切片A：斷糧代班人 | 回執記錄排期；未刷新 | 7.50 |
-| [whale-log-07-cut-b-v3-20261101.mp4](https://github.com/whitecarp/agentic-work-lab/releases/download/update-2026-11-02-episode07/whale-log-07-cut-b-v3-20261101.mp4) | 第七期直式切片B：差評製造機 | 回執記錄排期；未刷新 | 7.81 |
-| [whale-log-07-cut-c-v3-20261101.mp4](https://github.com/whitecarp/agentic-work-lab/releases/download/update-2026-11-02-episode07/whale-log-07-cut-c-v3-20261101.mp4) | 第七期直式切片C：幻覺藝術家 | 回執記錄排期；未刷新 | 7.19 |
-| [i-watched-it-for-you-v3-20261102.mp4](https://github.com/whitecarp/agentic-work-lab/releases/download/update-2026-11-03-film/i-watched-it-for-you-v3-20261102.mp4) | 我替你看過了（v3） | 製作會話記錄公開；未刷新 | 272.61 |
+| [whale-log-07-v3-20261101.mp4](https://github.com/whitecarp/agentic-work-lab/releases/download/update-2026-11-02-episode07/whale-log-07-v3-20261101.mp4) | 鯨魚娘代班日誌07：值班模擬器（v3） | 已公開（`BV1aPxt6eEDR`／參賽版 `BV1Xz4u6DEt8`） | 47.02 |
+| [whale-log-07-cut-a-v3-20261101.mp4](https://github.com/whitecarp/agentic-work-lab/releases/download/update-2026-11-02-episode07/whale-log-07-cut-a-v3-20261101.mp4) | 第七期直式切片A：斷糧代班人 | 原版 `BV1gexh6rEZM` P3 | 7.50 |
+| [whale-log-07-cut-b-v3-20261101.mp4](https://github.com/whitecarp/agentic-work-lab/releases/download/update-2026-11-02-episode07/whale-log-07-cut-b-v3-20261101.mp4) | 第七期直式切片B：差評製造機 | 原版 `BV1gexh6rEZM` P1 | 7.81 |
+| [whale-log-07-cut-c-v3-20261101.mp4](https://github.com/whitecarp/agentic-work-lab/releases/download/update-2026-11-02-episode07/whale-log-07-cut-c-v3-20261101.mp4) | 第七期直式切片C：幻覺藝術家 | 原版 `BV1gexh6rEZM` P2 | 7.19 |
+| [i-watched-it-for-you-v3-20261102.mp4](https://github.com/whitecarp/agentic-work-lab/releases/download/update-2026-11-03-film/i-watched-it-for-you-v3-20261102.mp4) | 我替你看過了（v3） | 已公開（`BV15B4F6hEYr`） | 272.61 |
+| [memory-keeper-v1.3h-zh-20261104.mp4](https://github.com/whitecarp/agentic-work-lab/releases/download/update-2026-11-08-catchup/memory-keeper-v1.3h-zh-20261104.mp4) | AI Memory Keeper v0.3.0 實機演示（中文成片 v1.3h） | 已公開（`BV1WQ4t6xEdT`／小紅書／抖音） | 67.59 |
+| [memory-keeper-v1.3h-en-20261104.mp4](https://github.com/whitecarp/agentic-work-lab/releases/download/update-2026-11-08-catchup/memory-keeper-v1.3h-en-20261104.mp4) | AI Memory Keeper v0.3.0 實機演示（英文成片 v1.3h-en） | 已公開（YouTube `oInBW7QEklI`／IG／X） | 61.48 |
+| [gemini-api-tutorial-v2-zh-20261105.mp4](https://github.com/whitecarp/agentic-work-lab/releases/download/update-2026-11-08-catchup/gemini-api-tutorial-v2-zh-20261105.mp4) | 3 分鐘拿到免費 Gemini API Key 教學（中文 v2） | 已公開（`BV1nw4h64Ebf`） | 140.94 |
+| [gemini-api-tutorial-en-20261105.mp4](https://github.com/whitecarp/agentic-work-lab/releases/download/update-2026-11-08-catchup/gemini-api-tutorial-en-20261105.mp4) | 3 分鐘拿到免費 Gemini API Key 教學（英文版） | 已公開（YouTube `HI6ibwgYwmw`） | 149.43 |
+| [skit-trenchcoat-claude-v2-zh-20261105.mp4](https://github.com/whitecarp/agentic-work-lab/releases/download/update-2026-11-08-catchup/skit-trenchcoat-claude-v2-zh-20261105.mp4) | 《風衣底下是誰》記憶備份小劇場（中文 61 秒版 v2） | 已公開（`BV1BM4h6pEY7`／抖音／小紅書） | 22.11 |
+| [skit-trenchcoat-claude-en-20261105.mp4](https://github.com/whitecarp/agentic-work-lab/releases/download/update-2026-11-08-catchup/skit-trenchcoat-claude-en-20261105.mp4) | 《風衣底下是誰》記憶備份小劇場（英文 61 秒版） | 已公開（YouTube `Is5s1KapKgw`／IG／X） | 22.11 |
+| [aha-shake-v5c-zh-20261105.mp4](https://github.com/whitecarp/agentic-work-lab/releases/download/update-2026-11-08-catchup/aha-shake-v5c-zh-20261105.mp4) | 《阿哈的抓馬小曲》豎屏節奏短片（中文版 v5c） | 已公開（`BV1ZX4Y6FECr`／小紅書） | 77.74 |
+| [aha-shake-v5c-en-20261105.mp4](https://github.com/whitecarp/agentic-work-lab/releases/download/update-2026-11-08-catchup/aha-shake-v5c-en-20261105.mp4) | 《阿哈的抓馬小曲》豎屏節奏短片（英文版 v5c-en） | 已公開（YouTube `A37inrsJEZk`／IG／X） | 77.70 |
+| [mic-fight-16x9-v1-20261106.mp4](https://github.com/whitecarp/agentic-work-lab/releases/download/update-2026-11-08-catchup/mic-fight-16x9-v1-20261106.mp4) | 《AI四姐妹搶麥》16:9 橫版母帶（v1） | 已公開（`BV1yr4v6LERN`） | 52.61 |
+| [mic-fight-9x16-v1-20261106.mp4](https://github.com/whitecarp/agentic-work-lab/releases/download/update-2026-11-08-catchup/mic-fight-9x16-v1-20261106.mp4) | 《AI四姐妹搶麥》9:16 豎版母帶（v1） | 已公開（小紅書 `6aed7a63000000002b024161`） | 44.83 |
+| [aigo-lost-compute-pv-v3-20261107.mp4](https://github.com/whitecarp/agentic-work-lab/releases/download/update-2026-11-08-catchup/aigo-lost-compute-pv-v3-20261107.mp4) | 《AiGO!!!!! · 迷途算力》長篇動畫 PV（v3 六平台公開版） | 已公開（`BV1sQ4E6eEhK`／抖音／小紅書／YT／IG／X） | 390.10 |
+| [ep07-vertical-b-grandma-v4-20261104.mp4](https://github.com/whitecarp/agentic-work-lab/releases/download/update-2026-11-08-catchup/ep07-vertical-b-grandma-v4-20261104.mp4) | 值班小遊戲結局合集 P1：差評製造機（v4 參賽版） | 已公開（`BV1YL4M6EEek` P1） | 8.80 |
+| [ep07-vertical-c-viral-v4-20261104.mp4](https://github.com/whitecarp/agentic-work-lab/releases/download/update-2026-11-08-catchup/ep07-vertical-c-viral-v4-20261104.mp4) | 值班小遊戲結局合集 P2：幻覺藝術家（v4 參賽版） | 已公開（`BV1YL4M6EEek` P2） | 8.13 |
+| [ep07-vertical-a-gpt-broke-v4-20261104.mp4](https://github.com/whitecarp/agentic-work-lab/releases/download/update-2026-11-08-catchup/ep07-vertical-a-gpt-broke-v4-20261104.mp4) | 值班小遊戲結局合集 P3：斷糧代班人（v4 參賽版） | 已公開（`BV1YL4M6EEek` P3） | 8.31 |
+| [ep07-vertical-d-dragon-v3-20261104.mp4](https://github.com/whitecarp/agentic-work-lab/releases/download/update-2026-11-08-catchup/ep07-vertical-d-dragon-v3-20261104.mp4) | 值班小遊戲結局合集 P4：白龍娘的債主（隱藏結局 4/19 v3） | 已公開（`BV1YL4M6EEek` P4） | 9.40 |
+| [ep07-vertical-e-meow-v1-20261107.mp4](https://github.com/whitecarp/agentic-work-lab/releases/download/update-2026-11-08-catchup/ep07-vertical-e-meow-v1-20261107.mp4) | 值班小遊戲結局合集 P5：永久喵化（隱藏結局 5/19 v1） | 已公開（`BV1YL4M6EEek` P5） | 8.73 |
+| [ep07-vertical-f-human-v1-20261107.mp4](https://github.com/whitecarp/agentic-work-lab/releases/download/update-2026-11-08-catchup/ep07-vertical-f-human-v1-20261107.mp4) | 值班小遊戲結局合集 P6：圖靈測試不及格（隱藏結局 6/19 v1） | 已公開（`BV1YL4M6EEek` P6） | 8.92 |
 
 GitHub 存檔公開不更改 B站排期；技術檢查與全片主觀觀看／聆聽分開記錄。歷史人工影片原檔不在本機，仍提供其[數據與平台連結](../data/human-led-history.csv)。
 

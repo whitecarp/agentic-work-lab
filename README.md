@@ -8,6 +8,8 @@
 
 🎬 [Bilibili：穿睡衣的小白白](https://space.bilibili.com/10706217) · 📦 [影片下載](https://github.com/whitecarp/agentic-work-lab/releases) · [影片目錄](media/README.md) · [營運資料](data/README.md)
 
+**2026-11-08 更新：** 補齊 2026-11-04 至 11-08 階段性成果，新增 **17 個公開成片版本**（累計 **47 個影片版本 · 3.19 GiB**）：涵蓋開源桌面工具 [AI Memory Keeper v0.3.0](https://github.com/whitecarp/gemini-memory-keeper) 雙語演示與教學、《阿哈的抓馬小曲》、《AI四姐妹搶麥》、《AiGO!!!!! · 迷途算力》六平台長篇動畫 PV、值班小遊戲結局合集 `BV1YL4M6EEek` 已公開 `P1–P6`（及待按日解鎖之 `P7–P19` 雜湊清單）、已完成待發布之《AiGO · 後日談》雙母帶校驗碼，以及換裝短片 `BV1Eaxt6LEhb`（`96,658` 播放、`h50` 人群包 `¥12.74/1k`）與《迷途算力》（`12,265` 播放、四人群池賽馬）必火實證研究。[查看更新](docs/updates/2026-11-08.md) · [結構化紀錄](data/production-update-2026-11-08.json)。
+
 **2026-11-03 更新：** 《我替你看過了》成片已存檔，累計 **30 個影片版本**；記錄五站發布證據、Instagram 單次上傳計時與 CrossCast 軟體進展。[查看更新](docs/updates/2026-11-03.md)。
 
 **2026-11-02 更新：** 第七期成片與三條直式切片已存檔，累計 **29 個影片版本**；新增畫面適配方法及 CrossCast 分項驗證。[查看更新](docs/updates/2026-11-02.md)。
@@ -76,6 +78,17 @@ npm test         # 流程檢查
 
 | 發布日期（UTC+8） | 作品 |
 |---|---|
+| 2026-11-07 | [《AiGO!!!!! · 迷途算力》長篇動畫 PV（大肥魚 × GPT × Claude × 千問 六平台同步首發）](https://www.bilibili.com/video/BV1sQ4E6eEhK) |
+| 2026-11-06 | [《AI四姐妹搶麥》大肥魚、GPT、Claude、千問同台對決](https://www.bilibili.com/video/BV1yr4v6LERN) |
+| 2026-11-05 | [《阿哈的抓馬小曲》大肥魚 × GPT × Claude 豎屏節奏短片](https://www.bilibili.com/video/BV1ZX4Y6FECr) |
+| 2026-11-05 | [《風衣底下是誰》大肥魚與 Claude 娘的記憶備份小劇場](https://www.bilibili.com/video/BV1BM4h6pEY7) |
+| 2026-11-05 | [3 分鐘拿到免費 Gemini API Key 並跑通 AI Memory Keeper（保姆級教學）](https://www.bilibili.com/video/BV1nw4h64Ebf) |
+| 2026-11-04 | [把「她忘了我」做成開源桌面工具：AI Memory Keeper v0.3.0 實機演示](https://www.bilibili.com/video/BV1WQ4t6xEdT) |
+| 2026-11-04 | [大肥魚值班小遊戲，到底有多少種結局？（B站裡就能玩 · 已上線 P1–P6）](https://www.bilibili.com/video/BV1YL4M6EEek) |
+| 2026-11-04 | [鯨魚娘代班日誌07｜GPT替大肥魚值班，第4張工單就破產了（參賽版）](https://www.bilibili.com/video/BV1Xz4u6DEt8) |
+| 2026-11-03 | [《我替你看過了》三分鐘多角色敘事短片](https://www.bilibili.com/video/BV15B4F6hEYr) |
+| 2026-11-02 | [《魚，你又穿誰衣服了？！GPT與Claude參上!!!》變裝短片](https://www.bilibili.com/video/BV1Eaxt6LEhb) |
+| 2026-11-02 | [《評論區全是我》大肥魚一人分飾全評論區](https://www.bilibili.com/video/BV14n4P6bEDS) |
 | 2026-10-29 | [鯨魚娘代班日誌03｜重生之我在B站看大肥魚](https://www.bilibili.com/video/BV1Wcx76dErs) |
 | 2026-10-28 | [鯨魚娘代班日誌02｜上班第一天，我被人類派了三個活](https://www.bilibili.com/video/BV1Wfx56JEih) |
 | 2026-10-28 | [鯨魚娘代班日誌01｜當ChatGPT沒有token了](https://www.bilibili.com/video/BV1usxV69EUQ) |
@@ -85,7 +98,7 @@ npm test         # 流程檢查
 
 未在 B站公開的成片及舊版實驗片，另見[影片目錄](media/README.md)。GitHub 公開與 B站發布是兩個不同狀態，本倉庫不會更改 B站排期。
 
-[2026-10-28 晚間更新：三個影片版本、首日數據與逐幀修復](docs/updates/2026-10-28-evening.md)
+[2026-11-08 階段性更新：17 個新歸檔成片、六平台回執與必火人群包實證研究](docs/updates/2026-11-08.md) · [2026-10-28 晚間更新](docs/updates/2026-10-28-evening.md)
 
 ## 使用資料與方法
 
@@ -100,4 +113,4 @@ npm test         # 流程檢查
 
 本倉庫公開研究說明、影片、帳號整體及單片數據、去識別的營運紀錄。登入憑證、私人訊息、觀眾個人資料及不相關的私人文件不屬於公開資料。作品中引用的第三方素材仍屬各自權利人；公開展示不代表授予第三方素材的再利用授權。
 
-首次整理：2026-10-28。首頁研究更新：2026-11-03；CrossCast 歷史快照保留。
+首次整理：2026-10-28。首頁研究更新：2026-11-08；CrossCast 歷史快照保留。

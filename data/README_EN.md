@@ -2,7 +2,7 @@
 
 [繁體中文](README.md) · **English**
 
-**2026-11-03:** Added [film publication and one upload timing](production-update-2026-11-03.json). Channel growth metrics were not resampled; the historical snapshots below retain their original scope and dates.
+**2026-11-08:** Added [catch-up archive (2026-11-04 to 11-08), six-platform receipts, and empirical Bihuo audience-pool data](production-update-2026-11-08.json) (see [full update report](../docs/updates/2026-11-08_EN.md)). Earlier 2026-11-03 records remain at [production-update-2026-11-03.json](production-update-2026-11-03.json). The 2026-10-28 historical snapshots below retain their original scope and dates.
 
 Account: [Bilibili channel · UID 10706217](https://space.bilibili.com/10706217)
 
@@ -54,3 +54,7 @@ The [new record](production-update-2026-11-01.json) covers four video attachment
 ## 2026-11-02 production evidence
 
 The [new record](production-update-2026-11-02.json) adds episode 07 and its portrait cuts, historical scheduling receipts and scoped CrossCast results. It adds no traffic sample and does not change the earlier human-led/AI-series population or sampling date.
+
+## 2026-11-08 catch-up archive and Bihuo empirical study
+
+The [new record](production-update-2026-11-08.json) documents 17 newly archived published video versions from 2026-11-04 to 2026-11-07 (AI Memory Keeper v0.3.0 bilingual series, *Aha Drama Tune*, *Four AI Sisters Fighting for the Mic*, *AiGO!!!!! · Lost Compute* long-form anime PV, and Shift Simulator anthology `BV1YL4M6EEek` `P1–P6`), checksums for completed cuts pending scheduled or daily release (`aigo-epilogue-20261108` and `P7–P19`), and empirical Bilibili Bihuo promotion A/B/C/D audience-pool tests (`h50` scaling down to `¥12.74 / 1k views`) as of `2026-11-08 00:21` BJT.

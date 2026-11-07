@@ -8,6 +8,8 @@ Explore how AI supports research, content production and operations, then turn p
 
 🎬 [Bilibili channel · UID 10706217](https://space.bilibili.com/10706217) · 📦 [Video downloads](https://github.com/whitecarp/agentic-work-lab/releases) · [Video catalogue](media/README_EN.md) · [Operations data](data/README_EN.md)
 
+**2026-11-08 update:** Catch-up archive covering 2026-11-04 to 11-08 adds **17 published video versions** (**47 video versions · 3.19 GiB** in total): open-source desktop tool [AI Memory Keeper v0.3.0](https://github.com/whitecarp/gemini-memory-keeper) bilingual demos & tutorials, *Aha Drama Tune*, *Four AI Sisters Fighting for the Mic*, *AiGO!!!!! · Lost Compute* six-platform long-form anime PV, Shift Simulator anthology `BV1YL4M6EEek` live parts `P1–P6` (plus SHA-256 manifest for queued daily parts `P7–P19`), completed unpublished *AiGO Epilogue* dual-aspect checksums, and empirical Bilibili Bihuo promotion studies (`BV1Eaxt6LEhb` at `96,658` views / `¥12.74/1k` on `h50`, and *Lost Compute* 4-pool test at `12,265` views). [Read the update](docs/updates/2026-11-08_EN.md) · [Structured record](data/production-update-2026-11-08.json).
+
 **2026-11-03 update:** *I Watched It For You* is archived, bringing the catalogue to **30 video versions**. New notes cover publication evidence across five platforms, one Instagram upload timing and CrossCast software progress. [Read the update](docs/updates/2026-11-03_EN.md).
 
 **2026-11-02 update:** Episode 07 and three portrait cuts are archived, **29 video versions** in total. New notes cover layout adaptation and commit-scoped CrossCast checks. [Read the update](docs/updates/2026-11-02_EN.md).
@@ -76,6 +78,17 @@ Titles below are English summaries; original Bilibili titles remain in the datas
 
 | Date (UTC+8) | Work |
 |---|---|
+| 2026-11-07 | [AiGO!!!!! · Lost Compute Long-Form Anime PV (WhaleGirl × GPT × Claude × Qwen 6-Platform Launch)](https://www.bilibili.com/video/BV1sQ4E6eEhK) |
+| 2026-11-06 | [Four AI Sisters Fighting for the Mic: WhaleGirl, GPT, Claude & Qwen](https://www.bilibili.com/video/BV1yr4v6LERN) |
+| 2026-11-05 | [Aha Drama Tune: WhaleGirl × GPT × Claude Vertical Rhythm Short](https://www.bilibili.com/video/BV1ZX4Y6FECr) |
+| 2026-11-05 | [Who Is Under the Trenchcoat: WhaleGirl & Claude Memory Backup Skit](https://www.bilibili.com/video/BV1BM4h6pEY7) |
+| 2026-11-05 | [Get a Free Gemini API Key in 3 Minutes and Run AI Memory Keeper (Step-by-Step Tutorial)](https://www.bilibili.com/video/BV1nw4h64Ebf) |
+| 2026-11-04 | [Turning "She Forgot Me" into an Open-Source Desktop Tool: AI Memory Keeper v0.3.0 Demo](https://www.bilibili.com/video/BV1WQ4t6xEdT) |
+| 2026-11-04 | [WhaleGirl Shift Simulator: How Many Endings Are There? (Live P1–P6 on Bilibili)](https://www.bilibili.com/video/BV1YL4M6EEek) |
+| 2026-11-04 | [Whale Girl Shift Log 07: I Let GPT Cover My Shift; Bankrupt on Ticket 4 (Contest Entry)](https://www.bilibili.com/video/BV1Xz4u6DEt8) |
+| 2026-11-03 | [I Watched It For You: Three-Minute Multi-Character Narrative Short](https://www.bilibili.com/video/BV15B4F6hEYr) |
+| 2026-11-02 | [Fish, Whose Outfit Are You Wearing Again?! GPT & Claude Arrive!!!](https://www.bilibili.com/video/BV1Eaxt6LEhb) |
+| 2026-11-02 | [The Comment Section Is All Me: WhaleGirl Plays Every Commenter](https://www.bilibili.com/video/BV14n4P6bEDS) |
 | 2026-10-29 | [Whale Girl Shift Log 03: Watching Big Fat Fish on Bilibili](https://www.bilibili.com/video/BV1Wcx76dErs) |
 | 2026-10-28 | [Whale Girl Duty Log 02: Three tasks on the first working day](https://www.bilibili.com/video/BV1Wfx56JEih) |
 | 2026-10-28 | [Whale Girl Duty Log 01: Covering the shift when ChatGPT runs out of tokens](https://www.bilibili.com/video/BV1usxV69EUQ) |
@@ -85,7 +98,7 @@ Titles below are English summaries; original Bilibili titles remain in the datas
 
 Videos not yet public on Bilibili and earlier experimental cuts are listed in the [catalogue](media/README_EN.md). A public GitHub download does not mean a Bilibili upload has been published; this repository does not change platform schedules.
 
-[2026-10-28 evening update: three video versions, day-one analytics and frame-level repair](docs/updates/2026-10-28-evening_EN.md)
+[2026-11-08 catch-up update: 17 archived cuts, six-platform receipts, and Bihuo audience-pool studies](docs/updates/2026-11-08_EN.md) · [2026-10-28 evening update](docs/updates/2026-10-28-evening_EN.md)
 
 ## Using the material
 
@@ -100,4 +113,4 @@ Data is provided as CSV/JSON, with downloadable video files and SHA-256 checksum
 
 The archive contains research notes, videos, aggregate and per-video channel data and de-identified operations records. Credentials, private messages, viewer personal data and unrelated private documents are excluded. Third-party material appearing in videos remains with its respective rights holders; public access does not grant reuse rights to that material.
 
-First edition: 2026-10-28. Homepage research updated: 2026-11-03; the historical CrossCast snapshot is preserved.
+First edition: 2026-10-28. Homepage research updated: 2026-11-08; the historical CrossCast snapshot is preserved.

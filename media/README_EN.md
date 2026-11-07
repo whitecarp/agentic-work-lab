@@ -2,11 +2,11 @@
 
 [繁體中文](README.md) · **English**
 
-2026-11-03 · **30** video versions · **2.06 GiB**
+2026-11-08 · **47** video versions · **3.19 GiB**
 
-All 30 remote sizes and SHA-256 digests match the manifest. Versions are not episode counts. Original sample dates and historical Bilibili states remain in the index; old scheduled times are not treated as proof of publication. Complete experimental exports are not claims of full user acceptance.
+All 47 remote sizes and SHA-256 digests match the manifest. Versions are not episode counts. Original sample dates and historical Bilibili states remain in the index; old scheduled times are not treated as proof of publication. Complete experimental exports are not claims of full user acceptance.
 
-[Checksums](SHA256SUMS.txt) · [Manifest](manifest.json) · [New research and limits](../docs/updates/2026-11-03_EN.md)
+[Checksums](SHA256SUMS.txt) · [Manifest](manifest.json) · [New research and limits](../docs/updates/2026-11-08_EN.md)
 
 | File | Work | Recorded Bilibili state | MiB |
 |---|---|---|---:|
@@ -35,11 +35,28 @@ All 30 remote sizes and SHA-256 digests match the manifest. Versions are not epi
 | [study-whale-transformation-v4-20261030.mp4](https://github.com/whitecarp/agentic-work-lab/releases/download/update-2026-10-30-evening/study-whale-transformation-v4-20261030.mp4) | Whale Girl transformation study v4 (targeted repair) | unpublished_experiment | 98.33 |
 | [study-whale-color-heels-r5-20261031.mp4](https://github.com/whitecarp/agentic-work-lab/releases/download/update-2026-11-01-studies/study-whale-color-heels-r5-20261031.mp4) | Whale Girl study: local colour and heel-sound revision 5 | not_verified | 108.10 |
 | [study-whale-motion-r7-20261101.mp4](https://github.com/whitecarp/agentic-work-lab/releases/download/update-2026-11-01-studies/study-whale-motion-r7-20261101.mp4) | Whale Girl study: motion-timing revision 7 | not_verified | 103.48 |
-| [whale-log-07-v3-20261101.mp4](https://github.com/whitecarp/agentic-work-lab/releases/download/update-2026-11-02-episode07/whale-log-07-v3-20261101.mp4) | Whale Girl Shift Log 07: duty simulator (v3) | Scheduled submission recorded; not refreshed | 47.02 |
-| [whale-log-07-cut-a-v3-20261101.mp4](https://github.com/whitecarp/agentic-work-lab/releases/download/update-2026-11-02-episode07/whale-log-07-cut-a-v3-20261101.mp4) | Episode 07 portrait cut A: running out of resources | Scheduled submission recorded; not refreshed | 7.50 |
-| [whale-log-07-cut-b-v3-20261101.mp4](https://github.com/whitecarp/agentic-work-lab/releases/download/update-2026-11-02-episode07/whale-log-07-cut-b-v3-20261101.mp4) | Episode 07 portrait cut B: refusing every request | Scheduled submission recorded; not refreshed | 7.81 |
-| [whale-log-07-cut-c-v3-20261101.mp4](https://github.com/whitecarp/agentic-work-lab/releases/download/update-2026-11-02-episode07/whale-log-07-cut-c-v3-20261101.mp4) | Episode 07 portrait cut C: bluffing through the shift | Scheduled submission recorded; not refreshed | 7.19 |
-| [i-watched-it-for-you-v3-20261102.mp4](https://github.com/whitecarp/agentic-work-lab/releases/download/update-2026-11-03-film/i-watched-it-for-you-v3-20261102.mp4) | I Watched It For You (v3) | Public per production session; not refreshed | 272.61 |
+| [whale-log-07-v3-20261101.mp4](https://github.com/whitecarp/agentic-work-lab/releases/download/update-2026-11-02-episode07/whale-log-07-v3-20261101.mp4) | Whale Girl Shift Log 07: duty simulator (v3) | published (`BV1aPxt6eEDR` / contest `BV1Xz4u6DEt8`) | 47.02 |
+| [whale-log-07-cut-a-v3-20261101.mp4](https://github.com/whitecarp/agentic-work-lab/releases/download/update-2026-11-02-episode07/whale-log-07-cut-a-v3-20261101.mp4) | Episode 07 portrait cut A: running out of resources | Original `BV1gexh6rEZM` P3 | 7.50 |
+| [whale-log-07-cut-b-v3-20261101.mp4](https://github.com/whitecarp/agentic-work-lab/releases/download/update-2026-11-02-episode07/whale-log-07-cut-b-v3-20261101.mp4) | Episode 07 portrait cut B: refusing every request | Original `BV1gexh6rEZM` P1 | 7.81 |
+| [whale-log-07-cut-c-v3-20261101.mp4](https://github.com/whitecarp/agentic-work-lab/releases/download/update-2026-11-02-episode07/whale-log-07-cut-c-v3-20261101.mp4) | Episode 07 portrait cut C: bluffing through the shift | Original `BV1gexh6rEZM` P2 | 7.19 |
+| [i-watched-it-for-you-v3-20261102.mp4](https://github.com/whitecarp/agentic-work-lab/releases/download/update-2026-11-03-film/i-watched-it-for-you-v3-20261102.mp4) | I Watched It For You (v3) | published (`BV15B4F6hEYr`) | 272.61 |
+| [memory-keeper-v1.3h-zh-20261104.mp4](https://github.com/whitecarp/agentic-work-lab/releases/download/update-2026-11-08-catchup/memory-keeper-v1.3h-zh-20261104.mp4) | AI Memory Keeper v0.3.0 live demo (ZH v1.3h) | published (`BV1WQ4t6xEdT` / XHS / Douyin) | 67.59 |
+| [memory-keeper-v1.3h-en-20261104.mp4](https://github.com/whitecarp/agentic-work-lab/releases/download/update-2026-11-08-catchup/memory-keeper-v1.3h-en-20261104.mp4) | AI Memory Keeper v0.3.0 live demo (EN v1.3h-en) | published (YouTube `oInBW7QEklI` / IG / X) | 61.48 |
+| [gemini-api-tutorial-v2-zh-20261105.mp4](https://github.com/whitecarp/agentic-work-lab/releases/download/update-2026-11-08-catchup/gemini-api-tutorial-v2-zh-20261105.mp4) | Free Gemini API Key 3-min tutorial (ZH v2) | published (`BV1nw4h64Ebf`) | 140.94 |
+| [gemini-api-tutorial-en-20261105.mp4](https://github.com/whitecarp/agentic-work-lab/releases/download/update-2026-11-08-catchup/gemini-api-tutorial-en-20261105.mp4) | Free Gemini API Key 3-min tutorial (EN) | published (YouTube `HI6ibwgYwmw`) | 149.43 |
+| [skit-trenchcoat-claude-v2-zh-20261105.mp4](https://github.com/whitecarp/agentic-work-lab/releases/download/update-2026-11-08-catchup/skit-trenchcoat-claude-v2-zh-20261105.mp4) | Who Is Under the Trenchcoat memory skit (ZH 61s v2) | published (`BV1BM4h6pEY7` / Douyin / XHS) | 22.11 |
+| [skit-trenchcoat-claude-en-20261105.mp4](https://github.com/whitecarp/agentic-work-lab/releases/download/update-2026-11-08-catchup/skit-trenchcoat-claude-en-20261105.mp4) | Who Is Under the Trenchcoat memory skit (EN 61s) | published (YouTube `Is5s1KapKgw` / IG / X) | 22.11 |
+| [aha-shake-v5c-zh-20261105.mp4](https://github.com/whitecarp/agentic-work-lab/releases/download/update-2026-11-08-catchup/aha-shake-v5c-zh-20261105.mp4) | Aha Drama Tune vertical rhythm short (ZH v5c) | published (`BV1ZX4Y6FECr` / XHS) | 77.74 |
+| [aha-shake-v5c-en-20261105.mp4](https://github.com/whitecarp/agentic-work-lab/releases/download/update-2026-11-08-catchup/aha-shake-v5c-en-20261105.mp4) | Aha Drama Tune vertical rhythm short (EN v5c-en) | published (YouTube `A37inrsJEZk` / IG / X) | 77.70 |
+| [mic-fight-16x9-v1-20261106.mp4](https://github.com/whitecarp/agentic-work-lab/releases/download/update-2026-11-08-catchup/mic-fight-16x9-v1-20261106.mp4) | Four AI Sisters Fighting for the Mic 16:9 master (v1) | published (`BV1yr4v6LERN`) | 52.61 |
+| [mic-fight-9x16-v1-20261106.mp4](https://github.com/whitecarp/agentic-work-lab/releases/download/update-2026-11-08-catchup/mic-fight-9x16-v1-20261106.mp4) | Four AI Sisters Fighting for the Mic 9:16 master (v1) | published (XHS `6aed7a63000000002b024161`) | 44.83 |
+| [aigo-lost-compute-pv-v3-20261107.mp4](https://github.com/whitecarp/agentic-work-lab/releases/download/update-2026-11-08-catchup/aigo-lost-compute-pv-v3-20261107.mp4) | AiGO!!!!! Lost Compute band anime PV (v3 6-platform release) | published (`BV1sQ4E6eEhK` / Douyin / XHS / YT / IG / X) | 390.10 |
+| [ep07-vertical-b-grandma-v4-20261104.mp4](https://github.com/whitecarp/agentic-work-lab/releases/download/update-2026-11-08-catchup/ep07-vertical-b-grandma-v4-20261104.mp4) | Shift Simulator Endings P1: Bad-Review Machine (v4 contest cut) | published (`BV1YL4M6EEek` P1) | 8.80 |
+| [ep07-vertical-c-viral-v4-20261104.mp4](https://github.com/whitecarp/agentic-work-lab/releases/download/update-2026-11-08-catchup/ep07-vertical-c-viral-v4-20261104.mp4) | Shift Simulator Endings P2: Hallucination Artist (v4 contest cut) | published (`BV1YL4M6EEek` P2) | 8.13 |
+| [ep07-vertical-a-gpt-broke-v4-20261104.mp4](https://github.com/whitecarp/agentic-work-lab/releases/download/update-2026-11-08-catchup/ep07-vertical-a-gpt-broke-v4-20261104.mp4) | Shift Simulator Endings P3: Out-of-Quota Temp (v4 contest cut) | published (`BV1YL4M6EEek` P3) | 8.31 |
+| [ep07-vertical-d-dragon-v3-20261104.mp4](https://github.com/whitecarp/agentic-work-lab/releases/download/update-2026-11-08-catchup/ep07-vertical-d-dragon-v3-20261104.mp4) | Shift Simulator Endings P4: Creditor of the White Dragon (v3) | published (`BV1YL4M6EEek` P4) | 9.40 |
+| [ep07-vertical-e-meow-v1-20261107.mp4](https://github.com/whitecarp/agentic-work-lab/releases/download/update-2026-11-08-catchup/ep07-vertical-e-meow-v1-20261107.mp4) | Shift Simulator Endings P5: Permanent Meow-ification (v1) | published (`BV1YL4M6EEek` P5) | 8.73 |
+| [ep07-vertical-f-human-v1-20261107.mp4](https://github.com/whitecarp/agentic-work-lab/releases/download/update-2026-11-08-catchup/ep07-vertical-f-human-v1-20261107.mp4) | Shift Simulator Endings P6: Failed the Turing Test (v1) | published (`BV1YL4M6EEek` P6) | 8.92 |
 
 GitHub archival publication does not change Bilibili schedules. Technical checks are distinct from full subjective viewing/listening. Historical human-led originals are not available locally; their [data and platform links](../data/human-led-history.csv) remain available.
 
