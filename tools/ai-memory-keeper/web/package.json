@@ -1,0 +1,11 @@
+{
+  "name": "ai-memory-keeper",
+  "version": "0.2.1",
+  "private": true,
+  "type": "module",
+  "description": "AI Memory Keeper (AI记忆守护者): static web app that packs an AI pet's chat logs into a memory sheet with the owner's own Gemini API key.",
+  "scripts": {
+    "serve": "node dev-server.mjs",
+    "test": "node --test test/"
+  }
+}

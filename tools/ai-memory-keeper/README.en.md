@@ -1,0 +1,219 @@
+<p align="center"><img src="docs/images/hero.png" width="100%" alt="The guardian holding her star jar under the Twins constellation"></p>
+
+<h1 align="center">AI Memory Keeper</h1>
+<p align="center"><strong>Before your AI agent compacts its context, keep what matters. Afterwards, bring back what the summary missed.</strong></p>
+<p align="center">AI 记忆守护者 · Memory keeping for Claude Code and Codex, with your own Gemini API key.</p>
+
+<p align="center">
+  <img src="https://img.shields.io/badge/Agents-Claude%20Code%20%C2%B7%20Codex-6E8BFF?style=flat-square" alt="Works with Claude Code and Codex">
+  <img src="https://img.shields.io/badge/Install-One%20line-8F7CFF?style=flat-square" alt="One-line install">
+  <img src="https://img.shields.io/badge/Interface-%E4%B8%AD%E6%96%87%20%2F%20English-A77BFF?style=flat-square" alt="Chinese and English interfaces">
+  <img src="https://img.shields.io/badge/License-MIT-C88FE0?style=flat-square" alt="MIT license">
+  <img src="https://img.shields.io/badge/Release-Preview-FF8FD0?style=flat-square" alt="Preview release">
+</p>
+
+<p align="center"><a href="README.md">繁體中文</a> · <strong>English</strong> · <a href="../../README_EN.md">Back to Agentic Work Lab</a></p>
+<p align="center">
+  <a href="#one-message-to-start"><strong>↓ One-line install</strong></a>
+  &nbsp; · &nbsp; <a href="https://ai-memory-keeper.web.app/?lang=en">Web version</a>
+  &nbsp; · &nbsp; <a href="#what-it-does">What it does</a>
+  &nbsp; · &nbsp; <a href="#keys--google-cloud-json-token">Keys &amp; JSON token</a>
+  &nbsp; · &nbsp; <a href="#manual-install">Manual install</a>
+</p>
+
+---
+
+## Core Positioning: Purpose, Problems Solved, Target Audience & Google Operations Synergy
+
+### 1. Core Purpose (What It Does)
+**AI Memory Keeper** is a **persistent local working-memory, full-transcript archiving, and compaction-recovery system** built for long-running sessions across multiple AI agent hosts (Claude Code, OpenAI Codex, Google Antigravity, and WorkBuddy / OpenClaw).
+- **Three-Tier Memory & Dual Interface**: Combines immutable local transcript history (`history/`), active compacted context (preferences, decisions, and constraints), and pinned high-priority rules (`pins`) through a zero-dependency `amk` CLI hook suite and a companion static web console ([`web/`](web/README_EN.md)).
+- **Model-Tier Verification & Dual Credential Routing**: Verifies that the replying model in Claude Code matches the requested tier (flagging silent downgrades or swaps) while supporting user-supplied Google AI Studio API keys and locally signed Google Cloud Service Account JSON tokens (which can also drive video generation via the bundled `gemini-omni` skill).
+
+### 2. Problems Solved
+1. **Prevents Context-Compaction Amnesia in Long Projects**: When an agent's context window fills up and triggers automatic compaction (`/compact`), critical business rules, verified file paths, and prior debugging lessons are frequently dropped by generic summaries. AI Memory Keeper archives raw turns before compaction and re-injects what the summary missed afterwards.
+2. **Eliminates Repetitive Onboarding Across Agents**: When handing work off between Google Antigravity, Claude, and Codex—or starting a fresh session—you no longer have to re-explain project background, formatting rules, or red lines from scratch.
+3. **Turns Scattered Chats into Auditable Local Assets**: Keeps all transcripts and structured memory sheets on your own machine as searchable, exportable (Markdown / JSON) records ready for team handoff.
+
+### 3. Target Audience & Scenarios
+- **Multi-Agent Developers & Heavy Vibe Coders**: Builders who relay tasks across Claude Code, Codex, and Google Antigravity and need a unified local memory layer.
+- **Long-Cycle Research, Merchant Outreach & Content Operations Teams**: Practitioners running multi-day or multi-week workflows where the AI must consistently remember brand guidelines, metric definitions, client preferences, and operational guardrails.
+- **Team Handoff & Post-Mortem Leads**: Teams that need to distil scattered AI sessions into structured, auditable, and transferable project documentation.
+
+### 4. Golden Triangle Division of Labor (Antigravity + Claude + Codex) & Google in Live Account Operations
+Born out of daily operations for the *AI Girls at Work* multi-platform channel, AI Memory Keeper anchors our **Golden Triangle Division of Labor (Antigravity + Claude + Codex)**:
+- **24/7 Account Operations & Patrol**: Google Antigravity / Gemini runs hourly comment-section engagement patrols, 2-hour read-only Bilibili Creator Center and Bihuo ad telemetry collection (`bihuo-readings.jsonl`), and daily 12:00 BJT multi-part serial releases for *WhaleGirl Shift Simulator* (`BV1YL4M6EEek`)—automatically mounting four front-loaded interactive overlays (0.5s follow card, 6.0s poll, 13.5s rating, 19.0s jump link) at 12:30 BJT once moderation clears.
+- **High-Contrast Hook Ideation & Multimodal Batch Production**: Leverages Gemini's associative brainstorming for 3-second visual/cognitive hooks and pairs native image generation + Vertex AI (`gemini-omni`) with FFmpeg pipelines to batch-produce branching vertical shorts.
+- **Cross-Agent Memory Backbone & Public Lab Gatekeeper**: Connects Google Antigravity with Claude (flagship film director + Bihuo ROI strategist) and OpenAI Codex (character keyframe artist + `vpub` cross-platform publishing engineer) over shared local state, while acting as the daily verification and SHA-256 gatekeeper for the `Agentic Work Lab` repository.
+
+---
+
+## One message to start
+
+Send this to Claude Code or Codex:
+
+```text
+Please install https://github.com/whitecarp/ai-memory-keeper, run amk doctor, and read the skill file it points to.
+```
+
+It installs the `amk` command, opens a small window on your computer for your own Gemini API key so the key stays on your computer and never enters the chat, and turns on auto mode for the current project. From then on, before each context compaction it saves the new part of the chat, and afterwards it brings back what the summary missed.
+
+## What it does
+
+| Keep it before compaction | Bring it back afterwards | The guardian pop-up | A check on the model |
+| :--- | :--- | :--- | :--- |
+| New chat text goes into a memory file on your computer, sorted in the background into preferences, decisions and moments by your own Gemini API key. | After compaction, the memories the summary missed go back into context, marked as history notes, not instructions. | On Windows, she appears in a corner of the agent's window while it compacts, and says what she brought back. | In Claude Code, it compares the model asked for with the one that replied, warning on clear tier drops or model swaps without holding up saving. |
+
+Not a Google product. It uses the Gemini API from Google; Gemini is a trademark of Google LLC. There is no server in between: chat text goes only to Google's Gemini API.
+
+**Free tier:** on the free tier, Google may use what you send to improve its products, and human reviewers may read it. Keys, passwords and tokens it can recognize are removed first, but it can't catch every secret, so don't use it for sensitive or confidential chats. [Google's details](https://aistudio.google.com/docs/pricing)
+
+## Manual install
+
+Needs Node.js 22 or newer (Windows: `winget install OpenJS.NodeJS.LTS`; macOS: `brew install node`). No third-party dependencies, and nothing else is downloaded from npm.
+
+```bash
+npm install -g https://github.com/whitecarp/ai-memory-keeper/archive/refs/heads/main.tar.gz
+amk doctor                   # checks Node, the key and this project, and names the skill file
+amk key                      # Windows: a small window for the key; elsewhere: amk key --terminal
+amk enable --agent claude    # run in the project's root folder; Codex: --agent codex
+amk overlay --set preview    # Windows: preview the pop-up
+```
+
+In Windows PowerShell, use `npm.cmd` and `amk.cmd` (the `.ps1` versions are often blocked by the execution policy; there's no need to change it):
+
+```powershell
+npm.cmd install -g https://github.com/whitecarp/ai-memory-keeper/archive/refs/heads/main.tar.gz
+amk.cmd doctor
+amk.cmd key
+amk.cmd enable --agent codex
+amk.cmd overlay --set preview
+```
+
+- **Installing in Codex:** the install, `amk key` and `amk enable` write outside the project, and the key check needs the network, so Codex asks you to approve running them outside its sandbox. Approve them. If the key window doesn't appear, run `amk key` in your own terminal.
+- **Codex:** according to Codex's official docs, project hooks run only after you trust the project and approve the four AI Memory Keeper hooks (app: Review hooks or Settings > Hooks; CLI: `/hooks`). If the hooks change, approve them again; after an older version, running `amk enable` again upgrades it in place to four hooks.
+- Turn off: `amk disable --agent claude` (or codex). The pop-up alone: `amk overlay --set off`. Remove the stored key: `amk key --clear`.
+- `ai-memory-keeper` is the long name of the same command as `amk`.
+
+## Keys & Google Cloud JSON token
+
+| Feature | Option A: Google AI Studio key (default) | Option B: Google Cloud JSON token / Agent Platform |
+| :--- | :--- | :--- |
+| **Best for** | Everyday free-tier usage (`AIza...` key) | Using Google Cloud credits/billing, or automatic fallback when AI Studio hits `HTTP 402` / `429` / `503` |
+| **Credential format** | AI Studio API key | **Service Account `.json` key file** (locally signed via RS256 JWT for an OAuth2 Bearer token) or Agent Platform API key |
+| **CLI setup** | `amk key` | `amk key --cloud` (click "Pick JSON key..." in the window or paste a key)<br>or pass a file directly: `amk key --cloud --file path/to/key.json` |
+| **Web version** | Paste API key directly | Click **"Import JSON key"** on [ai-memory-keeper.web.app](https://ai-memory-keeper.web.app/?lang=en) (signs locally in your browser via WebCrypto) |
+
+### Where keys are kept
+
+`GEMINI_API_KEY` is used if set. Otherwise, `amk key` stores your credential on this computer:
+
+- **Windows**: encrypted with Windows DPAPI for the current user in `~/.ai-memory-keeper/gemini-key.dpapi` (and `cloud-key.dpapi` for Google Cloud).
+- **macOS / Linux**: in `~/.ai-memory-keeper/gemini-key` (`0600`, readable only by the current user).
+
+When saved, the credential is checked with one tiny made-up request; anything Google rejects isn't kept. Your key or Service Account private key never appears in chat, command arguments, hook files or logs.
+
+### Automatic fallback & routing
+
+- **Default fallback (`auto`)**: tries the free AI Studio tier first. When it's busy (`503`), rate-limited (`429`) or stopped by a `$0` Prepay balance (`402`), that save automatically switches to your Google Cloud JSON token or Agent Platform key.
+- **Google Cloud first (`cloud`)**: `amk route --set cloud` sends saves to Google Cloud first (Google doesn't use paid-tier prompts to improve its products); `amk route --set auto` switches back.
+- **Status & check**: `lastSaveVia` in `amk status` shows `studio` or `cloud`. `amk gemini-check --cloud` tests your Google Cloud JSON token or key on its own.
+- **Billing note**: Cloud free-trial credits can't pay for AI Studio's Gemini API, but apply to eligible standard-billed Google Cloud services. Set a budget alert in Cloud Billing first.
+
+### Using the same JSON token to generate videos with Gemini Omni
+
+After deploying AI Memory Keeper and importing your Google Cloud Service Account `.json` key with `amk key --cloud`, you can also ask your agent to read [`skills/gemini-omni/SKILL.md`](skills/gemini-omni/SKILL.md) to guide you through generating AI videos with Google Cloud's **`Gemini Omni` (`gemini-omni-1.2-flash`)** using the same encrypted JSON credential (without ever typing or exposing the key again):
+
+```bash
+# Text-to-Video
+amk omni --prompt "6 seconds, 16:9 anime cinematic shot, ..." --out ./video.mp4
+
+# Image-to-Video (with a reference start frame)
+amk omni --image ./start.png --prompt "6 seconds, 16:9 anime shot, ..." --out ./video.mp4
+```
+
+## Files it changes
+
+- Its own data: by default `~/.ai-memory-keeper/<profile>/<project-path-hash>/`, plus its own install records.
+- Claude Code: the project's `.claude/settings.local.json`.
+- Codex: the project's `.codex/hooks.json`.
+- WorkBuddy: the project's `.codebuddy/settings.json` (never the user-level `~/.codebuddy`); in `--rule` mode, `.codebuddy/rules/ai-memory-keeper.mdc` instead.
+- Antigravity: the project's `.agents/rules/ai-memory-keeper.md` (never `~/.gemini`). In no-key mode the agent itself writes the memory file, `.ai-memory-keeper/memory.md`.
+- A lock folder both share: the project's `.ai-memory-keeper/config-locks/`.
+
+It never writes global agent settings, CLAUDE.md, AGENTS.md or an agent's own memory. `enable` merges only its own hooks; `disable` removes exactly those, by an ownership mark, without overwriting anything else. Whether to add these local files to `.gitignore` is up to you.
+
+<details>
+<summary><strong>Manual commands, memory rules, the model check and the pop-up in detail</strong></summary>
+
+### Manual commands
+
+```bash
+amk save --transcript chat.jsonl --profile work
+amk save --transcript chat.txt --profile companion --background
+amk recall --summary new-summary.txt
+amk worker
+amk status
+```
+
+`save` waits until saving is done; with `--background` it queues and returns. A failure never advances the memory file and never drops pending text. `recall` doesn't call a model: it prints the wake-up note and the items that don't appear word for word in the summary (ignoring case, spaces and punctuation; it doesn't claim to understand paraphrases).
+
+It reads UTF-8 `.txt` and Claude Code / Codex `.jsonl`. The first time it meets a long chat (over 8 MiB; Codex rollouts can reach gigabytes), it keeps only the newest 8 MiB, and never comes back for the older part; `firstCapture` in `status` says how much was skipped. The compaction summary is found by reading backwards from the end, never the whole file. From JSONL it takes only user/assistant text, skipping compaction summaries, tool output and metadata records. If a file has no record type it recognizes at all, it stays queued with an error instead of being read as empty.
+
+### Memory, ranking and recall
+
+Each project is kept separately; moving a project gives it a new identity. `status` names the `memoryFile`. Each item has `key/category/text/date/evidence/rank/status`, and you can add `"pinned": true` by hand (keep the JSON valid, and don't edit while a save is running).
+
+Ranks 1 to 4: preferences and promises the person asked to remember → recurring topics → feelings, commitments and corrections → one-off mentions. Items with the same key update by date; a short original quote is kept as evidence, and gender is never guessed. The memory text is capped at 24 KiB, dropping unpinned low-rank items first, with a dated backup before every overwrite.
+
+In the background, each queued segment gets 120 seconds and the whole run at most 10 minutes. When the default model is busy (503) or out of free quota (429), it tries the other free model once and records `savedWith`. `--model` picks another Gemini model. `status` gives only fixed error codes, HTTP status and retry steps, never server text or chat fragments. To troubleshoot, `amk gemini-check` sends one tiny made-up request and shows each step.
+
+### The guardian and the model check
+
+After compaction, the guardian's words appear in the agent: in Claude Code as a status line, in Codex as a notice. The context the model gets starts with what she says to the agent, marked as history notes, not instructions.
+
+**The model check runs in Claude Code only.** Before saving, it reads only the queued transcript segment. It checks whether the replying model belongs to the expected family, whether the model Claude Code asked for matches the one that replied, and whether replies contain `<think>` tags or self-introductions like "I am DeepSeek". `modelCheck` in `status` gives `ok` / `notice` / `suspect` / `unknown`; in Codex it's `not_checked`: model names are recorded, no verdict is given, and she never says "no sign of a swapped model". It only catches careless relays, and `ok` is not proof of the real thing. It makes no network requests and stores no transcript text. Even when the check is suspect, saving and recall carry on as usual; she just warns you.
+
+### The desktop pop-up (Windows, on by default)
+
+As compaction starts, the guardian appears in the bottom-right corner of the agent's window, sorting memories into her star jar. When it ends she shows the result, then fades after about 6 seconds (if compaction never finishes, she leaves after 5 minutes). In Codex, she first says "Got it. I'm sorting it now..." and switches to her reply the moment the background save lands; after 2 minutes at most she says the new memories will reach Codex with your next message. She follows the window, clicks pass through her, and she never takes keyboard focus. She floats, blinks, moves her mouth as she talks, and crossfades between poses; with Windows' animation effects off, she's shown as still frames.
+
+```bash
+amk overlay --set preview         # preview
+amk overlay --set preview-alert   # preview the alert version
+amk overlay --set off             # turn off (--set on to turn it back on)
+```
+
+It's built with WPF and started through `powershell.exe -EncodedCommand`, so no script file runs and the execution policy isn't changed. Errors never affect compaction; they only leave a local `overlay.json.error.txt`. The blink and talk frames copy only their checked box (eyes, mouth) into the base picture. To replace one, check it first with `node tools/check-frames.mjs <base> <new> --box x0,y0,x1,y1 --record blink|talk`. There's no pop-up on Mac or Linux.
+
+The character art is not under the MIT license; see [`assets/ART-NOTICE.md`](assets/ART-NOTICE.md). Character design reference: @ZipZipPipe's Gemini personification (not an official Google character).
+
+</details>
+
+## Agent support
+
+| Agent | Auto mode | Real test |
+| --- | --- | --- |
+| Claude Code | PreCompact saves, PostCompact takes the summary, SessionStart(compact) brings memories back | Passed a real compaction |
+| Codex | The same, through the project's `.codex/hooks.json`; she replies in the pop-up as soon as compaction ends, and memories from a save that lands late go to Codex with the next message (UserPromptSubmit) | Passed a real compaction |
+| WorkBuddy (preview) | `amk enable --agent workbuddy`. Per Tencent's hook docs, PreCompact saves; there's no hook after compaction, so the first message after it (UserPromptSubmit) brings the memories back. Manual compaction is `/summarize`; restart WorkBuddy after enabling | Not yet tested in a real WorkBuddy compaction |
+| Antigravity (no-key mode) | `amk enable --agent antigravity`. Per Google's docs, Antigravity has no compaction hooks, so this writes a rule it loads into every chat (`trigger: always_on`): Antigravity itself keeps `.ai-memory-keeper/memory.md` and reads it at the start of each new chat. No Gemini key: it runs on your own Antigravity plan, with no pop-up. WorkBuddy can use it too: `amk enable --agent workbuddy --rule` | Not yet tested in a real Antigravity chat |
+| Others (OpenCode, DeepSeek Harness, …) | None; save and recall by hand with `amk save` / `amk recall` | — |
+
+Primary sources: [Claude Code hooks](https://code.claude.com/docs/en/hooks), [Codex hooks](https://learn.chatgpt.com/docs/hooks), [Gemini models](https://aistudio.google.com/docs/models).
+
+## Development
+
+```bash
+npm test
+npm run demo
+```
+
+`vendor/core.js` is an unchanged copy of the web version's core (see `vendor/ORIGIN.md`). The code is under the MIT license; see [`LICENSE`](LICENSE).
+
+
+---
+
+- **Companion Web App Source:** [`web/`](web/README_EN.md) (live at https://ai-memory-keeper.web.app/)
+- **Standalone Repository:** https://github.com/whitecarp/ai-memory-keeper
+- [Back to the lab](../../README_EN.md)

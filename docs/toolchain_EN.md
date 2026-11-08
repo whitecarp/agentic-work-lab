@@ -1,25 +1,52 @@
-# Tools and integrations
+# Tools, Three Open-Source Suites, and Multi-Agent Selection
 
 [繁體中文](toolchain.md) · **English**
 
-This table records observed tools and usage evidence; installation is not presented as mastery.
+This page documents the tools, open-source suites, and multi-agent workflows developed and used in practice by this lab; installation is never presented as mastery.
 
-| Tool | Use | Evidence and version |
+---
+
+## 1. Three Open-Source Tool Suites Built in This Lab (`tools/`)
+
+We turned the recurring bottlenecks from our daily multi-agent handoffs, cross-timezone Claude workflows, and six-platform video operations into three open-source tool suites included directly under `tools/`:
+
+| Tool Suite | Core Purpose (What It Does) | Problems Solved | Target Audience & Scenarios | Lab Path & Standalone Repo |
+| --- | --- | --- | --- | --- |
+| **AI Memory Keeper** | A **persistent local working-memory, full-transcript archiving, and compaction-recovery system** across long sessions and multiple agent hosts (Claude Code, OpenAI Codex, Google Antigravity, WorkBuddy / OpenClaw). Combines a three-tier memory architecture (`history/` raw logs, active compacted context, and pinned high-priority rules `pins`), a zero-dependency `amk` CLI hook suite, model-tier verification, and a static web console. | 1. **Prevents context-compaction amnesia (`/compact`)**: archives raw dialogue turns before compaction and re-injects preferences, decisions, and constraints missed by generic summaries;<br>2. **Eliminates repetitive onboarding when relaying across Claude ↔ Codex ↔ Gemini**;<br>3. **Turns scattered chat sessions into searchable, auditable, and transferable local project assets**. | 1. **Multi-agent developers & heavy Vibe Coders**;<br>2. **Long-cycle research, merchant outreach & content operations teams** requiring persistent brand rules, metric definitions, and client preferences;<br>3. **Team handoff & post-mortem leads**. | [In-repo `tools/ai-memory-keeper/`](../tools/ai-memory-keeper/README_EN.md) · [Web app `web/`](../tools/ai-memory-keeper/web/README_EN.md) · [Standalone repo](https://github.com/whitecarp/ai-memory-keeper) |
+| **I Must Use Claude (WhaleGirl Desktop Toolbox)** | An **all-in-one Windows native desktop utility suite** for cross-timezone collaboration, real-time bilingual Claude communication, multi-file context packaging, and reversible environment diagnostics (`Whale Environment Helper`, `Whale Translator`, `Two-Zone Clock`, and `Whale Pack Helper` ≤29 MB bundler). | 1. **Eliminates terminology drift and copy-paste fatigue in bilingual English/Chinese workflows** via glossary-locked live translation;<br>2. **Prevents cross-timezone scheduling and Claude 5-hour/weekly quota reset mistakes**;<br>3. **Replaces tedious manual file copying** by filtering and splitting multi-file projects into clean ≤29 MB context bundles;<br>4. **Replaces blind network/browser tweaks with reversible *measure → backup → apply → undo* diagnostics**. | 1. **Cross-language / cross-timezone professionals using Claude as their main workspace** (PMs, BD leads, researchers, international students);<br>2. **Creators & engineers who frequently feed complex project files to Claude**;<br>3. **Low-friction Windows desktop workflow practitioners**. | [In-repo `tools/i-must-use-claude/`](../tools/i-must-use-claude/README_EN.md) · [Standalone repo & EXEs](https://github.com/whitecarp/I-Must-Use-Claude) |
+| **PublishOps CrossCast** | Multi-platform video publishing console (`vpub` CLI) managing uploads, platform-tailored copy, 16:9 / 9:16 / 4:3 covers, resumable transfers, and verified publication receipts across Bilibili, Douyin, Xiaohongshu, YouTube, Instagram, and X. | 1. **Eliminates repetitive manual uploads, cropped covers, and ambiguous publication states**;<br>2. **Solves interrupted uploads and incomplete pagination when reading comments and analytics across platforms**. | 1. **Multi-platform creators & brand content operations teams**;<br>2. **Automation engineers requiring auditable publication receipts and cross-platform sync**. | [In-repo `tools/publishops-crosscast/`](../tools/publishops-crosscast/README_EN.md) · [Standalone repo](https://github.com/whitecarp/publishops-crosscast) |
+
+---
+
+## 2. How Google (Gemini / Antigravity / Vertex AI) Powers Account Operations & the Golden Triangle Workflow
+
+Across our daily production and channel operations for *AI Girls at Work*, **Google (Gemini / Google Antigravity / Vertex AI)**, **Anthropic (Claude)**, and **OpenAI (GPT / Codex)** operate as a complementary **Golden Triangle**:
+
+| Operational Domain | Concrete Contributions & Verified Evidence from Google (Gemini / Antigravity / Vertex AI) |
+| --- | --- |
+| **1. 24/7 Account Operations & Automated Patrol** | • **Hourly comment-section engagement patrols**: automatically scans newly published works (such as `BV1Eaxt6LEhb`, `BV1sQ4E6eEhK`, and `BV1YL4M6EEek`) for real viewer comments and drafts context-aware, in-character replies to boost community retention.<br>• **2-hour read-only Creator Center & Bihuo ad telemetry**: periodically samples impressions, views, likes, favorites, follow conversions, and CPM across active campaigns (`bihuo-readings.jsonl`), building a continuous time-series dataset for the team.<br>• **Daily serial scheduling & interactive component mounting**: runs the daily 12:00 BJT multi-part unlock queue for *WhaleGirl Shift Simulator* (`BV1YL4M6EEek`), updates description progress tables, and automatically mounts four front-loaded interactive overlays (`0.5s` follow card, `6.0s` poll, `13.5s` rating, `19.0s` jump link) at 12:30 BJT after moderation passes—turning a single release into a 14+ day serial event. |
+| **2. High-Contrast Creative Hook & Format Ideation** | Leverages Gemini's cross-domain associative reasoning and internet-culture fluency to design **first-3-second visual/cognitive hooks** and ≤60s interactive short formats (e.g., four-model mic battles, workplace shift-handoff reversals, and viewer-comment-driven experiments). |
+| **3. Multimodal Asset Generation & Branch Video Production** | Combines Google native image generation and Vertex AI (`gemini-omni-1.2-flash`, packaged in `tools/ai-memory-keeper/skills/gemini-omni/`) with FFmpeg rendering pipelines to batch-produce branching vertical ending shorts (`P4–P19`), chibi expression sheets, and desktop companion animation frames. |
+| **4. Cross-Agent Memory Backbone & Public Lab Gatekeeper** | Drives [`AI Memory Keeper`](../tools/ai-memory-keeper/README_EN.md) so Google Antigravity, Claude, and Codex share a single persistent local memory and operations state; serves as the daily automated verification, bilingual documentation, and GitHub Release SHA-256 gatekeeper for `Agentic Work Lab`. |
+
+---
+
+## 3. Full Toolchain and Integration Matrix
+
+| Tool | Practical Use | Evidence and Version |
 | --- | --- | --- |
-| ChatGPT／Codex | Translate requests into research, code, and deliverables. | Repository code, documentation, commits, and production records. |
-| Dedicated DeepSeek operations instance | Continue scheduled operations from shared checkpoints. | [Run evidence](automation-verification_EN.md), not an identical-task benchmark. |
-| GitHub integration | Read repository state, commit documentation, verify remote versions. | This repository's commit history and files. |
-| Bili CLI skill + CLI | Retrieve uploads, creator analytics, and publication read-back. | CLI version **0.7.0** and [datasets](../data/README_EN.md). |
-| Breeze CLI／Audio Studio | Voice takes and audio-production workflow. | Two editable-delivery cases; CLI version not recorded. |
-| HyperFrames + GSAP | Compose HTML scenes and time-based animation. | Project-pinned **HyperFrames 0.8.208** with local GSAP. |
-| Seedance | Video generation and tutorial experiments. | Episode 03 production and episode 04/05 tutorials. |
-| FFmpeg／ffprobe | Format inspection, decoding, mixing, and encoding checks. | Technical delivery records. |
-| Node.js／JavaScript | Data summaries, workflow demos, checksum verification, tests. | **Node.js 26.11.1**, standard-library-only public scripts. |
-| Python／PowerShell | Original publication controls, collection, and verification scripts. | [Code map](code-map_EN.md). |
-| Git | Local and remote version control. | Observed version **2.53.0.windows.3**. |
+| **Google Antigravity / Gemini 2.5 Flash / Vertex AI** | 24/7 comment patrols & Bihuo telemetry collection, daily multi-part serial scheduling & interactive overlay mounting, 3-second hook ideation, `AI Memory Keeper` structured memory extraction, `gemini-omni` video generation, and GitHub repository verification gatekeeping. | [`tools/ai-memory-keeper/`](../tools/ai-memory-keeper/README_EN.md), [8 November update](updates/2026-11-08_EN.md). |
+| **Anthropic Claude / Claude Code** | Bihuo ad-spend ROI modeling & A/B/C/D audience-pool strategy brain, flagship film director (HyperFrames / Remotion choreography and pacing refinement), cover and frontend visual polish. | [`tools/i-must-use-claude/`](../tools/i-must-use-claude/README_EN.md), [Multi-model workflow record](model-workflow_EN.md). |
+| **OpenAI ChatGPT / Codex** | Core character illustration & keyframe generation, `vpub` (`PublishOps CrossCast`) cross-platform publishing backend and infrastructure engineering, C#/.NET desktop test suites. | [`tools/publishops-crosscast/`](../tools/publishops-crosscast/README_EN.md), repository commits and production records. |
+| **Dedicated DeepSeek operations instance** | Earlier scheduled checklist handoff and shared-checkpoint verification. | [Run evidence](automation-verification_EN.md); not an identical-task benchmark. |
+| **Bili CLI skill + CLI** | Upload retrieval, creator analytics, multi-part appends, interactive overlay mounting, and publication read-back. | CLI version **0.7.0** and [datasets](../data/README_EN.md). |
+| **Breeze CLI / Audio Studio + ACE-Step 1.5 + DiffSinger** | Character voice synthesis, take selection, original rock arrangement (*Lost Compute*), and EBU R128 loudness mixing. | Editable-delivery cases and [8 November update](updates/2026-11-08_EN.md). |
+| **HyperFrames + GSAP** | Compose 16:9 landscape and 9:16 vertical HTML scenes aligned to speech timelines. | Project-pinned **HyperFrames 0.8.208** with local GSAP. |
+| **Seedance 2.0** | Character continuity generation and 31-shot long-form anime PV (*AiGO!!!!! · Lost Compute*). | Episode 03–05 tutorials and *Lost Compute* master. |
+| **FFmpeg / ffprobe** | Format inspection, decoding, 4K supersampled anti-recompression encoding, stereo and stamp-landing sync checks. | Technical delivery records. |
+| **Node.js / JavaScript** | Data summaries, zero-dependency `AI Memory Keeper` CLI & web app, workflow demos, checksum verification, tests. | **Node.js 26.11.1**, standard-library-only public scripts. |
+| **C# / .NET Framework 4.8 + PowerShell + Python** | `I Must Use Claude` four native Windows desktop apps, publication controls, telemetry collection, and verification scripts. | [Code map](code-map_EN.md). |
 
-Computer Use fills gaps where a connector or CLI does not expose the needed operation. Plugins and skills are workflow interfaces; their use is not a claim of training a model.
-
-No GitHub Copilot or Microsoft Copilot implementation evidence has been recorded, so neither is listed as a completed case study.
+Computer Use fills gaps where a connector or CLI does not expose the needed operation. Plugins and skills are workflow interfaces; their use is not a claim of training a model. No GitHub Copilot or Microsoft Copilot implementation evidence has been recorded, so neither is listed as a completed case study.
 
 [Back to the lab](../README_EN.md)

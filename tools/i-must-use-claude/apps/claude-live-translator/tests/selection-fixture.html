@@ -1,0 +1,16 @@
+<!doctype html>
+<html lang="en"><meta charset="utf-8"><title>Whale Selection Test</title>
+<style>body{font:22px/1.65 system-ui;background:#fafafa;color:#172b3a;margin:40px;max-width:760px}h1{font-size:26px}h2{font-size:25px}li{margin:10px 0}.note{font:16px/1.4 system-ui;color:#536d82}#rest{margin-top:100px;font-size:16px}::selection{background:#235bbe;color:white}</style>
+<h1>Whale selection check</h1><p class="note">Local test page. Select the heading and list below with the mouse. No account or private content.</p>
+<section><h2>The pitfalls</h2><ul>
+<li>Keep the original files.</li>
+<li>Check the preview before exporting.</li>
+<li>Translate only the selected text.</li>
+<li>Keep paragraphs and list items separate.</li>
+<li>Do not copy unrelated interface controls.</li>
+</ul></section>
+<p id="count" class="note">No selection yet.</p><div id="rest"></div>
+<script>
+document.querySelector('#rest').append(...Array.from({length:1500},(_,i)=>{let p=document.createElement('p');p.textContent='Extra content '+(i+1)+': this paragraph must never be translated unless selected.';return p;}));
+document.addEventListener('selectionchange',()=>{document.querySelector('#count').textContent='Selected characters: '+String(window.getSelection()).length;});
+</script></html>

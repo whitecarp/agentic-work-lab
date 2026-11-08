@@ -1,0 +1,5 @@
+# Minimal Windows CPU runtime dependencies; kept in the project venv.
+ctranslate2==4.8.4
+sentencepiece==0.2.2
+numpy==2.5.4
+PyYAML==6.0.3

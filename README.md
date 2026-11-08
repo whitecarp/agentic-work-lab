@@ -8,7 +8,7 @@
 
 🎬 [Bilibili：穿睡衣的小白白](https://space.bilibili.com/10706217) · 📦 [影片下載](https://github.com/whitecarp/agentic-work-lab/releases) · [影片目錄](media/README.md) · [營運資料](data/README.md)
 
-**2026-11-08 更新：** 補齊 2026-11-04 至 11-08 階段性成果，新增 **17 個公開成片版本**（累計 **47 個影片版本 · 3.19 GiB**）：涵蓋開源桌面工具 [AI Memory Keeper v0.3.0](https://github.com/whitecarp/gemini-memory-keeper) 雙語演示與教學、《阿哈的抓馬小曲》、《AI四姐妹搶麥》、《AiGO!!!!! · 迷途算力》六平台長篇動畫 PV、值班小遊戲結局合集 `BV1YL4M6EEek` 已公開 `P1–P6`（及待按日解鎖之 `P7–P19` 雜湊清單）、已完成待發布之《AiGO · 後日談》雙母帶校驗碼，以及換裝短片 `BV1Eaxt6LEhb`（`96,658` 播放、`h50` 人群包 `¥12.74/1k`）與《迷途算力》（`12,265` 播放、四人群池賽馬）必火實證研究。[查看更新](docs/updates/2026-11-08.md) · [結構化紀錄](data/production-update-2026-11-08.json)。
+**2026-11-08 更新：** 補齊 2026-11-04 至 11-08 階段性成果，新增 **17 個公開成片版本**（累計 **47 個影片版本 · 3.19 GiB**），並將兩套核心開源工具 **[AI Memory Keeper（AI 記憶守護者）](tools/ai-memory-keeper/README.md)** 與 **[I Must Use Claude（大肥魚工具箱）](tools/i-must-use-claude/README.md)** 完整納入本實驗室 [`tools/`](docs/code-map.md)，連同 **[PublishOps CrossCast](tools/publishops-crosscast/README.md)** 構成三大實戰工具套件；同時公開 **黃金三角分工（Antigravity + Claude + Codex）** 與 Google（Antigravity / Gemini / Vertex AI）在 24/7 帳號運營、強鉤子策劃、多模態批量生產及跨模型記憶守護中的完整實證紀錄。影片與數據涵蓋 [AI Memory Keeper](https://github.com/whitecarp/ai-memory-keeper) 雙語演示與教學、《阿哈的抓馬小曲》、《AI四姐妹搶麥》、《AiGO!!!!! · 迷途算力》六平台長篇動畫 PV、值班小遊戲結局合集 `BV1YL4M6EEek` 已公開 `P1–P6`（及待按日解鎖之 `P7–P19` 雜湊清單）、已完成待發布之《AiGO · 後日談》雙母帶校驗碼，以及換裝短片 `BV1Eaxt6LEhb`（`96,658` 播放、`h50` 人群包 `¥12.74/1k`）與《迷途算力》（`12,265` 播放、四人群池賽馬）必火實證研究。[查看更新](docs/updates/2026-11-08.md) · [結構化紀錄](data/production-update-2026-11-08.json)。
 
 **2026-11-03 更新：** 《我替你看過了》成片已存檔，累計 **30 個影片版本**；記錄五站發布證據、Instagram 單次上傳計時與 CrossCast 軟體進展。[查看更新](docs/updates/2026-11-03.md)。
 
@@ -16,21 +16,66 @@
 
 **2026-11-01 更新：** 四個完整實驗交付已上傳並核對雜湊，累計 **25 個影片版本**；補充開發與獨立驗證方法及未通過項目。[查看更新](docs/updates/2026-11-01.md)。
 
-## PublishOps CrossCast
-
-**跨平台影片發布營運台**，CLI 指令為 `vpub`。五個平台都有實發記錄。
-
-把影片、各平台文案、專用封面和回執整理成同一個流程。首次登入後復用本機會話，遇到官方驗證再由使用者協助；發布結果不確定時保留原紀錄，先核對作品再決定下一步。
-
-[獨立倉庫與安裝說明](https://github.com/whitecarp/publishops-crosscast) · [v0.16.0 發行版](https://github.com/whitecarp/publishops-crosscast/releases/tag/v0.16.0) · [本輪實作與限制](docs/updates/2026-11-03.md)
-
-v0.16.0 已公開；後續主分支已縮短能力清單並改善首次使用與發布前檢查。兩指令流程及並行發布在本輪截點仍待交付，不把局部測試寫成真實加速效果。已發布附件與主分支的差異見更新記錄。
-
-本實驗室內的 [0.15.1 程式與指南](tools/publishops-crosscast/README.md) 是歷史快照，保留當時的實作與驗證；新安裝請使用獨立倉庫。
-
 **2026-10-30 更新（11月1日補完成附件）：** 變身實驗 v3／v4 與技術檢查、GPT04 公開狀態。[研究記錄](docs/updates/2026-10-30-evening.md)。
 
 **2026-10-29 更新：** 新增兩部第六期成片，累計 **21 個可下載版本**；補充鯨魚娘03 公開狀態與鯨魚娘02 首日數據。[查看更新](docs/updates/2026-10-29-evening.md)。
+
+---
+
+## 實驗室三大開源工具套件（`tools/`）
+
+本倉庫在 `tools/` 目錄下完整收錄支撐日常研究、跨模型接力、桌面雙語協作與多平台發布的三套開源工具：
+
+| 工具套件 | 核心用途（What It Does） | 解決了什麼問題（Problems Solved） | 適用受眾人群（Target Audience） | 實驗室路徑與獨立倉庫 |
+|---|---|---|---|---|
+| **[AI Memory Keeper（AI 記憶守護者）](tools/ai-memory-keeper/README.md)** | 跨長會話與多宿主（Claude Code / OpenAI Codex / Google Antigravity / OpenClaw）的持久化本地工作記憶、全量歸檔與智能壓縮檢索系統（含 `amk` 零依賴 CLI 鉤子與 [`web/`](tools/ai-memory-keeper/web/README.md) 靜態網頁工作台）。 | 解決長週期項目「對話視窗自動壓縮（`/compact`）抹除前序規則與踩坑紀錄（AI 失憶）」、「跨模型接力（Antigravity ↔ Claude ↔ Codex）需反覆交代背景」、「歷史對話散落難以回溯及模型偷降檔」痛點。 | 多智能體協作開發者與重度 Vibe Coder、長週期研究／商戶調研與內容運營團隊、企業與團隊知識交接負責人。 | [實驗室源碼與說明](tools/ai-memory-keeper/README.md) · [網頁版工作台](https://ai-memory-keeper.web.app/) · [獨立倉庫](https://github.com/whitecarp/ai-memory-keeper) |
+| **[I Must Use Claude（我一定要用上 Claude · 大肥魚工具箱）](tools/i-must-use-claude/README.md)** | 面向日常高頻跨時區協作、Claude 桌面端即時雙語溝通、大檔案／多模態素材打包投餵與桌面環境自檢的一體化 Windows 原生工具箱（含環境助手、即時翻譯器、兩地與額度時鐘、29 MB 打包助手四款工具）。 | 解決日常深度使用 Claude 時的四大摩擦：(1) 中英雙語混合文檔中的專業術語與語境失真；(2) 跨時區排程與 Claude 5h／週額度刷新換算錯誤；(3) 手動複製多檔案上下文繁瑣且易超限；(4) 桌面與網路配置盲目修改缺乏備份與撤回。 | 以 Claude 為主力工作台的跨語言／跨時區從業者（PM、BD、研究員、留學生）、高頻向 Claude 投餵專案資料的創作者與工程師、追求低摩擦桌面工作流的效率實踐者。 | [實驗室源碼與說明](tools/i-must-use-claude/README.md) · [v0.4.5-preview 發行版](https://github.com/whitecarp/I-Must-Use-Claude/releases/tag/v0.4.5-preview) · [獨立倉庫](https://github.com/whitecarp/I-Must-Use-Claude) |
+| **[PublishOps CrossCast（跨平台影片發布營運台）](tools/publishops-crosscast/README.md)** | 跨平台影片發布與回執歸檔營運台（CLI 指令 `vpub`），將成片、各平台差異化文案、專用封面、發布前合規檢查與公開連結回執收斂為單一流程。 | 解決多平台（Bilibili、抖音、小紅書、YouTube、Instagram、X）手工重複填表、封面規格錯配、會話過期與發布回執散落難核對的問題。 | 多平台內容創作者、品牌新媒體營運團隊、需要可審計發布回執與雜湊校驗的製作工作室。 | [實驗室源碼與說明](tools/publishops-crosscast/README.md) · [v0.16.0 發行版](https://github.com/whitecarp/publishops-crosscast/releases/tag/v0.16.0) · [獨立倉庫](https://github.com/whitecarp/publishops-crosscast) |
+
+### 1. AI Memory Keeper（AI 記憶守護者 · `tools/ai-memory-keeper/`）
+
+- **三層本地記憶架構**：結合不可變原始對話歸檔（`history/`）、由使用者自備 Gemini API Key 整理的結構化記憶（偏好、決策、約束），以及高權重關鍵規則釘選（`pins`）。壓縮前自動收好新內容，壓縮後自動把摘要漏掉的記憶補回上下文，並順便核對 Claude Code 實際回覆模型是否遭降檔。
+- **雙通道憑證與零中轉隱私**：支援 Google AI Studio 免費額度 API Key（Windows DPAPI 本機加密儲存）與 Google Cloud 服務帳號 `.json` 令牌本地 RS256 簽名換取 OAuth2 Bearer Token（遇到 `402/429/503` 自動無縫切換；同一份 JSON 令牌亦可透過內建 `gemini-omni` 技能生成影片）。
+
+### 2. I Must Use Claude（我一定要用上 Claude · `tools/i-must-use-claude/`）
+
+- **四合一 Windows 原生工具箱**：
+  1. **大肥魚環境助手（Whale Environment Helper）**：先測量瀏覽器環境與網路／DNS 基準，建立本地私密備份後再優化，支援複測對比與一鍵撤回。
+  2. **大肥魚翻譯（Whale Translator）**：Claude 桌面端即時雙語伴讀與中轉英 Prompt 準備，支援自訂術語表（Glossary）鎖定與離線翻譯包。
+  3. **兩地時鐘（Two-Zone Clock）**：常駐顯示家鄉／目標時區時間，並精確倒計時 Claude 5 小時會話視窗與每週額度重置時間。
+  4. **大肥魚打包助手（Whale Pack Helper）**：自動過濾無關快取與過大二進位檔，將源碼、文件、圖片與影片按單包 ≤ 29 MB 分卷打包並生成交接清單。
+
+### 3. PublishOps CrossCast（跨平台發布營運台 · `tools/publishops-crosscast/`）
+
+- **跨平台影片發布營運台**，CLI 指令為 `vpub`。六個主流平台均有實發回執記錄。首次登入後復用本機會話，遇到官方驗證再由使用者協助；發布結果不確定時保留原紀錄，先核對作品再決定下一步。
+- [獨立倉庫與安裝說明](https://github.com/whitecarp/publishops-crosscast) · [v0.16.0 發行版](https://github.com/whitecarp/publishops-crosscast/releases/tag/v0.16.0) · [本輪實作與限制](docs/updates/2026-11-03.md) · [實驗室 0.15.1 快照](tools/publishops-crosscast/README.md)。
+
+---
+
+## 黃金三角分工（Antigravity + Claude + Codex）與 Google 在帳號運營中的幫助
+
+在「Ai娘在工作」多平台內容與工具矩陣中，我們採用 **黃金三角分工（Antigravity + Claude + Codex）** 實戰架構，讓三大智能體各司其職並透過本地檔案契約與 `AI Memory Keeper` 無縫接力：
+
+| 協作支柱 | 核心定位 | 具體負責模組與實戰交付 |
+|---|---|---|
+| **Google Antigravity（基於 Gemini / Vertex AI）** | **24/7 帳號運營值守、高反差創意腦暴、多模態批量生產與公開倉庫守門人** | 每小時評論區真人互動巡檢、每 2 小時 B站與必火數據唯讀採集、每日 12:00《值班小遊戲》（`BV1YL4M6EEek` `P1–P19`）定時追加分P與 4 大互動組件自動掛載、前 3 秒強鉤子策劃、`AI Memory Keeper` 記憶抽取，以及本倉庫每日測試與 SHA-256 校驗發布。 |
+| **Claude（Claude Code / Opus / Sonnet）** | **旗艦長片總導演、多角色劇本精修、音畫情緒對齊與必火投流 ROI 精算師** | 《AiGO · 迷途算力》（`BV1sQ4E6eEhK`）、《我替你看過了》（`BV15B4F6hEYr`）等長線敘事分鏡與台詞打磨；必火人群包 A/B/C/D 賽馬與 `h50` 72h 長週期壓價策略（`¥12.74/1k`）歸因分析；配合 `I Must Use Claude` 實現雙語無損協作。 |
+| **OpenAI Codex** | **角色視覺資產生成、自動化渲染管線工程師與跨平台發布基礎設施開發** | 四姐妹（大肥魚／GPT 娘／Claude 娘／千問娘）統一畫風透明底立繪與表情差分生成、`PublishOps CrossCast`（`vpub`）跨平台發布器開發、FFmpeg 音畫合成與 EBU R128 響度標準化腳本維護。 |
+
+### Google（Antigravity / Gemini / Vertex AI）在帳號運營中的四大具體幫助
+
+1. **24/7 全天候帳號運營值守與自動化巡檢（24/7 Account Operations & Patrol）**：
+   - **每小時評論區真人互動巡檢**：自動識別全站已發布稿件（如 `BV1Eaxt6LEhb`、`BV1sQ4E6eEhK`、`BV1YL4M6EEek` 等）的新增真實觀眾評論，結合角色語境撰寫有梗回覆，提升評論區活躍度與粉絲黏性。
+   - **每 2 小時數據中心與必火投流唯讀監測**：定時採集 B站創作中心與必火後台的曝光、播放、點讚、收藏、轉粉率及千次播放成本（寫入 `bihuo-readings.jsonl` 與即時狀態看板），為跨模型團隊提供連續時序數據底座。
+   - **每日定時長線連載排程與互動組件掛載**：例如《大肥魚值班小遊戲》（`BV1YL4M6EEek`）18 結局每日北京時間 12:00 自動追加分P、更新簡介進度表，並在 12:30 過審後自動為新分P掛載前置 4 大互動組件（0.5s 關注、6.0s 投票、13.5s 評分、19.0s 跳轉），將單支爆款轉化為持續兩週以上的追更連載。
+2. **高反差創意腦暴與強鉤子選題策劃（Creative Hook & Format Ideation）**：
+   - 發揮 Gemini 在跨領域聯想、網感反差與互動玩法設計上的優勢，主導「換裝變身反差」（`BV1Eaxt6LEhb` 前 3 秒跳失率壓低至 `19.95%`）、「B站內嵌多結局互動值班遊戲」（`BV1YL4M6EEek`）、「把 AI 失憶痛點做成開源桌面工具 + 3 分鐘保姆級教學 + 61 秒小劇場三層漏斗」（`BV1WQ4t6xEdT` / `BV1nw4h64Ebf` / `BV1BM4h6pEY7`）等高轉化選題。
+3. **多模態原生生成與工程化批量生產（Multimodal Generation & Batch Engineering）**：
+   - 結合 Gemini 原生圖像生成、Vertex AI（`gemini-omni`）圖生影片與 1080p30 升頻能力，以及本地 FFmpeg + Remotion / Hyperframes 渲染管線，高效完成多結局分支短片（如 `P1–P19` 共 19 支豎屏結局）的批量化構圖、響度標準化（EBU R128）與落章聲畫同步檢測（最差誤差 ≤ 75 ms）。
+4. **跨模型工作記憶中樞與公開倉庫自動化驗收（Cross-Agent Memory Hub & Repo Gatekeeper）**：
+   - 作為 `AI Memory Keeper` 的核心抽取引擎（`gemini-2.5-flash` 結構化記憶抽取 + `text-embedding-004` 語義檢索），替整個 **Antigravity + Claude + Codex** 團隊守護長線上下文；並在 Codex 額度耗盡或跨模型交接時，無縫接管本倉庫的代碼整合、雙語文檔對齊、全套測試（`node --test`）與 GitHub Release 大檔案 SHA-256 校驗發布。
+
+---
 
 ## AI 如何協助實際工作
 
@@ -40,12 +85,12 @@ v0.16.0 已公開；後續主分支已縮短能力清單並改善首次使用與
 |---|---|
 | 整理商戶資料、排列線索與準備溝通 | [商戶拓展應用示例](docs/business-development.md) |
 | 選擇合適的 AI 工具與插件 | [工具選型與使用方式](docs/toolchain.md) |
-| 分配研究、製作與檢查工作 | [GPT／DeepSeek 協作紀錄](docs/model-workflow.md) |
+| 分配研究、製作與檢查工作（黃金三角分工） | [黃金三角分工與協作紀錄](docs/model-workflow.md) |
 | 將重複步驟整理成程式 | [程式導覽](docs/code-map.md) · [可執行示例](scripts) |
 | 比較營運數據並檢查結論 | [數據對比與限制](docs/data-comparison.md) |
 | 保存工作脈絡，方便團隊接手 | [商戶簡報範本](templates/merchant-brief.md)（[填寫示例](examples/merchant-brief-demo-cafe-a.md)） · [營運檢查表](templates/operations-checklist.md)（[填寫示例](examples/operations-checklist-2026-10-28.md)） |
 
-**2026-10-28 資料快照：** 55 筆稿件資料、69 筆去識別營運事件、19 個已公開影片版本、4 個流程示例腳本／模組，以及 10 項流程測試。這組統計不包含後續 CrossCast 程式與測試。商戶示例使用虛構資料，沒有把模擬結果寫成真實簽約或團隊提效業績。
+**2026-10-28 基礎資料快照（後續更新疊加於此底座之上）：** 55 筆稿件資料、69 筆去識別營運事件、19 個已公開影片版本（截至 2026-11-08 已擴展至 **47 個公開影片版本 · 3.19 GiB** 及 **3 套完整開源工具**）、4 個流程示例腳本／模組，以及 10 項流程測試。商戶示例使用虛構資料，沒有把模擬結果寫成真實簽約或團隊提效業績。
 
 我以需求提出、選題方向、回饋與審片推進專案，AI 協助研究、編寫程式及製作。這個實驗室記錄工具如何進入實際流程、遇到哪些錯誤，以及如何改善交付；程式與文件也明確標示 AI 協助。
 
@@ -98,7 +143,7 @@ npm test         # 流程檢查
 
 未在 B站公開的成片及舊版實驗片，另見[影片目錄](media/README.md)。GitHub 公開與 B站發布是兩個不同狀態，本倉庫不會更改 B站排期。
 
-[2026-11-08 階段性更新：17 個新歸檔成片、六平台回執與必火人群包實證研究](docs/updates/2026-11-08.md) · [2026-10-28 晚間更新](docs/updates/2026-10-28-evening.md)
+[2026-11-08 階段性更新：三大開源工具整合、黃金三角分工、17 個新歸檔成片與必火實證研究](docs/updates/2026-11-08.md) · [2026-10-28 晚間更新](docs/updates/2026-10-28-evening.md)
 
 ## 使用資料與方法
 
@@ -113,4 +158,4 @@ npm test         # 流程檢查
 
 本倉庫公開研究說明、影片、帳號整體及單片數據、去識別的營運紀錄。登入憑證、私人訊息、觀眾個人資料及不相關的私人文件不屬於公開資料。作品中引用的第三方素材仍屬各自權利人；公開展示不代表授予第三方素材的再利用授權。
 
-首次整理：2026-10-28。首頁研究更新：2026-11-08；CrossCast 歷史快照保留。
+首次整理：2026-10-28。首頁研究更新：2026-11-08；三大工具套件（CrossCast、AI Memory Keeper、I Must Use Claude）已完整收錄於 `tools/`。

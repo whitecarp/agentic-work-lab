@@ -8,7 +8,7 @@ Explore how AI supports research, content production and operations, then turn p
 
 🎬 [Bilibili channel · UID 10706217](https://space.bilibili.com/10706217) · 📦 [Video downloads](https://github.com/whitecarp/agentic-work-lab/releases) · [Video catalogue](media/README_EN.md) · [Operations data](data/README_EN.md)
 
-**2026-11-08 update:** Catch-up archive covering 2026-11-04 to 11-08 adds **17 published video versions** (**47 video versions · 3.19 GiB** in total): open-source desktop tool [AI Memory Keeper v0.3.0](https://github.com/whitecarp/gemini-memory-keeper) bilingual demos & tutorials, *Aha Drama Tune*, *Four AI Sisters Fighting for the Mic*, *AiGO!!!!! · Lost Compute* six-platform long-form anime PV, Shift Simulator anthology `BV1YL4M6EEek` live parts `P1–P6` (plus SHA-256 manifest for queued daily parts `P7–P19`), completed unpublished *AiGO Epilogue* dual-aspect checksums, and empirical Bilibili Bihuo promotion studies (`BV1Eaxt6LEhb` at `96,658` views / `¥12.74/1k` on `h50`, and *Lost Compute* 4-pool test at `12,265` views). [Read the update](docs/updates/2026-11-08_EN.md) · [Structured record](data/production-update-2026-11-08.json).
+**2026-11-08 update:** Catch-up archive covering 2026-11-04 to 11-08 adds **17 published video versions** (**47 video versions · 3.19 GiB** in total) and integrates two open-source tool suites—**[AI Memory Keeper](tools/ai-memory-keeper/README_EN.md)** and **[I Must Use Claude](tools/i-must-use-claude/README_EN.md)**—directly into [`tools/`](docs/code-map_EN.md) alongside **[PublishOps CrossCast](tools/publishops-crosscast/README_EN.md)**. We also document our **Golden Triangle Division of Labor (Antigravity + Claude + Codex)** and how Google (Antigravity / Gemini / Vertex AI) powers 24/7 account operations, high-contrast hook ideation, multimodal batch production, and cross-agent memory keeping. Video and telemetry updates cover [AI Memory Keeper](https://github.com/whitecarp/ai-memory-keeper) bilingual demos & tutorials, *Aha Drama Tune*, *Four AI Sisters Fighting for the Mic*, *AiGO!!!!! · Lost Compute* six-platform long-form anime PV, Shift Simulator anthology `BV1YL4M6EEek` live parts `P1–P6` (plus SHA-256 manifest for queued daily parts `P7–P19`), completed unpublished *AiGO Epilogue* dual-aspect checksums, and empirical Bilibili Bihuo promotion studies (`BV1Eaxt6LEhb` at `96,658` views / `¥12.74/1k` on `h50`, and *Lost Compute* 4-pool test at `12,265` views). [Read the update](docs/updates/2026-11-08_EN.md) · [Structured record](data/production-update-2026-11-08.json).
 
 **2026-11-03 update:** *I Watched It For You* is archived, bringing the catalogue to **30 video versions**. New notes cover publication evidence across five platforms, one Instagram upload timing and CrossCast software progress. [Read the update](docs/updates/2026-11-03_EN.md).
 
@@ -16,21 +16,66 @@ Explore how AI supports research, content production and operations, then turn p
 
 **2026-11-01 update:** Four complete study exports uploaded and hash-verified, **25 video versions** in total; development/independent-validation methods and unresolved checks documented. [Read the update](docs/updates/2026-11-01_EN.md).
 
-## PublishOps CrossCast
-
-**Multi-platform video release operations console**, available through the `vpub` CLI. All five platforms have real publication records.
-
-Bring video, platform-specific copy, production covers and receipts into one workflow. Local sessions are reused after initial sign-in, with user assistance when a platform requests verification. Uncertain submissions retain their original records so the work can be checked before deciding what happens next.
-
-[Standalone repository and installation](https://github.com/whitecarp/publishops-crosscast/blob/main/README_EN.md) · [v0.16.0 release](https://github.com/whitecarp/publishops-crosscast/releases/tag/v0.16.0) · [Current work and limits](docs/updates/2026-11-03_EN.md)
-
-v0.16.0 is public. Subsequent main-branch work shortens the capability list and improves first-run guidance and publication checks. At this snapshot, the two-command flow and concurrent publication still await delivery; local tests are not claimed as measured live speedups. The update distinguishes release assets from main.
-
-The [0.15.1 code and guide](tools/publishops-crosscast/README_EN.md) inside this lab preserve a historical implementation and its validation. Use the standalone repository for a new installation.
-
 **2026-10-30 update (uploads completed 1 November):** Transformation-study v3/v4 technical checks and the dated GPT04 publication record. [Research record](docs/updates/2026-10-30-evening_EN.md).
 
 **2026-10-29 update:** two episode-six films archived, **21 downloadable versions** in total; Whale Girl 03 public status and Whale Girl 02 day-one metrics recorded. [What changed](docs/updates/2026-10-29-evening_EN.md).
+
+---
+
+## Three Core Open-Source Tool Suites (`tools/`)
+
+The `tools/` directory houses three complete open-source tool suites built from our daily research, multi-agent handoffs, bilingual desktop workflows, and cross-platform publishing:
+
+| Tool Suite | Core Purpose (What It Does) | Problems Solved | Target Audience & Scenarios | Lab Path & Standalone Repo |
+|---|---|---|---|---|
+| **[AI Memory Keeper](tools/ai-memory-keeper/README_EN.md)** | Persistent local working-memory, full-transcript archiving, and compaction-recovery system across long sessions and agent hosts (Claude Code, OpenAI Codex, Google Antigravity, OpenClaw), shipping both a zero-dependency `amk` CLI hook suite and a static web console ([`web/`](tools/ai-memory-keeper/web/README_EN.md)). | Solves (1) context-window auto-compaction (`/compact`) wiping out prior rules, verified paths, and lessons learned ("AI amnesia"); (2) repetitive background re-prompting when relaying work across Antigravity ↔ Claude ↔ Codex; and (3) scattered, unsearchable chat history and silent model-tier downgrades. | Multi-agent developers & heavy Vibe Coders; long-cycle research, merchant outreach, and content operations teams; team handoff & documentation leads. | [Lab source & guide](tools/ai-memory-keeper/README_EN.md) · [Web console](https://ai-memory-keeper.web.app/?lang=en) · [Standalone repo](https://github.com/whitecarp/ai-memory-keeper) |
+| **[I Must Use Claude (WhaleGirl Desktop Toolbox)](tools/i-must-use-claude/README_EN.md)** | All-in-one Windows native desktop utility suite for cross-timezone collaboration, real-time bilingual Claude communication, multi-file/multimodal context packaging, and reversible environment diagnostics (bundling Whale Environment Helper, Whale Translator, Two-Zone Clock, and Whale Pack Helper). | Eliminates four daily friction points when working with Claude: (1) terminology drift and copy-paste fatigue in bilingual docs; (2) cross-timezone scheduling and Claude 5h/weekly quota reset miscalculations; (3) tedious manual file-by-file uploads exceeding attachment limits; and (4) blind local/DNS config changes without backups or undo. | Cross-language & cross-timezone professionals using Claude as their main workspace (PMs, BD leads, researchers, students); creators & engineers feeding multi-file context to Claude; low-friction desktop workflow practitioners. | [Lab source & guide](tools/i-must-use-claude/README_EN.md) · [v0.4.5-preview release](https://github.com/whitecarp/I-Must-Use-Claude/releases/tag/v0.4.5-preview) · [Standalone repo](https://github.com/whitecarp/I-Must-Use-Claude) |
+| **[PublishOps CrossCast](tools/publishops-crosscast/README_EN.md)** | Multi-platform video release operations console (`vpub` CLI) that unifies video masters, platform-tailored copy, dedicated covers, pre-flight checks, and live publication receipts. | Solves repetitive manual form-filling, aspect-ratio/cover mismatches, session expiration, and scattered publication receipts across Bilibili, Douyin, Xiaohongshu, YouTube, Instagram, and X. | Multi-platform content creators, brand social-media operations teams, and production studios requiring auditable release receipts and SHA-256 verification. | [Lab source & guide](tools/publishops-crosscast/README_EN.md) · [v0.16.0 release](https://github.com/whitecarp/publishops-crosscast/releases/tag/v0.16.0) · [Standalone repo](https://github.com/whitecarp/publishops-crosscast/blob/main/README_EN.md) |
+
+### 1. AI Memory Keeper (`tools/ai-memory-keeper/`)
+
+- **Three-Tier Local Memory Architecture**: Combines immutable raw transcript archives (`history/`), structured memory sheets extracted via your own Gemini API key (preferences, decisions, constraints), and pinned high-priority rules (`pins`). Automatically saves new turns before context compaction, restores what the summary missed afterwards, and checks whether the replying model in Claude Code matches the requested tier.
+- **Dual Credential Routing & Zero Relay Servers**: Supports Google AI Studio free-tier API keys (encrypted locally via Windows DPAPI) and Google Cloud Service Account `.json` keys (signed locally via RS256 JWT for OAuth2 Bearer tokens, with automatic fallback on `HTTP 402/429/503`; the same JSON key can also drive video generation via the bundled `gemini-omni` skill).
+
+### 2. I Must Use Claude (`tools/i-must-use-claude/`)
+
+- **Four Native Windows Desktop Companions**:
+  1. **Whale Environment Helper**: Measures browser signals and network/DNS resolvers first, creates a private local backup before optimizing matched settings, and supports re-measurement and one-click undo.
+  2. **Whale Translator**: Real-time bilingual companion for reading Claude replies and drafting English prompts from Chinese, with custom glossary locking and optional offline translation packs.
+  3. **Two-Zone Clock**: Always-visible home/target timezone clock paired with countdown timers for Claude's 5-hour session window and weekly quota reset.
+  4. **Whale Pack Helper**: Cleans and packages local source code, documents, images, and videos into upload-ready archives (strictly ≤ 29 MB per file) with an automatic handoff manifest.
+
+### 3. PublishOps CrossCast (`tools/publishops-crosscast/`)
+
+- **Multi-platform video release operations console**, available through the `vpub` CLI. All six platforms have verified publication records. Local sessions are reused after initial sign-in, with user assistance when a platform requests verification.
+- [Standalone repository and installation](https://github.com/whitecarp/publishops-crosscast/blob/main/README_EN.md) · [v0.16.0 release](https://github.com/whitecarp/publishops-crosscast/releases/tag/v0.16.0) · [Current work and limits](docs/updates/2026-11-03_EN.md) · [Lab 0.15.1 snapshot](tools/publishops-crosscast/README_EN.md).
+
+---
+
+## Golden Triangle Division of Labor (Antigravity + Claude + Codex) & How Google Powers Account Operations
+
+Behind the *AI Girls at Work* series and tool suites is our **Golden Triangle Division of Labor (Antigravity + Claude + Codex)**—where three specialized agent stacks collaborate over explicit local file contracts and `AI Memory Keeper`:
+
+| Pillar | Primary Role | Concrete Responsibilities & Verified Deliverables |
+|---|---|---|
+| **Google Antigravity (powered by Gemini / Vertex AI)** | **24/7 Account Operations & Patrol, High-Contrast Hook Ideation, Multimodal Batch Production & Lab Gatekeeper** | Hourly comment-section engagement patrols; 2-hour read-only Bilibili Creator Center & Bihuo telemetry collection; daily 12:00 BJT *Shift Simulator* (`BV1YL4M6EEek` `P1–P19`) multi-part append & 12:30 BJT 4-overlay auto-mounting; 3-second hook ideation; `AI Memory Keeper` extraction; and daily repository testing & SHA-256 release verification. |
+| **Claude (Claude Code / Opus / Sonnet)** | **Flagship Narrative Director, Multi-Character Script Polish, Audio-Visual Pacing & Bihuo ROI Strategist** | Long-form storyboarding and script doctor for *AiGO · Lost Compute* (`BV1sQ4E6eEhK`) and *I Watched It For You* (`BV15B4F6hEYr`); Bihuo A/B/C/D audience-pool testing and `h50` 72h pacing strategy (`¥12.74/1k`); seamless bilingual execution paired with `I Must Use Claude`. |
+| **OpenAI Codex** | **Character Visual Asset Artist, Automated Rendering Pipeline Engineer & Cross-Platform Publishing Infrastructure** | Unified transparent character sprites and expression sheets for the four AI sisters (WhaleGirl, GPT, Claude, Qwen); `PublishOps CrossCast` (`vpub`) engineering; FFmpeg composition and EBU R128 loudness normalization pipelines. |
+
+### Four Ways Google (Antigravity / Gemini / Vertex AI) Helps Operate the Account
+
+1. **24/7 Account Operations & Automated Patrol**:
+   - **Hourly Comment-Section Engagement Patrols**: Automatically detects new viewer comments across live videos (`BV1Eaxt6LEhb`, `BV1sQ4E6eEhK`, `BV1YL4M6EEek`, etc.) and drafts context-aware, in-character replies to boost community retention.
+   - **Every-2-Hour Creator Center & Bihuo Read-Only Telemetry**: Collects impressions, views, likes, favorites, follow conversions, and CPM across active campaigns into `bihuo-readings.jsonl`, providing continuous time-series evidence for ROI decisions.
+   - **Daily Multi-Part Serial Scheduling & Interactive Component Mounting**: Runs the 18-ending daily release queue for *WhaleGirl Shift Simulator* (`BV1YL4M6EEek`) at 12:00 BJT and automatically mounts four front-loaded interactive overlays (0.5s follow card, 6.0s poll, 13.5s rating, 19.0s jump link) at 12:30 BJT once moderation clears—turning a single video into a two-week interactive serial.
+2. **High-Contrast Hook & Format Ideation**:
+   - Leverages Gemini's cross-domain associative brainstorming to design high-retention hooks and interactive formats: the rapid outfit-swap hook in `BV1Eaxt6LEhb` (`19.95%` 3-second bounce rate vs. `28.56%` peer median), the playable Bilibili branching game `BV1YL4M6EEek`, and the 3-tier content funnel (`BV1WQ4t6xEdT` flagship demo + `BV1nw4h64Ebf` 3-min free Gemini API key tutorial + `BV1BM4h6pEY7` 61s comedy skit).
+3. **Multimodal Generation & Batch Production Engineering**:
+   - Combines Gemini native image generation, Vertex AI (`gemini-omni`) video generation and 1080p30 upscaling, and local FFmpeg + Remotion / Hyperframes pipelines to batch-produce 19 vertical game-ending cuts (`P1–P19`) with EBU R128 loudness normalization and ≤ 75 ms stamp-landing audio-visual sync.
+4. **Cross-Agent Working Memory Hub & Public Lab Gatekeeper**:
+   - Powers `AI Memory Keeper` (`gemini-2.5-flash` structured extraction + `text-embedding-004` semantic retrieval) so the entire **Antigravity + Claude + Codex** team shares persistent project memory—and steps in as the repository gatekeeper to run full test suites (`node --test`), bilingual link checks, and SHA-256 release verifications whenever Codex quota runs out.
+
+---
 
 ## How AI supports everyday work
 
@@ -40,12 +85,12 @@ Start with concrete tasks: document where AI can help, where human judgment is n
 |---|---|
 | Organise merchant research, prioritise leads and prepare outreach | [Merchant-development demo](docs/business-development_EN.md) |
 | Choose AI tools and plugins for the task | [Tool selection and usage](docs/toolchain_EN.md) |
-| Coordinate research, production and review | [GPT/DeepSeek workflow evidence](docs/model-workflow_EN.md) |
+| Coordinate research, production and review (Golden Triangle) | [Golden Triangle workflow evidence](docs/model-workflow_EN.md) |
 | Turn repeated steps into reusable code | [Code map](docs/code-map_EN.md) · [Runnable examples](scripts) |
 | Compare operations data and check conclusions | [Data comparison and limits](docs/data-comparison_EN.md) |
 | Preserve context for team handoffs | [Merchant brief](templates/merchant-brief_EN.md) ([example](examples/merchant-brief-demo-cafe-a_EN.md)) · [Operations checklist](templates/operations-checklist_EN.md) ([example](examples/operations-checklist-2026-10-28_EN.md)) |
 
-**2026-10-28 snapshot:** 55 upload records, 69 de-identified operations events, 19 publicly downloadable video versions, four workflow scripts/modules and ten workflow tests. These counts exclude subsequent CrossCast code and tests. The merchant example uses fictional data; simulated results are not presented as real partnerships or measured team-efficiency gains.
+**2026-10-28 baseline snapshot (subsequent updates build on this foundation):** 55 upload records, 69 de-identified operations events, 19 publicly downloadable video versions (expanded to **47 verified video versions · 3.19 GiB** and **3 complete open-source tool suites** as of 2026-11-08), four workflow scripts/modules and ten workflow tests. The merchant example uses fictional data; simulated results are not presented as real partnerships or measured team-efficiency gains.
 
 I drove requirements, editorial direction, feedback and review, with AI assisting research, implementation and production. This lab records how tools fit into working processes, where they fail and how delivery improves. Code and documentation are explicitly AI-assisted.
 
@@ -98,7 +143,7 @@ Titles below are English summaries; original Bilibili titles remain in the datas
 
 Videos not yet public on Bilibili and earlier experimental cuts are listed in the [catalogue](media/README_EN.md). A public GitHub download does not mean a Bilibili upload has been published; this repository does not change platform schedules.
 
-[2026-11-08 catch-up update: 17 archived cuts, six-platform receipts, and Bihuo audience-pool studies](docs/updates/2026-11-08_EN.md) · [2026-10-28 evening update](docs/updates/2026-10-28-evening_EN.md)
+[2026-11-08 catch-up update: Three tool suites integrated, Golden Triangle workflow, 17 archived cuts, and Bihuo studies](docs/updates/2026-11-08_EN.md) · [2026-10-28 evening update](docs/updates/2026-10-28-evening_EN.md)
 
 ## Using the material
 
@@ -113,4 +158,4 @@ Data is provided as CSV/JSON, with downloadable video files and SHA-256 checksum
 
 The archive contains research notes, videos, aggregate and per-video channel data and de-identified operations records. Credentials, private messages, viewer personal data and unrelated private documents are excluded. Third-party material appearing in videos remains with its respective rights holders; public access does not grant reuse rights to that material.
 
-First edition: 2026-10-28. Homepage research updated: 2026-11-08; the historical CrossCast snapshot is preserved.
+First edition: 2026-10-28. Homepage research updated: 2026-11-08; all three tool suites (CrossCast, AI Memory Keeper, and I Must Use Claude) are archived under `tools/`.

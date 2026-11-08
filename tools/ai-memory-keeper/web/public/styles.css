@@ -1,0 +1,677 @@
+/* Night sky: deep indigo, with a blue-violet-pink accent from the guardian's
+   hair. Stars are round dots; the gradient stays an accent. */
+:root {
+  --bg: #0b1030;
+  --card: rgba(21, 28, 74, 0.8);
+  --text: #eef0ff;
+  --muted: #aeb5de;
+  --line: rgba(167, 123, 255, 0.3);
+  --blue: #6e8bff;
+  --violet: #a77bff;
+  --pink: #ff8fd0;
+  --grad: linear-gradient(100deg, var(--blue), var(--violet) 55%, var(--pink));
+  --soft: rgba(167, 123, 255, 0.14);
+  --field: rgba(8, 12, 40, 0.7);
+  --warn-bg: rgba(255, 205, 120, 0.08);
+  --warn-line: rgba(255, 205, 120, 0.5);
+  --link: #cdb8ff;
+  --error: #ff9fb0;
+  --ok: #95f0c8;
+  --radius: 16px;
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+
+[hidden] { display: none !important; }
+
+html { background: var(--bg); }
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  color: var(--text);
+  font: 16px/1.65 system-ui, -apple-system, "Segoe UI", "PingFang SC", "Microsoft YaHei", "Noto Sans SC", sans-serif;
+  background:
+    radial-gradient(1px 1px at 12% 18%, #fff 50%, transparent 51%),
+    radial-gradient(1px 1px at 68% 8%, #fff 50%, transparent 51%),
+    radial-gradient(1.5px 1.5px at 85% 42%, #ffe9f6 50%, transparent 51%),
+    radial-gradient(1px 1px at 33% 64%, #fff 50%, transparent 51%),
+    radial-gradient(1px 1px at 52% 86%, #dfe4ff 50%, transparent 51%),
+    radial-gradient(1.5px 1.5px at 6% 92%, #fff 50%, transparent 51%),
+    radial-gradient(900px 520px at 85% -10%, rgba(110, 139, 255, 0.2), transparent 65%),
+    radial-gradient(800px 480px at -10% 45%, rgba(255, 143, 208, 0.1), transparent 65%),
+    var(--bg);
+  background-size: 360px 360px, 360px 360px, 360px 360px, 360px 360px, 360px 360px, 360px 360px, auto, auto, auto;
+  background-attachment: fixed;
+}
+
+header.top, main, footer {
+  max-width: 860px;
+  margin: 0 auto;
+  padding: 0 16px;
+}
+
+header.top { padding-top: 20px; }
+
+h1 { font-size: clamp(1.6rem, 3.4vw, 2.2rem); line-height: 1.2; margin: 0; }
+h2 { font-size: 1.15rem; margin: 0 0 12px; }
+h3 { font-size: 1rem; margin: 0 0 6px; }
+
+a { color: var(--link); }
+
+/* ---------- art slots: a gradient shows until (or if) the image loads ---------- */
+
+.art {
+  position: relative;
+  overflow: hidden;
+  background:
+    radial-gradient(circle at 72% 28%, rgba(255, 143, 208, 0.35), transparent 55%),
+    radial-gradient(circle at 25% 72%, rgba(110, 139, 255, 0.4), transparent 60%),
+    #151c52;
+}
+.art img { display: block; width: 100%; height: 100%; object-fit: cover; }
+.art.missing img { visibility: hidden; }
+.ratio-43 { aspect-ratio: 4 / 3; }
+
+/* ---------- header ---------- */
+
+.hero {
+  position: relative;
+  display: grid;
+  border-radius: 20px;
+  overflow: hidden;
+  border: 1px solid var(--line);
+}
+.hero > * { grid-area: 1 / 1; }
+.hero-text, .lang { position: relative; z-index: 1; }
+.hero-art { aspect-ratio: 16 / 9; }
+.hero-text {
+  justify-self: end;
+  align-self: center;
+  width: 46%;
+  padding-right: 4%;
+  text-shadow: 0 2px 14px rgba(5, 8, 30, 0.9);
+}
+.brand { display: flex; align-items: center; gap: 12px; }
+.avatar {
+  flex: none;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  padding: 2px;
+  background: var(--grad);
+}
+.avatar img { border-radius: 50%; }
+.tagline { margin: 10px 0 0; color: #e6e8ff; font-size: 0.98rem; }
+.lang {
+  justify-self: end;
+  align-self: start;
+  margin: 12px;
+  background: rgba(11, 16, 48, 0.7);
+}
+
+.demo {
+  background: var(--soft);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 8px 12px;
+  font-weight: 600;
+}
+
+@media (max-width: 720px) {
+  .hero { display: block; border: 0; border-radius: 0; overflow: visible; }
+  .hero-art { border-radius: 16px; border: 1px solid var(--line); }
+  .hero-text { width: auto; padding: 14px 0 0; text-shadow: none; }
+  .lang { position: absolute; top: 0; right: 0; margin: 10px; }
+}
+
+/* ---------- cards ---------- */
+
+.privacy {
+  background: var(--warn-bg);
+  border: 1px solid var(--warn-line);
+  border-radius: var(--radius);
+  padding: 16px 18px;
+  margin: 16px 0;
+}
+.privacy ul, .rules { margin: 0 0 8px; padding-left: 1.2em; }
+.privacy li, .rules li { margin: 4px 0; }
+
+.card {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 18px;
+  margin-bottom: 16px;
+}
+.card > h2 { padding-left: 10px; border-left: 3px solid var(--violet); }
+
+/* Step 1 empty state: the guardian, her line, and the Twins still dim. */
+.welcome {
+  display: grid;
+  grid-template-columns: minmax(0, 0.95fr) minmax(0, 1.05fr);
+  gap: 24px;
+  align-items: center;
+  margin: 4px 0 18px;
+}
+.welcome-art { border-radius: 14px; border: 1px solid var(--line); box-shadow: 0 8px 26px rgba(3, 5, 20, 0.45); }
+.welcome-side { display: grid; gap: 10px; }
+.say {
+  position: relative;
+  margin: 0;
+  padding: 12px 16px;
+  line-height: 1.65;
+  background: rgb(23, 30, 78);
+  border: 1px solid rgba(255, 143, 208, 0.45);
+  border-radius: 14px;
+  box-shadow: 0 6px 20px rgba(3, 5, 20, 0.45);
+}
+.say::before {
+  /* the bubble's tail, pointing at her */
+  content: "";
+  position: absolute;
+  top: 20px;
+  left: -7px;
+  width: 12px;
+  height: 12px;
+  background: inherit;
+  border-left: 1px solid rgba(255, 143, 208, 0.45);
+  border-bottom: 1px solid rgba(255, 143, 208, 0.45);
+  transform: rotate(45deg);
+}
+.welcome-sky { display: block; width: 100%; height: auto; max-height: 200px; }
+.sky-hint { margin: -2px 0 0; text-align: center; color: var(--muted); font-size: 0.86rem; }
+.w-lines line { stroke: rgba(214, 196, 255, 0.3); stroke-width: 1; stroke-dasharray: 2 5; stroke-linecap: round; }
+.w-stars circle { fill: rgba(225, 228, 255, 0.6); }
+.w-stars circle:nth-child(3n) { animation: twinkle 3.6s ease-in-out infinite; }
+.w-stars circle:nth-child(3n + 1) { animation: twinkle 4.4s ease-in-out -1.6s infinite; }
+
+/* The paste box and the file bar read as one panel. */
+.input-panel {
+  overflow: hidden;
+  border-radius: 12px;
+  border: 1px solid var(--line);
+  background: var(--field);
+}
+.input-panel:has(textarea:focus) { outline: 2px solid var(--pink); outline-offset: 1px; }
+.input-panel textarea {
+  display: block;
+  min-height: 160px;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+}
+.input-panel textarea:focus { outline: none; }
+.input-panel textarea:placeholder-shown {
+  background:
+    radial-gradient(1px 1px at 78% 30%, rgba(255, 255, 255, 0.55) 50%, transparent 51%),
+    radial-gradient(1.5px 1.5px at 88% 62%, rgba(255, 233, 246, 0.5) 50%, transparent 51%),
+    radial-gradient(1px 1px at 64% 78%, rgba(223, 228, 255, 0.45) 50%, transparent 51%),
+    radial-gradient(1px 1px at 94% 18%, rgba(255, 255, 255, 0.4) 50%, transparent 51%),
+    radial-gradient(ellipse at 92% 100%, rgba(167, 123, 255, 0.14), transparent 60%);
+}
+.input-panel .drop {
+  margin: 0;
+  border: 0;
+  border-top: 1.5px dashed var(--line);
+  border-radius: 0;
+  background: rgba(167, 123, 255, 0.05);
+}
+.input-panel .drop.over { border-top-color: var(--pink); background: var(--soft); }
+
+@media (max-width: 720px) {
+  .welcome { grid-template-columns: 1fr; gap: 14px; }
+  .welcome-art { width: min(100%, 340px); justify-self: center; }
+  .say::before { top: -7px; left: calc(50% - 6px); transform: rotate(135deg); }
+  .welcome-sky, .sky-hint { display: none; }
+}
+
+textarea, input[type="password"], input[type="text"], select {
+  width: 100%;
+  font: inherit;
+  color: inherit;
+  background: var(--field);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 10px 12px;
+}
+textarea { resize: vertical; min-height: 180px; font-size: 0.92rem; }
+textarea:focus, input:focus, select:focus, button:focus-visible, summary:focus-visible {
+  outline: 2px solid var(--pink);
+  outline-offset: 1px;
+}
+
+.row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.row input { flex: 1; min-width: 0; }
+.between { justify-content: space-between; }
+.label { display: block; font-weight: 600; margin-bottom: 6px; }
+.muted { color: var(--muted); font-size: 0.92rem; }
+
+.drop {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-top: 10px;
+  padding: 12px;
+  border: 1.5px dashed var(--line);
+  border-radius: 10px;
+}
+.drop.over { border-color: var(--pink); background: var(--soft); }
+
+.files { list-style: none; padding: 0; margin: 8px 0 0; }
+.files li {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 0;
+  border-bottom: 1px solid var(--line);
+  overflow-wrap: anywhere;
+}
+
+button, .button {
+  font: inherit;
+  color: var(--text);
+  border-radius: 10px;
+  padding: 9px 16px;
+  cursor: pointer;
+  border: 1px solid transparent;
+  display: inline-block;
+}
+button:disabled { opacity: 0.55; cursor: wait; }
+.primary {
+  background: var(--grad);
+  color: #0b1030;
+  font-weight: 700;
+  padding: 12px 26px;
+  box-shadow: 0 6px 24px rgba(167, 123, 255, 0.35);
+}
+.secondary { background: var(--soft); border-color: var(--line); }
+.ghost { background: transparent; color: var(--link); border-color: var(--line); }
+.small { padding: 2px 10px; font-size: 0.85rem; }
+
+.check { display: flex; gap: 8px; align-items: center; margin-top: 10px; font-weight: 600; }
+.check input { width: 18px; height: 18px; accent-color: var(--violet); }
+
+.key-head { margin-bottom: 12px; }
+.key-head > h2 { margin: 0; padding-left: 10px; border-left: 3px solid var(--violet); }
+.key-badge {
+  color: var(--ok);
+  background: rgba(149, 240, 200, 0.12);
+  border: 1px solid rgba(149, 240, 200, 0.45);
+}
+.key-badge.is-cloud {
+  color: #b7d0ff;
+  background: rgba(110, 139, 255, 0.16);
+  border-color: rgba(110, 139, 255, 0.55);
+}
+.key-row .button { flex: none; white-space: nowrap; }
+.key-note { margin: 8px 0 14px; }
+
+.key-modes {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 12px;
+  margin-bottom: 14px;
+}
+.key-mode {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 6px;
+  padding: 13px 15px;
+  border-radius: 12px;
+  background: var(--field);
+  border: 1px solid var(--line);
+}
+.key-mode h3 {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.95rem;
+  margin: 0;
+}
+.key-mode h3::before {
+  content: "";
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--pink);
+  box-shadow: 0 0 10px rgba(255, 143, 208, 0.8);
+}
+.key-mode:nth-child(2) h3::before {
+  background: var(--blue);
+  box-shadow: 0 0 10px rgba(110, 139, 255, 0.85);
+}
+.key-mode p { margin: 0; line-height: 1.55; }
+.key-mode a { font-size: 0.88rem; font-weight: 600; text-decoration: none; }
+.key-mode a:hover { text-decoration: underline; }
+
+.key-rules-box {
+  padding: 12px 15px;
+  border-radius: 12px;
+  background: rgba(11, 16, 48, 0.45);
+  border: 1px solid rgba(167, 123, 255, 0.22);
+}
+.key-rules-box .rules { margin: 0 0 8px; font-size: 0.9rem; color: var(--muted); }
+.rules-foot { padding-top: 6px; border-top: 1px solid rgba(167, 123, 255, 0.16); }
+.rules-foot .check { margin-top: 0; }
+.rules-foot a { font-size: 0.9rem; }
+
+.settings {
+  margin-top: 14px;
+  padding: 12px 15px;
+  border-radius: 12px;
+  background: rgba(8, 12, 40, 0.45);
+  border: 1px solid rgba(167, 123, 255, 0.22);
+}
+.settings summary { cursor: pointer; font-weight: 600; }
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 12px;
+  margin: 12px 0 8px;
+}
+.grid label { display: flex; flex-direction: column; gap: 4px; font-size: 0.92rem; }
+.settings-notes p { margin: 4px 0 0; font-size: 0.86rem; }
+
+.actions { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin: 4px 0 20px; }
+#status { margin: 0; flex: 1 1 260px; }
+#status.error { color: var(--error); font-weight: 600; }
+#status.ok { color: var(--ok); font-weight: 600; }
+
+/* ---------- result: guardian art and the memory sky ---------- */
+
+.stage {
+  display: grid;
+  grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+  gap: 16px;
+  align-items: center;
+  margin-bottom: 16px;
+}
+.art-state { border-radius: 14px; }
+#loading-art { object-fit: contain; padding: 6%; animation: float 3.2s ease-in-out infinite; }
+.result[data-state="loading"] #done-art,
+.result[data-state="done"] #loading-art,
+.result[data-state="loading"] .result-body { display: none; }
+
+.sky-box { text-align: center; }
+.sky {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: 14px;
+  border: 1px solid var(--line);
+  background: radial-gradient(ellipse at 50% 40%, rgba(110, 139, 255, 0.18), transparent 70%), var(--field);
+}
+.sky-lines line {
+  stroke: rgba(214, 196, 255, 0.75);
+  stroke-width: 1.2;
+  stroke-linecap: round;
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  animation: draw 1.8s ease-out forwards;
+}
+.sky-stars .dim { fill: rgba(220, 225, 255, 0.35); }
+.sky-stars .lit { animation: twinkle 3.6s ease-in-out infinite; }
+.sky-stars .lit:nth-child(3n) { animation-delay: -1.2s; }
+.sky-stars .lit:nth-child(3n + 1) { animation-delay: -2.4s; }
+.sky-label { margin: 8px 0 0; color: var(--muted); font-size: 0.92rem; }
+
+@keyframes draw { to { stroke-dashoffset: 0; } }
+@keyframes twinkle { 50% { opacity: 0.55; } }
+@keyframes float { 50% { transform: translateY(-6px); } }
+
+@media (prefers-reduced-motion: reduce) {
+  .sky-lines line { animation: none; stroke-dashoffset: 0; }
+  .sky-stars .lit, #loading-art { animation: none; }
+}
+
+@media (max-width: 720px) {
+  .stage { grid-template-columns: 1fr; }
+}
+
+.result-head { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; margin-bottom: 12px; }
+.result-head h2 { margin: 0; }
+
+.wake {
+  background: linear-gradient(135deg, rgba(110, 139, 255, 0.16), rgba(255, 143, 208, 0.12));
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 14px;
+  margin-bottom: 16px;
+}
+.wake pre { white-space: pre-wrap; overflow-wrap: anywhere; font: inherit; margin: 8px 0 0; }
+
+.sheet-sec { border-top: 1px solid var(--line); padding: 12px 0 4px; }
+.sheet-sec p { margin: 4px 0 8px; }
+.sheet-sec ul { margin: 4px 0 8px; padding-left: 1.2em; }
+blockquote {
+  margin: 6px 0;
+  padding: 4px 12px;
+  border-left: 3px solid var(--violet);
+  color: var(--muted);
+}
+
+/* ---------- auto mode: the local CLI preview ----------
+   Same parts as the rest of the page: a card, round stars joined by thin
+   lines (as in the memory sky), and the amber box for privacy notes. */
+
+.auto-mode {
+  background:
+    radial-gradient(1px 1px at 93% 9%, #fff 50%, transparent 51%),
+    radial-gradient(1.5px 1.5px at 81% 24%, #ffe9f6 50%, transparent 51%),
+    radial-gradient(1px 1px at 97% 38%, #dfe4ff 50%, transparent 51%),
+    radial-gradient(ellipse at 88% 10%, rgba(167, 123, 255, 0.16), transparent 55%),
+    radial-gradient(ellipse at 8% 92%, rgba(110, 139, 255, 0.1), transparent 55%),
+    var(--card);
+}
+.auto-mode > h2 { display: flex; align-items: center; flex-wrap: wrap; gap: 6px 10px; }
+.badge {
+  font-size: 0.74rem;
+  font-weight: 700;
+  line-height: 1.5;
+  padding: 1px 10px;
+  border-radius: 999px;
+  color: var(--pink);
+  background: rgba(255, 143, 208, 0.1);
+  border: 1px solid rgba(255, 143, 208, 0.38);
+}
+.auto-desc { margin: 0 0 18px; max-width: 62ch; }
+.auto-mode code {
+  font: 0.88em ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  padding: 1px 6px;
+  border-radius: 5px;
+  color: #ffd8ef;
+  background: var(--soft);
+  border: 1px solid var(--line);
+}
+
+.auto-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 0.95fr);
+  gap: 26px;
+  align-items: center;
+}
+.auto-setup { grid-area: 1 / 1; }
+.auto-demo { grid-area: 1 / 2; margin: 0; }
+
+/* The three steps as a short constellation: numbered round stars, one line. */
+.auto-path { list-style: none; counter-reset: step; margin: 0 0 14px; padding: 0; }
+.auto-path li { counter-increment: step; position: relative; padding: 2px 0 20px 44px; }
+.auto-path li:last-child { padding-bottom: 2px; }
+.auto-path li::before {
+  content: counter(step);
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 28px;
+  height: 28px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: #1a1446;
+  background: radial-gradient(circle at 38% 34%, #fff 0 16%, #e6dcff 46%, #b99bff);
+  box-shadow: 0 0 0 4px rgba(167, 123, 255, 0.14), 0 0 16px rgba(185, 155, 255, 0.55);
+}
+.auto-path li:not(:last-child)::after {
+  content: "";
+  position: absolute;
+  top: 34px;
+  bottom: 4px;
+  left: 13.5px;
+  width: 1.2px;
+  border-radius: 1px;
+  background: linear-gradient(rgba(214, 196, 255, 0.75), rgba(214, 196, 255, 0.2));
+}
+.auto-note { margin: 0; padding-left: 44px; font-size: 0.86rem; }
+
+/* Step 1's one-line install: the line in a box, with a copy button. */
+.install-box {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  margin-top: 10px;
+  padding: 10px 10px 10px 14px;
+  border-radius: 12px;
+  background: var(--field);
+  border: 1px solid var(--line);
+  box-shadow: inset 0 0 0 1px rgba(110, 139, 255, 0.08);
+}
+.auto-mode .install-box code {
+  flex: 1;
+  min-width: 0;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--text);
+  font-size: 0.86rem;
+  line-height: 1.6;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  user-select: all;
+}
+.install-box button { flex: none; padding: 5px 12px; }
+
+/* Between auto mode and the web tool: one line with round stars on both sides. */
+.bridge {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin: 26px 4px 22px;
+  color: var(--muted);
+  font-size: 0.95rem;
+  text-align: center;
+}
+.bridge::before, .bridge::after {
+  content: "";
+  flex: 1;
+  height: 6px;
+  background:
+    radial-gradient(circle, rgba(214, 196, 255, 0.85) 0 2px, transparent 2.6px) center / 6px 6px no-repeat,
+    linear-gradient(rgba(167, 123, 255, 0.35), rgba(167, 123, 255, 0.35)) center / 100% 1px no-repeat;
+}
+
+/* Illustration: an agent window mid-compaction, the guardian in its corner. */
+.demo-window {
+  position: relative;
+  aspect-ratio: 4 / 3;
+  overflow: hidden;
+  border-radius: 14px;
+  border: 1px solid var(--line);
+  background:
+    radial-gradient(ellipse at 80% 85%, rgba(167, 123, 255, 0.22), transparent 60%),
+    linear-gradient(180deg, #060920, #0a0f33);
+  box-shadow: 0 10px 30px rgba(3, 5, 20, 0.55);
+}
+.demo-bar { display: flex; gap: 6px; padding: 10px 12px; border-bottom: 1px solid rgba(167, 123, 255, 0.18); }
+.demo-bar i { width: 9px; height: 9px; border-radius: 50%; background: rgba(174, 181, 222, 0.32); }
+.demo-term { padding: 12px 14px; font: 0.84rem/1.6 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; color: #cfd4f6; }
+.demo-term p { margin: 0; }
+.demo-prompt { color: var(--pink); }
+.demo-wait { display: flex; gap: 5px; padding-top: 8px; }
+.demo-wait i { width: 5px; height: 5px; border-radius: 50%; background: var(--muted); animation: blink 1.4s ease-in-out infinite; }
+.demo-wait i:nth-child(2) { animation-delay: 0.2s; }
+.demo-wait i:nth-child(3) { animation-delay: 0.4s; }
+.demo-girl {
+  position: absolute;
+  right: -3%;
+  bottom: -18%;
+  width: 50%;
+  height: auto;
+  filter: drop-shadow(0 6px 18px rgba(167, 123, 255, 0.45));
+  animation: float 3.2s ease-in-out infinite;
+}
+.demo-bubble {
+  position: absolute;
+  left: 6%;
+  bottom: 9%;
+  width: 50%;
+  margin: 0;
+  padding: 9px 12px;
+  font-size: 0.8rem;
+  line-height: 1.5;
+  background: rgba(21, 28, 74, 0.95);
+  border: 1px solid rgba(255, 143, 208, 0.45);
+  border-radius: 12px 12px 4px 12px;
+  box-shadow: 0 6px 20px rgba(3, 5, 20, 0.5);
+}
+.auto-demo figcaption { margin-top: 8px; text-align: center; color: var(--muted); font-size: 0.86rem; }
+
+/* The two features as tiles, each marked with a round star. */
+.auto-features {
+  list-style: none;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 12px;
+  margin: 22px 0 14px;
+  padding: 0;
+}
+.auto-features li { padding: 14px 16px; border-radius: 12px; background: var(--field); border: 1px solid var(--line); }
+.auto-features h3 { display: flex; align-items: flex-start; gap: 10px; font-size: 0.98rem; line-height: 1.4; margin: 0 0 6px; }
+.auto-features h3::before {
+  content: "";
+  flex: none;
+  width: 10px;
+  height: 10px;
+  margin-top: 0.42em; /* level with the first line when a title wraps */
+  border-radius: 50%;
+  background: var(--pink);
+  box-shadow: 0 0 0 3px rgba(255, 143, 208, 0.15), 0 0 12px rgba(255, 143, 208, 0.8);
+}
+.auto-features li:nth-child(2) h3::before {
+  background: var(--blue);
+  box-shadow: 0 0 0 3px rgba(110, 139, 255, 0.15), 0 0 12px rgba(110, 139, 255, 0.8);
+}
+.auto-features p { margin: 0; color: var(--muted); font-size: 0.92rem; }
+
+/* The same kind of note as the privacy box at the top, so the same look. */
+.auto-privacy {
+  margin: 0;
+  padding: 10px 14px;
+  border-radius: 12px;
+  background: var(--warn-bg);
+  border: 1px solid var(--warn-line);
+  font-size: 0.88rem;
+  line-height: 1.55;
+}
+
+@keyframes blink { 0%, 80%, 100% { opacity: 0.25; } 40% { opacity: 1; } }
+
+@media (prefers-reduced-motion: reduce) {
+  .demo-girl, .demo-wait i, .w-stars circle { animation: none; }
+}
+
+@media (max-width: 720px) {
+  .auto-layout { grid-template-columns: 1fr; gap: 18px; }
+  .auto-setup, .auto-demo { grid-area: auto; }
+  .auto-demo { width: 100%; max-width: 420px; justify-self: center; }
+  .demo-bubble { font-size: 0.76rem; width: 54%; }
+}
+
+footer { padding-bottom: 32px; color: var(--muted); font-size: 0.85rem; }
+footer p { margin: 6px 0; }

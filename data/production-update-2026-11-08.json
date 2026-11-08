@@ -787,6 +787,84 @@
       ]
     }
   },
+  "integrated_tool_suites": [
+    {
+      "id": "ai-memory-keeper",
+      "lab_path": "tools/ai-memory-keeper",
+      "standalone_repo": "https://github.com/whitecarp/ai-memory-keeper",
+      "web_url": "https://ai-memory-keeper.web.app/",
+      "core_purpose_zh": "跨長會話與多宿主（Claude Code / OpenAI Codex / Google Antigravity / OpenClaw）的持久化本地工作記憶、全量歸檔與智能壓縮檢索系統（含 amk CLI 鉤子與 web 靜態工作台）",
+      "core_purpose_en": "Persistent local working-memory, full-transcript archiving, and post-compaction recovery system across Claude Code, OpenAI Codex, Google Antigravity, and OpenClaw (amk CLI hooks + static web console)",
+      "problems_solved": [
+        "Context-window auto-compaction (/compact) wiping out prior rules, verified paths, and debugging history",
+        "Repetitive background re-prompting when relaying work across Antigravity, Claude, and Codex",
+        "Scattered unsearchable chat logs and silent model-tier downgrades"
+      ],
+      "target_audience": [
+        "Multi-agent developers and heavy Vibe Coders",
+        "Long-cycle research, merchant outreach, and content operations teams",
+        "Team handoff and knowledge-management leads"
+      ]
+    },
+    {
+      "id": "i-must-use-claude",
+      "lab_path": "tools/i-must-use-claude",
+      "standalone_repo": "https://github.com/whitecarp/I-Must-Use-Claude",
+      "release_url": "https://github.com/whitecarp/I-Must-Use-Claude/releases/tag/v0.4.5-preview",
+      "core_purpose_zh": "面向日常高頻跨時區協作、Claude 桌面端即時雙語溝通、大檔案／多模態素材打包投餵與桌面環境自檢的一體化 Windows 原生工具箱（含環境助手、即時翻譯器、兩地與額度時鐘、29 MB 打包助手）",
+      "core_purpose_en": "All-in-one Windows native desktop utility suite for cross-timezone collaboration, real-time bilingual Claude communication, multi-file context packaging (<=29 MB), and reversible environment diagnostics",
+      "problems_solved": [
+        "Terminology drift and copy-paste fatigue in bilingual Chinese/English collaboration",
+        "Cross-timezone scheduling and Claude 5h/weekly quota reset miscalculations",
+        "Tedious manual file-by-file uploads exceeding attachment size limits",
+        "Blind browser/DNS configuration changes without local backups or one-click undo"
+      ],
+      "target_audience": [
+        "Cross-language and cross-timezone professionals using Claude as their primary workspace (PMs, BD leads, researchers, students)",
+        "Creators and engineers frequently feeding multi-file project context to Claude",
+        "Low-friction desktop workflow practitioners on Windows"
+      ]
+    },
+    {
+      "id": "publishops-crosscast",
+      "lab_path": "tools/publishops-crosscast",
+      "standalone_repo": "https://github.com/whitecarp/publishops-crosscast",
+      "release_url": "https://github.com/whitecarp/publishops-crosscast/releases/tag/v0.16.0",
+      "core_purpose_zh": "跨平台影片發布與回執歸檔營運台（vpub CLI），統一管理成片、各平台文案、封面與公開回執",
+      "core_purpose_en": "Multi-platform video release operations console (vpub CLI) unifying masters, platform copy, covers, and live receipts"
+    }
+  ],
+  "golden_triangle_workflow": {
+    "label_zh": "黃金三角分工（Antigravity + Claude + Codex）",
+    "label_en": "Golden Triangle Division of Labor (Antigravity + Claude + Codex)",
+    "pillars": {
+      "antigravity_google": {
+        "stack": "Google Antigravity / Gemini 2.5 Flash & Pro / Vertex AI (gemini-omni)",
+        "roles": [
+          "24/7 account operations & patrol: hourly comment-section engagement patrols, 2-hour read-only Bilibili Creator Center & Bihuo telemetry collection (bihuo-readings.jsonl), and daily 12:00 BJT BV1YL4M6EEek P1-P19 serial append + 12:30 BJT 4-overlay auto-mounting",
+          "High-contrast creative hook & interactive format ideation (e.g., BV1Eaxt6LEhb 19.95% 3s bounce rate, playable Bilibili shift game, 3-tier tool launch funnel)",
+          "Multimodal native image/video generation (gemini-omni) & batch FFmpeg/Hyperframes production of 19 vertical game endings",
+          "Cross-agent working memory backbone (AI Memory Keeper) & public repository automated QA/SHA-256 release gatekeeper"
+        ]
+      },
+      "claude": {
+        "stack": "Claude Code / Claude Opus & Sonnet",
+        "roles": [
+          "Flagship narrative director and multi-character script polish (AiGO Lost Compute, I Watched It For You)",
+          "Bihuo promotion ROI strategist (4-pool horse race & h50 72h pacing down to ¥12.74/1k views)",
+          "Seamless bilingual desktop execution paired with I Must Use Claude"
+        ]
+      },
+      "codex": {
+        "stack": "OpenAI Codex",
+        "roles": [
+          "Unified transparent character sprites and expression sheets for the four AI sisters",
+          "PublishOps CrossCast (vpub) cross-platform publishing CLI engineering",
+          "Automated FFmpeg composition and EBU R128 loudness normalization scripts"
+        ]
+      }
+    }
+  },
   "excluded_private_or_raw": [
     "browser cookies, session storage, and platform login credentials",
     "unreleased raw MP4 originals for aigo-epilogue-20261108 (pending release) and BV1YL4M6EEek P7-P19 (queued for daily unlock)",

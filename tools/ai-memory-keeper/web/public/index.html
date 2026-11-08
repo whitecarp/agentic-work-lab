@@ -1,0 +1,201 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src https://generativelanguage.googleapis.com https://aiplatform.googleapis.com https://oauth2.googleapis.com; base-uri 'none'; form-action 'none'">
+<meta name="referrer" content="no-referrer">
+<meta name="theme-color" content="#0b1030">
+<title>AI Memory Keeper</title>
+<meta name="description" content="AI Memory Keeper · AI记忆守护者: turn your AI pet's chat logs into a memory sheet and a wake-up note with your own Gemini API key. 用你自己的 Gemini API 密钥，把 AI 宠物的聊天记录整理成记忆档案和唤醒语。">
+<meta property="og:title" content="AI Memory Keeper · AI记忆守护者">
+<meta property="og:description" content="Turn your AI pet's chat logs into a memory sheet and a wake-up note with your own Gemini API key. 用你自己的 Gemini API 密钥，把 AI 宠物的聊天记录整理成记忆档案和唤醒语。">
+<meta property="og:type" content="website">
+<link rel="icon" type="image/png" sizes="64x64" href="assets/art/web/avatar-64.png">
+<link rel="icon" type="image/png" sizes="32x32" href="assets/art/web/avatar-32.png">
+<link rel="stylesheet" href="styles.css">
+<script type="module" src="app.js"></script>
+</head>
+<body>
+<header class="top">
+  <div class="hero">
+    <div class="art hero-art"><img data-art data-alt="heroAlt" src="assets/art/web/hero.webp" width="1280" height="720" alt=""></div>
+    <div class="hero-text">
+      <div class="brand">
+        <span class="art avatar"><img data-art src="assets/art/web/avatar.webp" width="512" height="512" alt=""></span>
+        <h1 data-t="appName">AI Memory Keeper</h1>
+      </div>
+      <p class="tagline" data-t="tagline"></p>
+    </div>
+    <button id="lang" class="ghost lang" type="button">中文</button>
+  </div>
+  <p id="demo-banner" class="demo" hidden data-t="demoBanner"></p>
+</header>
+
+<main>
+  <section class="card auto-mode" aria-labelledby="auto-title">
+    <h2 id="auto-title"><span data-t="autoTitle"></span> <span class="badge" data-t="autoBadge"></span></h2>
+    <p class="auto-desc" data-t="autoDesc"></p>
+    <div class="auto-layout">
+      <figure class="auto-demo">
+        <!-- An illustration, not a screenshot: an agent window mid-compaction with the overlay. -->
+        <div id="auto-demo" class="demo-window" role="img">
+          <div class="demo-bar" aria-hidden="true"><i></i><i></i><i></i></div>
+          <div class="demo-term" aria-hidden="true">
+            <p><span class="demo-prompt">&gt;</span> /compact</p>
+            <p class="demo-wait"><i></i><i></i><i></i></p>
+          </div>
+          <p class="demo-bubble" aria-hidden="true" data-t="autoDemoSay"></p>
+          <img class="demo-girl" src="assets/art/web/overlay.webp" width="480" height="600" alt="">
+        </div>
+        <figcaption data-t="autoArtCaption"></figcaption>
+      </figure>
+      <div class="auto-setup">
+        <ol id="auto-steps" class="auto-path"></ol>
+        <p class="muted auto-note" data-t="autoNote"></p>
+      </div>
+    </div>
+    <ul id="auto-extras" class="auto-features"></ul>
+    <p class="auto-privacy" data-t="autoPrivacy"></p>
+  </section>
+  <!-- The web tool follows: the bridge line introduces it. -->
+  <p class="bridge" data-t="bridge"></p>
+
+  <section class="privacy" aria-labelledby="privacy-title">
+    <h2 id="privacy-title" data-t="privacyTitle"></h2>
+    <ul id="privacy-list"></ul>
+    <a id="terms-link" target="_blank" rel="noopener noreferrer" data-t="privacyLink"></a>
+  </section>
+
+  <section class="card" aria-labelledby="s1">
+    <h2 id="s1" data-t="step1"></h2>
+    <!-- Empty state; hidden once there is input. -->
+    <div id="empty-art" class="welcome">
+      <div class="art ratio-43 welcome-art"><img data-art src="assets/art/web/empty.webp" width="960" height="720" alt=""></div>
+      <div class="welcome-side">
+        <p class="say" data-t="emptyLine"></p>
+        <!-- The Twins as the memory sky draws them (sky.js), still dim: nothing is kept yet. -->
+        <svg class="welcome-sky" viewBox="60 14 280 272" aria-hidden="true" focusable="false">
+          <g class="w-lines"><line x1="109.4" y1="53.6" x2="171" y2="72.3"/><line x1="171" y1="72.3" x2="219.1" y2="30"/><line x1="171" y1="72.3" x2="242.4" y2="130.6"/><line x1="242.4" y1="130.6" x2="281.6" y2="186.7"/><line x1="242.4" y1="130.6" x2="297.3" y2="160.5"/><line x1="297.3" y1="160.5" x2="318.6" y2="160.5"/><line x1="81.4" y1="97.6" x2="106" y2="110.5"/><line x1="106" y1="110.5" x2="83.6" y2="138.9"/><line x1="106" y1="110.5" x2="147.5" y2="166.5"/><line x1="147.5" y1="166.5" x2="189.5" y2="182.6"/><line x1="189.5" y1="182.6" x2="258.6" y2="230.1"/><line x1="147.5" y1="166.5" x2="152.7" y2="228.5"/><line x1="152.7" y1="228.5" x2="238.8" y2="270"/><line x1="132.7" y1="100.2" x2="106" y2="110.5"/><line x1="132.7" y1="100.2" x2="171" y2="72.3"/></g>
+          <g class="w-stars"><circle cx="109.4" cy="53.6" r="2.6"/><circle cx="81.4" cy="97.6" r="2.6"/><circle cx="258.6" cy="230.1" r="2.6"/><circle cx="297.3" cy="160.5" r="2.6"/><circle cx="242.4" cy="130.6" r="2.6"/><circle cx="318.6" cy="160.5" r="2.6"/><circle cx="238.8" cy="270" r="2.6"/><circle cx="147.5" cy="166.5" r="2.6"/><circle cx="83.6" cy="138.9" r="2.6"/><circle cx="152.7" cy="228.5" r="2.6"/><circle cx="219.1" cy="30" r="2.6"/><circle cx="189.5" cy="182.6" r="2.6"/><circle cx="132.7" cy="100.2" r="2.6"/><circle cx="171" cy="72.3" r="2.6"/><circle cx="106" cy="110.5" r="2.6"/><circle cx="281.6" cy="186.7" r="2.6"/></g>
+        </svg>
+        <p class="sky-hint" data-t="emptySky"></p>
+      </div>
+    </div>
+    <!-- The paste box and the file bar are one panel. -->
+    <div class="input-panel">
+      <textarea id="paste" rows="7" spellcheck="false" aria-labelledby="s1"></textarea>
+      <div id="drop" class="drop">
+        <label class="button secondary">
+          <input id="files" type="file" accept=".txt,.md,.markdown,.json,.log,text/plain,text/markdown,application/json" multiple hidden>
+          <span data-t="pickFiles"></span>
+        </label>
+        <span class="muted" data-t="dropHint"></span>
+        <button id="sample" type="button" class="ghost" hidden data-t="fillSample"></button>
+      </div>
+    </div>
+    <ul id="file-list" class="files"></ul>
+    <p id="stats" class="muted" aria-live="polite"></p>
+  </section>
+
+  <section class="card" aria-labelledby="s2">
+    <div class="row between key-head">
+      <h2 id="s2" data-t="step2"></h2>
+      <span id="key-badge" class="badge key-badge" hidden></span>
+    </div>
+    <label for="key" class="label" data-t="keyLabel"></label>
+    <div class="row key-row">
+      <input id="key" type="password" autocomplete="off" spellcheck="false" autocapitalize="off">
+      <label class="button secondary">
+        <input id="key-file" type="file" accept=".json,application/json" hidden>
+        <span data-t="pickKeyJson"></span>
+      </label>
+      <button id="clear-key" type="button" class="ghost" data-t="clearKey"></button>
+    </div>
+    <p class="muted key-note" data-t="keyNote"></p>
+
+    <div class="key-modes">
+      <div class="key-mode">
+        <h3 data-t="modeStudioTitle"></h3>
+        <p class="muted" data-t="modeStudioBody"></p>
+        <a id="key-link" target="_blank" rel="noopener noreferrer" data-t="keyHelp"></a>
+      </div>
+      <div class="key-mode">
+        <h3 data-t="modeCloudTitle"></h3>
+        <p class="muted" data-t="modeCloudBody"></p>
+        <a id="cloud-key-link" target="_blank" rel="noopener noreferrer" data-t="cloudKeyHelp"></a>
+      </div>
+    </div>
+
+    <div class="key-rules-box">
+      <ul id="rules" class="rules"></ul>
+      <div class="row between rules-foot">
+        <label class="check"><input id="adult" type="checkbox"> <span data-t="adult"></span></label>
+        <a id="regions-link" target="_blank" rel="noopener noreferrer" data-t="regionsLink"></a>
+      </div>
+    </div>
+
+    <details id="settings" class="settings">
+      <summary data-t="settings"></summary>
+      <div class="grid">
+        <label><span data-t="model"></span><select id="model"></select></label>
+        <label><span data-t="route"></span><select id="route"></select></label>
+        <label><span data-t="chunk"></span><select id="chunk"></select></label>
+        <label><span data-t="outLang"></span>
+          <select id="out-lang"><option value="en">English</option><option value="zh">中文</option></select>
+        </label>
+        <label><span data-t="petName"></span><input id="pet-name" type="text" autocomplete="off"></label>
+        <label><span data-t="ownerName"></span><input id="owner-name" type="text" autocomplete="off"></label>
+      </div>
+      <div class="settings-notes">
+        <p class="muted" data-t="chunkHelp"></p>
+        <p class="muted" data-t="routeHelp"></p>
+      </div>
+    </details>
+  </section>
+
+  <div class="actions">
+    <button id="run" type="button" class="primary" data-t="run"></button>
+    <button id="stop" type="button" class="secondary" hidden data-t="stop"></button>
+    <p id="status" role="status" aria-live="polite"></p>
+  </div>
+
+  <section id="result" class="card result" hidden aria-labelledby="r-title">
+    <div class="stage">
+      <div class="art ratio-43 art-state">
+        <img id="loading-art" data-art src="assets/art/web/loading.webp" width="512" height="512" alt="">
+        <img id="done-art" data-art src="assets/art/web/done.webp" width="960" height="720" alt="">
+      </div>
+      <div class="sky-box">
+        <svg id="sky" class="sky" viewBox="0 0 400 300" role="img" aria-labelledby="sky-label"></svg>
+        <p id="sky-label" class="sky-label"></p>
+      </div>
+    </div>
+    <div class="result-body">
+      <div class="result-head">
+        <h2 id="r-title"></h2>
+        <div class="row">
+          <button id="dl-md" type="button" class="secondary" data-t="downloadMd"></button>
+          <button id="dl-json" type="button" class="secondary" data-t="downloadJson"></button>
+        </div>
+      </div>
+      <div class="wake">
+        <div class="row between">
+          <h3 data-t="wakeTitle"></h3>
+          <button id="copy-wake" type="button" class="ghost" data-t="copy"></button>
+        </div>
+        <p class="muted" data-t="wakeHelp"></p>
+        <pre id="wake-text"></pre>
+      </div>
+      <div id="sheet"></div>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  <p data-t="footer"></p>
+  <p id="credit"></p>
+</footer>
+</body>
+</html>

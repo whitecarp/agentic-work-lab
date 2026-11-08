@@ -1,0 +1,1824 @@
+<!doctype html>
+<html lang="en" data-lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>I Must Use Claude</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<meta name="description" content="我一定要用上Claude · I Must Use Claude：大肥鱼环境助手、大肥鱼翻译、两地时钟、大肥鱼打包助手，四个鲸鱼主题的 Windows 小工具。Four whale-themed Windows companions for using Claude.">
+<meta name="theme-color" content="#FBF7EE" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0E1B28" media="(prefers-color-scheme: dark)">
+<link rel="canonical" href="https://whitecarp.github.io/I-Must-Use-Claude/">
+<meta property="og:type" content="website">
+<meta property="og:title" content="我一定要用上Claude · I Must Use Claude">
+<meta property="og:description" content="先了解使用环境，再看懂 Claude 的回复，也记住自己那边几点。四个鲸鱼主题的 Windows 小工具。">
+<meta property="og:image" content="https://whitecarp.github.io/I-Must-Use-Claude/images/hero-zh.png">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 70'%3E%3Cpath d='M86 37C83 32 76 25 78.5 19C81 13.5 88 15 89.5 24C92 15 99 13.5 98.5 20C98 29 91 38 86.5 44Z' fill='%236AB4E3'/%3E%3Cpath d='M86.5 44C80 48 75 55 66 59C55 65 43 67 32 67C19 67 11 63 8 57C6 53 5 49 5 45C5 27 20 16 39 16C56 16 67 24 76 33C79 36 83 38 86 37Z' fill='%2387C8EE' stroke='%23468CBE' stroke-width='2.5'/%3E%3Cellipse cx='29.75' cy='41.75' rx='4.5' ry='5' fill='%232C4661'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<script>
+  // Pick the language before anything paints: saved choice first, English by default.
+  (function () {
+    var lang = null;
+    try { lang = localStorage.getItem("imuc-lang"); } catch (e) {}
+    if (lang !== "zh" && lang !== "en") {
+      lang = "en";
+    }
+    var root = document.documentElement;
+    root.setAttribute("data-lang", lang);
+    root.setAttribute("lang", lang === "zh" ? "zh-CN" : "en");
+    document.title = lang === "zh" ? "我一定要用上Claude" : "I Must Use Claude";
+    // Web fonts load without blocking the first paint; system fonts are the fallback everywhere.
+    var link = document.createElement("link");
+    link.rel = "stylesheet";
+    link.href = "https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Nunito:wght@400;600;700;800&display=swap";
+    document.head.appendChild(link);
+  })();
+</script>
+<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Nunito:wght@400;600;700;800&display=swap"></noscript>
+<style>
+/* Layout: one cream sheet of stationery. The helper gets the big sticker card and leads every list;
+   translator and clock share the second column, then each tool gets its own spread with a redrawn app window. */
+:root {
+  --paper: #FBF7EE;
+  --paper-deep: #F4EEE2;
+  --band: #EEF5F8;
+  --card: #FFFFFF;
+  --win: #FAF8F2;
+  --ink: #1F3A52;
+  --ink-soft: #526A7D;
+  --line: #DCE7EC;
+  --sea: #4C97C4;
+  --sea-deep: #2F729E;
+  --sea-wash: #E4F1F8;
+  --peach: #E3946A;
+  --peach-ink: #9A4F28;
+  --peach-wash: #FCEBDD;
+  --sun: #F5BC3E;
+  --link: #2A6C97;
+  --btn-face: #2F729E;
+  --btn-face-hover: #3A80AD;
+  --btn-edge: #1F5578;
+  --btn-text: #FFFFFF;
+  --focus: #D0638A;
+  --night: #1A2D40;
+  --night-2: #243B52;
+  --night-ink: #E9F1F6;
+  --night-soft: #A8BCCB;
+  --sel: #35609A;
+  --home-row: #FFF5E0;
+  --target-row: #E9F2FC;
+  --bubble: #FFFFFF;
+  --bubble-line: #CFE2EC;
+  --tape-a: #D7ECF6;
+  --tape-b: #FBE1CE;
+  --glow-a: #E4F1F8;
+  --glow-b: #FCEBDD;
+  --fix: #D2643A;
+  --fix-deep: #A9461F;
+  --fix-wash: #FFEADB;
+  --fix-band: #FFF5EC;
+  --fix-btn: #AC4825;
+  --fix-btn-hover: #BE542A;
+  --fix-btn-edge: #79311D;
+  --fix-btn-text: #FFFFFF;
+  --fix-glow: rgba(121, 49, 29, .2);
+  --kraft: #C9975E;
+  /* The helper and Pack Helper windows are redrawn in the apps' own light palettes, in both page themes. */
+  --app-paper: #FFF9F1;
+  --app-card: #FFFFFF;
+  --app-line: #ECD5BF;
+  --app-ink: #433029;
+  --app-muted: #7D604F;
+  --app-accent: #AC4825;
+  --app-accent-edge: #79311D;
+  --app-on-accent: #FFFFFF;
+  --pk-paper: #FAF8F2;
+  --pk-line: #D4E7F2;
+  --pk-ink: #384E5F;
+  --pk-muted: #5A7282;
+  --pk-accent: #357AA6;
+  --pk-accent-edge: #285E82;
+  --shadow: 0 1px 2px rgba(31, 58, 82, .06), 0 12px 32px -16px rgba(31, 58, 82, .28);
+  --shadow-lg: 0 2px 4px rgba(31, 58, 82, .06), 0 26px 50px -22px rgba(31, 58, 82, .38);
+
+  --font-display: "Baloo 2", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei UI", "Microsoft YaHei", "Noto Sans CJK SC", "Noto Sans SC", system-ui, sans-serif;
+  --font-body: "Nunito", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei UI", "Microsoft YaHei", "Noto Sans CJK SC", "Noto Sans SC", system-ui, sans-serif;
+  --font-mono: ui-monospace, "Cascadia Mono", "SFMono-Regular", Menlo, Consolas, monospace;
+
+  --step-5: clamp(2.5rem, 1.55rem + 4.2vw, 4.4rem);
+  --step-4: clamp(1.85rem, 1.4rem + 2.1vw, 2.8rem);
+  --step-1: 1.125rem;
+  --step-0: 1.0625rem;
+  --step--1: .875rem;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --paper: #0E1B28; --paper-deep: #0B1620; --band: #102233; --card: #15293A; --win: #112435;
+    --ink: #E6EFF5; --ink-soft: #A2B7C6; --line: #24405A;
+    --sea: #6CB3DE; --sea-deep: #8CC6EA; --sea-wash: #17354B;
+    --peach: #EFA37A; --peach-ink: #F6C3A4; --peach-wash: #3A2A20; --sun: #FFD27A; --link: #8CC6EA;
+    --btn-face: #7CBFE6; --btn-face-hover: #95CDEE; --btn-edge: #3B7EA8; --btn-text: #0C1A26; --focus: #F4A5B8;
+    --night: #08121B; --night-2: #13222F; --night-ink: #E9F1F6; --night-soft: #9FB3C2; --sel: #2F5A8E;
+    --home-row: #2A2516; --target-row: #142F47; --bubble: #1B3346; --bubble-line: #2E4E68;
+    --tape-a: #3B6A8C; --tape-b: #6B4E3D; --glow-a: #15324A; --glow-b: #2A2233;
+    --fix: #F09A70; --fix-deep: #F4B08E; --fix-wash: #3A251C; --fix-band: #121F2C; --fix-btn: #F0A27A; --fix-btn-hover: #F5B490; --fix-btn-edge: #B4603A; --fix-btn-text: #2A160E; --fix-glow: rgba(0, 0, 0, .45); --kraft: #D9A86F;
+    --shadow: 0 1px 2px rgba(0, 0, 0, .3), 0 12px 32px -16px rgba(0, 0, 0, .6);
+    --shadow-lg: 0 2px 4px rgba(0, 0, 0, .3), 0 26px 50px -22px rgba(0, 0, 0, .75);
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --paper: #0E1B28; --paper-deep: #0B1620; --band: #102233; --card: #15293A; --win: #112435;
+  --ink: #E6EFF5; --ink-soft: #A2B7C6; --line: #24405A;
+  --sea: #6CB3DE; --sea-deep: #8CC6EA; --sea-wash: #17354B;
+  --peach: #EFA37A; --peach-ink: #F6C3A4; --peach-wash: #3A2A20; --sun: #FFD27A; --link: #8CC6EA;
+  --btn-face: #7CBFE6; --btn-face-hover: #95CDEE; --btn-edge: #3B7EA8; --btn-text: #0C1A26; --focus: #F4A5B8;
+  --night: #08121B; --night-2: #13222F; --night-ink: #E9F1F6; --night-soft: #9FB3C2; --sel: #2F5A8E;
+  --home-row: #2A2516; --target-row: #142F47; --bubble: #1B3346; --bubble-line: #2E4E68;
+  --tape-a: #3B6A8C; --tape-b: #6B4E3D; --glow-a: #15324A; --glow-b: #2A2233;
+  --fix: #F09A70; --fix-deep: #F4B08E; --fix-wash: #3A251C; --fix-band: #121F2C; --fix-btn: #F0A27A; --fix-btn-hover: #F5B490; --fix-btn-edge: #B4603A; --fix-btn-text: #2A160E; --fix-glow: rgba(0, 0, 0, .45); --kraft: #D9A86F;
+  --shadow: 0 1px 2px rgba(0, 0, 0, .3), 0 12px 32px -16px rgba(0, 0, 0, .6);
+  --shadow-lg: 0 2px 4px rgba(0, 0, 0, .3), 0 26px 50px -22px rgba(0, 0, 0, .75);
+  color-scheme: dark;
+}
+
+/* ---------- base ---------- */
+*, *::before, *::after { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; scroll-behavior: smooth; }
+body {
+  margin: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--font-body);
+  font-size: var(--step-0);
+  line-height: 1.75;
+  overflow-x: hidden;
+}
+:root[data-lang="en"] body { line-height: 1.6; }
+body::before {
+  content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px);
+  z-index: 30; background: var(--paper);
+}
+img { max-width: 100%; height: auto; display: block; }
+a { color: var(--link); text-underline-offset: .2em; }
+h1, h2, h3, h4 { font-family: var(--font-display); line-height: 1.15; text-wrap: balance; margin: 0; color: var(--ink); }
+p { margin: 0; }
+:focus-visible { outline: 3px solid var(--focus); outline-offset: 3px; border-radius: 10px; }
+[hidden] { display: none !important; }
+:root:not([data-lang="en"]) :is(h1, h2, h3, h4) { word-break: keep-all; overflow-wrap: anywhere; }
+.nb { white-space: nowrap; }
+/* Bilingual copy: both languages ship in the markup; the root attribute decides which one shows. */
+:root[data-lang="en"] [data-l="zh"], :root:not([data-lang="en"]) [data-l="en"] { display: none !important; }
+section[id] { scroll-margin-top: 76px; }
+.sprite { position: absolute; width: 0; height: 0; overflow: hidden; }
+.skip {
+  position: absolute; left: 12px; top: -60px; z-index: 50; padding: 10px 16px; border-radius: 999px;
+  background: var(--btn-face); color: var(--btn-text); font-weight: 800; text-decoration: none;
+}
+.skip:focus { top: calc(env(safe-area-inset-top, 0px) + 10px); }
+
+.wrap {
+  max-width: 1180px; margin-inline: auto;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+}
+@media (min-width: 720px) {
+  .wrap {
+    padding-left: max(32px, env(safe-area-inset-left, 0px));
+    padding-right: max(32px, env(safe-area-inset-right, 0px));
+  }
+}
+
+/* ---------- top bar ---------- */
+.topbar {
+  position: sticky; top: env(safe-area-inset-top, 0px); z-index: 20;
+  background: var(--paper);
+  background: color-mix(in srgb, var(--paper) 88%, transparent);
+  -webkit-backdrop-filter: saturate(1.4) blur(10px); backdrop-filter: saturate(1.4) blur(10px);
+  border-bottom: 1px solid transparent; transition: border-color .2s ease;
+}
+.topbar.is-scrolled { border-bottom-color: var(--line); }
+.topbar__inner { display: flex; align-items: center; gap: 14px; min-height: 66px; }
+.brand {
+  display: flex; align-items: center; gap: 10px; margin-right: auto; min-width: 0;
+  color: var(--ink); text-decoration: none; font-family: var(--font-display); font-weight: 800; font-size: 1.15rem;
+  line-height: 1.1;
+}
+.brand svg { width: 46px; height: 32px; flex: none; }
+.brand span { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.topnav { display: flex; gap: 2px; }
+.topnav a {
+  color: var(--ink-soft); text-decoration: none; font-weight: 800; font-size: .95rem;
+  padding: 6px 12px; border-radius: 999px; transition: background-color .15s, color .15s;
+}
+.topnav a:hover { color: var(--ink); background: var(--sea-wash); }
+.lang-switch {
+  display: inline-flex; flex: none; padding: 3px; border-radius: 999px;
+  background: var(--card); border: 1px solid var(--line);
+}
+.lang-switch button {
+  font: inherit; font-weight: 800; font-size: .85rem; line-height: 1; color: var(--ink-soft);
+  background: transparent; border: 0; border-radius: 999px; padding: 8px 12px; cursor: pointer;
+}
+.lang-switch button[aria-pressed="true"] { background: var(--btn-face); color: var(--btn-text); }
+.gh {
+  display: grid; place-items: center; flex: none; width: 40px; height: 40px; border-radius: 999px;
+  color: var(--ink); background: var(--card); border: 1px solid var(--line);
+}
+.gh svg { width: 20px; height: 20px; }
+@media (max-width: 860px) { .topnav { display: none; } }
+@media (max-width: 420px) { .brand span { font-size: 1rem; } .gh { display: none; } }
+
+/* ---------- shared bits ---------- */
+.eyebrow {
+  display: inline-flex; align-items: center; gap: .65em; flex-wrap: wrap;
+  font-weight: 800; font-size: var(--step--1); color: var(--ink-soft); letter-spacing: .03em;
+}
+:root[data-lang="en"] .eyebrow { text-transform: uppercase; letter-spacing: .09em; font-size: .78rem; }
+.num {
+  display: inline-grid; place-items: center; flex: none; width: 2.15rem; height: 2.15rem; border-radius: 50%;
+  background: var(--btn-face); color: var(--btn-text);
+  font-family: var(--font-display); font-weight: 800; font-size: .92rem; letter-spacing: 0; line-height: 1;
+}
+.btn {
+  --face: var(--card); --edge: var(--line); --text: var(--ink);
+  display: inline-flex; align-items: center; justify-content: center; gap: .55em;
+  font: inherit; font-weight: 800; font-size: 1rem; line-height: 1.2; text-decoration: none; text-align: center;
+  color: var(--text); background: var(--face);
+  padding: .82em 1.35em; border-radius: 999px; border: 1px solid var(--edge);
+  box-shadow: 0 3px 0 var(--edge);
+  transition: transform .12s ease, box-shadow .12s ease, background-color .15s ease;
+  cursor: pointer;
+}
+.btn:hover { --face: var(--sea-wash); }
+.btn:active { transform: translateY(3px); box-shadow: 0 0 0 var(--edge); }
+.btn svg { width: 1.15em; height: 1.15em; flex: none; }
+.btn--primary { --face: var(--btn-face); --edge: var(--btn-edge); --text: var(--btn-text); }
+.btn--primary:hover { --face: var(--btn-face-hover); }
+.btn__meta { display: block; font-weight: 700; font-size: .78em; opacity: .86; }
+.icon { width: 1em; height: 1em; flex: none; }
+.more {
+  display: inline-flex; align-items: center; gap: .35em;
+  font-weight: 800; color: var(--link); text-decoration: none;
+}
+.more:hover { text-decoration: underline; }
+.more svg { width: 1em; height: 1em; transition: transform .15s ease; }
+.more:hover svg { transform: translateX(3px); }
+.section { padding-block: clamp(60px, 8vw, 104px); }
+.section-head { display: grid; gap: 12px; max-width: 660px; margin-bottom: clamp(28px, 4vw, 44px); }
+.section-head h2 { font-size: var(--step-4); font-weight: 800; }
+.section-head p { color: var(--ink-soft); font-size: var(--step-1); }
+.caption { font-size: .85rem; color: var(--ink-soft); line-height: 1.55; }
+.wave { display: block; width: 100%; height: 26px; color: var(--sea); opacity: .55; }
+.spark { position: absolute; width: 18px; height: 18px; color: var(--sun); pointer-events: none; }
+
+/* ---------- hero ---------- */
+.hero { position: relative; overflow: hidden; padding-block: clamp(28px, 6vw, 76px) clamp(36px, 6vw, 72px); }
+.hero::before {
+  content: ""; position: absolute; inset: 0; pointer-events: none;
+  background:
+    radial-gradient(520px 300px at 12% 18%, var(--glow-a), transparent 70%),
+    radial-gradient(460px 260px at 92% 88%, var(--glow-b), transparent 70%);
+  opacity: .9;
+}
+.hero__grid {
+  position: relative; display: grid; grid-template-columns: minmax(0, 1.02fr) minmax(0, 1fr);
+  gap: clamp(32px, 5vw, 64px); align-items: center;
+}
+.hero__copy { display: grid; justify-items: start; gap: 4px; }
+.hero h1 { font-size: var(--step-5); font-weight: 800; letter-spacing: -.012em; margin-block: .3em .28em; }
+.hero h1 .claude {
+  white-space: nowrap; text-decoration: underline wavy var(--sea);
+  text-decoration-thickness: .075em; text-underline-offset: .16em; text-decoration-skip-ink: none;
+}
+.lede { font-size: var(--step-1); color: var(--ink-soft); max-width: 34em; }
+.lede strong { display: block; color: var(--ink); font-weight: 800; font-size: 1.12em; margin-bottom: .35em; }
+.cta-row { display: flex; flex-wrap: wrap; gap: 14px; margin-top: 26px; }
+.facts {
+  display: flex; flex-wrap: wrap; gap: 6px 20px; margin: 22px 0 0; padding: 0; list-style: none;
+  color: var(--ink-soft); font-size: var(--step--1); font-weight: 700;
+}
+.facts li { display: inline-flex; align-items: center; gap: 7px; }
+.facts svg { width: 14px; height: 14px; color: var(--sea); }
+.sticker {
+  position: relative; margin: 14px 4px 0; padding: 10px; border-radius: 30px;
+  background: var(--card); border: 1px solid var(--line); box-shadow: var(--shadow-lg);
+  transform: rotate(1.6deg); animation: settle .9s cubic-bezier(.2, .9, .3, 1.15) both;
+}
+.sticker img { width: 100%; border-radius: 22px; aspect-ratio: 954 / 686; object-fit: cover; }
+.tape {
+  position: absolute; top: -15px; left: 50%; width: 132px; height: 32px; border-radius: 4px;
+  transform: translateX(-50%) rotate(-4deg);
+  background: repeating-linear-gradient(45deg, var(--tape-a) 0 9px, var(--tape-b) 9px 18px);
+  border: 1px solid var(--line); opacity: .92;
+}
+.sticker .spark--a { top: -22px; right: 18%; width: 22px; height: 22px; }
+.sticker .spark--b { bottom: 14%; left: -20px; }
+@media (max-width: 600px) { .sticker .spark--b { left: 6px; bottom: -22px; } }
+@keyframes settle { from { transform: translateY(16px) rotate(-3deg); } to { transform: rotate(1.6deg); } }
+@media (max-width: 880px) { .hero__grid { grid-template-columns: minmax(0, 1fr); } .sticker { margin-inline: 6px; } }
+
+/* ---------- tool picker ---------- */
+.bento { display: grid; grid-template-columns: minmax(0, 1.22fr) minmax(0, 1fr); gap: 20px; }
+.tool-card {
+  position: relative; display: flex; flex-direction: column; gap: 14px; min-width: 0;
+  background: var(--card); border: 1px solid var(--line); border-radius: 28px;
+  padding: clamp(22px, 3vw, 32px); box-shadow: var(--shadow);
+}
+.tool-card--feature {
+  grid-row: span 2; border-color: var(--sea);
+  background: linear-gradient(180deg, var(--sea-wash), var(--card) 62%);
+}
+.tool-card__top { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.tag {
+  display: inline-flex; align-items: center; gap: 6px; font-size: .82rem; font-weight: 800; line-height: 1.2;
+  color: var(--peach-ink); background: var(--peach-wash); padding: 6px 12px; border-radius: 999px;
+}
+.tag svg { width: 14px; height: 14px; color: var(--peach); }
+.tool-icon { width: 60px; height: 52px; }
+.tool-card--feature .tool-icon { width: 92px; height: 80px; }
+.tool-card h3 { font-size: 1.55rem; font-weight: 800; }
+.tool-card--feature h3 { font-size: clamp(1.8rem, 1.4rem + 1.2vw, 2.3rem); }
+.tool-card h3 .sub {
+  display: block; margin-top: 6px; font-family: var(--font-body); font-size: .86rem; font-weight: 700;
+  color: var(--ink-soft); letter-spacing: 0;
+}
+.tool-card__line { font-size: 1.1rem; font-weight: 800; color: var(--ink); }
+.ticks { list-style: none; margin: 0; padding: 0; display: grid; gap: 9px; }
+.ticks li { display: grid; grid-template-columns: 22px minmax(0, 1fr); gap: 8px; color: var(--ink-soft); }
+.ticks svg { width: 20px; height: 20px; margin-top: .22em; color: var(--sea-deep); }
+.flow {
+  display: grid; gap: 10px; padding: 16px 18px; border-radius: 20px;
+  border: 1.5px dashed var(--sea); background: var(--card);
+}
+.flow__k { font-size: .82rem; font-weight: 800; color: var(--ink-soft); }
+.flow__row { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+.flow__row > svg { width: 16px; height: 16px; color: var(--sea); flex: none; }
+.flow .candy { font-size: .86rem; padding: .5em 1em; }
+.flow .candy svg { width: 1em; height: 1em; }
+.tool-card__actions { margin-top: auto; padding-top: 8px; display: flex; flex-wrap: wrap; align-items: center; gap: 12px 20px; }
+@media (max-width: 880px) { .bento { grid-template-columns: minmax(0, 1fr); } .tool-card--feature { grid-row: auto; } }
+
+/* ---------- feature spreads ---------- */
+.feature { padding-block: clamp(64px, 9vw, 112px); }
+.feature--band { background: var(--band); }
+.feature__grid {
+  display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.08fr);
+  gap: clamp(32px, 5vw, 72px); align-items: start;
+}
+.feature--flip .feature__grid { grid-template-columns: minmax(0, 1.08fr) minmax(0, 1fr); }
+.feature--flip .feature__visual { order: -1; }
+.feature__copy { display: grid; gap: 18px; min-width: 0; }
+.feature__copy h2 { font-size: var(--step-4); font-weight: 800; }
+.feature__intro { color: var(--ink-soft); font-size: var(--step-1); max-width: 36em; }
+.feature__visual { display: grid; gap: 14px; min-width: 0; }
+@media (min-width: 941px) { .feature__visual--sticky { position: sticky; top: calc(env(safe-area-inset-top, 0px) + 92px); } }
+@media (max-width: 940px) {
+  .feature__grid, .feature--flip .feature__grid { grid-template-columns: minmax(0, 1fr); }
+  .feature--flip .feature__visual { order: 0; }
+}
+.chips { display: flex; flex-wrap: wrap; gap: 8px; margin: 0; padding: 0; list-style: none; }
+.chips li {
+  font-size: .86rem; font-weight: 800; line-height: 1.3; color: var(--sea-deep);
+  background: var(--sea-wash); border-radius: 999px; padding: 6px 12px;
+}
+.note-line { font-size: .92rem; color: var(--ink-soft); border-left: 3px solid var(--sea); padding-left: 14px; }
+
+/* steps */
+.steps { list-style: none; margin: 4px 0 0; padding: 0; display: grid; gap: 8px; }
+.steps__hint { font-size: .86rem; font-weight: 800; color: var(--peach-ink); display: inline-flex; gap: 6px; align-items: center; }
+.steps__hint svg { width: 16px; height: 16px; color: var(--peach); }
+.step {
+  display: grid; grid-template-columns: 34px minmax(0, 1fr); gap: 14px; align-items: start; width: 100%;
+  font: inherit; color: inherit; text-align: left; background: transparent;
+  border: 1px solid transparent; border-radius: 20px; padding: 12px 14px;
+}
+button.step { cursor: pointer; transition: background-color .15s, border-color .15s; }
+button.step:hover { background: var(--card); border-color: var(--line); }
+button.step[aria-pressed="true"] { background: var(--card); border-color: var(--sea); box-shadow: 0 3px 0 var(--sea-wash); }
+.step__n {
+  display: grid; place-items: center; width: 32px; height: 32px; border-radius: 50%;
+  background: var(--sea-wash); color: var(--sea-deep);
+  font-family: var(--font-display); font-weight: 800; font-size: 1rem; line-height: 1;
+}
+.step__n svg { width: 18px; height: 18px; }
+button.step[aria-pressed="true"] .step__n { background: var(--btn-face); color: var(--btn-text); }
+.step__body { display: grid; gap: 2px; min-width: 0; }
+.step__name { font-weight: 800; color: var(--ink); }
+.step__text { color: var(--ink-soft); }
+.step--undo { border-style: dashed; border-color: var(--line); }
+kbd {
+  font-family: inherit; font-weight: 800; font-size: .92em; color: var(--ink);
+  background: var(--card); border: 1px solid var(--line); border-radius: 8px;
+  padding: 0 .4em; box-shadow: 0 2px 0 var(--line); white-space: nowrap;
+}
+
+/* helper window mock (redrawn from OptimizerForm.cs text) */
+.appwin {
+  background: var(--win); border: 1px solid var(--line); border-radius: 18px;
+  box-shadow: var(--shadow-lg); overflow: hidden; min-width: 0;
+}
+.appwin__bar {
+  display: flex; align-items: center; justify-content: space-between; gap: 12px;
+  padding: 9px 14px; background: var(--card); border-bottom: 1px solid var(--line);
+  font-size: .8rem; color: var(--ink-soft); line-height: 1.3;
+}
+.appwin__bar span:first-child { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.appwin__ctrls { display: flex; gap: 16px; flex: none; font-size: .9rem; color: var(--ink-soft); }
+.appwin__body { display: grid; gap: 14px; padding: 20px 22px 18px; }
+.appwin__head { display: flex; align-items: center; gap: 14px; min-width: 0; }
+.appwin__head svg { width: 80px; height: 56px; flex: none; }
+.appwin__head strong { display: block; font-family: var(--font-display); font-size: 1.45rem; line-height: 1.2; }
+.appwin__head span { display: block; color: var(--ink-soft); font-size: .88rem; line-height: 1.4; }
+.appwin__head .candy { margin-left: auto; align-self: flex-start; font-size: .8rem; padding: .45em .9em; }
+.appwin__card {
+  display: grid; gap: 6px; padding: 14px 16px;
+  background: var(--card); border: 1px solid var(--line); border-radius: 16px; box-shadow: 0 2px 0 var(--line);
+}
+.appwin__score { font-weight: 800; font-size: 1.08rem; color: var(--ink); }
+.appwin__state { color: var(--ink-soft); font-size: .95rem; min-height: 1.6em; }
+.ph {
+  display: inline-block; padding: 0 .55em; border: 1.5px dashed var(--sea); border-radius: 8px;
+  color: var(--sea-deep); font-weight: 800; font-size: .9em;
+}
+.appwin__btns { display: flex; flex-wrap: wrap; gap: 10px; }
+.candy {
+  display: inline-flex; align-items: center; justify-content: center; gap: .4em;
+  padding: .6em 1.2em; border-radius: 999px; font-weight: 800; font-size: .92rem; line-height: 1.25;
+  background: var(--card); color: var(--ink); border: 1px solid var(--line); box-shadow: 0 2px 0 var(--line);
+}
+.candy--primary { background: var(--btn-face); color: var(--btn-text); border-color: var(--btn-face); box-shadow: 0 2px 0 var(--btn-edge); }
+.candy.is-hot { outline: 3px solid var(--peach); outline-offset: 3px; animation: nudge 1.8s ease-in-out infinite; }
+@keyframes nudge { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-2px); } }
+.appwin__detail { font-size: .84rem; color: var(--ink-soft); border-top: 1px dashed var(--line); padding-top: 10px; }
+.appwin__links { display: flex; flex-wrap: wrap; gap: 4px 18px; font-size: .84rem; font-weight: 800; color: var(--sea-deep); }
+
+/* what changes / what stays */
+.ledger { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; margin-top: clamp(44px, 6vw, 72px); }
+.ledger__col { background: var(--card); border: 1px solid var(--line); border-radius: 22px; padding: 22px 24px; min-width: 0; }
+.ledger__col h3 { font-size: 1.2rem; display: flex; align-items: center; gap: 10px; }
+.ledger__col h3 svg { width: 26px; height: 26px; flex: none; }
+.ledger__col--change h3 svg { color: var(--peach); }
+.ledger__col--keep h3 svg { color: var(--sea); }
+.ledger ul { list-style: none; margin: 14px 0 0; padding: 0; display: grid; gap: 10px; }
+.ledger li { position: relative; padding-left: 22px; }
+.ledger li::before { content: ""; position: absolute; left: 2px; top: .62em; width: 9px; height: 9px; border-radius: 3px; }
+.ledger__col--change li::before { background: var(--peach); }
+.ledger__col--keep li::before { background: var(--sea); }
+.ledger li small { display: block; color: var(--ink-soft); font-size: .86rem; line-height: 1.45; }
+.ledger__foot { grid-column: 1 / -1; color: var(--ink-soft); font-size: .92rem; }
+@media (max-width: 720px) { .ledger { grid-template-columns: minmax(0, 1fr); } }
+
+/* maintenance tabs */
+.maint {
+  display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.12fr);
+  gap: clamp(24px, 4vw, 52px); align-items: start; margin-top: clamp(52px, 7vw, 88px);
+}
+.maint__copy { display: grid; gap: 14px; min-width: 0; }
+.maint__copy h3 { font-size: clamp(1.5rem, 1.2rem + 1vw, 1.95rem); font-weight: 800; }
+.maint__copy > p { color: var(--ink-soft); }
+.tabs { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 4px; }
+.tab {
+  font: inherit; font-weight: 800; font-size: .9rem; line-height: 1.3; color: var(--ink-soft);
+  background: var(--card); border: 1px solid var(--line); border-radius: 999px;
+  padding: 8px 14px; box-shadow: 0 2px 0 var(--line); cursor: pointer;
+  transition: background-color .15s, color .15s;
+}
+.tab:hover { color: var(--ink); background: var(--sea-wash); }
+.tab[aria-selected="true"] { background: var(--btn-face); color: var(--btn-text); border-color: var(--btn-face); box-shadow: 0 2px 0 var(--btn-edge); }
+.tabpanel {
+  background: var(--card); border: 1px solid var(--line); border-radius: 18px;
+  padding: 16px 20px; color: var(--ink-soft); min-height: 7.4em;
+}
+.tabpanel strong { color: var(--ink); }
+.shot { margin: 0; display: grid; gap: 10px; min-width: 0; }
+.shot img { border-radius: 14px; border: 1px solid var(--line); box-shadow: var(--shadow); background: #F8F6F1; }
+@media (max-width: 940px) { .maint { grid-template-columns: minmax(0, 1fr); } }
+.fineprint {
+  margin-top: clamp(32px, 4vw, 44px); padding: 16px 20px; border-radius: 16px;
+  border: 1px dashed var(--line); background: var(--card);
+  font-size: .9rem; color: var(--ink-soft); max-width: 62em;
+}
+.fineprint strong { color: var(--ink); }
+
+/* translator mock */
+.tx { position: relative; display: grid; grid-template-columns: minmax(0, .92fr) minmax(0, 1.08fr); align-items: center; padding: 12px 4px; }
+.tx__src {
+  position: relative; z-index: 1; display: grid; gap: 12px; padding: 22px 48px 20px 20px;
+  background: var(--night); color: var(--night-ink); border-radius: 22px;
+  box-shadow: var(--shadow-lg); transform: rotate(-1.4deg);
+}
+.tx__src b { font-size: .95rem; }
+.tx__src .hint { color: var(--night-soft); font-size: .84rem; line-height: 1.45; }
+.tx__sel {
+  position: relative; display: block; padding: 12px 14px; border-radius: 10px; background: var(--sel); color: #FFFFFF;
+  font-weight: 800; font-size: 1.04rem; line-height: 1.35;
+}
+.tx__pill {
+  justify-self: start; font-size: .74rem; font-weight: 700; line-height: 1.3; color: var(--night-soft);
+  background: var(--night-2); border-radius: 999px; padding: 4px 10px;
+}
+.tx__cursor { position: absolute; right: -10px; bottom: -18px; width: 22px; height: 28px; }
+.tx__out {
+  position: relative; z-index: 2; display: grid; gap: 12px; margin-left: -20px; padding: 20px;
+  background: var(--card); border: 1px solid var(--line); border-radius: 22px;
+  box-shadow: var(--shadow-lg); transform: rotate(.9deg);
+}
+.tx__head { display: flex; align-items: center; flex-wrap: wrap; gap: 8px 10px; }
+.tx__head svg { width: 44px; height: 31px; flex: none; }
+.tx__head b { font-family: var(--font-display); font-size: 1.15rem; }
+.tx__head .pill {
+  margin-left: auto; font-size: .74rem; font-weight: 800; line-height: 1.3;
+  color: var(--sea-deep); background: var(--sea-wash); padding: 4px 10px; border-radius: 999px;
+}
+.tx__k { display: block; font-size: .72rem; font-weight: 800; letter-spacing: .08em; color: var(--ink-soft); }
+.tx__result { padding: 12px 14px; border-radius: 14px; background: var(--sea-wash); }
+.tx__result p { font-size: 1.14rem; font-weight: 800; color: var(--ink); line-height: 1.45; }
+.tx__orig p { color: var(--ink-soft); line-height: 1.45; }
+.tx__ctrls { display: flex; flex-wrap: wrap; gap: 8px; }
+.tx__ctrls .candy { font-size: .8rem; padding: .45em .95em; }
+@media (max-width: 600px) {
+  .tx { grid-template-columns: minmax(0, 1fr); }
+  .tx__out { margin-left: 10px; margin-top: -18px; }
+  .tx__src { margin-right: 10px; padding-right: 30px; }
+}
+
+/* clock demo */
+.clockdemo { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: clamp(20px, 3vw, 32px); align-items: center; }
+.clockpanel {
+  width: min(300px, 100%); display: grid; gap: 8px; padding: 12px;
+  background: var(--card); border: 1px solid var(--line); border-radius: 24px; box-shadow: var(--shadow-lg);
+  font-variant-numeric: tabular-nums;
+}
+.clockpanel__head { display: flex; align-items: center; gap: 10px; padding: 2px 4px; }
+.clockpanel__head img { width: 48px; height: 48px; border-radius: 50%; background: var(--sea-wash); }
+.clockpanel__head b { display: block; font-family: var(--font-display); font-size: 1.05rem; line-height: 1.2; }
+.clockpanel__head span { display: block; font-size: .78rem; color: var(--ink-soft); line-height: 1.3; }
+.clockrow { display: grid; gap: 0; padding: 10px 12px; border-radius: 16px; text-align: center; }
+.clockrow--home { background: var(--home-row); }
+.clockrow--target { background: var(--target-row); }
+.clockrow__label { font-size: .8rem; font-weight: 800; color: var(--ink-soft); line-height: 1.4; }
+.clockrow__time {
+  font-family: var(--font-body); font-weight: 800; font-size: 2.3rem; line-height: 1.12; color: var(--ink);
+  font-variant-numeric: tabular-nums; letter-spacing: .01em;
+}
+.clockrow__date { font-size: .78rem; color: var(--ink-soft); line-height: 1.4; }
+.clockpanel__diff { text-align: center; font-size: .86rem; font-weight: 800; color: var(--ink-soft); padding: 0 4px 4px; }
+.clockdemo__controls { display: grid; gap: 12px; min-width: 0; }
+.field { display: grid; gap: 4px; }
+.field label { font-weight: 800; font-size: .86rem; color: var(--ink-soft); }
+select {
+  width: 100%; font: inherit; font-weight: 700; color: var(--ink); background: var(--card);
+  border: 1px solid var(--line); border-radius: 12px; padding: 10px 12px; box-shadow: 0 2px 0 var(--line);
+}
+.clockdemo .btn { justify-self: start; font-size: .92rem; padding: .65em 1.1em; }
+.app-shot { display: flex; align-items: center; gap: 16px; padding: 14px 16px; border-radius: 18px; border: 1px dashed var(--line); }
+.app-shot img { width: 120px; border-radius: 12px; border: 1px solid var(--line); flex: none; }
+.app-shot .caption { min-width: 0; }
+@media (max-width: 600px) {
+  .clockdemo { grid-template-columns: minmax(0, 1fr); justify-items: center; }
+  .clockdemo__controls { width: 100%; }
+}
+
+/* ---------- helper identity: the app itself is terracotta since 0.6 ---------- */
+.is-fix { --btn-face: var(--fix-btn); --btn-face-hover: var(--fix-btn-hover); --btn-edge: var(--fix-btn-edge); --btn-text: var(--fix-btn-text); }
+.new-pill {
+  display: inline-flex; align-items: center; gap: 5px; padding: 3px 10px; border-radius: 999px;
+  font-size: .76rem; font-weight: 800; line-height: 1.3; letter-spacing: .02em; text-transform: none;
+  color: var(--fix-deep); background: var(--fix-wash);
+}
+.new-pill svg { width: 12px; height: 12px; color: var(--fix); }
+.feature--fix { background: var(--fix-band); }
+
+/* picker: the helper is the wide card, the other three share a row */
+.picker { display: grid; gap: 20px; }
+.tool-card--hero {
+  display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr);
+  grid-template-areas: "main art" "main flow"; gap: 18px clamp(24px, 3vw, 48px); align-items: start;
+  border-color: var(--fix); background: linear-gradient(135deg, var(--fix-wash), var(--card) 60%);
+  padding: clamp(24px, 3.4vw, 40px);
+}
+.fc-main { grid-area: main; display: flex; flex-direction: column; gap: 14px; min-width: 0; height: 100%; }
+.fc-art { grid-area: art; justify-self: center; width: min(230px, 72%); filter: drop-shadow(0 16px 18px var(--fix-glow)); }
+.fc-flow { grid-area: flow; border-color: var(--fix); }
+.tool-card--hero h3 { font-size: clamp(1.8rem, 1.4rem + 1.2vw, 2.3rem); }
+.tool-card--hero .tag { color: var(--fix-deep); background: var(--card); }
+.toolbox { display: grid; gap: 8px; }
+.toolbox__k { font-size: .82rem; font-weight: 800; color: var(--ink-soft); }
+.toolbox ul { display: flex; flex-wrap: wrap; gap: 8px; margin: 0; padding: 0; list-style: none; }
+.toolbox li {
+  display: inline-flex; align-items: center; gap: 6px; padding: 5px 12px; border-radius: 999px;
+  font-size: .86rem; font-weight: 800; line-height: 1.3; color: var(--ink); background: var(--card); border: 1px solid var(--line);
+}
+.toolbox li b { font-size: .72rem; color: var(--fix-btn-text); background: var(--fix-btn); border-radius: 999px; padding: 1px 7px; }
+.trio { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 20px; }
+@media (max-width: 980px) {
+  .tool-card--hero { grid-template-columns: minmax(0, 1fr); grid-template-areas: "art" "main" "flow"; }
+  .fc-art { width: 150px; }
+}
+@media (max-width: 900px) { .trio { grid-template-columns: minmax(0, 1fr); } }
+
+/* windows redrawn in each app's own palette */
+.appwin--app, .appwin--pack { color: var(--app-ink); }
+.appwin--app { background: var(--app-paper); border-color: var(--app-line); }
+.appwin--app .appwin__bar { background: var(--app-card); border-color: var(--app-line); color: var(--app-muted); }
+.appwin--app .appwin__ctrls, .appwin--app .appwin__head span:not(.candy), .appwin--app .appwin__state, .appwin--app .appwin__detail { color: var(--app-muted); }
+.appwin--app .appwin__head strong, .appwin--app .appwin__score { color: var(--app-ink); }
+.appwin--app .appwin__card { background: var(--app-card); border-color: var(--app-line); box-shadow: 0 2px 0 var(--app-line); }
+.appwin--app .appwin__detail { border-color: var(--app-line); }
+.appwin--app .appwin__links { color: var(--app-accent); }
+.appwin--app .candy { background: var(--app-card); color: var(--app-ink); border-color: var(--app-line); box-shadow: 0 2px 0 var(--app-line); }
+.appwin--app .candy--primary { background: var(--app-accent); color: var(--app-on-accent); border-color: var(--app-accent); box-shadow: 0 2px 0 var(--app-accent-edge); }
+.appwin--app .candy.is-hot { outline-color: var(--sea); }
+.appwin--app .ph { border-color: var(--app-accent); color: var(--app-accent); }
+.appwin__mascot { width: 64px; height: 64px; flex: none; }
+.candy.is-off { opacity: .5; box-shadow: none; }
+
+/* Network & DNS */
+.netdns { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.08fr); gap: clamp(28px, 4vw, 56px); align-items: start; margin-top: clamp(52px, 7vw, 88px); }
+.netdns__copy { display: grid; gap: 14px; min-width: 0; }
+.netdns__copy h3 { font-size: clamp(1.5rem, 1.2rem + 1vw, 1.95rem); font-weight: 800; }
+.netdns__copy > p:not(.note-line):not(.eyebrow) { color: var(--ink-soft); }
+.netdns__visual { display: grid; gap: 14px; min-width: 0; }
+.mini-h { font-size: 1.08rem; margin-top: 6px; }
+.legend { margin: 0; display: grid; gap: 10px; }
+.legend > div { display: grid; grid-template-columns: minmax(0, 10.5em) minmax(0, 1fr); gap: 12px; align-items: baseline; }
+.legend dt { justify-self: start; }
+.legend dd { margin: 0; color: var(--ink-soft); font-size: .95rem; line-height: 1.55; }
+.st {
+  display: inline-block; padding: 3px 10px; border-radius: 999px; font-size: .8rem; font-weight: 800; line-height: 1.35;
+  color: var(--ink-soft); background: var(--card); border: 1px dashed var(--ink-soft);
+}
+.st--seen { color: var(--sea-deep); background: var(--sea-wash); border: 1px solid var(--sea-wash); }
+.dnsbox { border: 1px solid var(--app-line); border-radius: 12px; background: var(--app-card); overflow: hidden; }
+.dnstable { width: 100%; border-collapse: collapse; font-size: .8rem; }
+.dnstable caption { caption-side: top; text-align: left; font-weight: 800; color: var(--app-ink); padding: 8px 10px 6px; }
+.dnstable th { text-align: left; font-weight: 800; color: var(--app-muted); padding: 7px 10px; background: var(--app-paper); border-top: 1px solid var(--app-line); border-bottom: 1px solid var(--app-line); }
+.dnstable td { padding: 16px 10px; color: var(--app-muted); text-align: center; }
+.fix-row { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+.fix-row__k { font-size: .8rem; font-weight: 800; color: var(--app-muted); }
+.fakeselect {
+  display: inline-flex; align-items: center; justify-content: space-between; gap: 10px; flex: 1 1 150px; min-width: 0;
+  padding: .45em .8em; border-radius: 10px; border: 1px solid var(--app-line); background: var(--app-card); color: var(--app-muted); font-size: .8rem;
+}
+.fakeselect::after { content: "▾"; }
+.repair { display: grid; gap: 10px; padding: 16px 18px; border-radius: 18px; border: 1.5px dashed var(--fix); background: var(--card); }
+.repair__k { font-weight: 800; font-size: .92rem; color: var(--ink); }
+.repair__flow { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 8px; counter-reset: rf; }
+.repair__flow li {
+  counter-increment: rf; display: inline-flex; align-items: center; gap: 7px; padding: 5px 12px 5px 6px; border-radius: 999px;
+  font-size: .86rem; font-weight: 800; line-height: 1.3; color: var(--ink); background: var(--fix-wash);
+}
+.repair__flow li::before {
+  content: counter(rf); display: inline-grid; place-items: center; width: 20px; height: 20px; border-radius: 50%;
+  background: var(--fix-btn); color: var(--fix-btn-text); font-size: .74rem;
+}
+.repair__flow li.is-undo::before { content: "↺"; }
+@media (max-width: 940px) { .netdns { grid-template-columns: minmax(0, 1fr); } }
+@media (max-width: 520px) { .legend > div { grid-template-columns: minmax(0, 1fr); gap: 4px; } }
+
+/* the helper's other entries */
+.tiles { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; margin-top: 24px; }
+.tile { display: grid; grid-template-columns: 48px minmax(0, 1fr); align-content: start; gap: 4px 16px; padding: 20px 22px; border-radius: 20px; background: var(--card); border: 1px solid var(--line); min-width: 0; }
+.tile__icon { grid-row: span 2; display: grid; place-items: center; width: 48px; height: 48px; border-radius: 16px; background: var(--fix-wash); color: var(--fix-deep); }
+.tile__icon svg { width: 24px; height: 24px; }
+.tile h3 { font-size: 1.15rem; padding-top: 2px; }
+.tile p { color: var(--ink-soft); font-size: .95rem; }
+.tile code { font-family: var(--font-mono); font-size: .88em; }
+@media (max-width: 720px) { .tiles { grid-template-columns: minmax(0, 1fr); } }
+
+/* Pack Helper window */
+.appwin--pack { background: var(--pk-paper); border-color: var(--pk-line); }
+.appwin--pack .appwin__bar { background: var(--app-card); border-color: var(--pk-line); color: var(--pk-muted); }
+.appwin--pack .appwin__ctrls, .appwin--pack .appwin__head span:not(.candy), .appwin--pack .appwin__detail { color: var(--pk-muted); }
+.appwin--pack .appwin__head strong { color: var(--pk-ink); }
+.appwin--pack .appwin__detail { border-color: var(--pk-line); }
+.appwin--pack .candy { background: var(--app-card); color: var(--pk-ink); border-color: var(--pk-line); box-shadow: 0 2px 0 var(--pk-line); }
+.appwin--pack .candy--primary { background: var(--pk-accent); color: var(--app-on-accent); border-color: var(--pk-accent); box-shadow: 0 2px 0 var(--pk-accent-edge); }
+.pack-whale { width: 80px; height: auto; flex: none; }
+.dropzone {
+  display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 8px 10px; padding: 14px;
+  border: 2px dashed var(--pk-line); border-radius: 14px; color: var(--pk-muted); font-weight: 800; font-size: .86rem; text-align: center;
+}
+.dropzone > span:first-child { flex-basis: 100%; }
+.pklist { background: var(--app-card); border: 1px solid var(--pk-line); border-radius: 14px; overflow: hidden; }
+.pklist__head { display: flex; justify-content: space-between; gap: 10px; padding: 8px 12px; font-size: .8rem; color: var(--pk-muted); border-bottom: 1px solid var(--pk-line); }
+.pklist__head b { color: var(--pk-ink); }
+.pklist ul { list-style: none; margin: 0; padding: 0; }
+.pklist li { display: grid; grid-template-columns: 20px minmax(0, 1fr); gap: 0 10px; padding: 8px 12px; border-bottom: 1px solid var(--pk-line); font-size: .8rem; line-height: 1.45; }
+.pklist li:last-child { border-bottom: 0; }
+.pklist svg { grid-row: span 2; width: 18px; height: 18px; margin-top: 1px; color: var(--pk-accent); }
+.pk-name { font-weight: 800; color: var(--pk-ink); overflow-wrap: anywhere; }
+.pk-mode { color: var(--pk-muted); }
+.pklist li.is-out svg { color: var(--app-accent); }
+.pklist li.is-out .pk-name { color: var(--pk-muted); text-decoration: line-through; }
+.pkfoot { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+.pk-out { flex: 1 1 150px; font-size: .8rem; color: var(--pk-muted); }
+.dl__alt { display: block; font-size: .82rem; color: var(--ink-soft); line-height: 1.5; }
+
+/* ---------- download ---------- */
+.download { background: var(--paper-deep); }
+.dl-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 12px; }
+.dl {
+  display: grid; grid-template-columns: auto minmax(0, 1fr) auto auto; align-items: center; gap: 14px 18px;
+  padding: 16px 18px 16px 20px; background: var(--card); border: 1px solid var(--line); border-radius: 22px;
+}
+.dl--feature { border-color: var(--sea); box-shadow: 0 4px 0 var(--sea-wash); }
+.dl--feature.is-fix { border-color: var(--fix); box-shadow: 0 4px 0 var(--fix-wash); }
+.dl__name { min-width: 0; }
+.dl__name b { display: block; font-family: var(--font-display); font-size: 1.22rem; line-height: 1.25; }
+.dl__name code { font-family: var(--font-mono); font-size: .82rem; color: var(--ink-soft); overflow-wrap: anywhere; }
+.dl__ver {
+  font-family: var(--font-mono); font-size: .84rem; font-weight: 700; color: var(--sea-deep);
+  background: var(--sea-wash); border-radius: 999px; padding: 4px 10px; white-space: nowrap;
+}
+.dl .btn { padding: .7em 1.2em; }
+@media (max-width: 640px) {
+  .dl { grid-template-columns: auto minmax(0, 1fr); }
+  .dl__ver { grid-column: 2; justify-self: start; }
+  .dl .btn { grid-column: 1 / -1; }
+}
+.dl-notes { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px 28px; margin-top: 30px; }
+.dl-notes > div { border-top: 2px dashed var(--line); padding-top: 14px; min-width: 0; }
+.dl-notes h3 { font-size: 1.08rem; margin-bottom: 6px; }
+.dl-notes p { color: var(--ink-soft); font-size: .95rem; }
+@media (max-width: 860px) { .dl-notes { grid-template-columns: minmax(0, 1fr); } }
+
+/* ---------- limits ---------- */
+.limits { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 28px 40px; }
+.limit { display: grid; grid-template-columns: 48px minmax(0, 1fr); gap: 4px 16px; align-items: start; align-content: start; }
+.limit__icon {
+  grid-row: span 2; display: grid; place-items: center; width: 48px; height: 48px; border-radius: 16px;
+  background: var(--sea-wash); color: var(--sea-deep);
+}
+.limit__icon svg { width: 24px; height: 24px; }
+.limit h3 { font-size: 1.18rem; padding-top: 2px; }
+.limit p { color: var(--ink-soft); }
+@media (max-width: 720px) { .limits { grid-template-columns: minmax(0, 1fr); } }
+
+/* ---------- footer ---------- */
+.site-footer { background: var(--paper-deep); border-top: 1px solid var(--line); padding-block: 44px 40px; }
+.footer__grid { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); gap: 24px 48px; }
+.footer__brand { display: grid; gap: 8px; }
+.footer__brand .brand { margin: 0; }
+.footer__brand p { color: var(--ink-soft); font-size: .95rem; }
+.footer__nav { display: flex; flex-wrap: wrap; gap: 8px 22px; align-content: start; }
+.footer__nav a { color: var(--ink-soft); font-weight: 800; text-decoration: none; }
+.footer__nav a:hover { color: var(--ink); text-decoration: underline; }
+.footer__legal { grid-column: 1 / -1; border-top: 1px dashed var(--line); padding-top: 18px; font-size: .85rem; color: var(--ink-soft); display: grid; gap: 6px; }
+@media (max-width: 720px) { .footer__grid { grid-template-columns: minmax(0, 1fr); } }
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  *, *::before, *::after { animation: none !important; transition: none !important; }
+}
+</style>
+</head>
+<body>
+<svg class="sprite" aria-hidden="true" focusable="false">
+  <defs>
+    <linearGradient id="wb-skin" x1="0" y1="14" x2="0" y2="68" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#9AD5F3"/><stop offset="1" stop-color="#6AB4E3"/>
+    </linearGradient>
+    <clipPath id="wb-clip"><path d="M86.5 44C80 48 75 55 66 59C55 65 43 67 32 67C19 67 11 63 8 57C6 53 5 49 5 45C5 27 20 16 39 16C56 16 67 24 76 33C79 36 83 38 86 37Z"/></clipPath>
+  </defs>
+  <!-- The helper's WhaleBadge, ported from WhaleBadge.cs (100 x 70 design box). -->
+  <symbol id="whale" viewBox="0 0 100 70">
+    <g fill="none" stroke="#76C7EC" stroke-width="2.3" stroke-linecap="round">
+      <path d="M39 17C38 13 39.5 10 39 7"/><path d="M36.5 17C34.5 12.5 31.5 10.5 28.5 10"/><path d="M41.5 17C43.5 12.5 46.5 10.5 49.5 10"/>
+    </g>
+    <g fill="#A4DEF6"><circle cx="27.9" cy="8.9" r="2.3"/><circle cx="39.1" cy="4.2" r="2.4"/><circle cx="50.7" cy="8.9" r="2.3"/></g>
+    <path d="M86 37C83 32 76 25 78.5 19C81 13.5 88 15 89.5 24C92 15 99 13.5 98.5 20C98 29 91 38 86.5 44Z" fill="url(#wb-skin)"/>
+    <path d="M86.5 44C80 48 75 55 66 59C55 65 43 67 32 67C19 67 11 63 8 57C6 53 5 49 5 45C5 27 20 16 39 16C56 16 67 24 76 33C79 36 83 38 86 37Z" fill="url(#wb-skin)"/>
+    <g clip-path="url(#wb-clip)">
+      <ellipse cx="38" cy="68" rx="44" ry="17" fill="#FAFCFA"/>
+      <ellipse cx="28.5" cy="24.5" rx="13.5" ry="5" fill="#FFFFFF" fill-opacity=".47"/>
+    </g>
+    <g fill="none" stroke="#468CBE" stroke-width="1.7" stroke-linejoin="round" stroke-linecap="round">
+      <path d="M86.5 44C80 48 75 55 66 59C55 65 43 67 32 67C19 67 11 63 8 57C6 53 5 49 5 45C5 27 20 16 39 16C56 16 67 24 76 33C79 36 83 38 86 37"/>
+      <path d="M86 37C83 32 76 25 78.5 19C81 13.5 88 15 89.5 24C92 15 99 13.5 98.5 20C98 29 91 38 86.5 44"/>
+    </g>
+    <path d="M43 56C46 63 52 67 57 65C56 60 50 55 43 56Z" fill="#68B0DE" stroke="#468CBE" stroke-width="1.7" stroke-linejoin="round"/>
+    <ellipse cx="29.75" cy="41.75" rx="4.25" ry="4.75" fill="#2C4661"/>
+    <circle cx="30.4" cy="40.4" r="1.8" fill="#FFFFFF"/><circle cx="27.55" cy="43.75" r=".85" fill="#FFFFFF"/>
+    <ellipse cx="21.75" cy="49.8" rx="5.25" ry="2.8" fill="#FA98AE" fill-opacity=".78"/>
+    <path d="M18.13 49.62A4 3.25 0 0 1 10.87 49.62" fill="none" stroke="#2C4661" stroke-width="1.5" stroke-linecap="round"/>
+    <path d="M68 5L69.3 9.7L74 11L69.3 12.3L68 17L66.7 12.3L62 11L66.7 9.7Z" fill="#FFD066"/>
+    <circle cx="79.5" cy="6" r="2.5" fill="none" stroke="#96D2EE" stroke-width="1.2"/>
+  </symbol>
+  <!-- Speech-bubble tool marks, after the bubbles in the hero artwork. -->
+  <symbol id="b-helper" viewBox="0 0 64 56">
+    <path d="M11 3h42a8 8 0 0 1 8 8v24a8 8 0 0 1-8 8H27l-10 9v-9h-6a8 8 0 0 1-8-8V11a8 8 0 0 1 8-8z" style="fill:var(--bubble);stroke:var(--bubble-line)" stroke-width="2"/>
+    <g transform="translate(23 23)" style="fill:var(--ink-soft)">
+      <rect x="-2.3" y="-11" width="4.6" height="5.5" rx="1.2"/><rect x="-2.3" y="-11" width="4.6" height="5.5" rx="1.2" transform="rotate(45)"/>
+      <rect x="-2.3" y="-11" width="4.6" height="5.5" rx="1.2" transform="rotate(90)"/><rect x="-2.3" y="-11" width="4.6" height="5.5" rx="1.2" transform="rotate(135)"/>
+      <rect x="-2.3" y="-11" width="4.6" height="5.5" rx="1.2" transform="rotate(180)"/><rect x="-2.3" y="-11" width="4.6" height="5.5" rx="1.2" transform="rotate(225)"/>
+      <rect x="-2.3" y="-11" width="4.6" height="5.5" rx="1.2" transform="rotate(270)"/><rect x="-2.3" y="-11" width="4.6" height="5.5" rx="1.2" transform="rotate(315)"/>
+      <circle r="7.6"/><circle r="3" style="fill:var(--bubble)"/>
+    </g>
+    <path d="M37 24l5.5 5.5L53 18" fill="none" style="stroke:var(--sea)" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round"/>
+  </symbol>
+  <symbol id="b-translator" viewBox="0 0 64 56">
+    <path d="M11 3h42a8 8 0 0 1 8 8v24a8 8 0 0 1-8 8H27l-10 9v-9h-6a8 8 0 0 1-8-8V11a8 8 0 0 1 8-8z" style="fill:var(--bubble);stroke:var(--bubble-line)" stroke-width="2"/>
+    <text x="10" y="31" font-size="19" font-weight="800" style="fill:var(--ink-soft)">文</text>
+    <path d="M38 33l6.5-17h1L52 33M40.6 27h9.8" fill="none" style="stroke:var(--sea)" stroke-width="3.6" stroke-linecap="round" stroke-linejoin="round"/>
+  </symbol>
+  <symbol id="b-clock" viewBox="0 0 64 56">
+    <path d="M11 3h42a8 8 0 0 1 8 8v24a8 8 0 0 1-8 8H27l-10 9v-9h-6a8 8 0 0 1-8-8V11a8 8 0 0 1 8-8z" style="fill:var(--bubble);stroke:var(--bubble-line)" stroke-width="2"/>
+    <circle cx="21" cy="23" r="6" style="fill:var(--sun)"/>
+    <g style="stroke:var(--sun)" stroke-width="2.4" stroke-linecap="round">
+      <path d="M21 11.5v2.5M21 32v2.5M9.5 23h2.5M30 23h2.5M12.9 14.9l1.8 1.8M27.3 29.3l1.8 1.8M12.9 31.1l1.8-1.8M27.3 16.7l1.8-1.8"/>
+    </g>
+    <path d="M48.5 12.5a10.5 10.5 0 1 0 6.5 18.6A9 9 0 0 1 48.5 12.5z" style="fill:var(--sea)"/>
+  </symbol>
+  <symbol id="b-pack" viewBox="0 0 64 56">
+    <path d="M11 3h42a8 8 0 0 1 8 8v24a8 8 0 0 1-8 8H27l-10 9v-9h-6a8 8 0 0 1-8-8V11a8 8 0 0 1 8-8z" style="fill:var(--bubble);stroke:var(--bubble-line)" stroke-width="2"/>
+    <path d="M18 17.5l14-6 14 6v15.5l-14 6-14-6z" style="fill:var(--kraft)"/>
+    <path d="M18 17.5l14 6 14-6M32 23.5v15.5" fill="none" style="stroke:var(--bubble)" stroke-width="2.2" stroke-linejoin="round"/>
+    <path d="M25 14.5l14 6" fill="none" style="stroke:var(--bubble)" stroke-width="2.2" stroke-linecap="round"/>
+  </symbol>
+  <symbol id="spark" viewBox="-6 -6 12 12"><path d="M0-6L1.5-1.5L6 0L1.5 1.5L0 6L-1.5 1.5L-6 0L-1.5-1.5Z" fill="currentColor"/></symbol>
+  <symbol id="i-check" viewBox="0 0 20 20"><circle cx="10" cy="10" r="9" fill="currentColor" opacity=".14"/><path d="M6 10.4l2.6 2.6L14 7.4" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="i-download" viewBox="0 0 24 24"><path d="M12 4v11M7 10l5 5 5-5M5 20h14" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="i-arrow" viewBox="0 0 24 24"><path d="M5 12h13M13 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="i-undo" viewBox="0 0 24 24"><path d="M9 14L4 9l5-5M4 9h10.5a5.5 5.5 0 0 1 0 11H11" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="i-swap" viewBox="0 0 24 24"><path d="M7 4L3 8l4 4M3 8h14M17 12l4 4-4 4M21 16H7" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="i-pen" viewBox="0 0 24 24"><path d="M4 20l4.5-1 10-10a2.1 2.1 0 0 0-3-3l-10 10L4 20z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></symbol>
+  <symbol id="i-lock" viewBox="0 0 24 24"><rect x="5" y="10.5" width="14" height="10" rx="2.5" fill="none" stroke="currentColor" stroke-width="2.2"/><path d="M8.5 10.5V8a3.5 3.5 0 0 1 7 0v2.5" fill="none" stroke="currentColor" stroke-width="2.2"/></symbol>
+  <symbol id="i-gauge" viewBox="0 0 24 24"><path d="M4 17a8 8 0 1 1 16 0" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/><path d="M12 17l3.6-5" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/><circle cx="12" cy="17" r="1.8" fill="currentColor"/></symbol>
+  <symbol id="i-laptop" viewBox="0 0 24 24"><rect x="4.5" y="5" width="15" height="10.5" rx="2" fill="none" stroke="currentColor" stroke-width="2.2"/><path d="M2.5 19h19" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></symbol>
+  <symbol id="i-flask" viewBox="0 0 24 24"><path d="M9 3.5h6M10 3.5v6L5.2 17.6A2 2 0 0 0 6.9 20.6h10.2a2 2 0 0 0 1.7-3L14 9.5v-6" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"/><path d="M7.6 15h8.8" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round"/></symbol>
+  <symbol id="i-plug" viewBox="0 0 24 24"><path d="M9 3v5M15 3v5M6.5 8h11v3.5a5.5 5.5 0 0 1-11 0zM12 17v4" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="i-power" viewBox="0 0 24 24"><path d="M12 3.5v8" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round"/><path d="M7.2 6.8a7.3 7.3 0 1 0 9.6 0" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round"/></symbol>
+  <symbol id="i-folder" viewBox="0 0 24 24"><path d="M3.5 7.5a2 2 0 0 1 2-2h4l2 2.2h7a2 2 0 0 1 2 2V17a2 2 0 0 1-2 2h-13a2 2 0 0 1-2-2z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></symbol>
+  <symbol id="i-film" viewBox="0 0 24 24"><rect x="3.5" y="5" width="17" height="14" rx="2.5" fill="none" stroke="currentColor" stroke-width="2"/><path d="M10 9.2v5.6l4.6-2.8z" fill="currentColor"/></symbol>
+  <symbol id="i-image" viewBox="0 0 24 24"><rect x="3.5" y="5" width="17" height="14" rx="2.5" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="9" cy="10" r="1.7" fill="currentColor"/><path d="M5 17l4.5-4.5 3 3L15 13l4 4" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></symbol>
+  <symbol id="i-key" viewBox="0 0 24 24"><circle cx="8" cy="12" r="3.6" fill="none" stroke="currentColor" stroke-width="2"/><path d="M11.6 12H20M17 12v3M20 12v2.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+  <symbol id="i-github" viewBox="0 0 16 16"><path fill="currentColor" d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0 0 16 8c0-4.42-3.58-8-8-8z"/></symbol>
+</svg>
+
+<a class="skip" href="#main"><span data-l="zh">跳到正文</span><span data-l="en">Skip to content</span></a>
+
+<header class="topbar" id="topbar">
+  <div class="wrap topbar__inner">
+    <a class="brand" href="#top">
+      <svg viewBox="0 0 100 70" aria-hidden="true"><use href="#whale"/></svg>
+      <span data-l="zh">我一定要用上Claude</span><span data-l="en">I Must Use Claude</span>
+    </a>
+    <nav class="topnav" aria-label="Sections">
+      <a href="#helper"><span data-l="zh">环境助手</span><span data-l="en">Helper</span></a>
+      <a href="#translator"><span data-l="zh">翻译</span><span data-l="en">Translator</span></a>
+      <a href="#clock"><span data-l="zh">两地时钟</span><span data-l="en">Clock</span></a>
+      <a href="#pack"><span data-l="zh">打包</span><span data-l="en">Pack</span></a>
+      <a href="#download"><span data-l="zh">下载</span><span data-l="en">Download</span></a>
+    </nav>
+    <div class="lang-switch" role="group" aria-label="Language / 语言">
+      <button type="button" id="lang-zh" data-set-lang="zh" aria-pressed="true">中文</button>
+      <button type="button" id="lang-en" data-set-lang="en" aria-pressed="false">EN</button>
+    </div>
+    <a class="gh" href="https://github.com/whitecarp/I-Must-Use-Claude" aria-label="GitHub">
+      <svg aria-hidden="true"><use href="#i-github"/></svg>
+    </a>
+  </div>
+</header>
+
+<main id="main">
+
+  <!-- ===== hero ===== -->
+  <section class="hero" id="top" aria-labelledby="hero-title">
+    <div class="wrap hero__grid">
+      <div class="hero__copy">
+        <p class="eyebrow">
+          <span data-l="zh">Windows 10 / 11 · 四个鲸鱼主题小工具 · 预览版</span>
+          <span data-l="en">Windows 10 / 11 · Four whale-themed companions · Preview</span>
+        </p>
+        <h1 id="hero-title">
+          <span data-l="zh"><span class="nb">我一定要</span><wbr><span class="nb">用上<span class="claude">Claude</span></span></span>
+          <span data-l="en"><span class="nb">I Must Use</span> <span class="nb claude">Claude</span></span>
+        </h1>
+        <p class="lede" data-l="zh"><strong>了解使用环境，看懂 Claude 的回复，记住自己那边几点。</strong>四个小工具各自独立运行，用哪个下哪个。</p>
+        <p class="lede" data-l="en"><strong>Understand your local setup. Read Claude comfortably. Keep your home time in view.</strong>Four small apps that each run on their own. Download only what you need.</p>
+        <div class="cta-row">
+          <a class="btn btn--primary is-fix" href="https://github.com/whitecarp/I-Must-Use-Claude/releases/download/v0.4.5-preview/WhaleEnvironmentHelper.exe">
+            <svg aria-hidden="true"><use href="#i-download"/></svg>
+            <span><span data-l="zh">下载环境助手</span><span data-l="en">Download Environment Helper</span><span class="btn__meta">WhaleEnvironmentHelper.exe · 0.7.0</span></span>
+          </a>
+          <a class="btn" href="#tools"><span data-l="zh">认识四个工具</span><span data-l="en">Explore the tools</span></a>
+        </div>
+        <ul class="facts">
+          <li><svg aria-hidden="true"><use href="#spark"/></svg><span data-l="zh">English / 中文界面</span><span data-l="en">English / 中文 interface</span></li>
+          <li><svg aria-hidden="true"><use href="#spark"/></svg><span data-l="zh">免安装，双击运行</span><span data-l="en">No installer</span></li>
+          <li><svg aria-hidden="true"><use href="#spark"/></svg><span data-l="zh">源码公开</span><span data-l="en">Public source</span></li>
+        </ul>
+      </div>
+      <figure class="sticker" style="margin-block-end:0">
+        <span class="tape" aria-hidden="true"></span>
+        <svg class="spark spark--a" aria-hidden="true"><use href="#spark"/></svg>
+        <svg class="spark spark--b" aria-hidden="true"><use href="#spark"/></svg>
+        <img src="images/site-hero.webp" width="954" height="686" fetchpriority="high"
+             data-alt-zh="蓝发鲸鱼女孩托着脸坐在笔记本电脑前，身旁是一只胖乎乎的蓝鲸，周围飘着月亮和齿轮对勾的对话气泡。"
+             data-alt-en="A blue-haired whale girl resting her chin on her hands at a laptop, beside a plump blue whale, with moon and gear-check speech bubbles."
+             alt="蓝发鲸鱼女孩托着脸坐在笔记本电脑前，身旁是一只胖乎乎的蓝鲸，周围飘着月亮和齿轮对勾的对话气泡。">
+      </figure>
+    </div>
+  </section>
+
+  <!-- ===== tool picker ===== -->
+  <section class="section" id="tools" aria-labelledby="tools-title" style="padding-top:clamp(24px,4vw,48px)">
+    <div class="wrap">
+      <header class="section-head">
+        <p class="eyebrow"><span data-l="zh">四个工具</span><span data-l="en">Four tools</span></p>
+        <h2 id="tools-title"><span data-l="zh">从环境助手开始</span><span data-l="en">Start with the Environment Helper</span></h2>
+        <p data-l="zh">先弄清自己的使用环境，再用熟悉的语言读懂 Claude，把家里的时间放在桌面一角；要交给 Claude 的文件，也能先在本机整理好。</p>
+        <p data-l="en">Check your setup first, read Claude in your own language, keep home time in a corner of your desktop, and package files for Claude on your own computer.</p>
+      </header>
+
+      <div class="picker">
+        <article class="tool-card tool-card--hero is-fix" aria-labelledby="card-helper">
+          <div class="fc-main">
+            <div class="tool-card__top">
+              <span class="num">01</span>
+              <span class="tag"><svg aria-hidden="true"><use href="#spark"/></svg><span data-l="zh">从这里开始</span><span data-l="en">Start here</span></span>
+            </div>
+            <h3 id="card-helper">
+              <span data-l="zh">大肥鱼环境助手</span><span data-l="en">Whale Environment Helper</span>
+              <span class="sub"><span data-l="zh">Whale Environment Helper · 0.7.0</span><span data-l="en">大肥鱼环境助手 · 0.7.0</span></span>
+            </h3>
+            <p class="tool-card__line"><span data-l="zh">先测清楚，再动设置。</span><span data-l="en">Measure first, then adjust.</span></p>
+            <ul class="ticks">
+              <li><svg aria-hidden="true"><use href="#i-check"/></svg><span><span data-l="zh">在你自己的浏览器里实测，缺失的项目显示“未知”，不算 0 分</span><span data-l="en">Measures in your own browser; missing checks stay unknown, never zero</span></span></li>
+              <li><svg aria-hidden="true"><use href="#i-check"/></svg><span><span data-l="zh">只处理命中的本地设置，改之前先备份</span><span data-l="en">Handles only matched local settings, with a backup first</span></span></li>
+              <li><svg aria-hidden="true"><use href="#i-check"/></svg><span><span data-l="zh">用同一浏览器复测看真实变化，也能撤回上次优化</span><span data-l="en">Measure again in the same browser, or undo the last optimization</span></span></li>
+            </ul>
+            <div class="toolbox">
+              <span class="toolbox__k"><span data-l="zh">同一个软件里还有</span><span data-l="en">Also in the same app</span></span>
+              <ul>
+                <li><span data-l="zh">网络与 DNS</span><span data-l="en">Network &amp; DNS</span><b><span data-l="zh">新</span><span data-l="en">New</span></b></li>
+                <li><span data-l="zh">维护与清理</span><span data-l="en">Maintenance &amp; cleanup</span></li>
+                <li><span data-l="zh">Codex 连接修复</span><span data-l="en">Codex connection repair</span></li>
+                <li><span data-l="zh">关闭占用程序</span><span data-l="en">Close blocking apps</span></li>
+              </ul>
+            </div>
+            <div class="tool-card__actions">
+              <a class="btn btn--primary" href="https://github.com/whitecarp/I-Must-Use-Claude/releases/download/v0.4.5-preview/WhaleEnvironmentHelper.exe">
+                <svg aria-hidden="true"><use href="#i-download"/></svg><span data-l="zh">下载环境助手</span><span data-l="en">Download Helper</span>
+              </a>
+              <a class="more" href="#helper"><span data-l="zh">看看它怎么工作</span><span data-l="en">See how it works</span><svg aria-hidden="true"><use href="#i-arrow"/></svg></a>
+            </div>
+          </div>
+          <img class="fc-art" src="images/site-helper-mascot.webp" width="360" height="360"
+               data-alt-zh="戴橙色工作帽、举着扳手盾牌的蓝色小鲸鱼，环境助手的吉祥物。"
+               data-alt-en="A chubby blue whale in an orange work cap holding a wrench shield, the Environment Helper mascot."
+               alt="戴橙色工作帽、举着扳手盾牌的蓝色小鲸鱼，环境助手的吉祥物。">
+          <div class="flow fc-flow">
+            <span class="flow__k"><span data-l="zh">在软件里依次点</span><span data-l="en">In the app, press in order</span></span>
+            <div class="flow__row">
+              <span class="candy candy--primary"><span data-l="zh">开始检测</span><span data-l="en">Measure first</span></span>
+              <svg aria-hidden="true"><use href="#i-arrow"/></svg>
+              <span class="candy"><span data-l="zh">一键优化</span><span data-l="en">Optimize</span></span>
+              <svg aria-hidden="true"><use href="#i-arrow"/></svg>
+              <span class="candy"><span data-l="zh">复测结果</span><span data-l="en">Measure after</span></span>
+            </div>
+            <div class="flow__row">
+              <span class="candy"><svg aria-hidden="true"><use href="#i-undo"/></svg><span data-l="zh">撤回上次优化</span><span data-l="en">Undo last optimization</span></span>
+              <span class="caption"><span data-l="zh">随时可用，恢复备份的设置</span><span data-l="en">Any time, from the backup</span></span>
+            </div>
+          </div>
+        </article>
+
+        <div class="trio">
+          <article class="tool-card" aria-labelledby="card-translator">
+            <div class="tool-card__top">
+              <span class="num">02</span>
+              <svg class="tool-icon" viewBox="0 0 64 56" aria-hidden="true"><use href="#b-translator"/></svg>
+            </div>
+            <h3 id="card-translator">
+              <span data-l="zh">大肥鱼翻译</span><span data-l="en">Whale Translator</span>
+              <span class="sub"><span data-l="zh">Whale Translator · 0.9.6</span><span data-l="en">大肥鱼翻译 · 0.9.6</span></span>
+            </h3>
+            <p class="tool-card__line"><span data-l="zh">用你熟悉的语言读 Claude。</span><span data-l="en">Read Claude in your language.</span></p>
+            <ul class="ticks">
+              <li><svg aria-hidden="true"><use href="#i-check"/></svg><span><span data-l="zh">划选 Claude 的回复，原文译文对照看</span><span data-l="en">Highlight a reply and read it beside the original</span></span></li>
+              <li><svg aria-hidden="true"><use href="#i-check"/></svg><span><span data-l="zh">中文提问先预览英文，再由你主动发送</span><span data-l="en">Write in Chinese, review the English, then send it yourself</span></span></li>
+            </ul>
+            <div class="tool-card__actions">
+              <a class="btn" href="https://github.com/whitecarp/I-Must-Use-Claude/releases/download/v0.4.5-preview/WhaleTranslator.exe">
+                <svg aria-hidden="true"><use href="#i-download"/></svg><span data-l="zh">下载翻译器</span><span data-l="en">Download Translator</span>
+              </a>
+              <a class="more" href="#translator"><span data-l="zh">了解翻译</span><span data-l="en">Learn more</span><svg aria-hidden="true"><use href="#i-arrow"/></svg></a>
+            </div>
+          </article>
+
+          <article class="tool-card" aria-labelledby="card-clock">
+            <div class="tool-card__top">
+              <span class="num">03</span>
+              <svg class="tool-icon" viewBox="0 0 64 56" aria-hidden="true"><use href="#b-clock"/></svg>
+            </div>
+            <h3 id="card-clock">
+              <span data-l="zh">两地时钟</span><span data-l="en">Two-Zone Clock</span>
+              <span class="sub"><span data-l="zh">Two-Zone Clock · 0.5.0</span><span data-l="en">两地时钟 · 0.5.0</span></span>
+            </h3>
+            <p class="tool-card__line"><span data-l="zh">电脑时区变了，家里的时间还在。</span><span data-l="en">Keep your home time close.</span></p>
+            <ul class="ticks">
+              <li><svg aria-hidden="true"><use href="#i-check"/></svg><span><span data-l="zh">原本地区在上，目标地区在下，附时差与跨日提示</span><span data-l="en">Home region above, target below, with time difference and day hints</span></span></li>
+              <li><svg aria-hidden="true"><use href="#i-check"/></svg><span><span data-l="zh">读取可见的 Claude 用量页，显示本轮与每周重置倒计时</span><span data-l="en">Read Claude's visible Usage page for session and weekly reset countdowns</span></span></li>
+              <li><svg aria-hidden="true"><use href="#i-check"/></svg><span><span data-l="zh">不改电脑时间，显示时间不需要联网</span><span data-l="en">Never changes system time; the clock works offline</span></span></li>
+            </ul>
+            <div class="tool-card__actions">
+              <a class="btn" href="https://github.com/whitecarp/I-Must-Use-Claude/releases/download/v0.4.5-preview/HomeTimeClock.exe">
+                <svg aria-hidden="true"><use href="#i-download"/></svg><span data-l="zh">下载时钟</span><span data-l="en">Download Clock</span>
+              </a>
+              <a class="more" href="#clock"><span data-l="zh">了解时钟</span><span data-l="en">Learn more</span><svg aria-hidden="true"><use href="#i-arrow"/></svg></a>
+            </div>
+          </article>
+
+          <article class="tool-card" aria-labelledby="card-pack">
+            <div class="tool-card__top">
+              <span class="num">04</span>
+              <svg class="tool-icon" viewBox="0 0 64 56" aria-hidden="true"><use href="#b-pack"/></svg>
+            </div>
+            <h3 id="card-pack">
+              <span data-l="zh">大肥鱼打包助手</span><span data-l="en">Whale Pack Helper</span>
+              <span class="sub"><span data-l="zh">Whale Pack Helper · 0.1.1</span><span data-l="en">大肥鱼打包助手 · 0.1.1</span></span>
+            </h3>
+            <p class="tool-card__line"><span data-l="zh">整理给 Claude 的交接文件。</span><span data-l="en">Prepare a clear handoff.</span></p>
+            <ul class="ticks">
+              <li><svg aria-hidden="true"><use href="#i-check"/></svg><span><span data-l="zh">源码、图片和视频一起整理，每个文件不超过 29 MB</span><span data-l="en">Source, images and video in one go, each file at most 29 MB</span></span></li>
+              <li><svg aria-hidden="true"><use href="#i-check"/></svg><span><span data-l="zh">原文件不变，本地打包不上传</span><span data-l="en">Originals untouched; local packing, no uploads</span></span></li>
+            </ul>
+            <div class="tool-card__actions">
+              <a class="btn" href="https://github.com/whitecarp/I-Must-Use-Claude/releases/download/v0.4.5-preview/WhalePackHelper.exe">
+                <svg aria-hidden="true"><use href="#i-download"/></svg><span data-l="zh">下载 EXE</span><span data-l="en">Download EXE</span>
+              </a>
+              <a class="more" href="#pack"><span data-l="zh">了解打包</span><span data-l="en">Learn more</span><svg aria-hidden="true"><use href="#i-arrow"/></svg></a>
+            </div>
+          </article>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== 01 helper ===== -->
+  <section class="feature feature--fix" id="helper" aria-labelledby="helper-title">
+    <div class="wrap">
+      <div class="feature__grid">
+        <div class="feature__copy is-fix">
+          <p class="eyebrow"><span class="num">01</span><span data-l="zh">大肥鱼环境助手 · Whale Environment Helper</span><span data-l="en">Whale Environment Helper · 大肥鱼环境助手</span></p>
+          <h2 id="helper-title"><span data-l="zh">先测清楚，再动设置</span><span data-l="en">Measure first, then adjust</span></h2>
+          <p class="feature__intro" data-l="zh">先看浏览器实际报告了什么，再决定哪些设置值得调整。保留检测基准，先备份再处理，最后用复测结果确认变化。</p>
+          <p class="feature__intro" data-l="en">See what the browser actually reports before changing settings. Keep a baseline, handle supported matches with backups, then check the result rather than assuming the score improved.</p>
+          <p class="steps__hint"><svg aria-hidden="true"><use href="#spark"/></svg><span data-l="zh">点一下步骤，示意窗口跟着变</span><span data-l="en">Pick a step to update the window</span></p>
+          <ol class="steps" id="helper-steps">
+            <li><button type="button" class="step" data-step="0" aria-pressed="true" aria-controls="helper-win">
+              <span class="step__n">1</span>
+              <span class="step__body">
+                <span class="step__name"><span data-l="zh">开始检测</span><span data-l="en">Measure first</span></span>
+                <span class="step__text" data-l="zh">打开 WhaleEnvironmentHelper.exe 点「开始检测」，再在默认浏览器打开的本机页面里点「开始测量」。</span>
+                <span class="step__text" data-l="en">Open WhaleEnvironmentHelper.exe and choose Measure first. In the local page that opens in your default browser, click Start measurement.</span>
+              </span>
+            </button></li>
+            <li><button type="button" class="step" data-step="1" aria-pressed="false" aria-controls="helper-win">
+              <span class="step__n">2</span>
+              <span class="step__body">
+                <span class="step__name"><span data-l="zh">一键优化</span><span data-l="en">Optimize</span></span>
+                <span class="step__text" data-l="zh">查看结果，保存工作并退出 Claude、Chrome、Edge（还开着的话，可以用「关闭占用程序」），再点「一键优化」，只处理受支持的本地命中项。</span>
+                <span class="step__text" data-l="en">Review the results. Save your work and close Claude, Chrome and Edge (Close blocking apps can ask them to exit), then choose Optimize to process supported local matches.</span>
+              </span>
+            </button></li>
+            <li><button type="button" class="step" data-step="2" aria-pressed="false" aria-controls="helper-win">
+              <span class="step__n">3</span>
+              <span class="step__body">
+                <span class="step__name"><span data-l="zh">复测结果</span><span data-l="en">Measure after</span></span>
+                <span class="step__text" data-l="zh">用相同的浏览器和个人资料点「复测结果」，查看实际的前后变化。</span>
+                <span class="step__text" data-l="en">Choose Measure after with the same browser and profile, and review the actual before/after results.</span>
+              </span>
+            </button></li>
+            <li><button type="button" class="step step--undo" data-step="3" aria-pressed="false" aria-controls="helper-win">
+              <span class="step__n"><svg aria-hidden="true"><use href="#i-undo"/></svg></span>
+              <span class="step__body">
+                <span class="step__name"><span data-l="zh">撤回上次优化</span><span data-l="en">Undo last optimization</span></span>
+                <span class="step__text" data-l="zh">恢复备份的设置；如果之后有独立修改，会保留新内容并提示冲突。</span>
+                <span class="step__text" data-l="en">Restore the backed-up values. Later independent edits are kept and reported as conflicts.</span>
+              </span>
+            </button></li>
+          </ol>
+        </div>
+
+        <div class="feature__visual feature__visual--sticky">
+          <div class="appwin appwin--app" id="helper-win" role="img" aria-labelledby="helper-win-cap">
+            <div class="appwin__bar">
+              <span><span data-l="zh">大肥鱼环境助手 0.7.0 预览版</span><span data-l="en">Whale Environment Helper 0.7.0 Preview</span></span>
+              <span class="appwin__ctrls" aria-hidden="true"><span>–</span><span>□</span><span>×</span></span>
+            </div>
+            <div class="appwin__body">
+              <div class="appwin__head">
+                <img class="appwin__mascot" src="images/site-helper-mascot.webp" width="360" height="360" alt="" loading="lazy">
+                <div>
+                  <strong><span data-l="zh">大肥鱼环境助手</span><span data-l="en">Whale Environment Helper</span></strong>
+                  <span><span data-l="zh">先检测 → 按命中项优化 → 再测一次</span><span data-l="en">Measure → optimize matched items → measure again</span></span>
+                </div>
+                <span class="candy"><span data-l="zh">English</span><span data-l="en">中文</span></span>
+              </div>
+              <div class="appwin__card">
+                <p class="appwin__score" id="hw-score"><span data-l="zh">尚未检测 · 不猜测分数</span><span data-l="en">Not measured · no assumed score</span></p>
+                <p class="appwin__state" id="hw-state"><span data-l="zh">在已打开的浏览器页面点击「开始测量」…</span><span data-l="en">Click Start measurement in the browser page…</span></p>
+              </div>
+              <div class="appwin__btns">
+                <span class="candy candy--primary is-hot" id="hw-main"><span data-l="zh">开始检测</span><span data-l="en">Measure first</span></span>
+                <span class="candy" id="hw-undo"><span data-l="zh">撤回上次优化</span><span data-l="en">Undo last optimization</span></span>
+              </div>
+              <p class="appwin__detail"><span data-l="zh">检测明细 · 未知项不会按 0 分处理</span><span data-l="en">Measured details · unknown checks are never scored zero</span></p>
+              <p class="appwin__links">
+                <span data-l="zh">重新检测</span><span data-l="en">Measure again</span>
+                <span data-l="zh">维护与清理</span><span data-l="en">Maintenance &amp; cleanup</span>
+                <span data-l="zh">Codex 连接修复</span><span data-l="en">Codex connection repair</span>
+                <span data-l="zh">关闭占用程序</span><span data-l="en">Close blocking apps</span>
+                <span data-l="zh">网络与 DNS</span><span data-l="en">Network &amp; DNS</span>
+                <span data-l="zh">说明与许可</span><span data-l="en">Notes &amp; license</span>
+                <span data-l="zh">检查更新</span><span data-l="en">Check updates</span>
+              </p>
+            </div>
+          </div>
+          <p class="caption" id="helper-win-cap"><span data-l="zh">按软件里的界面文字重绘的流程示意，不是截图，也不含任何实测分数。</span><span data-l="en">Redrawn from the app's own interface text. Not a screenshot, and no measured score is shown.</span></p>
+        </div>
+      </div>
+
+      <div class="ledger">
+        <div class="ledger__col ledger__col--change">
+          <h3><svg aria-hidden="true"><use href="#i-pen"/></svg><span data-l="zh">命中时才会改</span><span data-l="en">Changed only when matched</span></h3>
+          <ul>
+            <li><span data-l="zh">时区设为 UTC</span><span data-l="en">Timezone set to UTC</span><small><span data-l="zh">影响整台电脑</span><span data-l="en">Affects the whole computer</span></small></li>
+            <li><span data-l="zh">被测 Chrome / Edge 的语言偏好设为英语</span><span data-l="en">The measured Chrome / Edge language preference set to English</span><small><span data-l="zh">需要重启浏览器后再复测</span><span data-l="en">Restart the browser, then measure again</span></small></li>
+            <li><span data-l="zh">备份后移除确切匹配的个人字体</span><span data-l="en">Verified matching personal fonts, backed up then removed</span><small><span data-l="zh">文档可能临时换用替代字体</span><span data-l="en">Documents may temporarily use substitute fonts</span></small></li>
+          </ul>
+        </div>
+        <div class="ledger__col ledger__col--keep">
+          <h3><svg aria-hidden="true"><use href="#i-lock"/></svg><span data-l="zh">一键优化不会改</span><span data-l="en">Not changed by Optimize</span></h3>
+          <ul>
+            <li><span data-l="zh">网络、代理、DNS</span><span data-l="en">Network, proxy and DNS</span></li>
+            <li><span data-l="zh">Claude 登录、聊天与凭据</span><span data-l="en">Claude login, chats and credentials</span></li>
+            <li><span data-l="zh">系统字体</span><span data-l="en">System fonts</span></li>
+            <li><span data-l="zh">没有命中的设置</span><span data-l="en">Settings that did not match</span></li>
+          </ul>
+        </div>
+        <p class="ledger__foot"><span data-l="zh">优化或撤回前请保存工作，正常退出 Claude、Chrome 和 Edge；前后两次检测使用相同的浏览器和个人资料。</span><span data-l="en">Save your work and close Claude, Chrome and Edge before optimizing or undoing. Use the same browser and profile for both measurements.</span></p>
+      </div>
+
+      <div class="netdns" id="network">
+        <div class="netdns__copy">
+          <p class="eyebrow"><span class="new-pill"><svg aria-hidden="true"><use href="#spark"/></svg><span data-l="zh">0.7.0 新增</span><span data-l="en">New in 0.7.0</span></span></p>
+          <h3><span data-l="zh">网络与 DNS</span><span data-l="en">Network &amp; DNS</span></h3>
+          <p data-l="zh">点「检查网络」，助手会核对本机 CuteCloud 的 DNS 配置，并在软件里发起一次原生 DNS 实测，观察到的解析器直接列在窗口中，不打开浏览器。</p>
+          <p data-l="en">Choose Check network: the helper reads the local CuteCloud DNS configuration and runs a native DNS test, listing the observed resolvers in the window without opening a browser.</p>
+          <p class="note-line"><span data-l="zh">范围只是助手自己的 HTTPS／默认代理路径，不代表浏览器独立 DoH 或电脑上的所有应用。WebRTC 是另一个可选的浏览器检测。</span><span data-l="en">The scope is the helper's own HTTPS/default-proxy path, not browser-specific DoH or every app on the computer. WebRTC is a separate, optional browser check.</span></p>
+          <h4 class="mini-h"><span data-l="zh">结果怎么看</span><span data-l="en">Reading the result</span></h4>
+          <dl class="legend">
+            <div><dt class="st st--seen"><span data-l="zh">已测 · 有解析器</span><span data-l="en">Measured · resolvers seen</span></dt><dd><span data-l="zh">观察到本次探测的解析器，核对它们是否符合你的预期。</span><span data-l="en">Resolvers were seen for this probe. Check that they match what you expect.</span></dd></div>
+            <div><dt class="st"><span data-l="zh">部分结果</span><span data-l="en">Partial</span></dt><dd><span data-l="zh">有步骤没完成，不能当成完整检测。</span><span data-l="en">Some steps did not finish, so this is not a complete test.</span></dd></div>
+            <div><dt class="st"><span data-l="zh">无观察结果</span><span data-l="en">No observation</span></dt><dd><span data-l="zh">没有证据，不等于“没有泄露”。</span><span data-l="en">No evidence either way. It does not mean nothing leaked.</span></dd></div>
+            <div><dt class="st"><span data-l="zh">超时 · 服务异常 · 取消</span><span data-l="en">Timeout · service error · cancelled</span></dt><dd><span data-l="zh">结论未知，可以重新发起一次全新检测。</span><span data-l="en">The result is unknown. Start a fresh test.</span></dd></div>
+          </dl>
+        </div>
+        <div class="netdns__visual">
+          <div class="appwin appwin--app" role="img" aria-labelledby="net-cap">
+            <div class="appwin__bar">
+              <span><span data-l="zh">大肥鱼 · 网络与 DNS</span><span data-l="en">Whale Helper · Network &amp; DNS</span></span>
+              <span class="appwin__ctrls" aria-hidden="true"><span>–</span><span>□</span><span>×</span></span>
+            </div>
+            <div class="appwin__body">
+              <div class="appwin__head">
+                <img class="appwin__mascot" src="images/site-helper-mascot.webp" width="360" height="360" alt="" loading="lazy">
+                <div><strong><span data-l="zh">网络检测与修复</span><span data-l="en">Network check &amp; repair</span></strong></div>
+                <span class="candy"><span data-l="zh">English</span><span data-l="en">中文</span></span>
+              </div>
+              <div class="appwin__card">
+                <p class="appwin__state"><span data-l="zh">尚未检查。点击「检查网络」才读取配置并发起 DNS 实测请求；可选 WebRTC 按钮才打开浏览器。</span><span data-l="en">Not checked. Check network reads configuration and sends DNS test requests only when clicked; only the optional WebRTC button opens a browser.</span></p>
+              </div>
+              <div class="appwin__btns">
+                <span class="candy candy--primary"><span data-l="zh">检查网络</span><span data-l="en">Check network</span></span>
+                <span class="candy"><span data-l="zh">刷新 DNS 状态</span><span data-l="en">Refresh DNS status</span></span>
+                <span class="candy"><span data-l="zh">WebRTC（浏览器专项）</span><span data-l="en">WebRTC (browser check)</span></span>
+              </div>
+              <div class="dnsbox">
+                <table class="dnstable">
+                  <caption><span data-l="zh">真实 DNS 检测 · 助手原生请求</span><span data-l="en">Real DNS test · native helper requests</span></caption>
+                  <thead><tr><th scope="col"><span data-l="zh">解析器地址</span><span data-l="en">Resolver address</span></th><th scope="col"><span data-l="zh">地区</span><span data-l="en">Region</span></th><th scope="col"><span data-l="zh">机构</span><span data-l="en">Organization</span></th></tr></thead>
+                  <tbody><tr><td colspan="3"><span data-l="zh">等待用户开始检测</span><span data-l="en">Waiting for you to start</span></td></tr></tbody>
+                </table>
+              </div>
+              <div class="fix-row">
+                <span class="fix-row__k"><span data-l="zh">代理组</span><span data-l="en">Proxy group</span></span>
+                <span class="fakeselect"><span data-l="zh">检查得到的实际代理组</span><span data-l="en">Actual proxy groups from inspection</span></span>
+              </div>
+              <div class="fix-row">
+                <span class="candy is-off"><span data-l="zh">2  预览改动</span><span data-l="en">2  Preview changes</span></span>
+                <span class="candy is-off"><span data-l="zh">3  备份并应用…</span><span data-l="en">3  Back up &amp; apply…</span></span>
+                <span class="candy is-off"><span data-l="zh">撤回 DNS 改动…</span><span data-l="en">Undo DNS changes…</span></span>
+              </div>
+              <p class="appwin__detail"><span data-l="zh">尚无有效计划。预览不写入文件；每次检查、改组或切换语言后都需要重新预览。</span><span data-l="en">No current plan. Preview does not write files. Inspecting, changing groups, or switching language requires a new preview.</span></p>
+            </div>
+          </div>
+          <p class="caption" id="net-cap"><span data-l="zh">按软件界面文字重绘的初始状态，不含任何检测结果。</span><span data-l="en">The window's starting state, redrawn from the app's own text. No test result is shown.</span></p>
+          <div class="repair">
+            <p class="repair__k"><span data-l="zh">修改 CuteCloud 的 DNS，要单独确认</span><span data-l="en">Changing CuteCloud DNS takes its own confirmation</span></p>
+            <ol class="repair__flow">
+              <li><span data-l="zh">预览改动</span><span data-l="en">Preview the change</span></li>
+              <li><span data-l="zh">正常退出 CuteCloud</span><span data-l="en">Exit CuteCloud normally</span></li>
+              <li><span data-l="zh">备份并应用</span><span data-l="en">Back up and apply</span></li>
+              <li><span data-l="zh">自行正常启动</span><span data-l="en">Start it again yourself</span></li>
+              <li><span data-l="zh">重新检测</span><span data-l="en">Check again</span></li>
+              <li class="is-undo"><span data-l="zh">需要时撤回</span><span data-l="en">Undo if needed</span></li>
+            </ol>
+            <p class="caption"><span data-l="zh">只改识别出的 CuteCloud 配置里有限的 DNS 字段，完整备份只留在本机。撤回只恢复本工具改过的字段，保留之后的其他修改；其他客户端只给指导，不自动改写。</span><span data-l="en">Only a limited set of DNS fields in a recognized CuteCloud configuration is changed, and the full backup stays on your computer. Undo restores only the fields this tool changed and keeps later edits. Other clients get guidance, not automatic edits.</span></p>
+          </div>
+        </div>
+      </div>
+
+      <div class="maint">
+        <div class="maint__copy">
+          <h3><span data-l="zh">维护与清理</span><span data-l="en">Maintenance &amp; cleanup</span></h3>
+          <p><span data-l="zh">在环境助手底部打开「维护与清理」。这些检查和清理独立于浏览器评分。</span><span data-l="en">Open Maintenance &amp; cleanup at the bottom of the helper. These checks and cleanup actions are separate from the browser score.</span></p>
+          <div class="tabs" role="tablist" aria-label="Maintenance pages">
+            <button type="button" class="tab" role="tab" id="mt-0" aria-controls="mp-0" aria-selected="true"><span data-l="zh">连接与安装</span><span data-l="en">Connection &amp; installation</span></button>
+            <button type="button" class="tab" role="tab" id="mt-1" aria-controls="mp-1" aria-selected="false" tabindex="-1"><span data-l="zh">官方配置</span><span data-l="en">Official configuration</span></button>
+            <button type="button" class="tab" role="tab" id="mt-2" aria-controls="mp-2" aria-selected="false" tabindex="-1"><span data-l="zh">缓存与日志</span><span data-l="en">Caches &amp; logs</span></button>
+            <button type="button" class="tab" role="tab" id="mt-3" aria-controls="mp-3" aria-selected="false" tabindex="-1"><span data-l="zh">恢复备份</span><span data-l="en">Restore backups</span></button>
+          </div>
+          <div class="tabpanel" role="tabpanel" id="mp-0" aria-labelledby="mt-0" tabindex="0">
+            <p data-l="zh">检查常见安装位置、代理变量是否设置；可选择探测 Claude 官方域名的 DNS 和 HTTPS，区分超时、访问受限与限流。连接探测不发送任何凭据。</p>
+            <p data-l="en">Check common installation paths and whether proxy variables are set. Optionally probe DNS and HTTPS on official Claude hosts to tell timeouts, restrictions and rate limits apart. Probes send no credentials.</p>
+          </div>
+          <div class="tabpanel" role="tabpanel" id="mp-1" aria-labelledby="mt-1" tabindex="0" hidden>
+            <p data-l="zh">检查 Claude Code 的地址、认证和模型覆盖项，勾选需要移除的项目，先备份再处理。移除的是<strong>选中的认证覆盖项</strong>，不删除官方登录数据。</p>
+            <p data-l="en">Inspect Claude Code endpoint, authentication and model overrides. Choose which overrides to remove, with a configuration backup first. Only <strong>selected authentication overrides</strong> are removed, never stored official login data.</p>
+          </div>
+          <div class="tabpanel" role="tabpanel" id="mp-2" aria-labelledby="mt-2" tabindex="0" hidden>
+            <p data-l="zh">扫描已知的缓存与日志位置，查看大小、勾选项目，核验备份后移入回收站。未知路径与链接文件会跳过。</p>
+            <p data-l="en">Scan known cache and log locations, review sizes, select items, verify backups, then move originals to the Recycle Bin. Unknown paths and linked files are skipped.</p>
+          </div>
+          <div class="tabpanel" role="tabpanel" id="mp-3" aria-labelledby="mt-3" tabindex="0" hidden>
+            <p data-l="zh">恢复配置或缓存备份，保留发生冲突的后续修改，以及之后新生成的缓存。</p>
+            <p data-l="en">Restore configuration or cache backups. Conflicting later edits and newly recreated caches are kept.</p>
+          </div>
+          <p class="note-line"><span data-l="zh">清理、修复或恢复前，请正常退出 Claude 和 Claude Code。会话、官方登录数据、Cookie、Skills、插件、Hooks、MCP、自建规则及本地身份标识都受到保护。</span><span data-l="en">Close Claude and Claude Code normally first. Chats, login data, cookies, skills, plugins, hooks, MCP settings, custom rules and local identity stay protected.</span></p>
+        </div>
+        <figure class="shot">
+          <a data-l="zh" href="images/helper-maintenance-zh.png"><img src="images/helper-maintenance-zh.png" width="970" height="760" loading="lazy" alt="维护与清理的缓存与日志页面，列出一个不可勾选的示例缓存。"></a>
+          <a data-l="en" href="images/helper-maintenance-en.png"><img src="images/helper-maintenance-en.png" width="970" height="760" loading="lazy" alt="The Caches and logs maintenance page listing one disabled sample cache entry."></a>
+          <figcaption class="caption"><span data-l="zh">缓存与日志页面：模拟数据离屏渲染，没有扫描或清理真实缓存。</span><span data-l="en">Caches &amp; logs page, rendered offscreen with synthetic data. No real cache was scanned or cleaned.</span></figcaption>
+        </figure>
+      </div>
+
+      <div class="tiles">
+        <div class="tile">
+          <span class="tile__icon"><svg aria-hidden="true"><use href="#i-plug"/></svg></span>
+          <h3><span data-l="zh">Codex 连接修复</span><span data-l="en">Codex connection repair</span></h3>
+          <p><span data-l="zh">找到并验证本机实际在用的 HTTP、mixed 或 SOCKS 代理端口，预览对 <code>.codex/.env</code> 的改动，保留无关条目，私密备份后可以撤回。不假设固定端口。</span><span data-l="en">Finds and verifies the HTTP, mixed or SOCKS proxy endpoints actually running on this computer, previews the change to <code>.codex/.env</code>, keeps unrelated entries, and backs up privately so you can undo. No fixed port is assumed.</span></p>
+        </div>
+        <div class="tile">
+          <span class="tile__icon"><svg aria-hidden="true"><use href="#i-power"/></svg></span>
+          <h3><span data-l="zh">关闭占用程序</span><span data-l="en">Close blocking apps</span></h3>
+          <p><span data-l="zh">优化前浏览器或 Claude 还开着时，先请求它们正常退出；强制关闭受支持的程序需要再确认一次，不会悄悄结束你的工作。</span><span data-l="en">If a browser or Claude is still open, the helper first asks it to exit normally. Force-closing a supported app needs a second confirmation, so your work is never ended silently.</span></p>
+        </div>
+      </div>
+
+      <p class="fineprint" data-l="zh"><strong>分数只是参考。</strong>评分参考 <a href="https://github.com/LinXiaoTao/FuckClaude">LinXiaoTao/FuckClaude</a> 的环境启发式规则，不是 Claude 官方账号资格评分，也不保证解除访问限制。评分检测的是浏览器页面，不是 Claude Desktop 内嵌环境。独立的 DNS／代理工具只处理受支持的本地设置，不保证网络路线畅通或账号可用。</p>
+      <p class="fineprint" data-l="en"><strong>The score is a reference.</strong> It follows a third-party heuristic adapted from <a href="https://github.com/LinXiaoTao/FuckClaude">LinXiaoTao/FuckClaude</a>. It is not an official Claude eligibility score or a guarantee of access. The score measures the browser page, not Claude Desktop's embedded environment. Separate DNS/proxy tools address supported local settings; they do not guarantee network routing or account access.</p>
+    </div>
+  </section>
+
+  <!-- ===== 02 translator ===== -->
+  <section class="feature feature--flip" id="translator" aria-labelledby="translator-title">
+    <div class="wrap">
+      <div class="feature__grid">
+        <div class="feature__copy">
+          <p class="eyebrow"><span class="num">02</span><span data-l="zh">大肥鱼翻译 · Whale Translator</span><span data-l="en">Whale Translator · 大肥鱼翻译</span></p>
+          <h2 id="translator-title"><span data-l="zh"><span class="nb">用你熟悉的语言</span><wbr><span class="nb">读 Claude</span></span><span data-l="en">Read Claude in your language</span></h2>
+          <p class="feature__intro" data-l="zh">选择 Claude 窗口，划选一段想读的回复，在旁边对照原文和译文。继续和她交流，不用被语言打断。</p>
+          <p class="feature__intro" data-l="en">Choose the Claude window, highlight a passage, and read the original and translation together. Keep the conversation going without switching tools.</p>
+          <p class="note-line"><span data-l="zh">0.9.6 下载文件 29.15 MB（29,146,112 字节），小于 30 MB。离线语言包另外选装，不计入此体积。</span><span data-l="en">0.9.6 download: 29.15 MB (29,146,112 bytes), below 30 MB. Optional offline language packs are installed separately.</span></p>
+          <ol class="steps">
+            <li><div class="step"><span class="step__n">1</span><span class="step__body">
+              <span class="step__text" data-l="zh">打开 WhaleTranslator.exe，在窗口卡片里选择 Claude。</span>
+              <span class="step__text" data-l="en">Open WhaleTranslator.exe and choose Claude from the window cards.</span>
+            </span></div></li>
+            <li><div class="step"><span class="step__n">2</span><span class="step__body">
+              <span class="step__text" data-l="zh">选好目标语言，到 Claude 里按住左键划选文字，松开。</span>
+              <span class="step__text" data-l="en">Pick a target language. In Claude, hold the left mouse button, select text and release.</span>
+            </span></div></li>
+            <li><div class="step"><span class="step__n">3</span><span class="step__body">
+              <span class="step__text" data-l="zh">阅读或复制译文；想用中文提问时，打开<kbd>中文提问</kbd>，预览英文后再主动发送。</span>
+              <span class="step__text" data-l="en">Read or copy the translation. Use <kbd>Write in Chinese</kbd> to review an English version before you send it.</span>
+            </span></div></li>
+          </ol>
+          <ul class="chips">
+            <li><span data-l="zh">自动识别原文</span><span data-l="en">Detects the source</span></li>
+            <li><span data-l="zh">17 种目标语言</span><span data-l="en">17 target languages</span></li>
+            <li><span data-l="zh">可选离线语言包</span><span data-l="en">Optional offline packs</span></li>
+            <li><span data-l="zh">135 条内置术语 · 不区分大小写</span><span data-l="en">135 starter terms · case-insensitive</span></li>
+            <li><span data-l="zh">本次翻译记录 · 最多 20 条</span><span data-l="en">Session history · up to 20</span></li>
+            <li><span data-l="zh">主动收藏为本机 Markdown</span><span data-l="en">Save replies as local Markdown</span></li>
+          </ul>
+          <p data-l="zh">打开 ⚙ → 术语词典 →「补充内置词条」，在保留个人译法的同时加入缺少的内置词，点保存后生效。135 条包含产品名称、技术词组和中译英词条，默认不区分大小写，Skills、Sonnet 这类普通单词式的名称只认原样写法；已有词典不会被升级覆盖。</p>
+          <p data-l="en">Open ⚙ → Glossary → Add built-in terms to fill missing entries while keeping your own translations, then save. The 135 entries cover product names, technical phrases and Chinese → English terms. They ignore case, except names that are also everyday words, such as Skills or Sonnet; upgrades do not overwrite an existing dictionary.</p>
+          <p data-l="zh">想留下某条回复，就点译文卡片的 ☆ 收藏，用旁边箭头选标签。⚙ → 回复收藏本 可以搜索原文和译文、筛选标签、保存备注；默认一条一个 Markdown，放在「文档\大肥鱼收藏」。可更换保存位置，刷新时以外部修改或删除后的文件为准。<a href="https://github.com/whitecarp/I-Must-Use-Claude/blob/main/apps/claude-live-translator/README.md">查看收藏本用法</a>。</p>
+          <p data-l="en">Click ☆ Save on a translation to keep it; the arrow chooses its tag. In ⚙ → Saved replies, search both texts, filter tags and save notes. Each reply is a Markdown file in Documents\大肥鱼收藏 by default. Choose another location if needed; Refresh respects edits or deletions made outside the app. <a href="https://github.com/whitecarp/I-Must-Use-Claude/blob/main/apps/claude-live-translator/README.md">Read the notebook guide</a>.</p>
+          <p class="note-line"><span data-l="zh">在线模式把所选文字发给 Google 翻译；离线翻译在本机完成。本次历史仍只在内存里，关闭即清空；只有主动收藏才写入 Markdown，收藏本自身不联网。</span><span data-l="en">Online mode sends selected text to Google Translate; offline translation stays local. Session history still clears on exit. Only explicit saves write Markdown; the notebook itself makes no network request.</span></p>
+        </div>
+
+        <div class="feature__visual">
+          <figure class="shot">
+            <img data-l="zh" src="images/translator094-saved-zh.png" width="560" height="772" loading="lazy" alt="大肥鱼翻译 0.9.4：示例译文已主动收藏并标记标签。">
+            <img data-l="en" src="images/translator094-saved-en.png" width="560" height="772" loading="lazy" alt="Whale Translator 0.9.4 with an explicitly saved sample reply and tag.">
+            <figcaption class="caption"><span data-l="zh">主动点收藏后才保存。实际编译的 0.9.4 程序在 Windows CI 中以 96 DPI（100%）离屏渲染，使用合成示例文字；不是用户电脑上的交互验收。</span><span data-l="en">Replies are kept only when you click Save. Compiled 0.9.4 app, rendered offscreen in Windows CI at 96 DPI (100%) with synthetic text; not a real-machine interaction test.</span></figcaption>
+          </figure>
+          <figure class="shot">
+            <img data-l="zh" src="images/translator094-notebook-zh.png" width="606" height="589" loading="lazy" alt="中文回复收藏本：示例收藏列表、标签筛选、译文、原文与备注。">
+            <img data-l="en" src="images/translator094-notebook-en.png" width="606" height="589" loading="lazy" alt="English reply notebook with a sample list, tag filters, translation, original and note.">
+            <figcaption class="caption"><span data-l="zh">回复收藏本：搜索、标签和备注。同一轮 96 DPI CI 渲染，回复、标签及来源标题均为合成测试示例。</span><span data-l="en">Reply notebook: search, tags and notes. Same 96-DPI CI rendering; replies, tags and source titles are synthetic fixtures.</span></figcaption>
+          </figure>
+          <figure class="shot">
+            <img data-l="zh" src="images/translator-glossary-zh.png" width="800" height="520" loading="lazy" alt="0.9.6 术语词典：节选的内置词条，Skills 和 Sonnet 勾选了「区分大小写」。">
+            <img data-l="en" src="images/translator-glossary-en.png" width="800" height="520" loading="lazy" alt="Translator 0.9.6 glossary editor with built-in terms; Match case is ticked for Skills and Sonnet.">
+            <figcaption class="caption"><span data-l="zh">术语词典：固定名字和常用词的译法，默认不区分大小写。0.9.6 程序离屏渲染，显示节选的内置词条；未读取个人词典或会话。</span><span data-l="en">Glossary: keep preferred terms for names and phrases; terms ignore case unless Match case is ticked. Compiled 0.9.6 app rendered offscreen with an excerpt of the built-in terms; no personal dictionary or conversation was read.</span></figcaption>
+          </figure>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== 03 clock ===== -->
+  <section class="feature feature--band" id="clock" aria-labelledby="clock-title">
+    <div class="wrap">
+      <div class="feature__grid">
+        <div class="feature__copy">
+          <p class="eyebrow"><span class="num">03</span><span data-l="zh">两地时钟 · Two-Zone Clock</span><span data-l="en">Two-Zone Clock · 两地时钟</span></p>
+          <h2 id="clock-title"><span data-l="zh">电脑时区变了，家里的时间还在</span><span data-l="en">Keep your home time close</span></h2>
+          <p class="feature__intro" data-l="zh">原本地区大卡片在上，目标地区小卡片在下。底部还能显示 Claude 本轮与每周重置倒计时，陪你等下一次额度重置。</p>
+          <p class="feature__intro" data-l="en">Keep your home time large and above a compact target-region card. Add Claude session and weekly reset countdowns underneath while you wait for the next reset.</p>
+          <ol class="steps">
+            <li><div class="step"><span class="step__n">1</span><span class="step__body">
+              <span class="step__text" data-l="zh">打开 HomeTimeClock.exe，右键时钟或托盘图标，进入地区设置。</span>
+              <span class="step__text" data-l="en">Open HomeTimeClock.exe. Right-click the clock or tray icon and open region settings.</span>
+            </span></div></li>
+            <li><div class="step"><span class="step__n">2</span><span class="step__body">
+              <span class="step__text" data-l="zh">直接在两个选择框里搜索，选定固定的原本地区和目标地区，保存。</span>
+              <span class="step__text" data-l="en">Search in each selector, choose a fixed home region and a target region, then save.</span>
+            </span></div></li>
+            <li><div class="step"><span class="step__n">3</span><span class="step__body">
+              <span class="step__text" data-l="zh">把时钟放在顺手的位置。以后电脑时区变化，原本地区的时间依然清楚。</span>
+              <span class="step__text" data-l="en">Place the clock where you like. Home time stays visible even if the computer timezone changes.</span>
+            </span></div></li>
+          </ol>
+          <p data-l="zh">想显示倒计时：打开 Claude「设置 → 使用情况」，保持重置文字可见；右键时钟 →「Claude 重置倒计时」，选择页面使用的时区与窗口，读取后应用。读取成功会勾选每 60 秒读取，可在应用前取消；只在本次打开时钟期间生效。</p>
+          <p data-l="en">For countdowns, keep Claude's Settings → Usage page visible. Right-click the clock → Claude reset countdown, choose the page's timezone and window, read, then apply. A successful read selects the 60-second reading option; untick before applying for a single read. It stops when the clock closes.</p>
+          <p data-l="zh">读不到时可粘贴用量文字或手动设置。倒计时是页面估算，归零不确认额度已恢复；进度条表示参考周期经过的时间，不是已用额度。<a href="https://github.com/whitecarp/I-Must-Use-Claude/blob/main/apps/two-zone-clock/README.md">查看详细用法与读取范围</a>。</p>
+          <p data-l="en">Paste usage text or set times manually if reading fails. Countdowns are page estimates, not confirmation that quota has returned; bars show elapsed reference time, not quota used. <a href="https://github.com/whitecarp/I-Must-Use-Claude/blob/main/apps/two-zone-clock/README.md">Read the usage and privacy details</a>.</p>
+          <ul class="chips">
+            <li><span data-l="zh">中英文搜索地区</span><span data-l="en">Search in English or Chinese</span></li>
+            <li><span data-l="zh">12 / 24 小时制</span><span data-l="en">12 / 24-hour time</span></li>
+            <li><span data-l="zh">时差与跨日提示</span><span data-l="en">Difference and day hints</span></li>
+            <li><span data-l="zh">本轮 / 每周倒计时</span><span data-l="en">Session / weekly resets</span></li>
+            <li><span data-l="zh">置顶与锁定位置</span><span data-l="en">Always on top, lockable</span></li>
+            <li><span data-l="zh">不修改电脑时间</span><span data-l="en">Never changes system time</span></li>
+          </ul>
+        </div>
+
+        <div class="feature__visual">
+          <div class="clockwrap">
+            <div class="clockdemo">
+              <div class="clockpanel" aria-live="off">
+                <div class="clockpanel__head">
+                  <img src="images/site-clock-girl.webp" width="320" height="320" alt="" loading="lazy">
+                  <div><b><span data-l="zh">鲸娘两地时钟</span><span data-l="en">Whalegirl Clock</span></b><span><span data-l="zh">陪你看昼夜</span><span data-l="en">Two places, one day</span></span></div>
+                </div>
+                <div class="clockrow clockrow--home">
+                  <span class="clockrow__label" id="ck-home-label">原本 · 北京</span>
+                  <span class="clockrow__time" id="ck-home-time">--:--:--</span>
+                  <span class="clockrow__date" id="ck-home-date">&nbsp;</span>
+                </div>
+                <div class="clockrow clockrow--target">
+                  <span class="clockrow__label" id="ck-target-label">目标 · 美国西部</span>
+                  <span class="clockrow__time" id="ck-target-time">--:--:--</span>
+                  <span class="clockrow__date" id="ck-target-date">&nbsp;</span>
+                </div>
+                <p class="clockpanel__diff" id="ck-diff">&nbsp;</p>
+              </div>
+              <div class="clockdemo__controls">
+                <div class="field">
+                  <label for="ck-home"><span data-l="zh">原本地区</span><span data-l="en">Home region</span></label>
+                  <select id="ck-home"></select>
+                </div>
+                <div class="field">
+                  <label for="ck-target"><span data-l="zh">目标地区</span><span data-l="en">Target region</span></label>
+                  <select id="ck-target"></select>
+                </div>
+                <button type="button" class="btn" id="ck-swap"><svg aria-hidden="true"><use href="#i-swap"/></svg><span data-l="zh">交换两个地区</span><span data-l="en">Swap regions</span></button>
+              </div>
+            </div>
+          </div>
+          <p class="caption"><span data-l="zh">网页实时演示，用你浏览器的时区数据计算；软件本身跟随 Windows 时区规则。</span><span data-l="en">Live web demo using your browser's timezone data. The app itself follows Windows timezone rules.</span></p>
+          <div class="app-shot">
+            <img data-l="zh" src="images/clock-reset-zh.png" width="168" height="228" loading="lazy" alt="时钟 0.5.0：原本地区在上、目标地区在下，并显示模拟本轮与每周重置倒计时。">
+            <img data-l="en" src="images/clock-reset-en.png" width="168" height="228" loading="lazy" alt="Clock 0.5.0 with home and target times and sample session and weekly reset countdowns.">
+            <p class="caption"><span data-l="zh">编译后的时钟在临时 Windows 环境生成的预览，使用模拟时间和地区；没有为截图读取真实账号。</span><span data-l="en">Compiled-app preview from a disposable Windows runner with synthetic times and regions; no real account was read for this image.</span></p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== 04 pack helper ===== -->
+  <section class="feature feature--flip" id="pack" aria-labelledby="pack-title">
+    <div class="wrap">
+      <div class="feature__grid">
+        <div class="feature__copy">
+          <p class="eyebrow"><span class="num">04</span><span data-l="zh">大肥鱼打包助手 · Whale Pack Helper</span><span data-l="en">Whale Pack Helper · 大肥鱼打包助手</span><span class="new-pill"><svg aria-hidden="true"><use href="#spark"/></svg><span data-l="zh">新工具</span><span data-l="en">New</span></span></p>
+          <h2 id="pack-title"><span data-l="zh"><span class="nb">整理给 Claude</span><wbr><span class="nb">的交接文件</span></span><span data-l="en">Prepare a clear handoff</span></h2>
+          <p class="feature__intro" data-l="zh">选择源码、图片或视频，检查清单，可以再写一段交接说明，然后在本机打包。原文件不变，每个输出文件不超过 29,000,000 字节。</p>
+          <p class="feature__intro" data-l="en">Choose source folders, images or video, review the list, optionally write a handoff note, then package everything on your own computer. Originals stay untouched, and each output file is at most 29,000,000 bytes.</p>
+          <ol class="steps">
+            <li><div class="step"><span class="step__n">1</span><span class="step__body">
+              <span class="step__text" data-l="zh">把文件或文件夹拖进窗口，或点<kbd>选择文件</kbd><kbd>选择文件夹</kbd>。</span>
+              <span class="step__text" data-l="en">Drop files or folders into the window, or use <kbd>Choose files</kbd> / <kbd>Choose folder</kbd>.</span>
+            </span></div></li>
+            <li><div class="step"><span class="step__n">2</span><span class="step__body">
+              <span class="step__text" data-l="zh">检查每一行的处理方式。疑似密钥的文件默认排除，点明细可以复核。</span>
+              <span class="step__text" data-l="en">Check how each row will be handled. Files that look like secrets are excluded by default; open the details to review them.</span>
+            </span></div></li>
+            <li><div class="step"><span class="step__n">3</span><span class="step__body">
+              <span class="step__text" data-l="zh">需要的话点<kbd>写交接说明…</kbd>：项目、目标、做到哪了、已验证、还没验证、下一步，都可以留空。</span>
+              <span class="step__text" data-l="en">If you like, open <kbd>Handoff note…</kbd>: project, goal, progress, verified, not yet verified, next step. Every field can stay empty.</span>
+            </span></div></li>
+            <li><div class="step"><span class="step__n">4</span><span class="step__body">
+              <span class="step__text" data-l="zh">点<kbd>开始打包</kbd>。结果放进「发给Claude」下新建的文件夹，不会覆盖以前的结果。</span>
+              <span class="step__text" data-l="en">Choose <kbd>Start packing</kbd>. Results go into a new subfolder, so earlier results are never overwritten.</span>
+            </span></div></li>
+          </ol>
+          <ul class="chips">
+            <li><span data-l="zh">原文件不变</span><span data-l="en">Originals untouched</span></li>
+            <li><span data-l="zh">每个文件 ≤29 MB</span><span data-l="en">Each file ≤29 MB</span></li>
+            <li><span data-l="zh">疑似密钥默认排除</span><span data-l="en">Suspected secrets excluded</span></li>
+            <li><span data-l="zh">本地打包不上传</span><span data-l="en">Local packing, no uploads</span></li>
+          </ul>
+          <p class="note-line"><span data-l="zh">普通打包和 PNG/JPEG/BMP 用内置组件；视频压缩和 WebP 解码需要本机已有 FFmpeg，软件不会自动下载。密钥筛查是启发式的，发送前仍请检查。</span><span data-l="en">Ordinary packaging and PNG/JPEG/BMP use built-in components. Video compression and WebP decoding need FFmpeg already on your computer; nothing is downloaded automatically. Secret screening is heuristic, so review the result before sending.</span></p>
+          <div class="tool-card__actions">
+            <a class="btn btn--primary" href="https://github.com/whitecarp/I-Must-Use-Claude/releases/download/v0.4.5-preview/WhalePackHelper.exe"><svg aria-hidden="true"><use href="#i-download"/></svg><span data-l="zh">下载 EXE</span><span data-l="en">Download EXE</span></a>
+            <a class="more" href="https://github.com/whitecarp/I-Must-Use-Claude/tree/main/apps/whale-pack-helper"><span data-l="zh">源码与用法</span><span data-l="en">Source &amp; usage</span><svg aria-hidden="true"><use href="#i-arrow"/></svg></a>
+          </div>
+          <p class="caption"><span data-l="zh">0.1.1 是单个 EXE，无需配置旁文件或 ZIP；只有主动检查或下载更新时访问 GitHub。</span><span data-l="en">0.1.1 is one EXE, with no config sidecar or ZIP; only manual update checks and downloads contact GitHub.</span></p>
+        </div>
+
+        <div class="feature__visual">
+          <div class="appwin appwin--pack" role="img" aria-labelledby="pack-cap">
+            <div class="appwin__bar">
+              <span><span data-l="zh">大肥鱼打包助手</span><span data-l="en">Whale Pack Helper</span></span>
+              <span class="appwin__ctrls" aria-hidden="true"><span>–</span><span>□</span><span>×</span></span>
+            </div>
+            <div class="appwin__body">
+              <div class="appwin__head">
+                <img class="pack-whale" src="images/site-pack-whale.webp" width="400" height="280" alt="" loading="lazy">
+                <div>
+                  <strong><span data-l="zh">大肥鱼打包助手</span><span data-l="en">Whale Pack Helper</span></strong>
+                  <span><span data-l="zh">把文件整理成能直接发给 Claude 的样子</span><span data-l="en">Small attachments. A clear handoff.</span></span>
+                </div>
+                <span class="candy"><span data-l="zh">English</span><span data-l="en">中文</span></span>
+              </div>
+              <div class="dropzone">
+                <span><span data-l="zh">把文件或文件夹拖到这里</span><span data-l="en">Drop files or folders here</span></span>
+                <span class="candy"><span data-l="zh">选择文件</span><span data-l="en">Choose files</span></span>
+                <span class="candy"><span data-l="zh">选择文件夹</span><span data-l="en">Choose folder</span></span>
+              </div>
+              <div class="pklist">
+                <div class="pklist__head"><b><span data-l="zh">要发的东西 · 4 项</span><span data-l="en">Things to send · 4 items</span></b><span><span data-l="zh">清空</span><span data-l="en">Clear</span></span></div>
+                <ul>
+                  <li><svg aria-hidden="true"><use href="#i-folder"/></svg><span class="pk-name">my-project</span><span class="pk-mode"><span data-l="zh">源码文件夹 · 保留相对路径 · 跳过 bin、obj、node_modules</span><span data-l="en">Source folder · relative paths kept · bin, obj, node_modules skipped</span></span></li>
+                  <li><svg aria-hidden="true"><use href="#i-film"/></svg><span class="pk-name">screen-recording.mp4</span><span class="pk-mode"><span data-l="zh">2 段 · 短边≤720</span><span data-l="en">2 parts · short edge≤720</span></span></li>
+                  <li><svg aria-hidden="true"><use href="#i-image"/></svg><span class="pk-name">screenshot.png</span><span class="pk-mode"><span data-l="zh">最长边 ≤2560 · PNG 截图保留 PNG</span><span data-l="en">Longest edge ≤2560 · keep PNG screenshots</span></span></li>
+                  <li class="is-out"><svg aria-hidden="true"><use href="#i-key"/></svg><span class="pk-name">.env</span><span class="pk-mode"><span data-l="zh">疑似密钥 · 不会放进附件；点明细检查</span><span data-l="en">Possible secret · not included; open Details to review</span></span></li>
+                </ul>
+              </div>
+              <div class="pkfoot">
+                <span class="pk-out"><span data-l="zh">输出到：桌面\发给Claude</span><span data-l="en">Save to: Desktop\发给Claude</span></span>
+                <span class="candy"><span data-l="zh">写交接说明…</span><span data-l="en">Handoff note…</span></span>
+                <span class="candy candy--primary"><span data-l="zh">开始打包</span><span data-l="en">Start packing</span></span>
+              </div>
+              <p class="appwin__detail"><span data-l="zh">●  本地打包，不上传文件 · 每个附件 ≤29 MB，预留 1 MB 余量</span><span data-l="en">●  Local packing. No uploads. · Each file ≤29 MB, with 1 MB to spare</span></p>
+            </div>
+          </div>
+          <p class="caption" id="pack-cap"><span data-l="zh">按软件界面文字重绘的示意，文件名都是示例。</span><span data-l="en">Redrawn from the app's own interface text; the file names are examples.</span></p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== download ===== -->
+  <section class="section download" id="download" aria-labelledby="download-title">
+    <div class="wrap">
+      <header class="section-head">
+        <p class="eyebrow"><span data-l="zh">下载</span><span data-l="en">Download</span></p>
+        <h2 id="download-title"><span data-l="zh">下载 EXE，双击打开</span><span data-l="en">Download an EXE and double-click it</span></h2>
+        <p data-l="zh">四个软件都在 v0.4.5-preview，各自独立运行，用哪个下哪个。全部提供单 EXE 下载；离线语言包按需选装。</p>
+        <p data-l="en">All four apps are in v0.4.5-preview and run independently. Download only the EXEs you need; offline language packs are optional installs.</p>
+      </header>
+      <ol class="dl-list">
+        <li class="dl dl--feature is-fix">
+          <span class="num">01</span>
+          <span class="dl__name"><b><span data-l="zh">大肥鱼环境助手</span><span data-l="en">Whale Environment Helper</span></b><code>WhaleEnvironmentHelper.exe</code><span class="dl__alt">v0.4.5-preview</span></span>
+          <span class="dl__ver">0.7.0</span>
+          <a class="btn btn--primary" href="https://github.com/whitecarp/I-Must-Use-Claude/releases/download/v0.4.5-preview/WhaleEnvironmentHelper.exe"><svg aria-hidden="true"><use href="#i-download"/></svg><span data-l="zh">下载</span><span data-l="en">Download</span></a>
+        </li>
+        <li class="dl">
+          <span class="num">02</span>
+          <span class="dl__name"><b><span data-l="zh">大肥鱼翻译</span><span data-l="en">Whale Translator</span></b><code>WhaleTranslator.exe</code><span class="dl__alt">v0.4.5-preview</span></span>
+          <span class="dl__ver">0.9.6</span>
+          <a class="btn" href="https://github.com/whitecarp/I-Must-Use-Claude/releases/download/v0.4.5-preview/WhaleTranslator.exe"><svg aria-hidden="true"><use href="#i-download"/></svg><span data-l="zh">下载</span><span data-l="en">Download</span></a>
+        </li>
+        <li class="dl">
+          <span class="num">03</span>
+          <span class="dl__name"><b><span data-l="zh">两地时钟</span><span data-l="en">Two-Zone Clock</span></b><code>HomeTimeClock.exe</code><span class="dl__alt">v0.4.5-preview</span></span>
+          <span class="dl__ver">0.5.0</span>
+          <a class="btn" href="https://github.com/whitecarp/I-Must-Use-Claude/releases/download/v0.4.5-preview/HomeTimeClock.exe"><svg aria-hidden="true"><use href="#i-download"/></svg><span data-l="zh">下载</span><span data-l="en">Download</span></a>
+        </li>
+        <li class="dl">
+          <span class="num">04</span>
+          <span class="dl__name"><b><span data-l="zh">大肥鱼打包助手</span><span data-l="en">Whale Pack Helper</span></b><code>WhalePackHelper.exe</code><span class="dl__alt">v0.4.5-preview · <span data-l="zh">单 EXE</span><span data-l="en">Single EXE</span></span></span>
+          <span class="dl__ver">0.1.1</span>
+          <a class="btn" href="https://github.com/whitecarp/I-Must-Use-Claude/releases/download/v0.4.5-preview/WhalePackHelper.exe"><svg aria-hidden="true"><use href="#i-download"/></svg><span data-l="zh">下载 EXE</span><span data-l="en">Download EXE</span></a>
+        </li>
+      </ol>
+      <div class="dl-notes">
+        <div>
+          <h3><span data-l="zh">运行要求</span><span data-l="en">Requirements</span></h3>
+          <p data-l="zh">Windows 10 / 11。翻译器便携运行库需要 x64；桌面程序使用 .NET Framework 4.8。</p>
+          <p data-l="en">Windows 10 / 11. The translator's portable runtime requires x64; the desktop apps use .NET Framework 4.8.</p>
+        </div>
+        <div>
+          <h3><span data-l="zh">核对文件</span><span data-l="en">Verify the files</span></h3>
+          <p data-l="zh">本轮仍是未签名预览版，Windows 可能提示“已保护你的电脑”；详见<a href="https://github.com/whitecarp/I-Must-Use-Claude/blob/main/docs/CODE_SIGNING.md">代码签名政策与当前状态</a>。先在 PowerShell 运行 <code>Get-FileHash 文件名 -Algorithm SHA256</code>，与本版 <a href="https://github.com/whitecarp/I-Must-Use-Claude/releases/tag/v0.4.5-preview#sha-256">SHA-256</a> 对比。哈希只验证文件完整性，不认证发布者身份；确认来源和哈希后，再决定是否点「更多信息 → 仍要运行」。</p>
+          <p data-l="en">This remains an unsigned preview; Windows SmartScreen may block the first launch. Read the <a href="https://github.com/whitecarp/I-Must-Use-Claude/blob/main/docs/CODE_SIGNING.md">code-signing policy and current status</a>. Run <code>Get-FileHash &lt;file&gt; -Algorithm SHA256</code> and compare with this release's <a href="https://github.com/whitecarp/I-Must-Use-Claude/releases/tag/v0.4.5-preview#sha-256">SHA-256</a>. A hash verifies integrity, not publisher identity. After checking source and hash, decide whether to choose More info → Run anyway.</p>
+        </div>
+        <div>
+          <h3><span data-l="zh">检查更新</span><span data-l="en">Updates</span></h3>
+          <p data-l="zh">四个软件都支持手动检查和下载更新；打包助手入口在「设置 → 检查更新」。文件必须与 GitHub 提供的 SHA-256 一致。软件不会自行替换或运行新版，旧版和设置都保留。</p>
+          <p data-l="en">All four apps check and download updates only when you ask; in Pack Helper, use Settings → Check updates. Files must match GitHub's SHA-256 digest. Apps never replace themselves or run the new EXE; existing apps and settings stay.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== limits ===== -->
+  <section class="section" id="limits" aria-labelledby="limits-title">
+    <div class="wrap">
+      <header class="section-head">
+        <p class="eyebrow"><span data-l="zh">说在前面</span><span data-l="en">Before you start</span></p>
+        <h2 id="limits-title"><span data-l="zh">能做什么、不做什么，都写清楚</span><span data-l="en">Plain about what the apps do</span></h2>
+      </header>
+      <div class="limits">
+        <div class="limit">
+          <span class="limit__icon"><svg aria-hidden="true"><use href="#i-gauge"/></svg></span>
+          <h3><span data-l="zh">分数只是参考</span><span data-l="en">A score, not a verdict</span></h3>
+          <p><span data-l="zh">环境评分参考第三方启发式规则，不是 Claude 官方账号资格评分，也不保证解除访问限制。</span><span data-l="en">The environment score follows a third-party heuristic. It is not an official Claude eligibility score and does not guarantee access.</span></p>
+        </div>
+        <div class="limit">
+          <span class="limit__icon"><svg aria-hidden="true"><use href="#i-undo"/></svg></span>
+          <h3><span data-l="zh">改动都有退路</span><span data-l="en">Every change has a way back</span></h3>
+          <p><span data-l="zh">修改前先备份。撤回时如果遇到之后的独立修改，会保留新内容并提示冲突，不直接覆盖。</span><span data-l="en">Changes are backed up first. Undo keeps later independent edits and reports the conflict instead of overwriting them.</span></p>
+        </div>
+        <div class="limit">
+          <span class="limit__icon"><svg aria-hidden="true"><use href="#i-laptop"/></svg></span>
+          <h3><span data-l="zh">数据留在本机</span><span data-l="en">Your data stays local</span></h3>
+          <p><span data-l="zh">配置备份、术语词典和打包结果留在本机；本次翻译历史关闭即清空，主动收藏的回复则保存在所选文件夹。在线翻译发送所选文字给 Google，手动更新联系 GitHub。DNS 实测联系 Net.Coffee；可选 WebRTC 联系 Google STUN，只回传候选数量。详见<a href="https://github.com/whitecarp/I-Must-Use-Claude/blob/main/docs/PRIVACY.md">隐私说明</a>。</span><span data-l="en">Backups, the glossary and packaged files stay local; session history clears on exit, while explicitly saved replies remain in the chosen folder. Online translation sends selected text to Google; manual updates contact GitHub. DNS tests contact Net.Coffee; optional WebRTC contacts Google STUN and reports only candidate counts. See the <a href="https://github.com/whitecarp/I-Must-Use-Claude/blob/main/docs/PRIVACY.md">privacy notice</a>.</span></p>
+        </div>
+        <div class="limit">
+          <span class="limit__icon"><svg aria-hidden="true"><use href="#i-flask"/></svg></span>
+          <h3><span data-l="zh">仍是预览版</span><span data-l="en">Still a preview</span></h3>
+          <p><span data-l="zh">源码 5959687 的<a href="https://github.com/whitecarp/I-Must-Use-Claude/actions/runs/41398526505">云端 Windows 验收已通过</a>：49 项流程检查、11 项时区检查、四款窗口截图。只在 GitHub 临时虚拟机验证修改和撤回，不操作个人电脑，也不验证真实账号；后续修改需重新验收。</span><span data-l="en"><a href="https://github.com/whitecarp/I-Must-Use-Claude/actions/runs/41398526505">Cloud Windows acceptance passed</a> for source 5959687: 49 workflow checks, 11 time-zone checks and four app-window captures. Changes and undo ran on a disposable GitHub VM, not a personal PC or real account. Later changes need a new run.</span></p>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="site-footer">
+  <div class="wrap footer__grid">
+    <div class="footer__brand">
+      <a class="brand" href="#top">
+        <svg viewBox="0 0 100 70" aria-hidden="true"><use href="#whale"/></svg>
+        <span data-l="zh">我一定要用上Claude</span><span data-l="en">I Must Use Claude</span>
+      </a>
+      <p><span data-l="zh">四个鲸鱼主题的 Windows 小工具，陪你用 Claude。</span><span data-l="en">Four whale-themed Windows companions for using Claude.</span></p>
+    </div>
+    <nav class="footer__nav" aria-label="Project links">
+      <a href="https://github.com/whitecarp/I-Must-Use-Claude"><span data-l="zh">GitHub 仓库</span><span data-l="en">GitHub repository</span></a>
+      <a href="https://github.com/whitecarp/I-Must-Use-Claude/releases"><span data-l="zh">全部版本</span><span data-l="en">All releases</span></a>
+      <a href="https://github.com/whitecarp/I-Must-Use-Claude/blob/main/RELEASE_NOTES.md"><span data-l="zh">发布说明</span><span data-l="en">Release notes</span></a>
+      <a href="https://github.com/whitecarp/I-Must-Use-Claude/blob/main/docs/BUILDING.md"><span data-l="zh">从源码构建</span><span data-l="en">Build from source</span></a>
+      <a href="https://github.com/whitecarp/I-Must-Use-Claude/blob/main/THIRD_PARTY_NOTICES.md"><span data-l="zh">第三方声明</span><span data-l="en">Third-party notices</span></a>
+      <a href="https://github.com/whitecarp/I-Must-Use-Claude/blob/main/SECURITY.md"><span data-l="zh">安全报告</span><span data-l="en">Security</span></a>
+      <a href="https://github.com/whitecarp/I-Must-Use-Claude/blob/main/docs/PRIVACY.md"><span data-l="zh">隐私说明</span><span data-l="en">Privacy</span></a>
+      <a href="https://github.com/whitecarp/I-Must-Use-Claude/blob/main/docs/CODE_SIGNING.md"><span data-l="zh">代码签名</span><span data-l="en">Code signing</span></a>
+      <a href="https://github.com/whitecarp/I-Must-Use-Claude/blob/main/LICENSE"><span data-l="zh">MIT 许可证</span><span data-l="en">MIT License</span></a>
+    </nav>
+    <div class="footer__legal">
+      <p><span data-l="zh">独立社区辅助项目，不隶属于 Anthropic 或 Google，也未获得其背书。</span><span data-l="en">An independent community companion project. Not affiliated with or endorsed by Anthropic or Google.</span></p>
+      <p><span data-l="zh">离线翻译使用 CTranslate2、SentencePiece 和用户选装的 Argos 语言包；环境评分算法参考 LinXiaoTao/FuckClaude（MIT）。</span><span data-l="en">Offline translation uses CTranslate2 and SentencePiece with optional Argos packages; the environment score is adapted from LinXiaoTao/FuckClaude (MIT).</span></p>
+    </div>
+  </div>
+</footer>
+
+<script>
+(function () {
+  "use strict";
+  var root = document.documentElement;
+  var lang = root.getAttribute("data-lang") === "en" ? "en" : "zh";
+  var renderers = [];
+
+  // ---------- language ----------
+  function setLang(next, remember) {
+    lang = next === "en" ? "en" : "zh";
+    root.setAttribute("data-lang", lang);
+    root.setAttribute("lang", lang === "zh" ? "zh-CN" : "en");
+    document.title = lang === "zh" ? "我一定要用上Claude" : "I Must Use Claude";
+    document.querySelectorAll("[data-set-lang]").forEach(function (b) {
+      b.setAttribute("aria-pressed", String(b.getAttribute("data-set-lang") === lang));
+    });
+    document.querySelectorAll("[data-alt-zh]").forEach(function (img) {
+      img.alt = img.getAttribute(lang === "zh" ? "data-alt-zh" : "data-alt-en");
+    });
+    if (remember) { try { localStorage.setItem("imuc-lang", lang); } catch (e) {} }
+    renderers.forEach(function (fn) { fn(); });
+  }
+  document.querySelectorAll("[data-set-lang]").forEach(function (b) {
+    b.addEventListener("click", function () { setLang(b.getAttribute("data-set-lang"), true); });
+  });
+
+  // ---------- top bar edge ----------
+  var bar = document.getElementById("topbar");
+  function onScroll() { bar.classList.toggle("is-scrolled", window.scrollY > 8); }
+  window.addEventListener("scroll", onScroll, { passive: true });
+  onScroll();
+
+  // ---------- helper walkthrough (strings from OptimizerForm.cs) ----------
+  var placeholder = { zh: "你的实测分数", en: "your measured score" };
+  var states = [
+    { score: { zh: "尚未检测 · 不猜测分数", en: "Not measured · no assumed score" },
+      state: { zh: "在已打开的浏览器页面点击「开始测量」…", en: "Click Start measurement in the browser page…" },
+      main: { zh: "开始检测", en: "Measure first" }, hot: "main" },
+    { score: { zh: "优化前：", en: "Before: " }, ph: true,
+      state: { zh: "检测已收到，仅处理命中的本地项目。", en: "Results received. Only matched local items will be handled." },
+      main: { zh: "一键优化", en: "Optimize" }, hot: "main" },
+    { score: { zh: "优化前：", en: "Before: " }, ph: true,
+      state: { zh: "设置已处理，等待实测结果。", en: "Settings processed; awaiting measurement." },
+      main: { zh: "复测结果", en: "Measure after" }, hot: "main" },
+    { score: { zh: "优化前：", en: "Before: " }, ph: true,
+      state: { zh: "正在核对备份并撤回…", en: "Checking backups and undoing…" },
+      main: { zh: "复测结果", en: "Measure after" }, hot: "undo" }
+  ];
+  var current = 0;
+  var stepButtons = Array.prototype.slice.call(document.querySelectorAll("#helper-steps .step"));
+  var hwScore = document.getElementById("hw-score");
+  var hwState = document.getElementById("hw-state");
+  var hwMain = document.getElementById("hw-main");
+  var hwUndo = document.getElementById("hw-undo");
+  function renderHelper() {
+    var s = states[current];
+    hwScore.textContent = s.score[lang];
+    if (s.ph) {
+      var ph = document.createElement("span");
+      ph.className = "ph";
+      ph.textContent = placeholder[lang];
+      hwScore.appendChild(ph);
+    }
+    hwState.textContent = s.state[lang];
+    hwMain.textContent = s.main[lang];
+    hwMain.classList.toggle("is-hot", s.hot === "main");
+    hwUndo.classList.toggle("is-hot", s.hot === "undo");
+    stepButtons.forEach(function (b, i) { b.setAttribute("aria-pressed", String(i === current)); });
+  }
+  stepButtons.forEach(function (b, i) {
+    b.addEventListener("click", function () { current = i; renderHelper(); });
+  });
+  renderers.push(renderHelper);
+
+  // ---------- maintenance tabs ----------
+  var tabs = Array.prototype.slice.call(document.querySelectorAll('[role="tab"]'));
+  function selectTab(tab, focus) {
+    tabs.forEach(function (t) {
+      var on = t === tab;
+      t.setAttribute("aria-selected", String(on));
+      t.tabIndex = on ? 0 : -1;
+      document.getElementById(t.getAttribute("aria-controls")).hidden = !on;
+    });
+    if (focus) tab.focus();
+  }
+  tabs.forEach(function (t, i) {
+    t.addEventListener("click", function () { selectTab(t, false); });
+    t.addEventListener("keydown", function (e) {
+      var next = null;
+      if (e.key === "ArrowRight") next = tabs[(i + 1) % tabs.length];
+      else if (e.key === "ArrowLeft") next = tabs[(i - 1 + tabs.length) % tabs.length];
+      else if (e.key === "Home") next = tabs[0];
+      else if (e.key === "End") next = tabs[tabs.length - 1];
+      if (next) { e.preventDefault(); selectTab(next, true); }
+    });
+  });
+
+  // ---------- two-zone clock demo (same wording as WorldClock.cs) ----------
+  var zones = [
+    { id: "Asia/Shanghai", zh: "北京", en: "Beijing", zhFull: "中国 · 北京", enFull: "China · Beijing" },
+    { id: "Asia/Taipei", zh: "台北", en: "Taipei", zhFull: "台湾 · 台北", enFull: "Taiwan · Taipei" },
+    { id: "Asia/Singapore", zh: "新加坡", en: "Singapore", zhFull: "新加坡", enFull: "Singapore" },
+    { id: "Asia/Tokyo", zh: "东京", en: "Tokyo", zhFull: "日本 · 东京", enFull: "Japan · Tokyo" },
+    { id: "Asia/Seoul", zh: "首尔", en: "Seoul", zhFull: "韩国 · 首尔", enFull: "South Korea · Seoul" },
+    { id: "Asia/Kolkata", zh: "新德里", en: "New Delhi", zhFull: "印度 · 新德里", enFull: "India · New Delhi" },
+    { id: "Europe/London", zh: "伦敦", en: "London", zhFull: "英国 · 伦敦", enFull: "UK · London" },
+    { id: "Europe/Paris", zh: "巴黎", en: "Paris", zhFull: "法国 · 巴黎", enFull: "France · Paris" },
+    { id: "Europe/Berlin", zh: "柏林", en: "Berlin", zhFull: "德国 · 柏林", enFull: "Germany · Berlin" },
+    { id: "America/New_York", zh: "美国东部", en: "US Eastern", zhFull: "美国东部 · 纽约", enFull: "US Eastern · New York" },
+    { id: "America/Chicago", zh: "美国中部", en: "US Central", zhFull: "美国中部 · 芝加哥", enFull: "US Central · Chicago" },
+    { id: "America/Los_Angeles", zh: "美国西部", en: "US Pacific", zhFull: "美国西部 · 洛杉矶", enFull: "US Pacific · Los Angeles" }
+  ];
+  var homeSel = document.getElementById("ck-home");
+  var targetSel = document.getElementById("ck-target");
+  var weekdays = { Sun: "周日", Mon: "周一", Tue: "周二", Wed: "周三", Thu: "周四", Fri: "周五", Sat: "周六" };
+  var formatters = {};
+  function zoneById(id) { for (var i = 0; i < zones.length; i++) if (zones[i].id === id) return zones[i]; return zones[0]; }
+  function fillOptions() {
+    [homeSel, targetSel].forEach(function (sel) {
+      var keep = sel.value;
+      sel.textContent = "";
+      zones.forEach(function (z) {
+        var o = document.createElement("option");
+        o.value = z.id;
+        o.textContent = lang === "zh" ? z.zhFull : z.enFull;
+        sel.appendChild(o);
+      });
+      if (keep) sel.value = keep;
+    });
+  }
+  function read(zone, date) {
+    var f = formatters[zone] || (formatters[zone] = new Intl.DateTimeFormat("en-US", {
+      timeZone: zone, hourCycle: "h23", year: "numeric", month: "2-digit", day: "2-digit",
+      hour: "2-digit", minute: "2-digit", second: "2-digit", weekday: "short"
+    }));
+    var p = {};
+    f.formatToParts(date).forEach(function (part) { p[part.type] = part.value; });
+    var hour = Number(p.hour) % 24;
+    var whole = Math.floor(date.getTime() / 1000) * 1000;
+    return {
+      time: String(hour).padStart(2, "0") + ":" + p.minute + ":" + p.second,
+      date: p.month + "/" + p.day + "/" + p.year + "  " + (lang === "zh" ? weekdays[p.weekday] : p.weekday),
+      dayKey: Date.UTC(Number(p.year), Number(p.month) - 1, Number(p.day)),
+      offset: Math.round((Date.UTC(Number(p.year), Number(p.month) - 1, Number(p.day), hour, Number(p.minute), Number(p.second)) - whole) / 60000)
+    };
+  }
+  function difference(home, target) {
+    var diff = target.offset - home.offset;
+    var minutes = Math.abs(diff);
+    var en = lang === "en";
+    var duration = Math.floor(minutes / 60) > 0 ? Math.floor(minutes / 60) + (en ? "h" : "小时") : "";
+    if (minutes % 60 > 0) duration += (en && duration ? " " : "") + (minutes % 60) + (en ? "m" : "分");
+    var relative = minutes === 0 ? (en ? "To: same time" : "目标与原本同一时间")
+      : en ? "To: " + duration + (diff > 0 ? " ahead" : " behind")
+      : "目标" + (diff > 0 ? "快 " : "慢 ") + duration;
+    var days = Math.round((target.dayKey - home.dayKey) / 86400000);
+    var day = days === -1 ? (en ? "yesterday" : "昨天") : days === 0 ? (en ? "same day" : "同一天")
+      : days === 1 ? (en ? "tomorrow" : "明天")
+      : en ? Math.abs(days) + (days < 0 ? " days earlier" : " days later") : (days < 0 ? "早 " : "晚 ") + Math.abs(days) + " 天";
+    return relative + " · " + day;
+  }
+  function tick() {
+    try {
+      var now = new Date();
+      var hz = zoneById(homeSel.value), tz = zoneById(targetSel.value);
+      var h = read(hz.id, now), t = read(tz.id, now);
+      document.getElementById("ck-home-label").textContent = (lang === "zh" ? "原本 · " : "From · ") + hz[lang];
+      document.getElementById("ck-target-label").textContent = (lang === "zh" ? "目标 · " : "To · ") + tz[lang];
+      document.getElementById("ck-home-time").textContent = h.time;
+      document.getElementById("ck-target-time").textContent = t.time;
+      document.getElementById("ck-home-date").textContent = h.date;
+      document.getElementById("ck-target-date").textContent = t.date;
+      document.getElementById("ck-diff").textContent = difference(h, t);
+    } catch (e) {
+      document.getElementById("ck-diff").textContent = lang === "zh" ? "此浏览器不支持时区计算" : "This browser cannot calculate time zones";
+    }
+  }
+  fillOptions();
+  homeSel.value = "Asia/Shanghai";
+  targetSel.value = "America/Los_Angeles";
+  homeSel.addEventListener("change", tick);
+  targetSel.addEventListener("change", tick);
+  document.getElementById("ck-swap").addEventListener("click", function () {
+    var a = homeSel.value; homeSel.value = targetSel.value; targetSel.value = a; tick();
+  });
+  renderers.push(function () { fillOptions(); tick(); });
+  (function loop() { tick(); setTimeout(loop, 1000 - (Date.now() % 1000) + 20); })();
+
+  setLang(lang, false);
+})();
+</script>
+</body>
+</html>

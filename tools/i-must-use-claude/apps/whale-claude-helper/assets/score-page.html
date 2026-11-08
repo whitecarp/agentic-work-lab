@@ -1,0 +1,330 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="referrer" content="no-referrer">
+<title>大肥鱼 · 浏览器环境测量 / Browser measurement</title>
+<style>
+:root{color-scheme:light;--ink:#244b62;--muted:#627d8c;--blue:#3e98c0;--paper:#fffdf8;--line:#dcecf3}
+*{box-sizing:border-box}body{margin:0;background:#eef7fb;color:var(--ink);font:16px/1.55 "Segoe UI","Microsoft YaHei",sans-serif}
+main{max-width:1000px;margin:32px auto;padding:0 20px 36px}header{display:flex;align-items:center;gap:16px;margin-bottom:22px}
+.mascot{font-size:56px;line-height:1;background:#d9f0fb;border-radius:28px;padding:15px}h1{font-size:27px;margin:0}h1 small{display:block;font-size:15px;font-weight:400;color:var(--muted)}
+.panel{background:var(--paper);border:1px solid var(--line);border-radius:22px;padding:24px;box-shadow:0 8px 28px #25546c0b;margin:16px 0}
+p{margin:8px 0}.sub{color:var(--muted);font-size:14px}.notice{background:#fff5d9;border-left:4px solid #e6bf63;border-radius:8px;padding:12px 16px;margin:16px 0}
+.actions{display:flex;gap:12px;flex-wrap:wrap;margin-top:18px}button{border:0;border-radius:24px;padding:11px 23px;background:var(--blue);color:white;font:inherit;font-weight:600;cursor:pointer}button.secondary{background:white;color:var(--ink);border:1px solid var(--line)}button:disabled{opacity:.55;cursor:default}
+button:focus-visible,a:focus-visible{outline:3px solid #d89bc8;outline-offset:3px}.summary{font-size:20px;font-weight:700}.score{font-size:39px;font-variant-numeric:tabular-nums}.status{min-height:1.6em;color:var(--muted)}
+table{border-collapse:collapse;width:100%;font-size:14px}th,td{text-align:left;border-bottom:1px solid var(--line);padding:12px 10px;vertical-align:top}th{font-size:12px;color:var(--muted)}td:first-child{width:25%}td:nth-child(2){width:18%}.detail{overflow-wrap:anywhere}.unknown{color:#9a6416}.good{color:#2a7859}.bad{color:#9c4a4a}.pill{display:inline-block;border-radius:12px;background:#e7f4fa;padding:3px 10px;font-size:13px}a{color:#287799}footer{font-size:12px;color:var(--muted);padding:4px 8px}
+[hidden]{display:none!important}@media(max-width:650px){main{margin-top:15px;padding:0 12px 22px}.panel{padding:18px}h1{font-size:23px}.mascot{font-size:38px;padding:10px}th,td{padding:9px 5px}td:first-child{width:29%}}
+</style>
+</head>
+<body>
+<main>
+<header><div class="mascot" aria-hidden="true">🐳</div><h1 id="page-heading">先看看，再调整<small>大肥鱼 · Measure your browser before making changes</small></h1></header>
+<section class="panel" aria-labelledby="intro">
+<h2 id="intro" style="font-size:19px;margin-top:0">这是你正在使用的浏览器 / This is your real browser</h2>
+<p id="measurement-scope">读取本页看到的时区、语言、字体及浏览器环境，不使用内嵌网页或无头浏览器代替。</p>
+<p id="measurement-scope-en" class="sub">Measures the native environment visible to this page. It does not change your settings.</p>
+<div class="notice">WebRTC 项目会向 Google STUN 服务器发送探测请求，最多等待 8 秒，只回传候选数量，不回传 IP 地址。候选数量不等于泄露结论；0 个候选也不证明网络安全。不会修改网络或代理。<br><span class="sub">The WebRTC check contacts Google STUN and waits up to 8 seconds. Only the candidate count is returned, never the IP addresses. Candidate counts do not confirm a leak; zero candidates do not prove network safety. Network and proxy settings remain unchanged.</span></div>
+<p id="score-note" class="sub">这是参考开源项目的环境分数，不是 Claude 官方账号资格评分；低分不保证账号可用。缺失或失败的项目会显示“未知”，不会当作 0 分。</p>
+<p id="score-note-en" class="sub">This third-party heuristic is not an official Claude eligibility score. Missing or failed checks remain unknown, never zero.</p>
+<div class="actions"><button id="start" type="button">开始测量 / Start measurement</button><button id="retry" type="button" class="secondary" hidden>重新发送结果 / Retry sending</button></div>
+<p id="state" class="status" role="status" aria-live="polite">准备就绪；点击开始后才会探测。 / Ready; checks start only after you click.</p>
+</section>
+<section class="panel" id="results" hidden aria-labelledby="result-title">
+<div class="pill" id="browser"></div>
+<h2 id="result-title" class="summary">测量结果 / Measurement results</h2>
+<p class="score" id="score">—</p><p id="coverage" class="sub"></p>
+<table><thead><tr><th>项目 / Signal</th><th>结果 / Status</th><th id="points-header">贡献 / Points</th><th>说明 / Detail</th></tr></thead><tbody id="rows"></tbody></table>
+<p id="return" class="notice" hidden>结果已交给大肥鱼助手。请切回助手继续；本页可以关闭。<br><span class="sub">The helper received your results. Return to the helper to continue; you can close this tab.</span></p>
+</section>
+<footer>所有页面资源都在本机。测量结果只发回此次助手会话，不自动上传到上游项目。<br>
+All page resources are local. Results go only to this helper session, not to the upstream project.<br>
+算法参考 / Algorithm reference: <a href="https://github.com/LinXiaoTao/FuckClaude" target="_blank" rel="noopener noreferrer">LinXiaoTao/FuckClaude</a> · MIT · Copyright (c) 2025 LinXiaoTao</footer>
+</main>
+<script>
+"use strict";
+(function(){
+  // Signals copied/adapted under MIT from LinXiaoTao/FuckClaude.
+  // signals.ts blob 2d4b3b02a47ca021f99cada321f90dbb59eae2af.
+  // detect.ts blob 202f3a66b3099cf592949ebca58fdec7a196841e.
+  // Formula changes: none. Availability/error handling is explicit rather than silently scored zero.
+  const token = "__TOKEN__";
+  const webRtcOnly = "__WEBRTC_ONLY__" === "true";
+  const CN_TIMEZONES=["Asia/Shanghai","Asia/Urumqi","Asia/Chongqing","Asia/Chungking","Asia/Harbin","Asia/Kashgar"];
+  const GREATER_CN_TIMEZONES=["Asia/Hong_Kong","Asia/Macau"];
+  const FONTS_SC=["Microsoft YaHei","Microsoft YaHei UI","SimSun","NSimSun","SimHei","KaiTi","FangSong","DengXian","PingFang SC","Hiragino Sans GB","STHeiti","STSong","Songti SC","Source Han Sans CN","Source Han Sans SC","Noto Sans CJK SC","Noto Serif CJK SC","WenQuanYi Micro Hei","WenQuanYi Zen Hei"];
+  const FONTS_TC=["Microsoft JhengHei","PMingLiU","MingLiU","DFKai-SB","PingFang TC","PingFang HK","Source Han Sans TW","Noto Sans CJK TC"];
+  const FONTS_CN_VENDOR=["MiSans","MIUI","HarmonyOS Sans SC","HarmonyOS Sans","HONOR Sans","OPPO Sans","vivo Sans","Alibaba PuHuiTi","Alibaba Sans","DingTalk JinBuTi","Douyin Sans","HYQiHei","FZShuSong-Z01S","FZKai-Z03S","FZHei-B01S","FZFangSong-Z02S"];
+  const CN_BROWSER_PATTERNS=[
+    [/micromessenger|wxwork/i,"WeChat"],[/mqqbrowser|qqbrowser|\bqq\//i,"QQ Browser"],[/quark/i,"Quark"],
+    [/ucbrowser|ucweb/i,"UC Browser"],[/baiduboxapp|bidubrowser|baidubrowser/i,"Baidu"],
+    [/miuibrowser|xiaomi\/|mibrowser/i,"Mi Browser"],[/huaweibrowser/i,"Huawei Browser"],
+    [/heytapbrowser|oppobrowser/i,"HeyTap (OPPO)"],[/vivobrowser/i,"vivo Browser"],
+    [/sogoumobilebrowser|\bmetasr\b|\bse 2\.x\b/i,"Sogou"],[/maxthon/i,"Maxthon"],
+    [/360se|360ee|qihoobrowser|\bqhbrowser\b/i,"360 Browser"],[/2345explorer|2345browser/i,"2345"],
+    [/lbbrowser/i,"Liebao"],[/theworld/i,"TheWorld"],[/aweme|bytedancewebview|newsarticle|toutiaomicroapp/i,"Douyin / Toutiao"],
+    [/alipayclient/i,"Alipay"],[/dingtalk/i,"DingTalk"],[/weibo/i,"Weibo"],[/xiaohongshu|xhsminiapp/i,"Xiaohongshu"],[/\bbilibili\b/i,"Bilibili"]
+  ];
+  const CN_DEVICE_PATTERNS=[
+    [/harmonyos|openharmony/i,"HarmonyOS",1],[/huawei|\bhonor\b/i,"Huawei / Honor",0.8],
+    [/meizu/i,"Meizu",0.8],[/nubia|\bzte\b/i,"ZTE / nubia",0.7],
+    [/xiaomi|redmi|\bpoco\b|\bm2\d{3}[a-z0-9]+\b/i,"Xiaomi",0.6],
+    [/oppo|\bpd[a-z]m\d{2}\b/i,"OPPO",0.6],[/vivo|\bv2\d{3}[a-z]{1,2}\b/i,"vivo",0.6],
+    [/realme|\brmx\d{4}\b/i,"realme",0.6],[/oneplus/i,"OnePlus",0.6],[/\blenovo\b|\bzuk\b/i,"Lenovo",0.5]
+  ];
+  const definitions=[
+    {id:"timezone",weight:24,name:"时区 / Time zone",run:detectTimezone},
+    {id:"language",weight:18,name:"语言 / Languages",run:detectLanguage},
+    {id:"fonts",weight:14,name:"字体 / Fonts",run:detectFonts},
+    {id:"vendorFonts",weight:10,name:"厂商字体 / Vendor fonts",run:detectVendorFonts},
+    {id:"webrtcLeak",weight:10,name:"WebRTC",run:detectWebrtc},
+    {id:"cnBrowser",weight:8,name:"浏览器 / Browser",run:detectBrowser},
+    {id:"deviceVendor",weight:6,name:"设备 / Device",run:detectDevice},
+    {id:"intlLocale",weight:4,name:"Intl 语言 / Locale",run:detectIntl},
+    {id:"timezoneOffset",weight:3,name:"时间偏移 / UTC offset",run:detectOffset},
+    {id:"emoji",weight:3,name:"Emoji 厂商 / Emoji",run:detectEmoji}
+  ];
+  function measured(risk,display,fonts){
+    const value={status:"measured",risk:risk,display:String(display).slice(0,256)};
+    if(fonts)value.fonts=fonts;
+    return value;
+  }
+  function unknown(status,display){return {status:status,risk:null,display:display};}
+  function unavailable(display){return unknown("unavailable",display);}
+  function failed(){return unknown("error","检测未完成 / Check failed");}
+  function timezoneScore(tz){return CN_TIMEZONES.includes(tz)?1:GREATER_CN_TIMEZONES.includes(tz)?0.6:0;}
+  function detectTimezone(){
+    if(!globalThis.Intl||!Intl.DateTimeFormat)return unavailable("Intl 不可用 / Intl unavailable");
+    const tz=Intl.DateTimeFormat().resolvedOptions().timeZone;
+    return typeof tz==="string"&&tz?measured(timezoneScore(tz),tz):unavailable("时区未知 / Time zone unavailable");
+  }
+  function detectOffset(){
+    const offset=new Date().getTimezoneOffset();
+    if(!Number.isFinite(offset))return unavailable("时间偏移未知 / UTC offset unavailable");
+    const hours=-offset/60;
+    return measured(offset===-480?0.7:0,"UTC"+(hours>=0?"+":"")+hours);
+  }
+  function languageScore(langs){
+    const list=langs.map(l=>(l||"").toLowerCase()).filter(Boolean);
+    const isTW=l=>l.startsWith("zh-tw")||(l.includes("hant")&&l.includes("tw"));
+    const isHKMO=l=>l.startsWith("zh-hk")||l.startsWith("zh-mo");
+    const isTrad=l=>isTW(l)||isHKMO(l)||l.includes("hant");
+    const firstTrad=list.findIndex(isTrad);
+    const isHansCN=(l,i)=>l.startsWith("zh-cn")||l.includes("hans")||(l==="zh"&&(firstTrad===-1||i<firstTrad));
+    const kept=list.map((l,i)=>({l,i})).filter(({l,i})=>!isTW(l)&&!(l==="zh"&&firstTrad!==-1&&i>firstTrad));
+    const primary=kept[0];
+    if(!primary)return 0;
+    if(isHansCN(primary.l,primary.i))return 1;
+    if(isHKMO(primary.l)||primary.l.includes("hant"))return 0.5;
+    if(kept.some(({l,i})=>isHansCN(l,i)))return 0.7;
+    if(kept.some(({l})=>l.startsWith("zh")))return 0.4;
+    return 0;
+  }
+  function detectLanguage(){
+    const langs=navigator.languages&&navigator.languages.length?Array.from(navigator.languages):[navigator.language];
+    if(!langs.some(l=>typeof l==="string"&&l))return unavailable("语言未知 / Languages unavailable");
+    if(langs.some(l=>typeof l!=="string"))return failed();
+    return measured(languageScore(langs),langs.join(", "));
+  }
+  function detectIntl(){
+    if(!globalThis.Intl||!Intl.DateTimeFormat)return unavailable("Intl 不可用 / Intl unavailable");
+    const locale=Intl.DateTimeFormat().resolvedOptions().locale;
+    if(typeof locale!=="string"||!locale)return unavailable("Intl 语言未知 / Intl locale unavailable");
+    const l=locale.toLowerCase();
+    const risk=l.startsWith("zh-cn")||l.includes("hans")||l==="zh"?1:l.startsWith("zh")&&!l.startsWith("zh-tw")?0.5:0;
+    return measured(risk,locale);
+  }
+  function fontAvailable(font,ctx){
+    const test="中文字体检测ABCabc012",bases=["monospace","sans-serif","serif"];
+    return bases.some(base=>{
+      ctx.font="72px "+base;
+      const before=ctx.measureText(test).width;
+      ctx.font='72px "'+font+'", '+base;
+      const after=ctx.measureText(test).width;
+      if(!Number.isFinite(before)||!Number.isFinite(after))throw new Error("font_measurement_unavailable");
+      return Math.abs(after-before)>0.5;
+    });
+  }
+  function detectFonts(){
+    const ctx=document.createElement("canvas").getContext("2d");
+    if(!ctx)return unavailable("Canvas 不可用 / Canvas unavailable");
+    const sc=FONTS_SC.filter(f=>fontAvailable(f,ctx)),tc=FONTS_TC.filter(f=>fontAvailable(f,ctx)),hit=sc.concat(tc);
+    const risk=sc.length>=1?Math.min(1,0.75+0.08*sc.length):tc.length>=1?0.2:0;
+    return measured(risk,hit.length?hit.slice(0,4).join(", ")+(hit.length>4?"…":""):"没有命中 / No matches",hit);
+  }
+  function detectVendorFonts(){
+    const ctx=document.createElement("canvas").getContext("2d");
+    if(!ctx)return unavailable("Canvas 不可用 / Canvas unavailable");
+    const hit=FONTS_CN_VENDOR.filter(f=>fontAvailable(f,ctx));
+    return measured(hit.length>=2?1:hit.length===1?0.8:0,hit.length?hit.slice(0,3).join(", ")+(hit.length>3?"…":""):"没有命中 / No matches",hit);
+  }
+  function getUA(){return typeof navigator.userAgent==="string"?navigator.userAgent:"";}
+  function getBrands(){
+    const data=navigator.userAgentData;
+    return data&&Array.isArray(data.brands)?data.brands.map(b=>b.brand||"").join(" "):"";
+  }
+  function browserScore(probe){
+    for(const [pattern,name] of CN_BROWSER_PATTERNS)if(pattern.test(probe))return {name,risk:1};
+    return {name:null,risk:0};
+  }
+  function detectBrowser(){
+    const probe=(getUA()+" "+getBrands()).trim();
+    if(!probe)return unavailable("浏览器信息未知 / Browser identity unavailable");
+    const value=browserScore(probe);
+    return measured(value.risk,value.name||"没有命中 / No matches");
+  }
+  async function detectDevice(){
+    const ua=getUA();
+    let extra="",fallback=false;
+    try{
+      const data=navigator.userAgentData;
+      if(data&&typeof data.getHighEntropyValues==="function"){
+        const high=await Promise.race([
+          data.getHighEntropyValues(["model","platform","platformVersion"]),
+          new Promise((resolve,reject)=>setTimeout(()=>reject(new Error("hints_timeout")),1800))
+        ]);
+        if(high)extra=" "+String(high.model||"")+" "+String(high.platform||"");
+      }else fallback=true;
+    }catch{fallback=true;}
+    if(!(ua+extra).trim())return unavailable("设备信息未知 / Device identity unavailable");
+    for(const [pattern,name,risk] of CN_DEVICE_PATTERNS)if(pattern.test(ua+extra))return measured(risk,name+(fallback?" (UA fallback)":""));
+    return measured(0,"没有命中 / No matches"+(fallback?" (UA fallback)":""));
+  }
+  function detectEmoji(){
+    const probe=((navigator.platform||"")+" "+getUA()).toLowerCase().trim();
+    if(!probe)return unavailable("平台信息未知 / Platform unavailable");
+    let vendor="Unknown";
+    if(/iphone|ipad|ipod|mac/.test(probe))vendor="Apple";
+    else if(/android/.test(probe))vendor="Google";
+    else if(/win/.test(probe))vendor="Microsoft";
+    else if(/cros/.test(probe))vendor="Google";
+    else if(/linux/.test(probe))vendor="Linux / Other";
+    const scores={Apple:0.25,Microsoft:0.4,Google:0.35,"Linux / Other":0.5,Unknown:0.4};
+    return measured(scores[vendor]===undefined?0.4:scores[vendor],vendor+" style");
+  }
+  function detectWebrtc(){
+    return new Promise(resolve=>{
+      if(typeof window.RTCPeerConnection!=="function"){resolve(unknown("unsupported","浏览器不支持 WebRTC / Browser does not support WebRTC"));return;}
+      let pc=null,done=false,timer=null,gatheringComplete=false,stunError=false;
+      const ips=new Set();
+      function finish(mode){
+        if(done)return;
+        done=true;
+        if(timer!==null){clearTimeout(timer);timer=null;}
+        const connection=pc;pc=null;
+        try{if(connection){connection.onicecandidate=null;connection.onicegatheringstatechange=null;connection.onicecandidateerror=null;connection.close();}}catch{}
+        const count=ips.size;
+        ips.clear();
+        if(count>0){resolve(measured(0.5,"IP 候选数量 / IP candidate count: "+count+(gatheringComplete?"":"；部分结果，收集未完成 / Partial; gathering incomplete")));return;}
+        if(mode==="unsupported"){resolve(unknown("unsupported","浏览器不支持此 WebRTC 探测 / Browser does not support this WebRTC probe"));return;}
+        if(stunError){resolve(unknown("server_error","STUN 服务器探测失败，结果未知 / STUN server probe failed; result unknown"));return;}
+        if(mode==="error"){resolve(failed());return;}
+        if(gatheringComplete){resolve(measured(0,"匹配 IP 候选: 0 / Matched IP candidates: 0"));return;}
+        resolve(unknown("timeout","探测超过 8 秒，结果未知 / Probe timed out after 8 seconds; result unknown"));
+      }
+      function fail(error){finish(error&&error.name==="NotSupportedError"?"unsupported":"error");}
+      timer=setTimeout(()=>finish("timeout"),8000);
+      try{
+        pc=new RTCPeerConnection({iceServers:[{urls:"stun:stun.l.google.com:19302"}]});
+        pc.onicecandidate=e=>{
+          if(done)return;
+          // null ends all gathering; an empty candidate ends only one generation.
+          if(e.candidate===null){gatheringComplete=true;finish("complete");return;}
+          if(!e.candidate||typeof e.candidate.candidate!=="string"||!e.candidate.candidate)return;
+          const match=/([0-9]{1,3}(\.[0-9]{1,3}){3}|[a-f0-9]{1,4}(:[a-f0-9]{1,4}){7})/i.exec(e.candidate.candidate);
+          if(match&&match[1])ips.add(match[1]);
+        };
+        pc.onicegatheringstatechange=()=>{if(!done&&pc&&pc.iceGatheringState==="complete"){gatheringComplete=true;finish("complete");}};
+        // A failed route must not discard a usable candidate from another route.
+        pc.onicecandidateerror=()=>{if(!done)stunError=true;};
+        pc.createDataChannel("");
+        if(done)return;
+        Promise.resolve(pc.createOffer()).then(sdp=>{if(!done&&pc)return pc.setLocalDescription(sdp);}).catch(fail);
+      }catch(error){fail(error);}
+    });
+  }
+  function actualBrowserId(){
+    const ua=getUA(),brands=getBrands();
+    if(browserScore(ua+" "+brands).risk!==0)return "Other";
+    if(/Edg(?:A|iOS)?\//i.test(ua)||/\bMicrosoft Edge\b/i.test(brands))return "Edge";
+    if(/Firefox\/|FxiOS\//i.test(ua))return "Firefox";
+    if(/OPR\/|Opera|Vivaldi|SamsungBrowser|YaBrowser/i.test(ua)||navigator.brave)return "Other";
+    if(/\bGoogle Chrome\b/i.test(brands)||/Chrome\/|CriOS\//i.test(ua))return "Chrome";
+    return "Other";
+  }
+  const start=document.getElementById("start"),retry=document.getElementById("retry"),state=document.getElementById("state");
+  if(webRtcOnly){
+    document.title="大肥鱼 · WebRTC 检测 / WebRTC check";
+    document.getElementById("page-heading").textContent="WebRTC 检测 / WebRTC check";
+    document.getElementById("intro").textContent="仅检测 WebRTC / WebRTC only";
+    document.getElementById("measurement-scope").textContent="点击开始后，在本浏览器进行一次 WebRTC 探测。不读取字体、时区或语言，不修改浏览器设置。";
+    document.getElementById("measurement-scope-en").textContent="Runs one WebRTC probe in this browser after you click. It does not inspect fonts, time zone or language, or change browser settings.";
+    document.getElementById("score-note").textContent="只显示探测状态，不给出账号评分或网络安全保证。失败、超时、不支持都保留为未知。";
+    document.getElementById("score-note-en").textContent="Shows probe status, not an account score or a network safety guarantee. Failed, timed out and unsupported results remain unknown.";
+    document.getElementById("points-header").hidden=true;
+    start.textContent="开始 WebRTC 检测 / Start WebRTC check";
+  }
+  let payload=null,started=false,sending=false;
+  function show(data){
+    document.getElementById("results").hidden=false;
+    document.getElementById("browser").textContent="当前浏览器 / Browser: "+data.browserId;
+    const body=document.getElementById("rows");
+    body.textContent="";
+    let sum=0,known=0;
+    for(const definition of definitions.filter(d=>!webRtcOnly||d.id==="webrtcLeak")){
+      const value=data.signals.find(s=>s.id===definition.id);
+      const row=document.createElement("tr");
+      const contribution=value.status==="measured"?Math.round(value.risk*definition.weight):null;
+      if(contribution!==null){sum+=contribution;known++;}
+      const statusText={measured:"已测 / Measured",error:"失败 · 未知 / Error",unavailable:"不可用 · 未知 / Unavailable",timeout:"超时 · 未知 / Timed out",server_error:"STUN 失败 · 未知 / STUN failed",unsupported:"不支持 · 未知 / Unsupported"};
+      const texts=[definition.name,statusText[value.status]||"未知 / Unknown",contribution===null?"—":String(contribution),value.display];
+      texts.forEach((text,index)=>{const cell=document.createElement("td");cell.textContent=text;if(index===1)cell.className=value.status==="measured"?"good":"unknown";if(index===3)cell.className="detail";if(webRtcOnly&&index===2)cell.hidden=true;row.appendChild(cell);});
+      body.appendChild(row);
+    }
+    document.getElementById("score").textContent=known===definitions.length?Math.min(100,sum)+" / 100":Math.min(100,sum)+" 已测小计 / measured subtotal";
+    document.getElementById("coverage").textContent=known===definitions.length?"10 / 10 项已测；分数越低只表示本算法命中较少。 / All 10 checks measured; a lower value only means fewer matches in this algorithm.":known+" / 10 项已测；未知项未算作0，因此这不是完整分数。 / Unknown checks are not zero, so this is not a complete score.";
+    if(webRtcOnly){
+      document.getElementById("score").textContent=known?"探测已返回 / Probe returned":"结果未知 / Result unknown";
+      document.getElementById("coverage").textContent="本次只检测 WebRTC；不代表 DNS 无泄露或账号可用。 / This checks only WebRTC, not DNS privacy or account availability.";
+    }
+  }
+  async function send(){
+    if(!payload||sending)return;
+    sending=true;retry.hidden=true;state.textContent="正在交给本机助手… / Sending to the local helper…";
+    const controller=new AbortController(),timeout=setTimeout(()=>controller.abort(),8000);
+    try{
+      if(!/^[A-Za-z0-9_-]{24,128}$/.test(token))throw new Error("invalid_session");
+      const response=await fetch("/result/"+encodeURIComponent(token),{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(payload),cache:"no-store",credentials:"omit",signal:controller.signal});
+      if(!response.ok)throw new Error("result_not_accepted");
+      document.getElementById("return").hidden=false;
+      state.textContent="已交回助手。请切回大肥鱼继续。 / Received by the helper. Return to Dafeiyu to continue.";
+    }catch{
+      retry.hidden=false;
+      state.textContent="结果已测出，但未确认助手收到。请保持助手打开后重试；不要把发送失败当成低分。 / Measurement is shown, but delivery was not confirmed. Keep the helper open and retry.";
+    }finally{clearTimeout(timeout);sending=false;}
+  }
+  start.addEventListener("click",async()=>{
+    if(started)return;
+    started=true;start.disabled=true;
+    state.textContent="正在读取本浏览器环境… / Measuring this browser…";
+    try{
+      const signals=await Promise.all(definitions.map(async definition=>{
+        if(webRtcOnly&&definition.id!=="webrtcLeak")return Object.assign({id:definition.id},unavailable("本次仅检测 WebRTC / WebRTC-only session"));
+        let outcome;
+        try{outcome=await definition.run();}catch{outcome=failed();}
+        if(outcome.status==="measured"&&(!Number.isFinite(outcome.risk)||outcome.risk<0||outcome.risk>1))outcome=failed();
+        return Object.assign({id:definition.id},outcome);
+      }));
+      payload={version:1,browserId:actualBrowserId(),fingerprintSource:getUA()+"|"+String(navigator.platform||""),signals};
+      show(payload);
+      await send();
+    }catch{
+      state.textContent="页面测量未完成，请回到助手重新开始；没有生成完整分数。 / Measurement did not finish. Return to the helper to start a new session; no complete score was produced.";
+    }
+  });
+  retry.addEventListener("click",send);
+})();
+</script>
+</body>
+</html>
