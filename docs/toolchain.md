@@ -18,13 +18,14 @@
 
 ---
 
-## 二、Google（Gemini / Antigravity / Vertex AI）在帳號運營與黃金三角協作中的核心角色
+## 二、黃金三角分工（Antigravity + Claude + Codex）與 Google / Google Cloud 在帳號運營中的核心角色
 
-在本實驗室的真實生產與「Ai娘在工作」帳號矩陣運營中，**Google（Gemini / Google Antigravity / Vertex AI）**、**Anthropic（Claude）** 與 **OpenAI（GPT / Codex）** 形成了互補的「黃金三角分工」：
+在本實驗室的真實生產與「Ai娘在工作」帳號矩陣運營中，我們採用 **黃金三角分工（Antigravity + Claude + Codex）**，其中 **Google（Gemini / Google Antigravity / Vertex AI / Google Cloud）** 的具體貢獻如下：
 
-| 協作面向 | Google（Gemini / Antigravity / Vertex AI）的具體幫助與實證紀錄 |
+| 協作面向 | Google（Gemini / Antigravity / Vertex AI / Google Cloud）的具體幫助與實證紀錄 |
 | --- | --- |
-| **1. 24/7 全天候帳號運營值守與自動化巡檢** | • **每小時評論區真人互動巡檢**：自動掃描已公開稿件（如 `BV1Eaxt6LEhb`、`BV1sQ4E6eEhK`、`BV1YL4M6EEek` 等）新增真實觀眾留言，結合影片語境撰寫有梗回覆，提升評論區活躍度與粉絲黏性。<br>• **每 2 小時數據中心與必火投流唯讀監測**：定時採集 B站創作中心與必火後台的曝光、播放、點讚、收藏、轉粉率及千次播放成本（寫入 `bihuo-readings.jsonl`），為團隊提供連續時序數據底座。<br>• **每日定時長線連載排程與互動組件掛載**：執行《大肥魚值班小遊戲》（`BV1YL4M6EEek`）18 結局每日 12:00（UTC+8）自動追加分P、更新簡介進度表，並在 12:30 過審後自動為新分P掛載前置 4 大互動組件（`0.5s` 關注、`6.0s` 投票、`13.5s` 評分、`19.0s` 跳轉），將單支作品轉化為持續兩週以上的追更連載。 |
+| **0. Google Cloud 官方流量扶持與出海創新競賽單元支持** | • **官方流量扶持（自費必火 `¥0` 斬獲 `34,810` 播放、`4,192` 讚藏）**：在 Google Cloud「Google 出海創新競賽單元」官方流量支持下，圍繞 `AI Memory Keeper`（Gemini Saver）發布的三支 B站作品（截至 `2026-11-08 08:29` UTC+8）合計獲得 **`34,810` 播放、`2,048` 點讚、`2,144` 收藏（整體收藏反超點讚）、`305` 評論、`154` 分享**——主力演示片 [`BV1WQ4t6xEdT`](https://www.bilibili.com/video/BV1WQ4t6xEdT) 達 **`24,283` 播放、`1,846` 點讚、`1,760` 收藏（讚藏率 `14.85%`）、`241` 評論**；Google Cloud 贈金與免費密鑰教學片 [`BV1nw4h64Ebf`](https://www.bilibili.com/video/BV1nw4h64Ebf) 達 **`5,734` 播放、`140` 點讚、`357` 收藏（收藏／點讚比達 `2.55×`）**；模型驗真小劇場 [`BV1BM4h6pEY7`](https://www.bilibili.com/video/BV1BM4h6pEY7) 達 **`4,793` 播放**。<br>• **雲端贈金與雙通道憑證支持**：Google Cloud 贈金與服務帳號 `.json` 令牌直接支撐了 Vertex AI（`gemini-omni`）影片生成與 Agent Platform API 長上下文記憶抽取。 |
+| **1. 24/7 全天候帳號運營值守與自動化巡檢** | • **每小時評論區真人互動巡檢**：自動掃描已公開稿件（如 `BV1WQ4t6xEdT`、`BV1Eaxt6LEhb`、`BV1sQ4E6eEhK`、`BV1YL4M6EEek` 等）新增真實觀眾留言，結合影片語境撰寫有梗回覆，提升評論區活躍度與粉絲黏性。<br>• **每 2 小時數據中心與必火投流唯讀監測**：定時採集 B站創作中心與必火後台的曝光、播放、點讚、收藏、轉粉率及千次播放成本（寫入 `bihuo-readings.jsonl`），為團隊提供連續時序數據底座。<br>• **每日定時長線連載排程與互動組件掛載**：執行《大肥魚值班小遊戲》（`BV1YL4M6EEek`）18 結局每日 12:00（UTC+8）自動追加分P、更新簡介進度表，並在 12:30 過審後自動為新分P掛載前置 4 大互動組件（`0.5s` 關注、`6.0s` 投票、`13.5s` 評分、`19.0s` 跳轉），將單支作品轉化為持續兩週以上的追更連載。 |
 | **2. 高反差創意腦暴與強鉤子選題策劃** | 發揮 Gemini 在跨領域聯想、網感反差與互動玩法設計上的優勢，負責前置「前 3 秒視覺／認知鉤子」與 ≤60 秒強互動短片選題策劃（如多模型同台搶麥、職場代班翻車反轉、評論區點菜驅動的下期實驗）。 |
 | **3. 多模態視覺生成與長分支批量生產** | 調用 Google 原生圖像生成與 Vertex AI（`gemini-omni-1.2-flash`，封裝於 `tools/ai-memory-keeper/skills/gemini-omni/`）能力，配合 FFmpeg 渲染管線，快速批量生產多結局豎屏分支短片（如 `P4–P19` 不同結局實機演示）、Q 版角色表情差分與桌面守護者動畫幀。 |
 | **4. 跨模型記憶底座與公開實驗室守門人** | 驅動 [`AI Memory Keeper`](../tools/ai-memory-keeper/README.md)，讓 Google Antigravity、Claude 與 Codex 共享同一套本地持久化記憶與運營狀態；同時承擔本公開倉庫 `Agentic Work Lab` 的每日自動化驗收、雙語文件對齊、Release 媒體 SHA-256 校驗與合規守門職責。 |

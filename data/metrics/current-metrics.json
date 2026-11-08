@@ -1,0 +1,147 @@
+{
+  "snapshot_bjt": "2026-11-08 08:29",
+  "channel": {
+    "platform": "Bilibili",
+    "uid": 10706217,
+    "name": "穿睡衣的小白白"
+  },
+  "google_cloud_official_traffic_matrix": {
+    "program": "Google Cloud (Google 出海創新競賽單元 / Google Global Innovation Track) Official Traffic Support",
+    "self_funded_bihuo_spend_cny": 0,
+    "total_views": 34810,
+    "total_likes": 2048,
+    "total_favorites": 2144,
+    "total_likes_plus_favorites": 4192,
+    "total_coins": 87,
+    "total_comments": 305,
+    "total_shares": 154,
+    "total_danmaku": 129,
+    "videos": [
+      {
+        "bvid": "BV1WQ4t6xEdT",
+        "title": "哈基猫做了个帮大肥鱼存记忆、还能顺手验真假模型的工具【B站AI创造公开赛】",
+        "published_date": "2026-11-04",
+        "views": 24283,
+        "likes": 1846,
+        "favorites": 1760,
+        "likes_plus_favorites": 3606,
+        "ls_rate_pct": 14.85,
+        "coins": 59,
+        "comments": 241,
+        "shares": 118,
+        "danmaku": 67,
+        "traffic_source": "Google Cloud official traffic support"
+      },
+      {
+        "bvid": "BV1nw4h64Ebf",
+        "title": "Gemini来袭！手把手教你免费领Gemini密钥，顺便避开云赠金402大坑【B站AI创造公开赛】",
+        "published_date": "2026-11-05",
+        "views": 5734,
+        "likes": 140,
+        "favorites": 357,
+        "likes_plus_favorites": 497,
+        "favorite_to_like_ratio": 2.55,
+        "coins": 22,
+        "comments": 42,
+        "shares": 36,
+        "danmaku": 12,
+        "traffic_source": "Google Cloud official traffic support"
+      },
+      {
+        "bvid": "BV1BM4h6pEY7",
+        "title": "Gemini来袭！花200美金点的英国贵族Claude大小姐，风衣底下钻出蓝毛大肥鱼【B站AI创造公开赛】",
+        "published_date": "2026-11-05",
+        "views": 4793,
+        "likes": 62,
+        "favorites": 27,
+        "likes_plus_favorites": 89,
+        "coins": 6,
+        "comments": 22,
+        "shares": 0,
+        "danmaku": 50,
+        "traffic_source": "Google Cloud official traffic support"
+      }
+    ]
+  },
+  "flagship_videos": [
+    {
+      "bvid": "BV1Eaxt6LEhb",
+      "title": "鱼，你又穿谁衣服了？！GPT与Claude参上！！！",
+      "published_date": "2026-11-02",
+      "views": 99604,
+      "likes": 14988,
+      "favorites": 4821,
+      "coins": 3075,
+      "coin_anomaly_note": "Includes ~3,000 unsolicited third-party coin spike on 2026-11-06; reported to Bilibili support and excluded from ROI analysis.",
+      "comments": 113,
+      "shares": 542,
+      "danmaku": 322,
+      "bounce_rate_3s_pct": 19.95,
+      "peer_median_bounce_rate_3s_pct": 28.56
+    },
+    {
+      "bvid": "BV1WQ4t6xEdT",
+      "title": "哈基猫做了个帮大肥鱼存记忆、还能顺手验真假模型的工具【B站AI创造公开赛】",
+      "published_date": "2026-11-04",
+      "views": 24283,
+      "likes": 1846,
+      "favorites": 1760,
+      "coins": 59,
+      "comments": 241,
+      "shares": 118,
+      "danmaku": 67
+    },
+    {
+      "bvid": "BV1sQ4E6eEhK",
+      "title": "AiGO!!!!! · 迷途算力",
+      "published_date": "2026-11-07",
+      "views": 15686,
+      "likes": 330,
+      "favorites": 390,
+      "coins": 31,
+      "comments": 47,
+      "shares": 27,
+      "danmaku": 154
+    },
+    {
+      "bvid": "BV15B4F6hEYr",
+      "title": "我替你看过这个世界了",
+      "published_date": "2026-11-03",
+      "views": 7139,
+      "coins": 61,
+      "bounce_rate_3s_pct": 21.83,
+      "peer_median_bounce_rate_3s_pct": 27.49
+    },
+    {
+      "bvid": "BV1nw4h64Ebf",
+      "title": "Gemini来袭！手把手教你免费领Gemini密钥，顺便避开云赠金402大坑【B站AI创造公开赛】",
+      "published_date": "2026-11-05",
+      "views": 5734,
+      "likes": 140,
+      "favorites": 357,
+      "coins": 22,
+      "comments": 42,
+      "shares": 36,
+      "danmaku": 12
+    },
+    {
+      "bvid": "BV1BM4h6pEY7",
+      "title": "Gemini来袭！花200美金点的英国贵族Claude大小姐，风衣底下钻出蓝毛大肥鱼【B站AI创造公开赛】",
+      "published_date": "2026-11-05",
+      "views": 4793,
+      "likes": 62,
+      "favorites": 27,
+      "coins": 6,
+      "comments": 22,
+      "shares": 0,
+      "danmaku": 50
+    },
+    {
+      "bvid": "BV1Xz4u6DEt8",
+      "title": "鲸鱼娘代班日志07｜GPT替大肥鱼值班，第4张工单就破产了",
+      "published_date": "2026-11-04",
+      "views": 3044,
+      "coins": 12
+    }
+  ]
+}

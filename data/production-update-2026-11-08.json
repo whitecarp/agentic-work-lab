@@ -610,16 +610,73 @@
     ]
   },
   "empirical_operations_snapshot": {
-    "snapshot_bjt": "2026-11-08 00:21",
+    "snapshot_bjt": "2026-11-08 08:29",
+    "google_cloud_official_traffic_study": {
+      "program": "Google Cloud (Google 出海創新競賽單元 / Google Global Innovation Track) Official Traffic Support",
+      "self_funded_bihuo_spend_cny": 0,
+      "matrix_totals": {
+        "views": 34810,
+        "likes": 2048,
+        "favorites": 2144,
+        "likes_plus_favorites": 4192,
+        "coins": 87,
+        "comments": 305,
+        "shares": 154,
+        "danmaku": 129
+      },
+      "videos": [
+        {
+          "bvid": "BV1WQ4t6xEdT",
+          "role": "flagship_tool_demo",
+          "title_zh": "哈基貓做了個幫大肥魚存記憶、還能順手驗真假模型的工具【B站AI創造公開賽】",
+          "view": 24283,
+          "like": 1846,
+          "favorite": 1760,
+          "likes_plus_favorites": 3606,
+          "ls_rate_pct": 14.85,
+          "coin": 59,
+          "reply": 241,
+          "share": 118,
+          "danmaku": 67
+        },
+        {
+          "bvid": "BV1nw4h64Ebf",
+          "role": "cloud_credits_and_free_key_tutorial",
+          "title_zh": "Gemini來襲！手把手教你免費領Gemini密鑰，順便避開雲贈金402大坑【B站AI創造公開賽】",
+          "view": 5734,
+          "like": 140,
+          "favorite": 357,
+          "likes_plus_favorites": 497,
+          "favorite_to_like_ratio": 2.55,
+          "coin": 22,
+          "reply": 42,
+          "share": 36,
+          "danmaku": 12
+        },
+        {
+          "bvid": "BV1BM4h6pEY7",
+          "role": "model_verification_skit",
+          "title_zh": "Gemini來襲！花200美金點的英國貴族Claude大小姐，風衣底下鑽出藍毛大肥魚【B站AI創造公開賽】",
+          "view": 4793,
+          "like": 62,
+          "favorite": 27,
+          "likes_plus_favorites": 89,
+          "coin": 6,
+          "reply": 22,
+          "share": 0,
+          "danmaku": 50
+        }
+      ]
+    },
     "dressup_bihuo_study": {
       "bvid": "BV1Eaxt6LEhb",
       "public_counters": {
-        "view": 96658,
-        "like": 14131,
-        "favorite": 4706,
-        "coin": 3073,
+        "view": 99604,
+        "like": 14988,
+        "favorite": 4821,
+        "coin": 3075,
         "coin_anomaly_note": "Includes ~3,000 unsolicited third-party coin spike on 2026-11-06; reported to Bilibili support and excluded from ROI analysis.",
-        "share": 541,
+        "share": 542,
         "reply": 113,
         "danmaku": 322,
         "crash_rate_pct": 19.95,
@@ -727,13 +784,13 @@
     "aigo_pv_bihuo_study": {
       "bvid": "BV1sQ4E6eEhK",
       "public_counters": {
-        "view": 12265,
-        "like": 245,
-        "favorite": 293,
-        "coin": 25,
-        "share": 25,
-        "reply": 38,
-        "danmaku": 145
+        "view": 15686,
+        "like": 330,
+        "favorite": 390,
+        "coin": 31,
+        "share": 27,
+        "reply": 47,
+        "danmaku": 154
       },
       "orders": [
         {
@@ -839,8 +896,9 @@
     "label_en": "Golden Triangle Division of Labor (Antigravity + Claude + Codex)",
     "pillars": {
       "antigravity_google": {
-        "stack": "Google Antigravity / Gemini 2.5 Flash & Pro / Vertex AI (gemini-omni)",
+        "stack": "Google Antigravity / Gemini 2.5 Flash & Pro / Vertex AI (gemini-omni) / Google Cloud",
         "roles": [
+          "Google Cloud official traffic support (Google Global Innovation Track) propelling the 3-video Gemini Saver / AI Memory Keeper matrix to 34,810 views and 4,192 likes+favorites on ¥0 self-funded Bihuo spend, plus Google Cloud promotional credits & Service Account JSON tokens powering Vertex AI and Agent Platform API",
           "24/7 account operations & patrol: hourly comment-section engagement patrols, 2-hour read-only Bilibili Creator Center & Bihuo telemetry collection (bihuo-readings.jsonl), and daily 12:00 BJT BV1YL4M6EEek P1-P19 serial append + 12:30 BJT 4-overlay auto-mounting",
           "High-contrast creative hook & interactive format ideation (e.g., BV1Eaxt6LEhb 19.95% 3s bounce rate, playable Bilibili shift game, 3-tier tool launch funnel)",
           "Multimodal native image/video generation (gemini-omni) & batch FFmpeg/Hyperframes production of 19 vertical game endings",

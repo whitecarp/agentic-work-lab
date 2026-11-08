@@ -8,7 +8,7 @@
 
 🎬 [Bilibili：穿睡衣的小白白](https://space.bilibili.com/10706217) · 📦 [影片下載](https://github.com/whitecarp/agentic-work-lab/releases) · [影片目錄](media/README.md) · [營運資料](data/README.md)
 
-**2026-11-08 更新：** 補齊 2026-11-04 至 11-08 階段性成果，新增 **17 個公開成片版本**（累計 **47 個影片版本 · 3.19 GiB**），並將兩套核心開源工具 **[AI Memory Keeper（AI 記憶守護者）](tools/ai-memory-keeper/README.md)** 與 **[I Must Use Claude（大肥魚工具箱）](tools/i-must-use-claude/README.md)** 完整納入本實驗室 [`tools/`](docs/code-map.md)，連同 **[PublishOps CrossCast](tools/publishops-crosscast/README.md)** 構成三大實戰工具套件；同時公開 **黃金三角分工（Antigravity + Claude + Codex）** 與 Google（Antigravity / Gemini / Vertex AI）在 24/7 帳號運營、強鉤子策劃、多模態批量生產及跨模型記憶守護中的完整實證紀錄。影片與數據涵蓋 [AI Memory Keeper](https://github.com/whitecarp/ai-memory-keeper) 雙語演示與教學、《阿哈的抓馬小曲》、《AI四姐妹搶麥》、《AiGO!!!!! · 迷途算力》六平台長篇動畫 PV、值班小遊戲結局合集 `BV1YL4M6EEek` 已公開 `P1–P6`（及待按日解鎖之 `P7–P19` 雜湊清單）、已完成待發布之《AiGO · 後日談》雙母帶校驗碼，以及換裝短片 `BV1Eaxt6LEhb`（`96,658` 播放、`h50` 人群包 `¥12.74/1k`）與《迷途算力》（`12,265` 播放、四人群池賽馬）必火實證研究。[查看更新](docs/updates/2026-11-08.md) · [結構化紀錄](data/production-update-2026-11-08.json)。
+**2026-11-08 更新：** 補齊 2026-11-04 至 11-08 階段性成果，新增 **17 個公開成片版本**（累計 **47 個影片版本 · 3.19 GiB**），並將兩套核心開源工具 **[AI Memory Keeper（AI 記憶守護者）](tools/ai-memory-keeper/README.md)** 與 **[I Must Use Claude（大肥魚工具箱）](tools/i-must-use-claude/README.md)** 完整納入本實驗室 [`tools/`](docs/code-map.md)，連同 **[PublishOps CrossCast](tools/publishops-crosscast/README.md)** 構成三大實戰工具套件；同時公開 **黃金三角分工（Antigravity + Claude + Codex）** 與 Google（Antigravity / Gemini / Vertex AI / Google Cloud）在 24/7 帳號運營、**Google Cloud 官方流量扶持**、強鉤子策劃、多模態批量生產及跨模型記憶守護中的完整實證紀錄。截至 `2026-11-08 08:29`（UTC+8），由 **Google Cloud（Google 出海創新競賽單元）官方流量扶持**（自費必火 `¥0`）之 [AI Memory Keeper](https://github.com/whitecarp/ai-memory-keeper) 三片矩陣已斬獲 **`34,810` 總播放、`2,048` 點讚、`2,144` 收藏（`4,192` 總讚藏，其中主力片 `BV1WQ4t6xEdT` `24,283` 播放、讚藏率 `14.85%`，教學片 `BV1nw4h64Ebf` 收藏／點讚比達 `2.55×`）**；換裝短片 `BV1Eaxt6LEhb` 達 **`99,604` 播放、`14,988` 點讚、`4,821` 收藏**（`h50` 人群包 `¥12.74/1k`），六平台長篇動畫 PV《AiGO!!!!! · 迷途算力》`BV1sQ4E6eEhK` 達 **`15,686` 播放、`330` 點讚、`390` 收藏**。[查看更新](docs/updates/2026-11-08.md) · [結構化紀錄](data/production-update-2026-11-08.json)。
 
 **2026-11-03 更新：** 《我替你看過了》成片已存檔，累計 **30 個影片版本**；記錄五站發布證據、Instagram 單次上傳計時與 CrossCast 軟體進展。[查看更新](docs/updates/2026-11-03.md)。
 
@@ -58,21 +58,27 @@
 
 | 協作支柱 | 核心定位 | 具體負責模組與實戰交付 |
 |---|---|---|
-| **Google Antigravity（基於 Gemini / Vertex AI）** | **24/7 帳號運營值守、高反差創意腦暴、多模態批量生產與公開倉庫守門人** | 每小時評論區真人互動巡檢、每 2 小時 B站與必火數據唯讀採集、每日 12:00《值班小遊戲》（`BV1YL4M6EEek` `P1–P19`）定時追加分P與 4 大互動組件自動掛載、前 3 秒強鉤子策劃、`AI Memory Keeper` 記憶抽取，以及本倉庫每日測試與 SHA-256 校驗發布。 |
+| **Google Antigravity（基於 Gemini / Vertex AI / Google Cloud）** | **24/7 帳號運營值守、Google Cloud 官方流量與雲端算力協同、高反差創意腦暴、多模態批量生產與公開倉庫守門人** | 每小時評論區真人互動巡檢、每 2 小時 B站與必火數據唯讀採集、每日 12:00《值班小遊戲》（`BV1YL4M6EEek` `P1–P19`）定時追加分P與 4 大互動組件自動掛載、結合 **Google Cloud 官方流量扶持**打造 `AI Memory Keeper` 三片矩陣（`34,810` 播放、`4,192` 讚藏）、前 3 秒強鉤子策劃，以及本倉庫每日測試與 SHA-256 校驗發布。 |
 | **Claude（Claude Code / Opus / Sonnet）** | **旗艦長片總導演、多角色劇本精修、音畫情緒對齊與必火投流 ROI 精算師** | 《AiGO · 迷途算力》（`BV1sQ4E6eEhK`）、《我替你看過了》（`BV15B4F6hEYr`）等長線敘事分鏡與台詞打磨；必火人群包 A/B/C/D 賽馬與 `h50` 72h 長週期壓價策略（`¥12.74/1k`）歸因分析；配合 `I Must Use Claude` 實現雙語無損協作。 |
 | **OpenAI Codex** | **角色視覺資產生成、自動化渲染管線工程師與跨平台發布基礎設施開發** | 四姐妹（大肥魚／GPT 娘／Claude 娘／千問娘）統一畫風透明底立繪與表情差分生成、`PublishOps CrossCast`（`vpub`）跨平台發布器開發、FFmpeg 音畫合成與 EBU R128 響度標準化腳本維護。 |
 
-### Google（Antigravity / Gemini / Vertex AI）在帳號運營中的四大具體幫助
+### Google（Antigravity / Gemini / Vertex AI / Google Cloud）在帳號運營中的五大具體幫助
 
-1. **24/7 全天候帳號運營值守與自動化巡檢（24/7 Account Operations & Patrol）**：
-   - **每小時評論區真人互動巡檢**：自動識別全站已發布稿件（如 `BV1Eaxt6LEhb`、`BV1sQ4E6eEhK`、`BV1YL4M6EEek` 等）的新增真實觀眾評論，結合角色語境撰寫有梗回覆，提升評論區活躍度與粉絲黏性。
+1. **Google Cloud 官方流量扶持與出海創新競賽單元生態支持（Google Cloud Official Traffic & Ecosystem Support）**：
+   - **官方流量精準扶持（自費必火投放 `¥0` 斬獲 `34,810` 播放、`4,192` 讚藏）**：在「Google 出海創新競賽單元」官方流量支持下，我們圍繞 `AI Memory Keeper`（Gemini Saver）打造的 3 支作品矩陣在無自費投流情況下獲得極高開發者轉化與互動留存（截至 `2026-11-08 08:29` UTC+8）：
+     - **主力工具演示片 [`BV1WQ4t6xEdT`](https://www.bilibili.com/video/BV1WQ4t6xEdT)**（《哈基貓做了個幫大肥魚存記憶、還能順手驗真假模型的工具》）：**`24,283` 播放、`1,846` 點讚、`1,760` 收藏（讚藏合計 `3,606`，讚藏率高達 `14.85%`）、`241` 評論、`118` 分享**；
+     - **Google Cloud 贈金與免費密鑰教學片 [`BV1nw4h64Ebf`](https://www.bilibili.com/video/BV1nw4h64Ebf)**（《手把手教你免費領 Gemini 密鑰，順便避開雲贈金 402 大坑》）：**`5,734` 播放、`140` 點讚、`357` 收藏（收藏／點讚比高達 `2.55×` 的純工具乾貨留存）、`42` 評論、`36` 分享**；
+     - **模型驗真小劇場 [`BV1BM4h6pEY7`](https://www.bilibili.com/video/BV1BM4h6pEY7)**（《花200美金點的英國貴族Claude大小姐，風衣底下鑽出藍毛大肥魚》）：**`4,793` 播放、`62` 點讚、`27` 收藏、`22` 評論、`50` 彈幕**。
+   - **雲端贈金與雙通道憑證底座**：Google Cloud 贈金與服務帳號（Service Account `.json` 令牌）不僅直接支撐了本實驗室的 Vertex AI（`gemini-omni`）影片生成與 Agent Platform API 長上下文記憶抽取，也催生了 `AI Memory Keeper` 內建的「AI Studio 免費層 ↔ Google Cloud 令牌自動無縫回退」功能，將官方扶持流量直接轉化為真實開源工具用戶與評論區技術討論。
+2. **24/7 全天候帳號運營值守與自動化巡檢（24/7 Account Operations & Patrol）**：
+   - **每小時評論區真人互動巡檢**：自動識別全站已發布稿件（如 `BV1WQ4t6xEdT` 的 241 條技術與劇情評論、`BV1Eaxt6LEhb`、`BV1sQ4E6eEhK`、`BV1YL4M6EEek` 等）的新增真實觀眾評論，結合角色語境撰寫有梗回覆，提升評論區活躍度與粉絲黏性。
    - **每 2 小時數據中心與必火投流唯讀監測**：定時採集 B站創作中心與必火後台的曝光、播放、點讚、收藏、轉粉率及千次播放成本（寫入 `bihuo-readings.jsonl` 與即時狀態看板），為跨模型團隊提供連續時序數據底座。
    - **每日定時長線連載排程與互動組件掛載**：例如《大肥魚值班小遊戲》（`BV1YL4M6EEek`）18 結局每日北京時間 12:00 自動追加分P、更新簡介進度表，並在 12:30 過審後自動為新分P掛載前置 4 大互動組件（0.5s 關注、6.0s 投票、13.5s 評分、19.0s 跳轉），將單支爆款轉化為持續兩週以上的追更連載。
-2. **高反差創意腦暴與強鉤子選題策劃（Creative Hook & Format Ideation）**：
+3. **高反差創意腦暴與強鉤子選題策劃（Creative Hook & Format Ideation）**：
    - 發揮 Gemini 在跨領域聯想、網感反差與互動玩法設計上的優勢，主導「換裝變身反差」（`BV1Eaxt6LEhb` 前 3 秒跳失率壓低至 `19.95%`）、「B站內嵌多結局互動值班遊戲」（`BV1YL4M6EEek`）、「把 AI 失憶痛點做成開源桌面工具 + 3 分鐘保姆級教學 + 61 秒小劇場三層漏斗」（`BV1WQ4t6xEdT` / `BV1nw4h64Ebf` / `BV1BM4h6pEY7`）等高轉化選題。
-3. **多模態原生生成與工程化批量生產（Multimodal Generation & Batch Engineering）**：
+4. **多模態原生生成與工程化批量生產（Multimodal Generation & Batch Engineering）**：
    - 結合 Gemini 原生圖像生成、Vertex AI（`gemini-omni`）圖生影片與 1080p30 升頻能力，以及本地 FFmpeg + Remotion / Hyperframes 渲染管線，高效完成多結局分支短片（如 `P1–P19` 共 19 支豎屏結局）的批量化構圖、響度標準化（EBU R128）與落章聲畫同步檢測（最差誤差 ≤ 75 ms）。
-4. **跨模型工作記憶中樞與公開倉庫自動化驗收（Cross-Agent Memory Hub & Repo Gatekeeper）**：
+5. **跨模型工作記憶中樞與公開倉庫自動化驗收（Cross-Agent Memory Hub & Repo Gatekeeper）**：
    - 作為 `AI Memory Keeper` 的核心抽取引擎（`gemini-2.5-flash` 結構化記憶抽取 + `text-embedding-004` 語義檢索），替整個 **Antigravity + Claude + Codex** 團隊守護長線上下文；並在 Codex 額度耗盡或跨模型交接時，無縫接管本倉庫的代碼整合、雙語文檔對齊、全套測試（`node --test`）與 GitHub Release 大檔案 SHA-256 校驗發布。
 
 ---
