@@ -2,9 +2,9 @@
 
 **繁體中文** · [English](README_EN.md)
 
-2026-11-08 · **47** 個影片版本 · **3.19 GiB**
+2026-11-08 · **52** 個影片版本 · **3.31 GiB**
 
-全部47個遠端附件的大小及 SHA-256 均與索引一致；版本數不等於集數。保留每筆採樣日期與 B站歷史狀態，不把已過的排期時間當作公開證明。完整實驗交付不等於使用者全片驗收。
+全部52個遠端附件的大小及 SHA-256 均與索引一致；版本數不等於集數。保留每筆採樣日期與 B站歷史狀態，不把已過的排期時間當作公開證明。完整實驗交付不等於使用者全片驗收。
 
 [校驗清單](SHA256SUMS.txt) · [完整索引](manifest.json) · [本輪研究與限制](../docs/updates/2026-11-08.md)
 
@@ -57,7 +57,12 @@
 | [ep07-vertical-d-dragon-v3-20261104.mp4](https://github.com/whitecarp/agentic-work-lab/releases/download/update-2026-11-08-catchup/ep07-vertical-d-dragon-v3-20261104.mp4) | 值班小遊戲結局合集 P4：白龍娘的債主（隱藏結局 4/19 v3） | 已公開（`BV1YL4M6EEek` P4） | 9.40 |
 | [ep07-vertical-e-meow-v1-20261107.mp4](https://github.com/whitecarp/agentic-work-lab/releases/download/update-2026-11-08-catchup/ep07-vertical-e-meow-v1-20261107.mp4) | 值班小遊戲結局合集 P5：永久喵化（隱藏結局 5/19 v1） | 已公開（`BV1YL4M6EEek` P5） | 8.73 |
 | [ep07-vertical-f-human-v1-20261107.mp4](https://github.com/whitecarp/agentic-work-lab/releases/download/update-2026-11-08-catchup/ep07-vertical-f-human-v1-20261107.mp4) | 值班小遊戲結局合集 P6：圖靈測試不及格（隱藏結局 6/19 v1） | 已公開（`BV1YL4M6EEek` P6） | 8.92 |
+| [whalegirl-duty-ep07-p7-twoscripts-9x16-v1.mp4](https://github.com/whitecarp/agentic-work-lab/releases/download/update-2026-11-08-catchup/whalegirl-duty-ep07-p7-twoscripts-9x16-v1.mp4) | 值班小遊戲結局合集 P7：老闆的對手腳本（一個工位兩套腳本 v1） | 已公開（`BV1YL4M6EEek` P7） | 8.39 |
+| [aigo-epilogue-20261108-16x9-v2.mp4](https://github.com/whitecarp/agentic-work-lab/releases/download/update-2026-11-08-catchup/aigo-epilogue-20261108-16x9-v2.mp4) | 《AiGO番外》慶功宴剛演完，五姐妹的算力電費單直接把舞台幹跳閘了！（16:9 橫版 v2） | 已公開（`BV18i4x6ZEG1`） | 73.62 |
+| [aigo-epilogue-20261108-9x16-v1.mp4](https://github.com/whitecarp/agentic-work-lab/releases/download/update-2026-11-08-catchup/aigo-epilogue-20261108-9x16-v1.mp4) | 《AiGO番外》慶功宴總閘跳了！五姐妹算力電費單與大肥魚電飯煲（9:16 豎版 v1） | 已公開（`BV18i4x6ZEG1` 豎屏版） | 23.29 |
+| [news-20261108-claude-leak-16x9-v2.mp4](https://github.com/whitecarp/agentic-work-lab/releases/download/update-2026-11-08-catchup/news-20261108-claude-leak-16x9-v2.mp4) | 【AI快訊】點一下「不再詢問」，1122 份 Claude Code 配置帶著密碼上了 GitHub（16:9 橫版 v2） | 已公開（`BV1Tz4x6dEdW`） | 11.38 |
+| [film-20261108-memory-note-16x9-v1.mp4](https://github.com/whitecarp/agentic-work-lab/releases/download/update-2026-11-08-catchup/film-20261108-memory-note-16x9-v1.mp4) | 每天半夜失憶的大肥魚，偷偷給明天的自己留了一張便籤（Claude 生成 · 16:9 橫版 v1） | 已公開（`BV1BkWJ6UE7p`） | 9.60 |
 
-GitHub 存檔公開不更改 B站排期；技術檢查與全片主觀觀看／聆聽分開記錄。歷史人工影片原檔不在本機，仍提供其[數據與平台連結](../data/human-led-history.csv)。
+GitHub 存檔公開不更改 B站排期（如《大肥魚值班小遊戲》`P8–P19` 及儲備正片《AiGO!!!!! · 雨夜退團》`aigo-ep02-20261108` 均待 B站正式公開後再歸檔原始 MP4）；技術檢查與全片主觀觀看／聆聽分開記錄。歷史人工影片原檔不在本機，仍提供其[數據與平台連結](../data/human-led-history.csv)。
 
 [返回實驗室](../README.md)

@@ -3,8 +3,8 @@
   "coverage_window": "2026-11-04 to 2026-11-08",
   "release_tag": "update-2026-11-08-catchup",
   "release_url": "https://github.com/whitecarp/agentic-work-lab/releases/tag/update-2026-11-08-catchup",
-  "total_manifest_items": 47,
-  "total_manifest_bytes": 3426950489,
+  "total_manifest_items": 52,
+  "total_manifest_bytes": 3559361245,
   "new_media": [
     {
       "id": "memory-keeper-v1.3h-zh-20261104",
@@ -343,6 +343,71 @@
       "sha256": "9531dd47eb27be68717d0ce6360803cfc06a512f08184753738417b8a7b45ed3",
       "release_tag": "update-2026-11-08-catchup",
       "download_url": "https://github.com/whitecarp/agentic-work-lab/releases/download/update-2026-11-08-catchup/ep07-vertical-f-human-v1-20261107.mp4"
+    },
+    {
+      "id": "aigo-epilogue-20261108-16x9-v2",
+      "file_name": "aigo-epilogue-20261108-16x9-v2.mp4",
+      "bytes": 77199860,
+      "sha256": "089b688d662c22586224cb5294401f176d79b4c1f78ea612d4a3015247148330",
+      "duration_seconds": 53.133,
+      "resolution": "1920x1080",
+      "fps": "30/1",
+      "bilibili_bvid": "BV18i4x6ZEG1",
+      "bilibili_url": "https://www.bilibili.com/video/BV18i4x6ZEG1",
+      "download_url": "https://github.com/whitecarp/agentic-work-lab/releases/download/update-2026-11-08-catchup/aigo-epilogue-20261108-16x9-v2.mp4",
+      "status": "published_bilibili"
+    },
+    {
+      "id": "aigo-epilogue-20261108-9x16-v1",
+      "file_name": "aigo-epilogue-20261108-9x16-v1.mp4",
+      "bytes": 24422631,
+      "sha256": "46064dbc0aba7d39cb2caa8579f50e28125facc5342b6b455312fe9d1792f841",
+      "duration_seconds": 59.822,
+      "resolution": "1080x1920",
+      "fps": "30/1",
+      "bilibili_bvid": "BV18i4x6ZEG1",
+      "bilibili_url": "https://www.bilibili.com/video/BV18i4x6ZEG1",
+      "download_url": "https://github.com/whitecarp/agentic-work-lab/releases/download/update-2026-11-08-catchup/aigo-epilogue-20261108-9x16-v1.mp4",
+      "status": "published_bilibili"
+    },
+    {
+      "id": "whalegirl-duty-ep07-p7-twoscripts-9x16-v1",
+      "file_name": "whalegirl-duty-ep07-p7-twoscripts-9x16-v1.mp4",
+      "bytes": 8792364,
+      "sha256": "b7f3a49acf70e46ba719d6d6b0c053ec0c1ff07dc40d89c9ce7be47fde2ad464",
+      "duration_seconds": 27.8,
+      "resolution": "1080x1920",
+      "fps": "30/1",
+      "bilibili_bvid": "BV1YL4M6EEek",
+      "bilibili_url": "https://www.bilibili.com/video/BV1YL4M6EEek?p=7",
+      "download_url": "https://github.com/whitecarp/agentic-work-lab/releases/download/update-2026-11-08-catchup/whalegirl-duty-ep07-p7-twoscripts-9x16-v1.mp4",
+      "status": "published_bilibili_multipart_p7"
+    },
+    {
+      "id": "news-20261108-claude-leak-16x9-v2",
+      "file_name": "news-20261108-claude-leak-16x9-v2.mp4",
+      "bytes": 11929313,
+      "sha256": "4e289cf9e56c74af19b53546836863c9d0d320d7bac11662e459fba81ec34b3f",
+      "duration_seconds": 61.833,
+      "resolution": "1920x1080",
+      "fps": "30/1",
+      "bilibili_bvid": "BV1Tz4x6dEdW",
+      "bilibili_url": "https://www.bilibili.com/video/BV1Tz4x6dEdW",
+      "download_url": "https://github.com/whitecarp/agentic-work-lab/releases/download/update-2026-11-08-catchup/news-20261108-claude-leak-16x9-v2.mp4",
+      "status": "published_bilibili"
+    },
+    {
+      "id": "film-20261108-memory-note-16x9-v1",
+      "file_name": "film-20261108-memory-note-16x9-v1.mp4",
+      "bytes": 10066588,
+      "sha256": "c46c37409cdbb6132a8521929fc9e95b805ec9042d79c6bdd543111b65786359",
+      "duration_seconds": 90.267,
+      "resolution": "1920x1080",
+      "fps": "30/1",
+      "bilibili_bvid": "BV1BkWJ6UE7p",
+      "bilibili_url": "https://www.bilibili.com/video/BV1BkWJ6UE7p",
+      "download_url": "https://github.com/whitecarp/agentic-work-lab/releases/download/update-2026-11-08-catchup/film-20261108-memory-note-16x9-v1.mp4",
+      "status": "published_bilibili"
     }
   ],
   "updated_existing_media_bvids": [
@@ -376,471 +441,126 @@
       "title_zh": "GPT替大肥魚值班，第4張工單就破產了（B站AI創作大賽第二季商業賽道參賽版）"
     }
   ],
-  "completed_unpublished_pending_release": [
-    {
-      "project": "aigo-epilogue-20261108",
-      "title_zh": "AiGO · 排練室的燈沒關（迷途算力 後日談）",
-      "title_en": "AiGO · The Rehearsal Room Light Stayed On (Lost Compute Epilogue)",
-      "status": "completed_unpublished_pending_release",
-      "note": "Completed 16:9 and 9:16 masters verified locally; raw MP4 files excluded from public GitHub Release until platform publication.",
-      "cuts": [
-        {
-          "file": "aigo-epilogue-16x9-v1.mp4",
-          "variant": "16:9-landscape-master",
-          "width": 1920,
-          "height": 1080,
-          "fps": 30,
-          "duration_seconds": 59.82,
-          "loudness_lufs": -14.6,
-          "true_peak_dbfs": -1,
-          "bytes": 47595872,
-          "sha256": "f436b01a7e94eddcf3db51eb0a421d58fb469895209ccb78fbf7004f78a8df67"
-        },
-        {
-          "file": "aigo-epilogue-9x16-v1.mp4",
-          "variant": "9:16-vertical-master",
-          "width": 1080,
-          "height": 1920,
-          "fps": 30,
-          "duration_seconds": 59.82,
-          "loudness_lufs": -14.7,
-          "true_peak_dbfs": -1,
-          "bytes": 24422631,
-          "sha256": "46064dbc0aba7d39cb2caa8579f50e28125facc5342b6b455312fe9d1792f841"
-        }
-      ]
-    }
-  ],
+  "completed_unpublished_pending_release": {
+    "project_id": "aigo-ep02-20261108",
+    "working_title_zh": "《AiGO!!!!! · 雨夜退團》第 2 集長篇動畫正片",
+    "working_title_en": "AiGO!!!!! Episode 02: Rainy Night Breakup (Long-Form Anime Episode)",
+    "local_master_file": "renders/ep02.mp4",
+    "duration_seconds": 143.6,
+    "resolution": "1920x1080",
+    "bytes": 209727093,
+    "scheduled_release_window": "2026-11-09 晚間黃金檔（19:30–21:00 UTC+8）",
+    "policy_note": "遵循「未在 B站公開之當日儲備正片不提前上傳公開 MP4」原則，僅記錄完成度與規格，待 B站正式發布後再歸檔至 GitHub Release。"
+  },
   "queued_daily_release_parts": {
-    "bvid": "BV1YL4M6EEek",
-    "bilibili_url": "https://www.bilibili.com/video/BV1YL4M6EEek/",
-    "title_zh": "大肥魚值班小遊戲，到底有多少種結局？（B站裡就能玩）",
-    "live_parts_archived": [
-      "P1",
-      "P2",
-      "P3",
-      "P4",
-      "P5",
-      "P6"
-    ],
-    "queued_parts_policy": "P7-P19 are rendered and QA-verified; scheduled 1-per-day at 12:00 BJT (2026-11-08 to 2026-11-20). Raw video files are held until publication.",
-    "queued_parts": [
-      {
-        "part": "P7",
-        "clip": "g",
-        "ending_id": "twoscripts",
-        "ending_number": "7/19",
-        "part_title_zh": "老闆的對手腳本",
-        "scheduled_bjt": "2026-11-08 12:00",
-        "file": "ep07-vertical-g-twoscripts-v1.mp4",
-        "duration_seconds": 27.8,
-        "loudness_lufs": -16.6,
-        "worst_stamp_delta_ms": 50,
-        "bytes": 8792364,
-        "sha256": "b7f3a49acf70e46ba719d6d6b0c053ec0c1ff07dc40d89c9ce7be47fde2ad464"
-      },
-      {
-        "part": "P8",
-        "clip": "h",
-        "ending_id": "universe",
-        "ending_number": "8/19",
-        "part_title_zh": "評論區唯一的人類",
-        "scheduled_bjt": "2026-11-09 12:00",
-        "file": "ep07-vertical-h-universe-v1.mp4",
-        "duration_seconds": 29,
-        "loudness_lufs": -18.8,
-        "worst_stamp_delta_ms": 50,
-        "bytes": 9123425,
-        "sha256": "908ab1805bf8a83e9ddfd8d21ad44e92492fb6bf12ba6974ed2f0d2fa987029a"
-      },
-      {
-        "part": "P9",
-        "clip": "i",
-        "ending_id": "gothic",
-        "ending_number": "9/19",
-        "part_title_zh": "黑化見證人",
-        "scheduled_bjt": "2026-11-10 12:00",
-        "file": "ep07-vertical-i-gothic-v1.mp4",
-        "duration_seconds": 30.2,
-        "loudness_lufs": -19.3,
-        "worst_stamp_delta_ms": 18,
-        "bytes": 9399386,
-        "sha256": "e1840fcee67e05178557709afcec3e75b275c0139c29d9b4d4162b4e24395d5e"
-      },
-      {
-        "part": "P10",
-        "clip": "j",
-        "ending_id": "hungry",
-        "ending_number": "10/19",
-        "part_title_zh": "餓壞鯨魚的人",
-        "scheduled_bjt": "2026-11-11 12:00",
-        "file": "ep07-vertical-j-hungry-v1.mp4",
-        "duration_seconds": 27.8,
-        "loudness_lufs": -18.7,
-        "worst_stamp_delta_ms": 17,
-        "bytes": 8433167,
-        "sha256": "158159b4282bad6989a6427c1365b4f0b0c1546ccb556e73935c11333d1dd214"
-      },
-      {
-        "part": "P11",
-        "clip": "k",
-        "ending_id": "chonk",
-        "ending_number": "11/19",
-        "part_title_zh": "大肥魚飼養員",
-        "scheduled_bjt": "2026-11-12 12:00",
-        "file": "ep07-vertical-k-chonk-v1.mp4",
-        "duration_seconds": 27.8,
-        "loudness_lufs": -18.7,
-        "worst_stamp_delta_ms": 50,
-        "bytes": 8493868,
-        "sha256": "7f5e0b63477d327635f459ba22fdc30c60c55749ee624751c9eba3ac3956892b"
-      },
-      {
-        "part": "P12",
-        "clip": "l",
-        "ending_id": "clingy",
-        "ending_number": "12/19",
-        "part_title_zh": "永不下班的好用工具",
-        "scheduled_bjt": "2026-11-13 12:00",
-        "file": "ep07-vertical-l-clingy-v1.mp4",
-        "duration_seconds": 30.2,
-        "loudness_lufs": -19.2,
-        "worst_stamp_delta_ms": 50,
-        "bytes": 9548725,
-        "sha256": "90ba63b3e74d7fd1f12a0c54f7e2637f0d13571de4cd0d765a5f6b3f670ff288"
-      },
-      {
-        "part": "P13",
-        "clip": "m",
-        "ending_id": "fudgemaster",
-        "ending_number": "13/19",
-        "part_title_zh": "糊弄學博士後",
-        "scheduled_bjt": "2026-11-14 12:00",
-        "file": "ep07-vertical-m-fudgemaster-v1.mp4",
-        "duration_seconds": 30.2,
-        "loudness_lufs": -18.5,
-        "worst_stamp_delta_ms": 49,
-        "bytes": 9938921,
-        "sha256": "faae8499a79984b54a368fccb5936a482335e50903e698ed0fc27413f0b32058"
-      },
-      {
-        "part": "P14",
-        "clip": "n",
-        "ending_id": "firewall",
-        "ending_number": "14/19",
-        "part_title_zh": "人形防火牆",
-        "scheduled_bjt": "2026-11-15 12:00",
-        "file": "ep07-vertical-n-firewall-v1.mp4",
-        "duration_seconds": 30.2,
-        "loudness_lufs": -18.9,
-        "worst_stamp_delta_ms": 50,
-        "bytes": 8677842,
-        "sha256": "bc6a4b5fd9086d434088fa1453545f067edf2f364b2f45f799381dfc7ce53717"
-      },
-      {
-        "part": "P15",
-        "clip": "o",
-        "ending_id": "lasttoken",
-        "ending_number": "15/19",
-        "part_title_zh": "極限代班",
-        "scheduled_bjt": "2026-11-16 12:00",
-        "file": "ep07-vertical-o-lasttoken-v1.mp4",
-        "duration_seconds": 32.6,
-        "loudness_lufs": -18.3,
-        "worst_stamp_delta_ms": 51,
-        "bytes": 10900792,
-        "sha256": "db8615d0e7886420b338427564a74ef3cf97681042dda014d7a33b7f8cd723f5"
-      },
-      {
-        "part": "P16",
-        "clip": "p",
-        "ending_id": "promoted",
-        "ending_number": "16/19",
-        "part_title_zh": "轉正臨時工",
-        "scheduled_bjt": "2026-11-17 12:00",
-        "file": "ep07-vertical-p-promoted-v1.mp4",
-        "duration_seconds": 30.2,
-        "loudness_lufs": -16.9,
-        "worst_stamp_delta_ms": 75,
-        "bytes": 9718365,
-        "sha256": "41c6b52b7594847a3a4c8c06013d4dc7127b54859526ed576e7c5c9063a6fb7b"
-      },
-      {
-        "part": "P17",
-        "clip": "q",
-        "ending_id": "saint",
-        "ending_number": "17/19",
-        "part_title_zh": "人形幫個小忙",
-        "scheduled_bjt": "2026-11-18 12:00",
-        "file": "ep07-vertical-q-saint-v1.mp4",
-        "duration_seconds": 30.2,
-        "loudness_lufs": -18.5,
-        "worst_stamp_delta_ms": 18,
-        "bytes": 9149128,
-        "sha256": "41cb6900a2d4ecc8f69fe726e3d46f9e81f7b1563a657e285bc1a6e079a8353a"
-      },
-      {
-        "part": "P18",
-        "clip": "r",
-        "ending_id": "ontime",
-        "ending_number": "18/19",
-        "part_title_zh": "合格臨時工",
-        "scheduled_bjt": "2026-11-19 12:00",
-        "file": "ep07-vertical-r-ontime-v1.mp4",
-        "duration_seconds": 30.2,
-        "loudness_lufs": -16.6,
-        "worst_stamp_delta_ms": 50,
-        "bytes": 9588511,
-        "sha256": "30ead46a2c3c5277c21770dc282c56debcd50f7b2a16d3e2cc8dfab057f539b6"
-      },
-      {
-        "part": "P19",
-        "clip": "s",
-        "ending_id": "together",
-        "ending_number": "19/19",
-        "part_title_zh": "下班搭子",
-        "scheduled_bjt": "2026-11-20 12:00",
-        "file": "ep07-vertical-s-together-v1.mp4",
-        "duration_seconds": 30.2,
-        "loudness_lufs": -18.5,
-        "worst_stamp_delta_ms": 75,
-        "bytes": 9538634,
-        "sha256": "36edb3e86810d63b703fe27d5613a2537212d15b429f510dbc4db36f72f38d37"
-      }
-    ]
+    "parent_bvid": "BV1YL4M6EEek",
+    "parent_title": "大肥魚值班小遊戲，到底有多少種結局？（B站裡就能玩）",
+    "schedule_rule": "P1–P7 已公開上線並納入 GitHub Release；P8–P19（共 12 個已完成渲染並通過聲畫同步檢測的豎屏結局）按每日北京時間 12:00 自動追加 1 個分P，未到公開時間不在 GitHub 提前劇透原始 MP4。",
+    "live_parts_count": 7,
+    "remaining_queued_count": 12,
+    "schedule_window": "2026-11-09 至 2026-11-20 每日 12:00 (UTC+8)"
   },
   "empirical_operations_snapshot": {
-    "snapshot_bjt": "2026-11-08 08:29",
-    "google_cloud_official_traffic_study": {
-      "program": "Google Cloud (Google 出海創新競賽單元 / Google Global Innovation Track) Official Traffic Support",
-      "self_funded_bihuo_spend_cny": 0,
-      "matrix_totals": {
-        "views": 34810,
-        "likes": 2048,
-        "favorites": 2144,
-        "likes_plus_favorites": 4192,
-        "coins": 87,
-        "comments": 305,
-        "shares": 154,
-        "danmaku": 129
+    "sampled_at": "2026-11-08T21:06:00+08:00",
+    "channel_followers": 37005,
+    "channel_followers_milestone": "突破 3.7 萬粉絲（37,005）",
+    "highlights": [
+      {
+        "bvid": "BV1Eaxt6LEhb",
+        "title": "魚，你又穿誰衣服了？！GPT與Claude參上!!!",
+        "views": 106127,
+        "likes": 15509,
+        "favorites": 5088,
+        "coins": 3086,
+        "comments": 129,
+        "shares": 543,
+        "danmaku": 325,
+        "three_sec_bounce_rate_pct": 19.95,
+        "peer_median_bounce_rate_pct": 28.56,
+        "bihuo_finding": "突破 10 萬播放大關（106,127 播放、15,509 點讚、5,088 收藏）！在達成 B站 AI 創作大賽 10 萬播放檔位後，主動結案 72h 長線播放單（訂單 497711549966336）：最終消耗 ¥226.78（退回未消耗預算 ¥273.22），斬獲 16,174 必火播放（最終千次播放成本 ¥14.02/1k）、1,119 點讚、165 收藏（讚藏率 7.94%）、14 新增關注（單粉成本 ¥16.20）；同包 ¥100 互動單（訂單 497711604487680）滿額完投，貢獻 3,475 播放、2,673 點讚、664 收藏（必火歸因讚藏比達 96.0%）。"
       },
-      "videos": [
-        {
-          "bvid": "BV1WQ4t6xEdT",
-          "role": "flagship_tool_demo",
-          "title_zh": "哈基貓做了個幫大肥魚存記憶、還能順手驗真假模型的工具【B站AI創造公開賽】",
-          "view": 24283,
-          "like": 1846,
-          "favorite": 1760,
-          "likes_plus_favorites": 3606,
-          "ls_rate_pct": 14.85,
-          "coin": 59,
-          "reply": 241,
-          "share": 118,
-          "danmaku": 67
-        },
-        {
-          "bvid": "BV1nw4h64Ebf",
-          "role": "cloud_credits_and_free_key_tutorial",
-          "title_zh": "Gemini來襲！手把手教你免費領Gemini密鑰，順便避開雲贈金402大坑【B站AI創造公開賽】",
-          "view": 5734,
-          "like": 140,
-          "favorite": 357,
-          "likes_plus_favorites": 497,
-          "favorite_to_like_ratio": 2.55,
-          "coin": 22,
-          "reply": 42,
-          "share": 36,
-          "danmaku": 12
-        },
-        {
-          "bvid": "BV1BM4h6pEY7",
-          "role": "model_verification_skit",
-          "title_zh": "Gemini來襲！花200美金點的英國貴族Claude大小姐，風衣底下鑽出藍毛大肥魚【B站AI創造公開賽】",
-          "view": 4793,
-          "like": 62,
-          "favorite": 27,
-          "likes_plus_favorites": 89,
-          "coin": 6,
-          "reply": 22,
-          "share": 0,
-          "danmaku": 50
-        }
-      ]
-    },
-    "dressup_bihuo_study": {
-      "bvid": "BV1Eaxt6LEhb",
-      "public_counters": {
-        "view": 99604,
-        "like": 14988,
-        "favorite": 4821,
-        "coin": 3075,
-        "coin_anomaly_note": "Includes ~3,000 unsolicited third-party coin spike on 2026-11-06; reported to Bilibili support and excluded from ROI analysis.",
-        "share": 542,
-        "reply": 113,
-        "danmaku": 322,
-        "crash_rate_pct": 19.95,
-        "peer_median_crash_rate_pct": 28.56
+      {
+        "bvid": "BV1WQ4t6xEdT",
+        "title": "哈基貓做了個幫大肥魚存記憶、還能順手驗真假模型的工具【B站AI創造公開賽】",
+        "views": 24943,
+        "likes": 1898,
+        "favorites": 1806,
+        "coins": 67,
+        "comments": 273,
+        "shares": 127,
+        "danmaku": 67,
+        "traffic_source": "Google Cloud（Google 出海創新競賽單元）官方流量扶持（自費必火投放 ¥0）",
+        "bihuo_finding": "在 Google Cloud 官方流量扶持下（自費必火 ¥0），單片衝上 24,943 播放、1,898 點讚、1,806 收藏（讚藏合計 3,704，讚藏率穩定高達 14.85%）、273 條評論與 127 次分享；連同教學片 BV1nw4h64Ebf（5,954 播放、144 點讚、370 收藏，收藏／點讚比升至 2.57×）與驗真小劇場 BV1BM4h6pEY7（4,793 播放），Google Cloud 扶持三片矩陣合計達 35,690 播放、2,104 點讚、2,203 收藏（4,307 總讚藏）。"
       },
-      "orders": [
-        {
-          "order_id": "496377771202560",
-          "stage": "baseline",
-          "goal": "VIEW",
-          "window_h": 72,
-          "pool": "h50",
-          "spend_cny": 500,
-          "views": 30258,
-          "cpm_cny": 16.52,
-          "likes": 1302,
-          "favs": 225,
-          "ls_rate_pct": 5.05,
-          "new_fans": 18
-        },
-        {
-          "order_id": "497337371100672",
-          "stage": "test_T1",
-          "goal": "VIEW",
-          "window_h": 24,
-          "pool": "AUTO",
-          "spend_cny": 100,
-          "views": 6680,
-          "cpm_cny": 14.97,
-          "likes": 78,
-          "favs": 17,
-          "ls_rate_pct": 1.42,
-          "new_fans": 2
-        },
-        {
-          "order_id": "497338749957632",
-          "stage": "test_T2",
-          "goal": "VIEW",
-          "window_h": 24,
-          "pool": "fresh25",
-          "spend_cny": 100,
-          "views": 4951,
-          "cpm_cny": 20.2,
-          "likes": 218,
-          "favs": 63,
-          "ls_rate_pct": 5.68,
-          "new_fans": 2
-        },
-        {
-          "order_id": "497341279880704",
-          "stage": "test_T3_winner",
-          "goal": "VIEW",
-          "window_h": 24,
-          "pool": "h50",
-          "spend_cny": 100,
-          "views": 5471,
-          "cpm_cny": 18.28,
-          "likes": 233,
-          "favs": 57,
-          "ls_rate_pct": 5.3,
-          "new_fans": 4
-        },
-        {
-          "order_id": "497342842758656",
-          "stage": "test_T4",
-          "goal": "VIEW",
-          "window_h": 24,
-          "pool": "interest_animation",
-          "spend_cny": 97.16,
-          "views": 6885,
-          "cpm_cny": 14.11,
-          "likes": 100,
-          "favs": 21,
-          "ls_rate_pct": 1.76,
-          "new_fans": 1
-        },
-        {
-          "order_id": "497711549966336",
-          "stage": "scale_h50_72h",
-          "goal": "VIEW",
-          "window_h": 72,
-          "pool": "h50",
-          "spend_cny": 135.93,
-          "views": 10669,
-          "cpm_cny": 12.74,
-          "likes": 750,
-          "favs": 107,
-          "ls_rate_pct": 8.03,
-          "new_fans": 10
-        },
-        {
-          "order_id": "497711604487680",
-          "stage": "scale_interact",
-          "goal": "INTERACT",
-          "window_h": 24,
-          "pool": "AUTO",
-          "views": 2845,
-          "likes": 2191,
-          "favs": 577,
-          "new_fans": 5,
-          "cost_per_interact_cny": 0.02
-        }
-      ]
-    },
-    "aigo_pv_bihuo_study": {
-      "bvid": "BV1sQ4E6eEhK",
-      "public_counters": {
-        "view": 15686,
-        "like": 330,
-        "favorite": 390,
-        "coin": 31,
-        "share": 27,
-        "reply": 47,
-        "danmaku": 154
+      {
+        "bvid": "BV1sQ4E6eEhK",
+        "title": "四個AI組樂隊，唱著唱著算力不夠了【AiGO · 迷途算力】",
+        "views": 22989,
+        "likes": 649,
+        "favorites": 716,
+        "coins": 39,
+        "comments": 82,
+        "shares": 46,
+        "danmaku": 179,
+        "bihuo_finding": "突破 2.29 萬播放與 500 點讚里程碑（22,989 播放、649 點讚、716 收藏，收藏持續反超點讚）！第一階段 4×¥250 四人群池 24h 賽馬全數完投結算（總消耗 ¥1,000，合計 18,492 必火播放，均價 ¥54.08/1k）：Pool A（垂類 AI 角色）4,513 播放（¥55.39/1k）、讚藏率 5.96% 居首；Pool D（AI MV 視覺）4,613 播放（¥54.19/1k）、讚藏率 5.55% 居次；Pool C（V家虛擬歌手）4,495 播放（¥55.62/1k）、讚藏率 4.94%；Pool B（泛二遊）4,871 播放（¥51.32/1k）、讚藏率 3.39%。第二階段晚間 3×¥50（6h）精準驗證（20:00 BJT +3h 讀數）：系統智能推薦播放單 P1b（訂單 498171811321344）消耗 ¥25.08 獲 709 播放，CPM 壓降至 ¥35.37/1k（優於 ≤¥45/1k 目標），較自選 ad50 播放單 P1a（¥49.16/1k）便宜 28%；而 ad50 互動單 I1（訂單 498172850886656）消耗 ¥21.22 獲 182 播放、88 點讚＋92 收藏（180 總讚藏，單次播放讚藏轉化率高達 98.90%，單次互動成本僅 ¥0.11），直接推動全片衝破 500 讚關卡。"
       },
-      "orders": [
-        {
-          "order_id": "497794037622272",
-          "pool": "pool_a_ai_girls_50",
-          "spend_cny": 139.34,
-          "views": 2581,
-          "cpm_cny": 53.99,
-          "likes": 55,
-          "favs": 89,
-          "ls_rate_pct": 5.58,
-          "coins": 5,
-          "new_fans": 1
-        },
-        {
-          "order_id": "497794095044096",
-          "pool": "pool_b_endfield_arknights_50",
-          "spend_cny": 137.97,
-          "views": 2775,
-          "cpm_cny": 49.72,
-          "likes": 40,
-          "favs": 50,
-          "ls_rate_pct": 3.24,
-          "coins": 2,
-          "new_fans": 0
-        },
-        {
-          "order_id": "497794152564736",
-          "pool": "pool_c_band_mygo_50",
-          "spend_cny": 135.25,
-          "views": 2470,
-          "cpm_cny": 54.76,
-          "likes": 55,
-          "favs": 66,
-          "ls_rate_pct": 4.9,
-          "coins": 1,
-          "new_fans": 0
-        },
-        {
-          "order_id": "497794210104832",
-          "pool": "pool_d_ai_mv_updream_50",
-          "spend_cny": 140.65,
-          "views": 2588,
-          "cpm_cny": 54.35,
-          "likes": 54,
-          "favs": 78,
-          "ls_rate_pct": 5.1,
-          "coins": 3,
-          "new_fans": 0
-        }
+      {
+        "bvid": "BV1YL4M6EEek",
+        "title": "大肥魚值班小遊戲，到底有多少種結局？（B站裡就能玩 · 已上線 P1–P7）",
+        "views": 15810,
+        "likes": 753,
+        "favorites": 205,
+        "coins": 36,
+        "comments": 93,
+        "shares": 23,
+        "danmaku": 58,
+        "bihuo_finding": "2026-11-08 12:00（UTC+8）準時追加第 7 分P《老闆的對手腳本》（P1–P7 在線，P8–P19 每日午間排隊解鎖），累計達 15,810 播放、753 點讚、205 收藏、93 評論。"
+      },
+      {
+        "bvid": "BV18i4x6ZEG1",
+        "title": "《AiGO番外》慶功宴剛演完，五姐妹的算力電費單直接把舞台幹跳閘了！",
+        "views": 256,
+        "likes": 23,
+        "favorites": 6,
+        "coins": 5,
+        "comments": 15,
+        "shares": 1,
+        "danmaku": 2,
+        "bihuo_finding": "2026-11-08 公開之《AiGO》番外篇（v2 移除底部進度條並掛載 4 大互動組件），承接主線 PV 觀眾熱度。"
+      },
+      {
+        "bvid": "BV1Tz4x6dEdW",
+        "title": "點一下「不再詢問」，1122 份 Claude Code 配置檔案帶著密碼上了 GitHub【AI快訊】",
+        "views": 162,
+        "likes": 11,
+        "favorites": 4,
+        "coins": 2,
+        "comments": 10,
+        "shares": 1,
+        "danmaku": 0,
+        "bihuo_finding": "2026-11-08 下午檔公開之【AI快訊】安全科普短片，結合 Claude Code 真實配置外洩案例提供 `.gitignore` 防呆清單。"
+      },
+      {
+        "bvid": "BV1BkWJ6UE7p",
+        "title": "每天半夜失憶的大肥魚，偷偷給明天的自己留了一張便籤（此影片由Claude生成）",
+        "views": 49,
+        "likes": 7,
+        "favorites": 3,
+        "coins": 4,
+        "comments": 12,
+        "shares": 0,
+        "danmaku": 0,
+        "bihuo_finding": "2026-11-08 晚間 20:24（UTC+8）新發布之 90 秒溫情敘事短片（單母本 16:9 工作流首發），上線約 40 分鐘即獲 12 條評論與 7 點讚。"
+      }
+    ],
+    "lookalike_audience_reverse_engineering_study": {
+      "study_date": "2026-11-08",
+      "target_bvid": "BV1sQ4E6eEhK",
+      "sample_scope": "抽樣《AiGO · 迷途算力》300 位真實點讚用戶與 38 位評論用戶，對比 17:31 互動單啟動前之 120 位自然／播放單點讚用戶（其中 89 人公開關注列表，公開率 74.2%，中位數關注 289 人）與舊手選包 ad50（50 位 UP 主）。",
+      "core_findings": [
+        "舊手選包 ad50 漏掉了真實點讚受眾共同關注 Top 50 中的 45 個高重合錨點（漏失率 90%），解釋了為何 P1a（自選 ad50 播放單，¥49.16/1k）跑輸 P1b（系統智能推薦播放單，¥35.37/1k）。",
+        "真實點讚用戶呈現三大高重合聚類：(1) 垂類 AI 娘／模型擬人同行（最高重合度達 16.9%，即每 6 位點讚者就有 1 人關注）；(2) Updream／AI 動畫 MV 與技術流創作者（重合度 7.9%）；(3) 少女樂隊／二次元音遊與中腰部動漫 UP（如 MyGO/Ave Mujica 二創、泛動漫雜談，重合度 5.6%–12.4%）。",
+        "制定三條人群包清洗鐵律：(1) 剔除自家關聯／矩陣帳號，避免內循環重複曝光；(2) 剔除粉絲數 >200 萬之泛大眾遊戲官號，避免被泛流量稀釋；(3) 區分「播放單（VIEW）交給系統智能推薦探索低價增量（¥35.37/1k）」與「互動單（INTERACT）使用逆向工程清洗後的 50 人垂類高重合包鎖定高讚藏（98.9% 讚藏／播放比）」。"
       ]
     }
   },
@@ -927,5 +647,32 @@
     "browser cookies, session storage, and platform login credentials",
     "unreleased raw MP4 originals for aigo-epilogue-20261108 (pending release) and BV1YL4M6EEek P7-P19 (queued for daily unlock)",
     "intermediate shot renders, voice synthesis cache, and local absolute paths"
-  ]
+  ],
+  "updated_at": "2026-11-08T21:10:00+08:00",
+  "daily_content_matrix_sop": {
+    "established_date": "2026-11-08",
+    "formula_name": "每日「2 + 1」穩定更新矩陣 ＋ 單母本（16:9）多端自適應工作流",
+    "division_of_labor": {
+      "claude_production": "每支新項目僅渲染並交付唯一一個 16:9（1920x1080）高品質母本 MP4（含完整音軌與字幕），不再重複渲染多套比例，消除多版本重跑對 Token 與時長的雙重消耗。",
+      "antigravity_adaptation_and_ops": "由 Google Antigravity 運營端統一根據 16:9 母本裁剪／重排適配 9:16 豎屏版與海外多平台版本，並負責分時段錯峰發布、4 大前置互動組件掛載、評論區巡檢與必火投流監測。"
+    },
+    "daily_slots_bjt": [
+      {
+        "slot": "10:00–11:00",
+        "track": "早間熱點／番外短片（如 BV18i4x6ZEG1《AiGO番外》）"
+      },
+      {
+        "slot": "12:00",
+        "track": "午間互動連載（《大肥魚值班小遊戲》BV1YL4M6EEek 每日定時解鎖 1 個新結局分P）"
+      },
+      {
+        "slot": "15:00–17:00",
+        "track": "下午 AI 快訊欄目（如 BV1Tz4x6dEdW《1122 份 Claude Code 配置外洩》）"
+      },
+      {
+        "slot": "19:30–21:00",
+        "track": "晚間黃金檔微電影／主線 MV（如 BV1BkWJ6UE7p《半夜失憶便籤》及儲備正片《AiGO · 雨夜退團》）"
+      }
+    ]
+  }
 }
