@@ -238,6 +238,32 @@ Edit the attached picture of the crying amber girl on the stone steps. Change ON
 rather than image", "There is a small error with the stairs."). Claude builds the 16:9 and 4:3 from the fixed F and adds the
 words and the 第4话 tag. The fixed F also replaces F in the video, so make F's open-mouth edit from the FIXED F.
 
+## Fixes, round 3 (11-09 ~12:20: the user, 'The stairs for F and D are still incorrect.' and 'check I and K')
+
+D and F: the girls straddled step levels while the handrail ran at another angle, and F's steps went down below the landing
+where she kneels. The fix puts both girls on ONE flat landing; the next flight climbs only behind the whale girl, on the left.
+K: in I the purple cat girl hugs her notebook, and in K (a moment later) it is gone. K's guitar also showed its fretboard
+from the front although it is on her back. Use the latest D, F and K files as the input; Claude pastes back only the changed
+areas and keeps the girls from the originals.
+
+### D · `EP4_D_kneel.png` (the steps → one flat landing)
+Attach: ep04/EP4_D_kneel.png
+```
+Edit the attached picture. Change ONLY the stone steps and the ground under and around the two girls. Both girls are on one flat, level stone landing partway up the long park steps: the whale girl stands on it on the left, and the amber girl kneels on it with both knees and both feet on the same flat paving. The flat paving continues to the bottom edge of the picture: no steps under the girls or in front of them. Behind them, only on the left, the next flight of stone steps climbs up and away toward the sunset. The metal handrail rises beside those steps and runs level above the flat landing on the right. Keep both girls exactly as they are: poses, faces, tears, hands, hair, clothes, shoes and the whale girl's tail. Same framing, same anime style, no text.
+```
+
+### F · `EP4_F_fingers.png` (the steps and handrail → one flat landing; also the cover)
+Attach: ep04/EP4_F_fingers.png
+```
+Edit the attached picture. Change ONLY the stone steps, the ground and the metal handrail. The whale girl and the kneeling amber girl are both on one flat, level stone landing partway up the long park steps. Behind the whale girl, on the left, the next flight of stone steps climbs up and away toward the sunset, as it does now. Under and in front of both girls the paving is flat all the way to the bottom edge of the picture: remove the steps that go down in the lower-left corner. The handrail climbs beside the steps on the left, then runs level above the flat landing; it does not slope down across the landing. The dragon girl stands on the same flat landing under the tree. Keep all three girls exactly as they are: poses, faces, hands, hair, clothes and shoes. Same framing, same anime style, no text.
+```
+
+### K · `EP4_K_shock.png` (the notebook back; the guitar neck seen from behind)
+Attach: ep04/EP4_K_shock.png
+```
+Edit the attached picture. Change only two things. 1) The purple cat girl holds her purple notebook pressed to her chest with one arm, as she did a moment earlier, while her other hand covers her mouth in horror. 2) The orange cat girl wears her guitar on her back, so from the front we see only the plain back of its straight neck and the back of the headstock behind her right shoulder: no frets, strings or tuning pegs facing us. Keep everything else exactly as it is: both faces and expressions, hair, ears, clothes, the lighting, the framing and the background. Same anime style, no text.
+```
+
 ## Open-mouth edits
 
 Attach ONLY the finished still. Save the result as `ops/images/aigo/stills/ep04/kuchipaku/<still name>_mouth-open.png`.
