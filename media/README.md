@@ -2,9 +2,9 @@
 
 **繁體中文** · [English](README_EN.md)
 
-2026-11-09 · **54** 個影片版本 · **3.52 GiB**（分布於 **9** 個公開 Release）
+2026-11-09 · **55** 個影片版本 · **3.53 GiB**（分布於 **9** 個公開 Release）
 
-全部54個遠端附件的大小及 SHA-256 均與索引一致；版本數不等於集數。保留每筆採樣日期與 B站歷史狀態，不把已過的排期時間當作公開證明。完整實驗交付不等於使用者全片驗收。
+全部 55 個遠端附件的大小及 SHA-256 均與索引一致；版本數不等於集數。保留每筆採樣日期與 B站歷史狀態，不把已過的排期時間當作公開證明。完整實驗交付不等於使用者全片驗收。
 
 [校驗清單](SHA256SUMS.txt) · [完整索引](manifest.json) · [本輪研究與限制](../docs/updates/2026-11-09.md)
 
@@ -62,6 +62,7 @@
 | [aigo-epilogue-20261108-9x16-v1.mp4](https://github.com/whitecarp/agentic-work-lab/releases/download/update-2026-11-08-catchup/aigo-epilogue-20261108-9x16-v1.mp4) | 《AiGO番外》慶功宴總閘跳了！五姐妹算力電費單與大肥魚電飯煲（9:16 豎版 v1） | 已公開（`BV18i4x6ZEG1` 豎屏版） | 23.29 |
 | [news-20261108-claude-leak-16x9-v2.mp4](https://github.com/whitecarp/agentic-work-lab/releases/download/update-2026-11-08-catchup/news-20261108-claude-leak-16x9-v2.mp4) | 【AI快訊】點一下「不再詢問」，1122 份 Claude Code 配置帶著密碼上了 GitHub（16:9 橫版 v2） | 已公開（`BV1Tz4x6dEdW`） | 11.38 |
 | [film-20261108-memory-note-16x9-v1.mp4](https://github.com/whitecarp/agentic-work-lab/releases/download/update-2026-11-08-catchup/film-20261108-memory-note-16x9-v1.mp4) | 每天半夜失憶的大肥魚，偷偷給明天的自己留了一張便籤（Claude 生成 · 16:9 橫版 v1） | 已公開（`BV1BkWJ6UE7p`） | 9.60 |
+| [news-20261109-llama-modchip.mp4](https://github.com/whitecarp/agentic-work-lab/releases/download/update-2026-11-09-evening/news-20261109-llama-modchip.mp4) | 【AI快訊】零顯卡、64G 記憶體純 CPU 跑 284B 大模型？開源項目號稱把 DeepSeek 塞進家用電腦！（16:9 橫版母帶 v1） | 已公開（`BV145Ws6VEg2`） | 15.27 |
 | [ep07-vertical-h-universe-v1.mp4](https://github.com/whitecarp/agentic-work-lab/releases/download/update-2026-11-09-evening/ep07-vertical-h-universe-v1.mp4) | 值班小遊戲結局合集 P8：評論區唯一的人類（唯一的觀眾 8/19 v1） | 已公開（`BV1YL4M6EEek` P8 · `cid: 43453581701`） | 8.70 |
 | [aigo-ep02-20261108.mp4](https://github.com/whitecarp/agentic-work-lab/releases/download/update-2026-11-09-evening/aigo-ep02-20261108.mp4) | 《AiGO!!!!! · 雨夜退團》第 2 話長篇動畫正片（16:9 橫版單母本） | 已公開（`BV121W864EVe`） | 200.01 |
 

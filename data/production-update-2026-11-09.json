@@ -1,13 +1,41 @@
 {
   "date": "2026-11-09",
-  "coverage_window": "2026-11-08T21:29:00+08:00 to 2026-11-09T21:05:00+08:00",
+  "coverage_window": "2026-11-08T21:29:00+08:00 to 2026-11-09T21:20:00+08:00",
   "release_tag": "update-2026-11-09-evening",
   "release_url": "https://github.com/whitecarp/agentic-work-lab/releases/tag/update-2026-11-09-evening",
-  "total_manifest_items": 54,
-  "total_manifest_bytes": 3778211763,
-  "total_manifest_gib": 3.52,
+  "mirror_release_tag": "update-2026-11-09",
+  "mirror_release_url": "https://github.com/whitecarp/agentic-work-lab/releases/tag/update-2026-11-09",
+  "total_manifest_items": 55,
+  "total_manifest_bytes": 3794226866,
+  "total_manifest_gib": 3.53,
   "total_public_releases": 9,
   "new_media": [
+    {
+      "id": "news-20261109-llama-modchip",
+      "file": "news-20261109-llama-modchip.mp4",
+      "asset_id": 727558057,
+      "title_zh": "【AI快訊】零顯卡、64G 記憶體純 CPU 跑 284B 大模型？開源項目號稱把 DeepSeek 塞進家用電腦！（16:9 橫版母帶 v1）",
+      "title_en": "[AI News Flash] Zero GPU, 64 GB RAM Pure-CPU Running a 284B Model? Open-Source Project Claims to Fit DeepSeek Inside a Home PC! (16:9 Master v1)",
+      "date": "2026-11-09",
+      "bvid": "BV145Ws6VEg2",
+      "aid": 117584007596442,
+      "cid": 43454586971,
+      "season_id": 9523631,
+      "bilibili_url": "https://www.bilibili.com/video/BV145Ws6VEg2",
+      "published_at_bjt": "2026-11-09T10:00:00+08:00",
+      "category": "series",
+      "variant": "16:9-v1",
+      "bytes": 16015103,
+      "duration_seconds": 79.4,
+      "width": 1920,
+      "height": 1080,
+      "fps": 30,
+      "loudness_lufs": -15.0,
+      "sha256": "d40e949b4ad662414173aea62da3b602d1d09176488f4235887669c2371ab407",
+      "release_tag": "update-2026-11-09-evening",
+      "download_url": "https://github.com/whitecarp/agentic-work-lab/releases/download/update-2026-11-09-evening/news-20261109-llama-modchip.mp4",
+      "status": "published_bilibili_news_flash"
+    },
     {
       "id": "ep07-vertical-h-universe-v1",
       "file": "ep07-vertical-h-universe-v1.mp4",
@@ -42,6 +70,7 @@
       "bvid": "BV121W864EVe",
       "aid": 117586557733708,
       "cid": 43466099877,
+      "season_id": 9506583,
       "bilibili_url": "https://www.bilibili.com/video/BV121W864EVe",
       "published_at_bjt": "2026-11-09T20:50:43+08:00",
       "category": "flagship",
@@ -60,24 +89,6 @@
     }
   ],
   "additional_live_platform_receipts_2026_11_09": [
-    {
-      "project_id": "news-20261109-llama-modchip",
-      "title_zh": "零顯卡、64G 記憶體純 CPU 跑 284B 大模型？開源項目號稱把 DeepSeek 塞進家用電腦！【AI快訊】",
-      "title_en": "[AI News Flash] Zero GPU, 64 GB RAM Pure-CPU Running a 284B Model? Open-Source Project Claims to Fit DeepSeek Inside a Home PC!",
-      "bvid": "BV145Ws6VEg2",
-      "aid": 117584007596442,
-      "cid": 43450764078,
-      "bilibili_url": "https://www.bilibili.com/video/BV145Ws6VEg2",
-      "published_at_bjt": "2026-11-09T10:10:00+08:00",
-      "local_master_file": "news-20261109-llama-modchip/renders/news-20261109-llama-modchip.mp4",
-      "bytes": 16015103,
-      "duration_seconds": 79.4,
-      "resolution": "1920x1080",
-      "fps": 30,
-      "loudness_lufs": -15.0,
-      "sha256": "d40e949b4ad662414173aea62da3b602d1d09176488f4235887669c2371ab407",
-      "views_at_2005_bjt": 851
-    },
     {
       "project_id": "aigo-epilogue-20261108-v2-douyin",
       "title_zh": "《AiGO番外》慶功宴電費單直接把舞台幹跳閘了（v2 9:16 抖音替換版）",
@@ -111,8 +122,8 @@
     },
     {
       "project_id": "aigo-ep04-20261109",
-      "working_title_zh": "《AiGO!!!!! · 替身決裂（「滿腦子都只想著自己呢！」）》第 4 話長篇動畫正片",
-      "working_title_en": "AiGO!!!!! Episode 04: Stand-In Breakup (\"All You Ever Think About Is Yourself!\")",
+      "working_title_zh": "《AiGO!!!!! · 替身決裂／為什麼要演奏春日影（「滿腦子都只想著自己呢！」）》第 4 話長篇動畫正片",
+      "working_title_en": "AiGO!!!!! Episode 04: Stand-In Breakup / Why Did You Play Haruhikage (\"All You Ever Think About Is Yourself!\")",
       "local_master_file": "aigo-ep04-20261109/renders/ep04.mp4",
       "duration_seconds": 145.5,
       "resolution": "1920x1080",
@@ -217,7 +228,7 @@
       }
     ]
   },
-  "bihuo_controlled_experiments_2026_11_09": {
+  "audience_cohort_controlled_experiments_2026_11_09": {
     "target_bvid": "BV1sQ4E6eEhK",
     "target_title": "《AiGO!!!!! · 迷途算力》",
     "analytical_division": {
@@ -225,128 +236,93 @@
       "quantitative_analyst": "OpenAI Codex",
       "content_and_strategy_reviewer": "Claude"
     },
-    "historical_baseline_recheck": {
-      "ordinary_follower_goal_orders": {
-        "count": 25,
-        "spend_cny": 5868.7,
-        "attributed_follows": 2149,
-        "cny_per_follow": 2.7309
-      },
-      "ordinary_play_goal_orders": {
-        "count": 5,
-        "spend_cny": 874.55,
-        "attributed_follows": 4,
-        "cny_per_follow": 218.6375
-      }
-    },
     "round_1_completed": {
       "window_bjt": "2026-11-09 09:03 to 15:02 (stabilized reading at 15:21 BJT)",
-      "status": "LAUNCH_COMPLETED",
-      "total_spend_cny": 150.0,
+      "status": "COMPLETED",
       "total_attributed_plays": 2991,
       "total_likes_plus_favorites": 114,
       "total_attributed_follows": 1,
       "arms": [
         {
           "arm": "V1",
-          "order_id": "498401652876800",
           "mode": "AUTO",
-          "spend_cny": 50.0,
           "plays": 1105,
           "likes": 6,
           "favorites": 15,
           "likes_plus_favorites": 21,
-          "cny_per_1000_plays": 45.25,
-          "cny_per_like_plus_fav": 2.381,
           "like_plus_fav_rate_pct": 1.9,
+          "relative_engagement_efficiency_vs_auto": 1.0,
           "follows": 0
         },
         {
           "arm": "V2",
-          "order_id": "498401710409216",
           "mode": "CUSTOM_L2_21_UIDS",
-          "spend_cny": 50.0,
           "plays": 984,
           "likes": 19,
           "favorites": 32,
           "likes_plus_favorites": 51,
-          "cny_per_1000_plays": 50.81,
-          "cny_per_like_plus_fav": 0.9804,
           "like_plus_fav_rate_pct": 5.18,
+          "relative_engagement_efficiency_vs_auto": 2.43,
           "follows": 1,
-          "note": "Winner on both CNY/L+F (¥0.9804 at 15:21; ¥1.0000 at 15:02) and CPM among custom pools; retained for Round 2"
+          "note": "Winner on engagement density (5.18% L+F rate, +17.65% higher engagement conversion efficiency than Pool C); retained for Round 2"
         },
         {
           "arm": "V3",
-          "order_id": "498401767781888",
           "mode": "CUSTOM_POOL_C_MYGO_50_UIDS",
-          "spend_cny": 50.0,
           "plays": 902,
           "likes": 19,
           "favorites": 23,
           "likes_plus_favorites": 42,
-          "cny_per_1000_plays": 55.43,
-          "cny_per_like_plus_fav": 1.1905,
           "like_plus_fav_rate_pct": 4.66,
+          "relative_engagement_efficiency_vs_auto": 2.0,
           "follows": 0,
           "note": "Zero new L+F in final 13:20-15:21 interval; replaced by Pool A in Round 2"
         }
       ]
     },
     "round_2_midpoint": {
-      "window_bjt": "2026-11-09 17:04 to 23:05 (midpoint reading at 20:05 BJT, +3h)",
-      "status": "LAUNCHING",
-      "consumed_spend_cny": 99.23,
-      "committed_budget_cny": 150.0,
+      "window_bjt": "2026-11-09 17:04 to 23:05 (midpoint reading at 20:05 BJT, +3h, 66.15% elapsed)",
+      "status": "IN_PROGRESS",
       "total_attributed_plays": 1707,
       "total_likes_plus_favorites": 98,
       "total_attributed_follows": 1,
       "arms": [
         {
           "arm": "W1",
-          "order_id": "498520241067520",
           "mode": "AUTO",
-          "spend_cny": 31.11,
           "plays": 576,
           "likes": 7,
           "favorites": 10,
           "likes_plus_favorites": 17,
-          "cny_per_1000_plays": 54.01,
-          "cny_per_like_plus_fav": 1.83,
           "like_plus_fav_rate_pct": 2.95,
+          "relative_engagement_density_vs_auto": 1.0,
           "follows": 0
         },
         {
           "arm": "W2",
-          "order_id": "498520299968000",
           "mode": "CUSTOM_L2_21_UIDS",
-          "spend_cny": 34.02,
           "plays": 595,
           "likes": 21,
           "favorites": 23,
           "likes_plus_favorites": 44,
-          "cny_per_1000_plays": 57.18,
-          "cny_per_like_plus_fav": 0.7732,
           "like_plus_fav_rate_pct": 7.39,
+          "relative_engagement_density_vs_auto": 2.51,
           "follows": 0,
-          "note": "Leading all arms in both engagement efficiency (¥0.7732/L+F, 7.39% L+F rate) and raw plays (595)"
+          "note": "Leading all arms in both engagement density (7.39% L+F rate, 2.51x AUTO) and attributed plays (595)"
         },
         {
           "arm": "W3",
-          "order_id": "498520358569472",
           "mode": "CUSTOM_POOL_A_AI_GIRLS_50_UIDS",
-          "spend_cny": 34.1,
           "plays": 536,
           "likes": 16,
           "favorites": 21,
           "likes_plus_favorites": 37,
-          "cny_per_1000_plays": 63.62,
-          "cny_per_like_plus_fav": 0.9216,
           "like_plus_fav_rate_pct": 6.9,
+          "relative_engagement_density_vs_auto": 2.34,
           "follows": 1
         }
       ]
     }
   },
-  "updated_at": "2026-11-09T21:05:00+08:00"
+  "updated_at": "2026-11-09T21:20:00+08:00"
 }

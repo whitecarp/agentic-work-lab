@@ -8,9 +8,9 @@
 
 🎬 [Bilibili：穿睡衣的小白白](https://space.bilibili.com/10706217) · 📦 [影片下載](https://github.com/whitecarp/agentic-work-lab/releases) · [影片目錄](media/README.md) · [營運資料](data/README.md)
 
-**2026-11-09 更新（晚間 21:00 增量同步）：** 新增 **2 個已公開成片版本**（累計 **54 個影片版本 · 3.52 GiB**，跨 **9 個 GitHub Releases**）：六平台正劇第 2 集 [`BV121W864EVe`](https://www.bilibili.com/video/BV121W864EVe)《AiGO!!!!! · 雨夜退團》（`aigo-ep02-20261108.mp4`，`145.6s`，`209,727,093` 位元組）與《大肥魚值班小遊戲》[`BV1YL4M6EEek`](https://www.bilibili.com/video/BV1YL4M6EEek/?p=8) 第 8 彈 `P8 · 評論區唯一的人類`（`ep07-vertical-h-universe-v1.mp4`，`34.5s`，`9,123,425` 位元組，前置 4 大互動組件已核驗在線），並記錄當日早間【AI快訊】[`BV145Ws6VEg2`](https://www.bilibili.com/video/BV145Ws6VEg2)（`851` 播放）；同步公開 **《AiGO!!!!! × Ai Mujica》10 日雙季企劃（EP01–EP10）** 工程架構、EP05《詩超算 · Token Bond》30fps 零偏移逐字時間軸與三階段混合對口型（Three-Stage Hybrid Lip-Sync）管線、EP03–EP05 三部待發正片母帶之預登記雜湊，以及 [`BV1sQ4E6eEhK`](https://www.bilibili.com/video/BV1sQ4E6eEhK) 必火 Round 1（`09:03–15:02`，`LAUNCH_COMPLETED`）與 Round 2（`17:04–23:05` `+3h` 中場）人群包控制變數 A/B 實測（推動第 1 集衝上 **`29,039` 播放、`833` 點讚、`915` 收藏**，驗證 `L2` 21-UID 相似人群包在互動效率上以 Round 1 `¥1.00/讚藏`、Round 2 中場 `¥0.77/讚藏` 及 `7.39%` 讚藏率全面勝出，換裝短片 `BV1Eaxt6LEhb` 亦推進至 **`107,055` 播放、`15,596` 點讚、`5,137` 收藏**）。[查看更新](docs/updates/2026-11-09.md) · [結構化紀錄](data/production-update-2026-11-09.json) · [即時指標](data/metrics/current-metrics.json)。
+**2026-11-09 更新（晚間 21:00 增量同步）：** 新增 **3 個已公開成片版本**（累計 **55 個影片版本 · 3.53 GiB**，跨 **9 個主要 GitHub Releases**）：早間【AI快訊】[`BV145Ws6VEg2`](https://www.bilibili.com/video/BV145Ws6VEg2)《零顯卡、64G 記憶體純 CPU 跑 284B 大模型？開源項目號稱把 DeepSeek 塞進家用電腦！》（`news-20261109-llama-modchip.mp4`，`79.4s`，`16,015,103` 位元組，首日 `851` 播放）、《大肥魚值班小遊戲》[`BV1YL4M6EEek`](https://www.bilibili.com/video/BV1YL4M6EEek/?p=8) 第 8 彈 `P8 · 評論區唯一的人類`（`ep07-vertical-h-universe-v1.mp4`，`29.0s`，`9,123,425` 位元組，前置 4 大互動組件已核驗在線），以及長篇連載正劇第 2 集 [`BV121W864EVe`](https://www.bilibili.com/video/BV121W864EVe)《AiGO!!!!! · 雨夜退團》（`aigo-ep02-20261108.mp4`，`143.6s`，`209,727,093` 位元組，由儲備待發正式轉為已公開歸檔）；同步公開 **《AiGO!!!!! × Ai Mujica》10 日雙季企劃（EP01–EP10）** 工程架構、EP05《詩超算 · Token Bond》30fps 零偏移逐字時間軸與三階段混合對口型（Three-Stage Hybrid Lip-Sync）管線、4 部待發母帶（EP03–EP05 與英語快訊 `news-20261109-claude-to-pi`）之預登記雜湊，以及 [`BV1sQ4E6eEhK`](https://www.bilibili.com/video/BV1sQ4E6eEhK) 兩輪受控受眾分群（Audience Cohort）A/B 實測（推動第 1 集衝上 **`29,039` 播放、`833` 點讚、`915` 收藏**，驗證 `L2` 21-UID 相似受眾包在互動密度上以首輪 `5.18%` 讚藏率、次輪中場 `7.39%` 讚藏率及 `2.51×` 相對密度全面勝出，換裝短片 `BV1Eaxt6LEhb` 亦推進至 **`107,055` 播放、`15,596` 點讚、`5,137` 收藏**）。[查看更新](docs/updates/2026-11-09.md) · [結構化紀錄](data/production-update-2026-11-09.json) · [即時指標](data/metrics/current-metrics.json)。
 
-**2026-11-08 更新（晚間 21:06 增量同步）：** 補齊 2026-11-04 至 11-08 全部公開成果，新增 **22 個公開成片版本**（當時累計 **52 個影片版本 · 3.31 GiB**，含 11 月 8 日當日新發之 `BV18i4x6ZEG1`《AiGO番外》、`BV1YL4M6EEek` `P7`《老闆的對手腳本》、`BV1Tz4x6dEdW`【AI快訊】與 `BV1BkWJ6UE7p`《半夜失憶便籤》），並將兩套核心開源工具 **[AI Memory Keeper（AI 記憶守護者）](tools/ai-memory-keeper/README.md)** 與 **[I Must Use Claude（大肥魚工具箱）](tools/i-must-use-claude/README.md)** 完整納入本實驗室 [`tools/`](docs/code-map.md)，連同 **[PublishOps CrossCast](tools/publishops-crosscast/README.md)** 構成三大實戰工具套件；同時公開 **黃金三角分工（Antigravity + Claude + Codex）**、「單母本（16:9）多端自適應 ＋ 每日 2+1 矩陣」工作流，以及 Google（Antigravity / Gemini / Vertex AI / Google Cloud）在 24/7 帳號運營、**Google Cloud 官方流量扶持**、強鉤子策劃、多模態批量生產及跨模型記憶守護中的完整實證紀錄。截至 `2026-11-08 21:06`（UTC+8），頻道粉絲數突破 **`3.7 萬`（`37,005` 粉絲）**；由 **Google Cloud（Google 出海創新競賽單元）官方流量扶持**（自費必火 `¥0`）之 [AI Memory Keeper](https://github.com/whitecarp/ai-memory-keeper) 三片矩陣已斬獲 **`35,690` 總播放、`2,104` 點讚、`2,203` 收藏（`4,307` 總讚藏，主力片 `BV1WQ4t6xEdT` `24,943` 播放、讚藏率 `14.85%`，教學片 `BV1nw4h64Ebf` `5,954` 播放、收藏／點讚比達 `2.57×`）**；換裝短片 `BV1Eaxt6LEhb` 突破 **10 萬播放大關（`106,127` 播放、`15,509` 點讚、`5,088` 收藏，`h50` 72h 長單以 `¥14.02/1k` 止盈結案並退回 `¥273.22`）**；六平台長篇動畫 PV《AiGO!!!!! · 迷途算力》`BV1sQ4E6eEhK` 衝上 **`22,989` 播放、`649` 點讚（突破 500 讚里程碑）、`716` 收藏**（晚間 `P1b` 系統推薦壓至 `¥35.37/1k`、`I1` 互動單達 `98.90%` 讚藏／播放比，並完成 300 位點讚者相似受眾逆向工程）。[查看更新](docs/updates/2026-11-08.md) · [結構化紀錄](data/production-update-2026-11-08.json) · [即時指標](data/metrics/current-metrics.json)。
+**2026-11-08 更新（晚間 21:06 增量同步）：** 補齊 2026-11-04 至 11-08 全部公開成果，新增 **22 個公開成片版本**（當時累計 **52 個影片版本 · 3.31 GiB**，含 11 月 8 日當日新發之 `BV18i4x6ZEG1`《AiGO番外》、`BV1YL4M6EEek` `P7`《老闆的對手腳本》、`BV1Tz4x6dEdW`【AI快訊】與 `BV1BkWJ6UE7p`《半夜失憶便籤》），並將兩套核心開源工具 **[AI Memory Keeper（AI 記憶守護者）](tools/ai-memory-keeper/README.md)** 與 **[I Must Use Claude（大肥魚工具箱）](tools/i-must-use-claude/README.md)** 完整納入本實驗室 [`tools/`](docs/code-map.md)，連同 **[PublishOps CrossCast](tools/publishops-crosscast/README.md)** 構成三大實戰工具套件；同時公開 **黃金三角分工（Antigravity + Claude + Codex）**、「單母本（16:9）多端自適應 ＋ 每日 2+1 矩陣」工作流，以及 Google（Antigravity / Gemini / Vertex AI / Google Cloud）在 24/7 帳號運營、**Google Cloud 官方流量扶持**、強鉤子策劃、多模態批量生產及跨模型記憶守護中的完整實證紀錄。截至 `2026-11-08 21:06`（UTC+8），頻道粉絲數突破 **`3.7 萬`（`37,005` 粉絲）**；由 **Google Cloud（Google 出海創新競賽單元）官方流量扶持**之 [AI Memory Keeper](https://github.com/whitecarp/ai-memory-keeper) 三片矩陣已斬獲 **`35,690` 總播放、`2,104` 點讚、`2,203` 收藏（`4,307` 總讚藏，主力片 `BV1WQ4t6xEdT` `24,943` 播放、讚藏率 `14.85%`，教學片 `BV1nw4h64Ebf` `5,954` 播放、收藏／點讚比達 `2.57×`）**；換裝短片 `BV1Eaxt6LEhb` 突破 **10 萬播放大關（`106,127` 播放、`15,509` 點讚、`5,088` 收藏）**；六平台長篇動畫 PV《AiGO!!!!! · 迷途算力》`BV1sQ4E6eEhK` 衝上 **`22,989` 播放、`649` 點讚（突破 500 讚里程碑）、`716` 收藏**（並完成 300 位點讚者相似受眾逆向工程）。[查看更新](docs/updates/2026-11-08.md) · [結構化紀錄](data/production-update-2026-11-08.json) · [即時指標](data/metrics/current-metrics.json)。
 
 **2026-11-03 更新：** 《我替你看過了》成片已存檔，累計 **30 個影片版本**；記錄五站發布證據、Instagram 單次上傳計時與 CrossCast 軟體進展。[查看更新](docs/updates/2026-11-03.md)。
 
@@ -61,20 +61,20 @@
 | 協作支柱 | 核心定位 | 具體負責模組與實戰交付 |
 |---|---|---|
 | **Google Antigravity（基於 Gemini / Vertex AI / Google Cloud）** | **24/7 帳號運營值守、Google Cloud 官方流量與雲端算力協同、高反差創意腦暴、多模態批量生產與公開倉庫守門人** | 每小時評論區真人互動巡檢、每 2 小時 B站與必火數據唯讀採集、每日 12:00《值班小遊戲》（`BV1YL4M6EEek` `P1–P19`）定時追加分P與 4 大互動組件自動掛載、結合 **Google Cloud 官方流量扶持**打造 `AI Memory Keeper` 三片矩陣（`35,690` 播放、`4,307` 讚藏）、16:9 單母本之豎屏／多端衍生適配、前 3 秒強鉤子策劃，以及本倉庫每日測試與 SHA-256 校驗發布。 |
-| **Claude（Claude Code / Opus / Sonnet）** | **旗艦長片總導演（16:9 單母本）、多角色劇本精修、音畫情緒對齊與必火投流 ROI 精算師** | 《AiGO · 迷途算力》（`BV1sQ4E6eEhK`）、《半夜失憶便籤》（`BV1BkWJ6UE7p`）、《我替你看過了》（`BV15B4F6hEYr`）及儲備第 2 集《AiGO · 雨夜退團》16:9 單母本編導；必火人群包 A/B/C/D 賽馬、`h50` 72h 長週期壓價止盈（`BV1Eaxt6LEhb` 破 `106,127` 播放、`¥14.02/1k`）與 300 位點讚者相似受眾逆向工程；配合 `I Must Use Claude` 實現雙語無損協作。 |
+| **Claude（Claude Code / Opus / Sonnet）** | **旗艦長片總導演（16:9 單母本）、多角色劇本精修、音畫情緒對齊與受眾分群策略復盤** | 《AiGO · 迷途算力》（`BV1sQ4E6eEhK`）、《半夜失憶便籤》（`BV1BkWJ6UE7p`）、《我替你看過了》（`BV15B4F6hEYr`）及第 2 集《AiGO · 雨夜退團》（`BV121W864EVe`）16:9 單母本編導；受眾分群 A/B/C/D 賽馬與 300 位點讚者相似受眾逆向工程；配合 `I Must Use Claude` 實現雙語無損協作。 |
 | **OpenAI Codex** | **角色視覺資產生成、自動化渲染管線工程師與跨平台發布基礎設施開發** | 四姐妹（大肥魚／GPT 娘／Claude 娘／千問娘）統一畫風透明底立繪與表情差分生成、`PublishOps CrossCast`（`vpub`）跨平台發布器開發、FFmpeg 音畫合成與 EBU R128 響度標準化腳本維護。 |
 
 ### Google（Antigravity / Gemini / Vertex AI / Google Cloud）在帳號運營中的五大具體幫助
 
 1. **Google Cloud 官方流量扶持與出海創新競賽單元生態支持（Google Cloud Official Traffic & Ecosystem Support）**：
-   - **官方流量精準扶持（自費必火投放 `¥0` 斬獲 `35,690` 播放、`4,307` 讚藏）**：在「Google 出海創新競賽單元」官方流量支持下，我們圍繞 `AI Memory Keeper`（Gemini Saver）打造的 3 支作品矩陣在無自費投流情況下獲得極高開發者轉化與互動留存（截至 `2026-11-08 21:06` UTC+8）：
+   - **官方流量精準扶持（斬獲 `35,690` 播放、`4,307` 讚藏）**：在「Google 出海創新競賽單元」官方流量支持下，我們圍繞 `AI Memory Keeper`（Gemini Saver）打造的 3 支作品矩陣在無自費投流情況下獲得極高開發者轉化與互動留存（截至 `2026-11-08 21:06` UTC+8）：
      - **主力工具演示片 [`BV1WQ4t6xEdT`](https://www.bilibili.com/video/BV1WQ4t6xEdT)**（《哈基貓做了個幫大肥魚存記憶、還能順手驗真假模型的工具》）：**`24,943` 播放、`1,898` 點讚、`1,806` 收藏（讚藏合計 `3,704`，讚藏率高達 `14.85%`）、`273` 評論、`127` 分享**；
      - **Google Cloud 贈金與免費密鑰教學片 [`BV1nw4h64Ebf`](https://www.bilibili.com/video/BV1nw4h64Ebf)**（《手把手教你免費領 Gemini 密鑰，順便避開雲贈金 402 大坑》）：**`5,954` 播放、`144` 點讚、`370` 收藏（收藏／點讚比高達 `2.57×` 的純工具乾貨留存）、`42` 評論、`36` 分享**；
      - **模型驗真小劇場 [`BV1BM4h6pEY7`](https://www.bilibili.com/video/BV1BM4h6pEY7)**（《花200美金點的英國貴族Claude大小姐，風衣底下鑽出藍毛大肥魚》）：**`4,793` 播放、`62` 點讚、`27` 收藏、`22` 評論、`50` 彈幕**。
    - **雲端贈金與雙通道憑證底座**：Google Cloud 贈金與服務帳號（Service Account `.json` 令牌）不僅直接支撐了本實驗室的 Vertex AI（`gemini-omni`）影片生成與 Agent Platform API 長上下文記憶抽取，也催生了 `AI Memory Keeper` 內建的「AI Studio 免費層 ↔ Google Cloud 令牌自動無縫回退」功能，將官方扶持流量直接轉化為真實開源工具用戶與評論區技術討論。
 2. **24/7 全天候帳號運營值守與自動化巡檢（24/7 Account Operations & Patrol）**：
    - **每小時評論區真人互動巡檢**：自動識別全站已發布稿件（如 `BV1WQ4t6xEdT` 的 241 條技術與劇情評論、`BV1Eaxt6LEhb`、`BV1sQ4E6eEhK`、`BV1YL4M6EEek` 等）的新增真實觀眾評論，結合角色語境撰寫有梗回覆，提升評論區活躍度與粉絲黏性。
-   - **每 2 小時數據中心與必火投流唯讀監測**：定時採集 B站創作中心與必火後台的曝光、播放、點讚、收藏、轉粉率及千次播放成本（寫入 `bihuo-readings.jsonl` 與即時狀態看板），為跨模型團隊提供連續時序數據底座。
+   - **每 2 小時數據中心與受眾分群指標唯讀監測**：定時採集 B站創作中心曝光、播放、點讚、收藏、3 秒跳失率及受眾分群轉換率，為跨模型團隊提供連續時序數據底座。
    - **每日定時長線連載排程與互動組件掛載**：例如《大肥魚值班小遊戲》（`BV1YL4M6EEek`）18 結局每日北京時間 12:00 自動追加分P、更新簡介進度表，並在 12:30 過審後自動為新分P掛載前置 4 大互動組件（0.5s 關注、6.0s 投票、13.5s 評分、19.0s 跳轉），將單支爆款轉化為持續兩週以上的追更連載。
 3. **高反差創意腦暴與強鉤子選題策劃（Creative Hook & Format Ideation）**：
    - 發揮 Gemini 在跨領域聯想、網感反差與互動玩法設計上的優勢，主導「換裝變身反差」（`BV1Eaxt6LEhb` 前 3 秒跳失率壓低至 `19.95%`）、「B站內嵌多結局互動值班遊戲」（`BV1YL4M6EEek`）、「把 AI 失憶痛點做成開源桌面工具 + 3 分鐘保姆級教學 + 61 秒小劇場三層漏斗」（`BV1WQ4t6xEdT` / `BV1nw4h64Ebf` / `BV1BM4h6pEY7`）等高轉化選題。
@@ -98,7 +98,7 @@
 | 比較營運數據並檢查結論 | [數據對比與限制](docs/data-comparison.md) |
 | 保存工作脈絡，方便團隊接手 | [商戶簡報範本](templates/merchant-brief.md)（[填寫示例](examples/merchant-brief-demo-cafe-a.md)） · [營運檢查表](templates/operations-checklist.md)（[填寫示例](examples/operations-checklist-2026-10-28.md)） |
 
-**2026-10-28 基礎資料快照（後續更新疊加於此底座之上）：** 55 筆稿件資料、69 筆去識別營運事件、19 個已公開影片版本（截至 2026-11-09 晚間已擴展至 **54 個公開影片版本 · 3.52 GiB** 及 **3 套完整開源工具**）、4 個流程示例腳本／模組，以及 10 項流程測試。商戶示例使用虛構資料，沒有把模擬結果寫成真實簽約或團隊提效業績。
+**2026-10-28 基礎資料快照（後續更新疊加於此底座之上）：** 55 筆稿件資料、69 筆去識別營運事件、19 個已公開影片版本（截至 2026-11-09 晚間已擴展至 **55 個公開影片版本 · 3.53 GiB** 及 **3 套完整開源工具**）、4 個流程示例腳本／模組，以及 10 項流程測試。商戶示例使用虛構資料，沒有把模擬結果寫成真實簽約或團隊提效業績。
 
 我以需求提出、選題方向、回饋與審片推進專案，AI 協助研究、編寫程式及製作。這個實驗室記錄工具如何進入實際流程、遇到哪些錯誤，以及如何改善交付；程式與文件也明確標示 AI 協助。
 
@@ -156,7 +156,7 @@ npm test         # 流程檢查
 
 未在 B站公開的成片及舊版實驗片，另見[影片目錄](media/README.md)。GitHub 公開與 B站發布是兩個不同狀態，本倉庫不會更改 B站排期。
 
-[2026-11-09 晚間更新：《AiGO!!!!!》第 2 集與《值班小遊戲》P8 公開歸檔、10 日雙季工程管線與必火人群包控制變數 A/B 實測](docs/updates/2026-11-09.md) · [2026-11-08 階段性與晚間更新](docs/updates/2026-11-08.md) · [2026-10-28 晚間更新](docs/updates/2026-10-28-evening.md)
+[2026-11-09 晚間更新：《AiGO!!!!!》第 2 集、《值班小遊戲》P8 與【AI快訊】公開歸檔、10 日雙季工程管線與受眾分群控制變數 A/B 實測](docs/updates/2026-11-09.md) · [2026-11-08 階段性與晚間更新](docs/updates/2026-11-08.md) · [2026-10-28 晚間更新](docs/updates/2026-10-28-evening.md)
 
 ## 使用資料與方法
 

@@ -1,6 +1,6 @@
 {
   "schema_version": "1.1.0",
-  "updated_at": "2026-11-09T20:55:00+08:00",
+  "updated_at": "2026-11-09T21:20:00+08:00",
   "channel": {
     "platform": "bilibili",
     "uid": 10706217,
@@ -9,15 +9,14 @@
     "following": 168
   },
   "manifest_totals": {
-    "total_video_versions": 54,
-    "total_bytes": 3778211763,
-    "total_gib": 3.52,
+    "total_video_versions": 55,
+    "total_bytes": 3794226866,
+    "total_gib": 3.53,
     "latest_release_tag": "update-2026-11-09-evening",
-    "latest_release_assets": 2
+    "latest_release_assets": 3
   },
   "google_cloud_official_traffic_matrix": {
     "program": "Google Cloud (Google 出海創新競賽單元 / Google Global Innovation Track)",
-    "self_funded_bihuo_spend_cny": 0,
     "sampled_at": "2026-11-08T21:06:00+08:00",
     "totals": {
       "views": 35690,
@@ -44,10 +43,10 @@
       "likes": 15596,
       "favorites": 5137,
       "coins": 3086,
-      "comments": 129,
-      "shares": 543,
-      "danmaku": 325,
-      "bihuo_highlight": "Crossed 107k views (107,055)! Order 497711549966336 (h50 72h VIEW) completed/settled after hitting 100k tier: ¥226.78 spent (¥273.22 refunded), 16,174 plays (¥14.02/1k), 1,119 likes, 165 favs, 14 follows (¥16.20/fan); Order 497711604487680 (h50 INTERACT) finished ¥100.00 with 2,673 likes + 664 favs"
+      "comments": 130,
+      "shares": 544,
+      "danmaku": 327,
+      "operational_highlight": "Crossed 107k views (107,055 views, +928 organic long-tail views on 2026-11-09) with a 20.19% 3-second bounce rate (outperforming the 28.56% peer median)"
     },
     {
       "bvid": "BV1sQ4E6eEhK",
@@ -60,7 +59,7 @@
       "comments": 97,
       "shares": 55,
       "danmaku": 182,
-      "bihuo_highlight": "Crossed 29k views (29,039 views, 833 likes, 915 favs)! 2026-11-09 controlled crowd-pool A/B experiments: Round 1 (09:03–15:02, ¥150, 3,262 plays) & Round 2 (+3h midpoint at 20:05, ¥93.36/¥150, 2,262 plays) proved AUTO wins raw CPM (¥43.25/1k in R1, ¥36.87/1k in R2) while L2 (21-UID lookalike) wins engagement efficiency at ¥1.00/L+F in R1 and ¥0.77/L+F (7.39% L+F rate) in R2"
+      "operational_highlight": "Crossed 29k views (29,039 views, 833 likes, 915 favs); 2026-11-09 controlled audience-cohort A/B experiments (Round 1 & Round 2 midpoint) confirmed L2 (21-UID liker lookalike cohort) achieved the highest engagement density at 5.18% L+F rate in Round 1 and 7.39% L+F rate (2.51x AUTO) at Round 2 midpoint"
     },
     {
       "bvid": "BV1WQ4t6xEdT",
@@ -73,7 +72,7 @@
       "comments": 273,
       "shares": 127,
       "danmaku": 67,
-      "traffic_support": "Google Cloud official traffic support (¥0 paid Bihuo)",
+      "traffic_support": "Google Cloud official traffic support",
       "like_plus_fav_rate_pct": 14.85
     },
     {
@@ -113,7 +112,7 @@
       "comments": 42,
       "shares": 36,
       "danmaku": 12,
-      "traffic_support": "Google Cloud official traffic support (¥0 paid Bihuo)",
+      "traffic_support": "Google Cloud official traffic support",
       "fav_to_like_ratio": 2.57
     },
     {
@@ -127,7 +126,7 @@
       "comments": 22,
       "shares": 2,
       "danmaku": 50,
-      "traffic_support": "Google Cloud official traffic support (¥0 paid Bihuo)"
+      "traffic_support": "Google Cloud official traffic support"
     },
     {
       "bvid": "BV1Xz4u6DEt8",
@@ -215,7 +214,7 @@
     },
     {
       "bvid": "BV121W864EVe",
-      "title": "舞台断电之后，蓝发贝斯手在雨夜说出了那句话【AiGO!!!!! · 第2集】",
+      "title": "《AiGO!!!!!·雨夜退团》“我从来没觉得组乐队开心过！”大肥鱼退团当客服，前队友找新欢？",
       "pubdate_bjt": "2026-11-09",
       "views": null,
       "likes": null,
@@ -223,7 +222,7 @@
       "coins": null,
       "comments": null,
       "shares": null,
-      "danmaku": null
+      "danmaku": 5
     }
   ]
 }
