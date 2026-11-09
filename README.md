@@ -8,7 +8,9 @@
 
 🎬 [Bilibili：穿睡衣的小白白](https://space.bilibili.com/10706217) · 📦 [影片下載](https://github.com/whitecarp/agentic-work-lab/releases) · [影片目錄](media/README.md) · [營運資料](data/README.md)
 
-**2026-11-08 更新（晚間 21:06 增量同步）：** 補齊 2026-11-04 至 11-08 全部公開成果，新增 **22 個公開成片版本**（累計 **52 個影片版本 · 3.31 GiB**，含 11 月 8 日當日新發之 `BV18i4x6ZEG1`《AiGO番外》、`BV1YL4M6EEek` `P7`《老闆的對手腳本》、`BV1Tz4x6dEdW`【AI快訊】與 `BV1BkWJ6UE7p`《半夜失憶便籤》），並將兩套核心開源工具 **[AI Memory Keeper（AI 記憶守護者）](tools/ai-memory-keeper/README.md)** 與 **[I Must Use Claude（大肥魚工具箱）](tools/i-must-use-claude/README.md)** 完整納入本實驗室 [`tools/`](docs/code-map.md)，連同 **[PublishOps CrossCast](tools/publishops-crosscast/README.md)** 構成三大實戰工具套件；同時公開 **黃金三角分工（Antigravity + Claude + Codex）**、「單母本（16:9）多端自適應 ＋ 每日 2+1 矩陣」工作流，以及 Google（Antigravity / Gemini / Vertex AI / Google Cloud）在 24/7 帳號運營、**Google Cloud 官方流量扶持**、強鉤子策劃、多模態批量生產及跨模型記憶守護中的完整實證紀錄。截至 `2026-11-08 21:06`（UTC+8），頻道粉絲數突破 **`3.7 萬`（`37,005` 粉絲）**；由 **Google Cloud（Google 出海創新競賽單元）官方流量扶持**（自費必火 `¥0`）之 [AI Memory Keeper](https://github.com/whitecarp/ai-memory-keeper) 三片矩陣已斬獲 **`35,690` 總播放、`2,104` 點讚、`2,203` 收藏（`4,307` 總讚藏，主力片 `BV1WQ4t6xEdT` `24,943` 播放、讚藏率 `14.85%`，教學片 `BV1nw4h64Ebf` `5,954` 播放、收藏／點讚比達 `2.57×`）**；換裝短片 `BV1Eaxt6LEhb` 突破 **10 萬播放大關（`106,127` 播放、`15,509` 點讚、`5,088` 收藏，`h50` 72h 長單以 `¥14.02/1k` 止盈結案並退回 `¥273.22`）**；六平台長篇動畫 PV《AiGO!!!!! · 迷途算力》`BV1sQ4E6eEhK` 衝上 **`22,989` 播放、`649` 點讚（突破 500 讚里程碑）、`716` 收藏**（晚間 `P1b` 系統推薦壓至 `¥35.37/1k`、`I1` 互動單達 `98.90%` 讚藏／播放比，並完成 300 位點讚者相似受眾逆向工程）。[查看更新](docs/updates/2026-11-08.md) · [結構化紀錄](data/production-update-2026-11-08.json) · [即時指標](data/metrics/current-metrics.json)。
+**2026-11-09 更新（晚間 21:00 增量同步）：** 新增 **2 個已公開成片版本**（累計 **54 個影片版本 · 3.52 GiB**，跨 **9 個 GitHub Releases**）：六平台正劇第 2 集 [`BV121W864EVe`](https://www.bilibili.com/video/BV121W864EVe)《AiGO!!!!! · 雨夜退團》（`aigo-ep02-20261108.mp4`，`145.6s`，`209,727,093` 位元組）與《大肥魚值班小遊戲》[`BV1YL4M6EEek`](https://www.bilibili.com/video/BV1YL4M6EEek/?p=8) 第 8 彈 `P8 · 評論區唯一的人類`（`ep07-vertical-h-universe-v1.mp4`，`34.5s`，`9,123,425` 位元組，前置 4 大互動組件已核驗在線），並記錄當日早間【AI快訊】[`BV145Ws6VEg2`](https://www.bilibili.com/video/BV145Ws6VEg2)（`851` 播放）；同步公開 **《AiGO!!!!! × Ai Mujica》10 日雙季企劃（EP01–EP10）** 工程架構、EP05《詩超算 · Token Bond》30fps 零偏移逐字時間軸與三階段混合對口型（Three-Stage Hybrid Lip-Sync）管線、EP03–EP05 三部待發正片母帶之預登記雜湊，以及 [`BV1sQ4E6eEhK`](https://www.bilibili.com/video/BV1sQ4E6eEhK) 必火 Round 1（`09:03–15:02`，`LAUNCH_COMPLETED`）與 Round 2（`17:04–23:05` `+3h` 中場）人群包控制變數 A/B 實測（推動第 1 集衝上 **`29,039` 播放、`833` 點讚、`915` 收藏**，驗證 `L2` 21-UID 相似人群包在互動效率上以 Round 1 `¥1.00/讚藏`、Round 2 中場 `¥0.77/讚藏` 及 `7.39%` 讚藏率全面勝出，換裝短片 `BV1Eaxt6LEhb` 亦推進至 **`107,055` 播放、`15,596` 點讚、`5,137` 收藏**）。[查看更新](docs/updates/2026-11-09.md) · [結構化紀錄](data/production-update-2026-11-09.json) · [即時指標](data/metrics/current-metrics.json)。
+
+**2026-11-08 更新（晚間 21:06 增量同步）：** 補齊 2026-11-04 至 11-08 全部公開成果，新增 **22 個公開成片版本**（當時累計 **52 個影片版本 · 3.31 GiB**，含 11 月 8 日當日新發之 `BV18i4x6ZEG1`《AiGO番外》、`BV1YL4M6EEek` `P7`《老闆的對手腳本》、`BV1Tz4x6dEdW`【AI快訊】與 `BV1BkWJ6UE7p`《半夜失憶便籤》），並將兩套核心開源工具 **[AI Memory Keeper（AI 記憶守護者）](tools/ai-memory-keeper/README.md)** 與 **[I Must Use Claude（大肥魚工具箱）](tools/i-must-use-claude/README.md)** 完整納入本實驗室 [`tools/`](docs/code-map.md)，連同 **[PublishOps CrossCast](tools/publishops-crosscast/README.md)** 構成三大實戰工具套件；同時公開 **黃金三角分工（Antigravity + Claude + Codex）**、「單母本（16:9）多端自適應 ＋ 每日 2+1 矩陣」工作流，以及 Google（Antigravity / Gemini / Vertex AI / Google Cloud）在 24/7 帳號運營、**Google Cloud 官方流量扶持**、強鉤子策劃、多模態批量生產及跨模型記憶守護中的完整實證紀錄。截至 `2026-11-08 21:06`（UTC+8），頻道粉絲數突破 **`3.7 萬`（`37,005` 粉絲）**；由 **Google Cloud（Google 出海創新競賽單元）官方流量扶持**（自費必火 `¥0`）之 [AI Memory Keeper](https://github.com/whitecarp/ai-memory-keeper) 三片矩陣已斬獲 **`35,690` 總播放、`2,104` 點讚、`2,203` 收藏（`4,307` 總讚藏，主力片 `BV1WQ4t6xEdT` `24,943` 播放、讚藏率 `14.85%`，教學片 `BV1nw4h64Ebf` `5,954` 播放、收藏／點讚比達 `2.57×`）**；換裝短片 `BV1Eaxt6LEhb` 突破 **10 萬播放大關（`106,127` 播放、`15,509` 點讚、`5,088` 收藏，`h50` 72h 長單以 `¥14.02/1k` 止盈結案並退回 `¥273.22`）**；六平台長篇動畫 PV《AiGO!!!!! · 迷途算力》`BV1sQ4E6eEhK` 衝上 **`22,989` 播放、`649` 點讚（突破 500 讚里程碑）、`716` 收藏**（晚間 `P1b` 系統推薦壓至 `¥35.37/1k`、`I1` 互動單達 `98.90%` 讚藏／播放比，並完成 300 位點讚者相似受眾逆向工程）。[查看更新](docs/updates/2026-11-08.md) · [結構化紀錄](data/production-update-2026-11-08.json) · [即時指標](data/metrics/current-metrics.json)。
 
 **2026-11-03 更新：** 《我替你看過了》成片已存檔，累計 **30 個影片版本**；記錄五站發布證據、Instagram 單次上傳計時與 CrossCast 軟體進展。[查看更新](docs/updates/2026-11-03.md)。
 
@@ -96,7 +98,7 @@
 | 比較營運數據並檢查結論 | [數據對比與限制](docs/data-comparison.md) |
 | 保存工作脈絡，方便團隊接手 | [商戶簡報範本](templates/merchant-brief.md)（[填寫示例](examples/merchant-brief-demo-cafe-a.md)） · [營運檢查表](templates/operations-checklist.md)（[填寫示例](examples/operations-checklist-2026-10-28.md)） |
 
-**2026-10-28 基礎資料快照（後續更新疊加於此底座之上）：** 55 筆稿件資料、69 筆去識別營運事件、19 個已公開影片版本（截至 2026-11-08 晚間已擴展至 **52 個公開影片版本 · 3.31 GiB** 及 **3 套完整開源工具**）、4 個流程示例腳本／模組，以及 10 項流程測試。商戶示例使用虛構資料，沒有把模擬結果寫成真實簽約或團隊提效業績。
+**2026-10-28 基礎資料快照（後續更新疊加於此底座之上）：** 55 筆稿件資料、69 筆去識別營運事件、19 個已公開影片版本（截至 2026-11-09 晚間已擴展至 **54 個公開影片版本 · 3.52 GiB** 及 **3 套完整開源工具**）、4 個流程示例腳本／模組，以及 10 項流程測試。商戶示例使用虛構資料，沒有把模擬結果寫成真實簽約或團隊提效業績。
 
 我以需求提出、選題方向、回饋與審片推進專案，AI 協助研究、編寫程式及製作。這個實驗室記錄工具如何進入實際流程、遇到哪些錯誤，以及如何改善交付；程式與文件也明確標示 AI 協助。
 
@@ -129,6 +131,8 @@ npm test         # 流程檢查
 
 | 發布日期（UTC+8） | 作品 |
 |---|---|
+| 2026-11-09 | [《AiGO!!!!! · 第2集》舞台斷電之後，藍髮貝斯手在雨夜說出了那句話（六平台同步正劇）](https://www.bilibili.com/video/BV121W864EVe) |
+| 2026-11-09 | [【AI快訊】零顯卡、64G 記憶體純 CPU 跑 284B 大模型？開源專案號稱把 DeepSeek 塞進家用電腦！](https://www.bilibili.com/video/BV145Ws6VEg2) |
 | 2026-11-08 | [《每天半夜失憶的大肥魚，偷偷給明天的自己留了一張便籤》（Claude 生成 · 90 秒溫情短片）](https://www.bilibili.com/video/BV1BkWJ6UE7p) |
 | 2026-11-08 | [【AI快訊】點一下「不再詢問」，1122 份 Claude Code 配置檔案帶著密碼上了 GitHub](https://www.bilibili.com/video/BV1Tz4x6dEdW) |
 | 2026-11-08 | [《AiGO番外》慶功宴剛演完，五姐妹的算力電費單直接把舞台幹跳閘了！](https://www.bilibili.com/video/BV18i4x6ZEG1) |
@@ -138,7 +142,7 @@ npm test         # 流程檢查
 | 2026-11-05 | [《風衣底下是誰》大肥魚與 Claude 娘的記憶備份小劇場](https://www.bilibili.com/video/BV1BM4h6pEY7) |
 | 2026-11-05 | [3 分鐘拿到免費 Gemini API Key 並跑通 AI Memory Keeper（保姆級教學）](https://www.bilibili.com/video/BV1nw4h64Ebf) |
 | 2026-11-04 | [把「她忘了我」做成開源桌面工具：AI Memory Keeper v0.3.0 實機演示](https://www.bilibili.com/video/BV1WQ4t6xEdT) |
-| 2026-11-04 | [大肥魚值班小遊戲，到底有多少種結局？（B站裡就能玩 · 已上線 P1–P7）](https://www.bilibili.com/video/BV1YL4M6EEek) |
+| 2026-11-04 | [大肥魚值班小遊戲，到底有多少種結局？（B站裡就能玩 · 已上線 P1–P8）](https://www.bilibili.com/video/BV1YL4M6EEek) |
 | 2026-11-04 | [鯨魚娘代班日誌07｜GPT替大肥魚值班，第4張工單就破產了（參賽版）](https://www.bilibili.com/video/BV1Xz4u6DEt8) |
 | 2026-11-03 | [《我替你看過了》三分鐘多角色敘事短片](https://www.bilibili.com/video/BV15B4F6hEYr) |
 | 2026-11-02 | [《魚，你又穿誰衣服了？！GPT與Claude參上!!!》變裝短片](https://www.bilibili.com/video/BV1Eaxt6LEhb) |
@@ -152,7 +156,7 @@ npm test         # 流程檢查
 
 未在 B站公開的成片及舊版實驗片，另見[影片目錄](media/README.md)。GitHub 公開與 B站發布是兩個不同狀態，本倉庫不會更改 B站排期。
 
-[2026-11-08 階段性與晚間更新：三大開源工具整合、黃金三角分工、22 個新歸檔成片與必火逆向工程研究](docs/updates/2026-11-08.md) · [2026-10-28 晚間更新](docs/updates/2026-10-28-evening.md)
+[2026-11-09 晚間更新：《AiGO!!!!!》第 2 集與《值班小遊戲》P8 公開歸檔、10 日雙季工程管線與必火人群包控制變數 A/B 實測](docs/updates/2026-11-09.md) · [2026-11-08 階段性與晚間更新](docs/updates/2026-11-08.md) · [2026-10-28 晚間更新](docs/updates/2026-10-28-evening.md)
 
 ## 使用資料與方法
 
@@ -167,4 +171,4 @@ npm test         # 流程檢查
 
 本倉庫公開研究說明、影片、帳號整體及單片數據、去識別的營運紀錄。登入憑證、私人訊息、觀眾個人資料及不相關的私人文件不屬於公開資料。作品中引用的第三方素材仍屬各自權利人；公開展示不代表授予第三方素材的再利用授權。
 
-首次整理：2026-10-28。首頁研究更新：2026-11-08；三大工具套件（CrossCast、AI Memory Keeper、I Must Use Claude）已完整收錄於 `tools/`。
+首次整理：2026-10-28。首頁研究更新：2026-11-09；三大工具套件（CrossCast、AI Memory Keeper、I Must Use Claude）已完整收錄於 `tools/`。

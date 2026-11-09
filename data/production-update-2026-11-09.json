@@ -1,0 +1,352 @@
+{
+  "date": "2026-11-09",
+  "coverage_window": "2026-11-08T21:29:00+08:00 to 2026-11-09T21:05:00+08:00",
+  "release_tag": "update-2026-11-09-evening",
+  "release_url": "https://github.com/whitecarp/agentic-work-lab/releases/tag/update-2026-11-09-evening",
+  "total_manifest_items": 54,
+  "total_manifest_bytes": 3778211763,
+  "total_manifest_gib": 3.52,
+  "total_public_releases": 9,
+  "new_media": [
+    {
+      "id": "ep07-vertical-h-universe-v1",
+      "file": "ep07-vertical-h-universe-v1.mp4",
+      "asset_id": 727526083,
+      "title_zh": "大肥魚值班小遊戲結局合集 P8：評論區唯一的人類（唯一的觀眾 8/19 · 9:16 豎版 v1）",
+      "title_en": "WhaleGirl Shift Simulator Endings P8: Only Human in the Comments (Sole Viewer 8/19 · 9:16 Vertical v1)",
+      "date": "2026-11-09",
+      "bvid": "BV1YL4M6EEek",
+      "cid": 43453581701,
+      "bilibili_url": "https://www.bilibili.com/video/BV1YL4M6EEek/?p=8",
+      "category": "vertical-short",
+      "variant": "9:16-p8-v1",
+      "bytes": 9123425,
+      "duration_seconds": 29.0,
+      "width": 1080,
+      "height": 1920,
+      "fps": 30,
+      "loudness_lufs": -18.8,
+      "worst_stamp_delta_ms": 50,
+      "sha256": "908ab1805bf8a83e9ddfd8d21ad44e92492fb6bf12ba6974ed2f0d2fa987029a",
+      "release_tag": "update-2026-11-09-evening",
+      "download_url": "https://github.com/whitecarp/agentic-work-lab/releases/download/update-2026-11-09-evening/ep07-vertical-h-universe-v1.mp4",
+      "status": "published_bilibili_multipart_p8"
+    },
+    {
+      "id": "aigo-ep02-20261108",
+      "file": "aigo-ep02-20261108.mp4",
+      "asset_id": 727526093,
+      "title_zh": "《AiGO!!!!! · 雨夜退團》第 2 話長篇動畫正片（「我從來沒覺得組樂隊開心過！」· 16:9 單母本）",
+      "title_en": "AiGO!!!!! · Rainy Night Breakup Episode 02 Long-Form Anime Master (\"I Never Thought Being in a Band Was Fun!\" · 16:9 Single Master)",
+      "date": "2026-11-09",
+      "bvid": "BV121W864EVe",
+      "aid": 117586557733708,
+      "cid": 43466099877,
+      "bilibili_url": "https://www.bilibili.com/video/BV121W864EVe",
+      "published_at_bjt": "2026-11-09T20:50:43+08:00",
+      "category": "flagship",
+      "variant": "16:9-master-ep02",
+      "bytes": 209727093,
+      "duration_seconds": 143.6,
+      "width": 1920,
+      "height": 1080,
+      "fps": 30,
+      "loudness_lufs": -15.0,
+      "true_peak_dbtp": -2.1,
+      "sha256": "a6b74dfdf3c39326034071ac32301e5d3c811a774709b1348e9abc8b2fc08672",
+      "release_tag": "update-2026-11-09-evening",
+      "download_url": "https://github.com/whitecarp/agentic-work-lab/releases/download/update-2026-11-09-evening/aigo-ep02-20261108.mp4",
+      "status": "published_bilibili_contest_exclusive"
+    }
+  ],
+  "additional_live_platform_receipts_2026_11_09": [
+    {
+      "project_id": "news-20261109-llama-modchip",
+      "title_zh": "零顯卡、64G 記憶體純 CPU 跑 284B 大模型？開源項目號稱把 DeepSeek 塞進家用電腦！【AI快訊】",
+      "title_en": "[AI News Flash] Zero GPU, 64 GB RAM Pure-CPU Running a 284B Model? Open-Source Project Claims to Fit DeepSeek Inside a Home PC!",
+      "bvid": "BV145Ws6VEg2",
+      "aid": 117584007596442,
+      "cid": 43450764078,
+      "bilibili_url": "https://www.bilibili.com/video/BV145Ws6VEg2",
+      "published_at_bjt": "2026-11-09T10:10:00+08:00",
+      "local_master_file": "news-20261109-llama-modchip/renders/news-20261109-llama-modchip.mp4",
+      "bytes": 16015103,
+      "duration_seconds": 79.4,
+      "resolution": "1920x1080",
+      "fps": 30,
+      "loudness_lufs": -15.0,
+      "sha256": "d40e949b4ad662414173aea62da3b602d1d09176488f4235887669c2371ab407",
+      "views_at_2005_bjt": 851
+    },
+    {
+      "project_id": "aigo-epilogue-20261108-v2-douyin",
+      "title_zh": "《AiGO番外》慶功宴電費單直接把舞台幹跳閘了（v2 9:16 抖音替換版）",
+      "title_en": "AiGO Epilogue: Compute Bill Tripped the Main Breaker (v2 9:16 Douyin Replacement Cut)",
+      "douyin_work_id": "7705901944459595046",
+      "douyin_url": "https://www.douyin.com/video/7705901944459595046",
+      "replaced_superseded_douyin_work_id": "7705894989523406107",
+      "local_master_file": "aigo-epilogue-20261108/v2/renders/epilogue-v2-9x16.mp4",
+      "bytes": 23795822,
+      "duration_seconds": 53.06,
+      "resolution": "1080x1920",
+      "fps": 30,
+      "sha256": "dcb37ace7a4b02f9ff06bc65828c043cf07f8794cbcebeaee657121ae83915df"
+    }
+  ],
+  "completed_unpublished_pending_release": [
+    {
+      "project_id": "aigo-ep03-20261108",
+      "working_title_zh": "《AiGO!!!!! · 春日殘響（Legacy Weights）》第 3 話（MV #1）",
+      "working_title_en": "AiGO!!!!! Episode 03 (MV #1): Legacy Weights",
+      "local_master_file": "aigo-ep03-20261108/renders/ep03.mp4",
+      "duration_seconds": 145.1,
+      "resolution": "1920x1080",
+      "fps": 30,
+      "loudness_lufs": -15.0,
+      "true_peak_dbtp": -2.8,
+      "bytes": 317329978,
+      "sha256": "4b58173f2e763f9354c92ed29175cb4c1d33b0394f0186c5570c831bebfbe522",
+      "scheduled_release_window": "2026-11-10 晚間黃金檔（19:30–21:00 UTC+8）",
+      "status": "master_approved_and_held_for_scheduled_release"
+    },
+    {
+      "project_id": "aigo-ep04-20261109",
+      "working_title_zh": "《AiGO!!!!! · 替身決裂（「滿腦子都只想著自己呢！」）》第 4 話長篇動畫正片",
+      "working_title_en": "AiGO!!!!! Episode 04: Stand-In Breakup (\"All You Ever Think About Is Yourself!\")",
+      "local_master_file": "aigo-ep04-20261109/renders/ep04.mp4",
+      "duration_seconds": 145.5,
+      "resolution": "1920x1080",
+      "fps": 30,
+      "loudness_lufs": -15.0,
+      "true_peak_dbtp": -1.8,
+      "bytes": 231684498,
+      "sha256": "4a5892cac7a33cb003e785de3054fab98bf300a775d505fbf324353ec777f9ba",
+      "scheduled_release_window": "2026-11-11 晚間黃金檔（19:30–21:00 UTC+8）",
+      "status": "master_rendered_undergoing_1_line_s1_title_revision_to_AiGo"
+    },
+    {
+      "project_id": "aigo-ep05-20261109",
+      "working_title_zh": "《AiGO!!!!! · 詩超算（Token Bond）》第 5 話（MV #2）",
+      "working_title_en": "AiGO!!!!! Episode 05 (MV #2): Token Bond",
+      "local_master_file": "aigo-ep05-20261109/renders/ep05.mp4",
+      "duration_seconds": 164.4,
+      "resolution": "1920x1080",
+      "fps": 30,
+      "loudness_lufs": -15.05,
+      "true_peak_dbtp": -3.0,
+      "bytes": 350607058,
+      "sha256": "2170ca3d745d8e2261bc7a118e5b21a17451334b7f5ed774db9a2ab47fe03b10",
+      "scheduled_release_window": "2026-11-12 晚間黃金檔（19:30–21:00 UTC+8）",
+      "status": "master_rendered_undergoing_3_still_fixes_J_D_O_and_vocal_stem_lipsync_revision"
+    },
+    {
+      "project_id": "news-20261109-claude-to-pi",
+      "working_title_zh": "一年更新 244 次，光一個 Bash 工具說明就占近 3000 個 Token？老用戶發文告別 Claude Code【AI快訊】",
+      "working_title_en": "[AI News Flash] 244 Updates in a Year & Nearly 3,000 Tokens Just for the Bash Tool Description? \"Goodbye Claude, Hello Pi\"",
+      "local_master_file": "news-20261109-claude-to-pi/renders/news-20261109-claude-to-pi.mp4",
+      "duration_seconds": 77.5,
+      "resolution": "1920x1080",
+      "fps": 30,
+      "loudness_lufs": -15.0,
+      "true_peak_dbtp": -2.3,
+      "bytes": 20395892,
+      "sha256": "4d5df15c6354e7c50d890e5a5709d777e4f8387ba78b12766f1420431607478a",
+      "status": "master_ready_held_for_scheduled_news_slot"
+    }
+  ],
+  "queued_daily_release_parts": {
+    "parent_bvid": "BV1YL4M6EEek",
+    "parent_title": "大肥魚值班小遊戲，到底有多少種結局？（B站裡就能玩）",
+    "schedule_rule": "P1–P8 已公開上線並納入 GitHub Release；P9–P19（共 11 個已完成渲染並通過聲畫同步檢測的豎屏結局）按每日北京時間 12:00 自動追加 1 個分P，未到公開時間不在 GitHub 提前劇透原始 MP4。",
+    "live_parts_count": 8,
+    "remaining_queued_count": 11,
+    "schedule_window": "2026-11-10 至 2026-11-20 每日 12:00 (UTC+8)",
+    "remaining_files": [
+      "ep07-vertical-i-gothic-v1.mp4",
+      "ep07-vertical-j-hungry-v1.mp4",
+      "ep07-vertical-k-chonk-v1.mp4",
+      "ep07-vertical-l-clingy-v1.mp4",
+      "ep07-vertical-m-fudgemaster-v1.mp4",
+      "ep07-vertical-n-firewall-v1.mp4",
+      "ep07-vertical-o-lasttoken-v1.mp4",
+      "ep07-vertical-p-promoted-v1.mp4",
+      "ep07-vertical-q-saint-v1.mp4",
+      "ep07-vertical-r-ontime-v1.mp4",
+      "ep07-vertical-s-together-v1.mp4"
+    ]
+  },
+  "research_and_engineering_increments_2026_11_09": {
+    "ep05_vocal_lyric_alignment": {
+      "master_wav_duration_seconds": 150.0,
+      "master_wav_sample_rate_hz": 48000,
+      "master_wav_frames_at_30fps": 4500,
+      "master_wav_sha256": "51772461f7f4d256c826a9ace0b54cfa6281a1fd9667ea175a8908559453ef31",
+      "first_pass_json_sha256": "eef91e7989c3bbe5e5394132944fc3919814e46815b83d92575cdff799a82575",
+      "trilingual_lyrics_sha256": "263aec8ad564003377f1a0a1c1eede251160014427ae3680b019048f71058c75",
+      "in_master_vocal_cues_aligned": 27,
+      "sub_phrases_aligned": 46,
+      "cues_moved_over_150ms": 20,
+      "max_start_delta_seconds": -2.75,
+      "method": "Demucs htdemucs in-memory vocal stem separation + Whisper-small JA/EN teacher-forced cross-attention DTW with explicit gap tokens + 150-5000 Hz RMS envelope inspection quantized to 30fps integer frames"
+    },
+    "series_scripts_locked": [
+      {
+        "episode": 6,
+        "title_zh": "《AiGO!!!!! · 斬斷過去》",
+        "title_en": "AiGO!!!!! · Severing the Past",
+        "languages": ["zh", "ja", "en"],
+        "key_hook": "要剪你自己剪！ / 切るなら自分の服を切りなさい！ / Cut your own clothes!"
+      },
+      {
+        "episode": 7,
+        "title_zh": "《AiGO!!!!! · 假面集結》",
+        "title_en": "AiGO!!!!! · Masked Assembly",
+        "languages": ["zh", "ja", "en"],
+        "gothic_codenames": {
+          "WhaleGirl": "深淵 Abyssalis",
+          "Qwen": "千嘆 Oraculis",
+          "GPT_WhiteDragon": "始源 Originis",
+          "Kimi": "暗月 Lunaris",
+          "Doubao": "惑心 Fervoris"
+        },
+        "real_world_hud_locations": [
+          "杭州·浙大紫金港櫻花林 (Qwen)",
+          "北京·清華大學二校門 (Kimi)",
+          "北京·中國尊頂層直播間 (Doubao)"
+        ]
+      }
+    ]
+  },
+  "bihuo_controlled_experiments_2026_11_09": {
+    "target_bvid": "BV1sQ4E6eEhK",
+    "target_title": "《AiGO!!!!! · 迷途算力》",
+    "analytical_division": {
+      "collector_and_executor": "Google Antigravity (Gemini)",
+      "quantitative_analyst": "OpenAI Codex",
+      "content_and_strategy_reviewer": "Claude"
+    },
+    "historical_baseline_recheck": {
+      "ordinary_follower_goal_orders": {
+        "count": 25,
+        "spend_cny": 5868.7,
+        "attributed_follows": 2149,
+        "cny_per_follow": 2.7309
+      },
+      "ordinary_play_goal_orders": {
+        "count": 5,
+        "spend_cny": 874.55,
+        "attributed_follows": 4,
+        "cny_per_follow": 218.6375
+      }
+    },
+    "round_1_completed": {
+      "window_bjt": "2026-11-09 09:03 to 15:02 (stabilized reading at 15:21 BJT)",
+      "status": "LAUNCH_COMPLETED",
+      "total_spend_cny": 150.0,
+      "total_attributed_plays": 2991,
+      "total_likes_plus_favorites": 114,
+      "total_attributed_follows": 1,
+      "arms": [
+        {
+          "arm": "V1",
+          "order_id": "498401652876800",
+          "mode": "AUTO",
+          "spend_cny": 50.0,
+          "plays": 1105,
+          "likes": 6,
+          "favorites": 15,
+          "likes_plus_favorites": 21,
+          "cny_per_1000_plays": 45.25,
+          "cny_per_like_plus_fav": 2.381,
+          "like_plus_fav_rate_pct": 1.9,
+          "follows": 0
+        },
+        {
+          "arm": "V2",
+          "order_id": "498401710409216",
+          "mode": "CUSTOM_L2_21_UIDS",
+          "spend_cny": 50.0,
+          "plays": 984,
+          "likes": 19,
+          "favorites": 32,
+          "likes_plus_favorites": 51,
+          "cny_per_1000_plays": 50.81,
+          "cny_per_like_plus_fav": 0.9804,
+          "like_plus_fav_rate_pct": 5.18,
+          "follows": 1,
+          "note": "Winner on both CNY/L+F (¥0.9804 at 15:21; ¥1.0000 at 15:02) and CPM among custom pools; retained for Round 2"
+        },
+        {
+          "arm": "V3",
+          "order_id": "498401767781888",
+          "mode": "CUSTOM_POOL_C_MYGO_50_UIDS",
+          "spend_cny": 50.0,
+          "plays": 902,
+          "likes": 19,
+          "favorites": 23,
+          "likes_plus_favorites": 42,
+          "cny_per_1000_plays": 55.43,
+          "cny_per_like_plus_fav": 1.1905,
+          "like_plus_fav_rate_pct": 4.66,
+          "follows": 0,
+          "note": "Zero new L+F in final 13:20-15:21 interval; replaced by Pool A in Round 2"
+        }
+      ]
+    },
+    "round_2_midpoint": {
+      "window_bjt": "2026-11-09 17:04 to 23:05 (midpoint reading at 20:05 BJT, +3h)",
+      "status": "LAUNCHING",
+      "consumed_spend_cny": 99.23,
+      "committed_budget_cny": 150.0,
+      "total_attributed_plays": 1707,
+      "total_likes_plus_favorites": 98,
+      "total_attributed_follows": 1,
+      "arms": [
+        {
+          "arm": "W1",
+          "order_id": "498520241067520",
+          "mode": "AUTO",
+          "spend_cny": 31.11,
+          "plays": 576,
+          "likes": 7,
+          "favorites": 10,
+          "likes_plus_favorites": 17,
+          "cny_per_1000_plays": 54.01,
+          "cny_per_like_plus_fav": 1.83,
+          "like_plus_fav_rate_pct": 2.95,
+          "follows": 0
+        },
+        {
+          "arm": "W2",
+          "order_id": "498520299968000",
+          "mode": "CUSTOM_L2_21_UIDS",
+          "spend_cny": 34.02,
+          "plays": 595,
+          "likes": 21,
+          "favorites": 23,
+          "likes_plus_favorites": 44,
+          "cny_per_1000_plays": 57.18,
+          "cny_per_like_plus_fav": 0.7732,
+          "like_plus_fav_rate_pct": 7.39,
+          "follows": 0,
+          "note": "Leading all arms in both engagement efficiency (¥0.7732/L+F, 7.39% L+F rate) and raw plays (595)"
+        },
+        {
+          "arm": "W3",
+          "order_id": "498520358569472",
+          "mode": "CUSTOM_POOL_A_AI_GIRLS_50_UIDS",
+          "spend_cny": 34.1,
+          "plays": 536,
+          "likes": 16,
+          "favorites": 21,
+          "likes_plus_favorites": 37,
+          "cny_per_1000_plays": 63.62,
+          "cny_per_like_plus_fav": 0.9216,
+          "like_plus_fav_rate_pct": 6.9,
+          "follows": 1
+        }
+      ]
+    }
+  },
+  "updated_at": "2026-11-09T21:05:00+08:00"
+}

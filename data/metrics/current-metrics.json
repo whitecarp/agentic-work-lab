@@ -1,6 +1,6 @@
 {
   "schema_version": "1.1.0",
-  "updated_at": "2026-11-08T21:06:00+08:00",
+  "updated_at": "2026-11-09T20:55:00+08:00",
   "channel": {
     "platform": "bilibili",
     "uid": 10706217,
@@ -9,11 +9,11 @@
     "following": 168
   },
   "manifest_totals": {
-    "total_video_versions": 52,
-    "total_bytes": 3559361245,
-    "total_gib": 3.31,
-    "latest_release_tag": "update-2026-11-08-catchup",
-    "latest_release_assets": 22
+    "total_video_versions": 54,
+    "total_bytes": 3778211763,
+    "total_gib": 3.52,
+    "latest_release_tag": "update-2026-11-09-evening",
+    "latest_release_assets": 2
   },
   "google_cloud_official_traffic_matrix": {
     "program": "Google Cloud (Google 出海創新競賽單元 / Google Global Innovation Track)",
@@ -40,14 +40,27 @@
       "bvid": "BV1Eaxt6LEhb",
       "title": "鱼，你又穿谁衣服了？！GPT与Claude参上!!!",
       "pubdate_bjt": "2026-11-02",
-      "views": 106127,
-      "likes": 15509,
-      "favorites": 5088,
+      "views": 107055,
+      "likes": 15596,
+      "favorites": 5137,
       "coins": 3086,
       "comments": 129,
       "shares": 543,
       "danmaku": 325,
-      "bihuo_highlight": "Crossed 100k views (106,127)! Order 497711549966336 (h50 72h VIEW) completed/settled after hitting 100k tier: ¥226.78 spent (¥273.22 refunded), 16,174 plays (¥14.02/1k), 1,119 likes, 165 favs, 14 follows (¥16.20/fan); Order 497711604487680 (h50 INTERACT) finished ¥100.00 with 2,673 likes + 664 favs"
+      "bihuo_highlight": "Crossed 107k views (107,055)! Order 497711549966336 (h50 72h VIEW) completed/settled after hitting 100k tier: ¥226.78 spent (¥273.22 refunded), 16,174 plays (¥14.02/1k), 1,119 likes, 165 favs, 14 follows (¥16.20/fan); Order 497711604487680 (h50 INTERACT) finished ¥100.00 with 2,673 likes + 664 favs"
+    },
+    {
+      "bvid": "BV1sQ4E6eEhK",
+      "title": "四个AI组乐队，唱着唱着算力不够了【AiGO · 迷途算力】",
+      "pubdate_bjt": "2026-11-07",
+      "views": 29039,
+      "likes": 833,
+      "favorites": 915,
+      "coins": 49,
+      "comments": 97,
+      "shares": 55,
+      "danmaku": 182,
+      "bihuo_highlight": "Crossed 29k views (29,039 views, 833 likes, 915 favs)! 2026-11-09 controlled crowd-pool A/B experiments: Round 1 (09:03–15:02, ¥150, 3,262 plays) & Round 2 (+3h midpoint at 20:05, ¥93.36/¥150, 2,262 plays) proved AUTO wins raw CPM (¥43.25/1k in R1, ¥36.87/1k in R2) while L2 (21-UID lookalike) wins engagement efficiency at ¥1.00/L+F in R1 and ¥0.77/L+F (7.39% L+F rate) in R2"
     },
     {
       "bvid": "BV1WQ4t6xEdT",
@@ -64,21 +77,8 @@
       "like_plus_fav_rate_pct": 14.85
     },
     {
-      "bvid": "BV1sQ4E6eEhK",
-      "title": "四个AI组乐队，唱着唱着算力不够了【AiGO · 迷途算力】",
-      "pubdate_bjt": "2026-11-07",
-      "views": 22989,
-      "likes": 649,
-      "favorites": 716,
-      "coins": 39,
-      "comments": 82,
-      "shares": 46,
-      "danmaku": 179,
-      "bihuo_highlight": "Crossed 500 likes (649 likes, 716 favs)! Stage-1 4×¥250 completed (18,492 plays, ¥54.08/1k; Pool A 5.96% L+S, Pool D 5.55% L+S). Stage-2 +3h: P1b AUTO VIEW at ¥35.37/1k (709 plays on ¥25.08); I1 ad50 INTERACT achieved 88 likes + 92 favs on 182 plays (98.90% L+S at ¥0.11/interact)"
-    },
-    {
       "bvid": "BV1YL4M6EEek",
-      "title": "大肥鱼值班小游戏，到底有多少种结局？（B站里就能玩 · P1–P7 在线）",
+      "title": "大肥鱼值班小游戏，到底有多少种结局？（B站里就能玩 · P1–P8 在线）",
       "pubdate_bjt": "2026-11-04",
       "views": 15810,
       "likes": 753,
@@ -87,8 +87,20 @@
       "comments": 93,
       "shares": 23,
       "danmaku": 58,
-      "live_parts": 7,
-      "queued_parts": 12
+      "live_parts": 8,
+      "queued_parts": 11
+    },
+    {
+      "bvid": "BV15B4F6hEYr",
+      "title": "《我替你看过》三分钟多角色叙事短片",
+      "pubdate_bjt": "2026-11-03",
+      "views": 7385,
+      "likes": 99,
+      "favorites": 36,
+      "coins": 22,
+      "comments": 61,
+      "shares": 13,
+      "danmaku": 18
     },
     {
       "bvid": "BV1nw4h64Ebf",
@@ -118,16 +130,16 @@
       "traffic_support": "Google Cloud official traffic support (¥0 paid Bihuo)"
     },
     {
-      "bvid": "BV15B4F6hEYr",
-      "title": "《我替你看过》三分钟多角色叙事短片",
-      "pubdate_bjt": "2026-11-03",
-      "views": 3726,
-      "likes": 99,
-      "favorites": 36,
-      "coins": 22,
-      "comments": 61,
-      "shares": 13,
-      "danmaku": 18
+      "bvid": "BV1Xz4u6DEt8",
+      "title": "我让GPT替我值班，第4张工单就破产了【B站AI创作大赛】",
+      "pubdate_bjt": "2026-11-04",
+      "views": 4195,
+      "likes": 60,
+      "favorites": 14,
+      "coins": 8,
+      "comments": 46,
+      "shares": 3,
+      "danmaku": 49
     },
     {
       "bvid": "BV1yr4v6LERN",
@@ -154,16 +166,28 @@
       "danmaku": 4
     },
     {
-      "bvid": "BV1Xz4u6DEt8",
-      "title": "我让GPT替我值班，第4张工单就破产了【B站AI创作大赛】",
-      "pubdate_bjt": "2026-11-04",
-      "views": 817,
-      "likes": 60,
-      "favorites": 14,
-      "coins": 8,
-      "comments": 46,
-      "shares": 3,
-      "danmaku": 49
+      "bvid": "BV145Ws6VEg2",
+      "title": "零显卡、64G 内存纯 CPU 跑 284B 大模型？开源项目号称把 DeepSeek 塞进家用电脑！【AI快讯】",
+      "pubdate_bjt": "2026-11-09",
+      "views": 851,
+      "likes": null,
+      "favorites": null,
+      "coins": null,
+      "comments": null,
+      "shares": null,
+      "danmaku": null
+    },
+    {
+      "bvid": "BV1BkWJ6UE7p",
+      "title": "每天半夜失忆的大肥鱼，偷偷给明天的自己留了一张便签（此视频由Claude生成）",
+      "pubdate_bjt": "2026-11-08",
+      "views": 422,
+      "likes": 7,
+      "favorites": 3,
+      "coins": 4,
+      "comments": 12,
+      "shares": 0,
+      "danmaku": 0
     },
     {
       "bvid": "BV18i4x6ZEG1",
@@ -190,16 +214,16 @@
       "danmaku": 0
     },
     {
-      "bvid": "BV1BkWJ6UE7p",
-      "title": "每天半夜失忆的大肥鱼，偷偷给明天的自己留了一张便签（此视频由Claude生成）",
-      "pubdate_bjt": "2026-11-08",
-      "views": 49,
-      "likes": 7,
-      "favorites": 3,
-      "coins": 4,
-      "comments": 12,
-      "shares": 0,
-      "danmaku": 0
+      "bvid": "BV121W864EVe",
+      "title": "舞台断电之后，蓝发贝斯手在雨夜说出了那句话【AiGO!!!!! · 第2集】",
+      "pubdate_bjt": "2026-11-09",
+      "views": null,
+      "likes": null,
+      "favorites": null,
+      "coins": null,
+      "comments": null,
+      "shares": null,
+      "danmaku": null
     }
   ]
 }
