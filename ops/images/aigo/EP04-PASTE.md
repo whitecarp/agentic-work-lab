@@ -64,17 +64,17 @@ Use the attached character sheet (five girls) as the exact character and outfit 
 
 Characters: The whale girl (far left on the five-girl sheet: navy hair fading lighter at the tips, bright blue eyes, fin-shaped ears, a thin white frilled headband, a navy blazer with a small red ribbon, a dark pleated skirt, a navy whale tail).
 
-Shot: Medium close-up from a low angle, from the kneeling amber girl's point of view a step below, looking UP at the whale girl from her waist up; her face is large in the frame. She stands at the top of the steps and looks down at us, the huge setting sun right behind her head so she is strongly backlit, rim light on her hair and fin-shaped ears; her face is in cool shadow but clearly visible, eyes half-lidded, a faint cold smirk. Behind her only the red sky and the sun; no steps going down behind her. Her lips are closed.
+Shot: Medium close-up from a low angle, from the kneeling amber girl's point of view a step below, looking UP at the whale girl from her waist up; her face is large in the frame. She stands at the top of the steps and looks down at us, the huge setting sun right behind her head so she is strongly backlit, rim light on her hair and fin-shaped ears; her face is in cool shadow but clearly visible and completely expressionless: calm, cold eyes empty of feeling, her mouth a flat closed line, no smile, no blush. Behind her only the red sky and the sun; no steps going down behind her. Her lips are closed.
 ```
 
-### F · `EP4_F_fingers.png` (S6 · the whale girl speaks · DONE 11-09: kept)
+### F · `EP4_F_fingers.png` (S6 · the whale girl speaks · v1 has a stair error (a second staircase right of her feet): fix with the edit under Fixes; the fixed F is also the COVER)
 Attach: EP2X_00_cast.png + ep04/EP4_A_steps.png
 ```
 Use the attached character sheet (five girls) as the exact character and outfit reference; faces, hair, ears, horns, tails, eye colours and outfits must match. Use the attached wide shot of the stone steps as the location: the same wide stone steps, the same metal handrails on both sides, the same trees and the same red sunset. The top of the steps is where the whale girl stood in the wide shot, and the setting sun is beyond the top. Art style: a crisp Japanese TV-anime frame: thin black line art, two-tone cel shading, soft desaturated colours, the look of a modern drama anime, not a glossy painted poster. The characters are adult anime women. Nobody wears a mask. Five fingers per hand. No text, letters, logos, watermarks or subtitles anywhere. 16:9, 1920×1080 or larger.
 
 Characters: The whale girl (far left on the five-girl sheet: navy hair fading lighter at the tips, bright blue eyes, fin-shaped ears, a thin white frilled headband, a navy blazer with a small red ribbon, a dark pleated skirt, a navy whale tail); the amber girl (second from left on the five-girl sheet: long amber-orange hair with one long braid over her shoulder, a sunflower hairpin, amber eyes, a cream knit cardigan, a long brown pleated skirt); the dragon girl (far right on the five-girl sheet: silver-white hair, curved ivory horns, violet eyes, small white wings, an ivory cardigan, a white tiered dress, a white dragon tail).
 
-Shot: Medium side shot on the steps, from the same side as the kneeling shot. Seen from the side: the top of the steps is on the LEFT of the picture and the steps go down to the RIGHT; the low setting sun is on the left, beyond the top. The whale girl stands on the higher step on the left, bends slightly and pries the amber girl's fingers off the hem of her navy blazer one at a time, looking down at her with a cold, calm face; her face is clear in the upper left. The amber girl kneels on the lower step on the right with her head bowed and her braid fallen forward. She is not carrying her bass case or any bag, as in the wide shot. Far in the background, under the big tree beside the steps, the dragon girl has closed her eyes and turned her head away. Warm red light from the left on the faces, cool blue shadow on the other side. The whale girl's lips are closed.
+Shot: Medium side shot on the steps, from the same side as the kneeling shot. Seen from the side: the top of the steps is on the LEFT of the picture and the steps go down to the RIGHT; the low setting sun is on the left, beyond the top. The whale girl stands on the higher step on the left, bends slightly and pries the amber girl's fingers off the hem of her navy blazer one at a time, looking down at her with a completely expressionless face: no smile, cold eyes empty of feeling; her face is clear in the upper left. The amber girl kneels on the lower step on the right with her head bowed and her braid fallen forward. She is not carrying her bass case or any bag, as in the wide shot. Far in the background, under the big tree beside the steps, the dragon girl has closed her eyes and turned her head away. Warm red light from the left on the faces, cool blue shadow on the other side. The whale girl's lips are closed.
 ```
 
 ### G · `EP4_G_dragon_away.png` (S6 insert · optional · moved by Omni · DONE 11-09: kept)
@@ -203,10 +203,25 @@ Shot: Close-up of the purple cat girl kneeling on the floor of the rehearsal roo
 
 ## Fixes
 
-### K · `EP4_K_shock.png` (the neck bent away from the body in v1)
-Attach: ep04/EP4_K_shock-v1-bent-neck.png + EP2X_00_cast_new.png
+Mark ONLY the area named, with the editor's brush, then paste the text. A marked area keeps the rest of the picture untouched, which the whole-picture edits did not (11-09: the guitar moved beside her, the stairs climbed back up, a mouth edit changed her eyes).
+
+**The user's rule, 11-09: "for dp, she shouldn't has not emotion in face".** DP = the whale girl: no smile, no smirk, no blush in
+第4话. Her face stays blank and cold in every shot and every mouth frame.
+
+### K · `EP4_K_shock.png` (v1: the neck bent; v2 fix: the guitar stood beside her instead of on her back)
+Mark: the whole guitar beside her, plus the space just above her right shoulder (viewer's left).
 ```
-Edit the attached picture of the two cat girls under the overpass. Change ONLY the baguette guitar on the orange cat girl's back: it must be one straight, rigid guitar. The neck comes straight out of the top end of the golden-brown body and continues in exactly the same direction as the body, with no bend or angle at the joint, up to the headstock. Keep the body as it is: smooth and glossy like a polished guitar finish, exactly two pale oval marks, one near each end, and three pickups between. Use the attached character sheet (two girls) only for the guitar's design. Everything else stays exactly as it is: both girls, their faces, expressions, hands, clothes, hair, ears and tails, the lighting, the framing and the background. Same 16:9 framing, same anime style, no text.
+She wears this guitar on her back, hidden behind her body. Only the top of its straight neck and the headstock show, rising from behind her right shoulder, close to her head. Nothing stands or floats beside her: fill that space with the background, the concrete pillar and the dusk light. Keep both girls exactly as they are.
+```
+
+### F · `EP4_F_fingers.png`, two marked edits (also the cover)
+1. Mark: the whale girl's face only (v1 smiles; the user: no emotion for DP).
+```
+Make her face completely expressionless: her mouth a flat, closed line with no smile, her eyes calm, cold and empty of feeling, still looking down at the kneeling girl. No blush. Keep her hair, ears, headband and everything else exactly as it is.
+```
+2. Mark: the steps to the right of the kneeling amber girl (the v2 fix made them climb back up, so she knelt in a dip).
+```
+The stairs end here: the amber girl kneels on the lowest step, and to the right of her is a flat stone landing at the foot of the stairs, stretching back to the tree where the dragon girl stands. No steps to the right of her. Keep the girl, her shoes and her skirt exactly as they are.
 ```
 
 ### B · `EP4_B_claude_plead.png` (v2 drew red irises; she has amber eyes)
@@ -215,7 +230,13 @@ Attach: ep04/EP4_B_claude_plead-v2-red-eyes.png + EP2X_00_cast.png
 Edit the attached picture of the crying amber girl on the stone steps. Change ONLY the colour of her irises: make them warm amber-gold, exactly like her eyes on the attached character sheet (five girls, second from left). Keep her tears, the wet, red-rimmed eyelids, her expression and everything else exactly as it is: hair, sunflower hairpin, outfit, hands, the steps, the lighting, the framing and the background. Same 16:9 framing, same anime style, no text.
 ```
 
-### E · `EP4_E_whale_above.png`: redo from the E block in Act 1 (now a waist-up shot, so the face is big enough for lip-sync)
+### E · `EP4_E_whale_above.png`: redo from the E block in Act 1 (waist-up, face large, and now NO expression: the v2 smirk is gone)
+
+## Cover
+
+**The cover is scene F after its stair fix** (the user, 11-09: "Use this scene as the cover.(after fixing)", "use this scene
+rather than image", "There is a small error with the stairs."). Claude builds the 16:9 and 4:3 from the fixed F and adds the
+words and the 第4话 tag. The fixed F also replaces F in the video, so make F's open-mouth edit from the FIXED F.
 
 ## Open-mouth edits
 
@@ -230,7 +251,7 @@ Edit the attached anime image. Change ONLY the mouth of the amber girl: open as 
 ### C open (talking) · `kuchipaku/EP4_C_whale_turn_mouth-open.png`
 Attach: ep04/EP4_C_whale_turn.png
 ```
-Edit the attached anime image. Change ONLY the mouth of the whale girl: open as when saying "a" in normal speech, a small rounded opening with a little of the upper teeth and the dark inside of the mouth. Not shouting, not wide. Keep her expression. Everything else stays exactly as it is: eyes, tears, hair, ears, outfit, hands, the other girls, the lighting, the framing and the background. Same 16:9 framing, same position and size, same anime style, no text.
+Mark ONLY her mouth. Her lips part just a little, as when calmly saying "e": a narrow opening with a thin line of upper teeth. Not a gasp, no tongue. Her face stays completely expressionless: do not change her eyes, eyelids, eyebrows, cheeks or blush in any way. (the whale girl)
 ```
 
 ### D open (shouting) · `kuchipaku/EP4_D_kneel_mouth-open.png`
@@ -242,13 +263,13 @@ Edit the attached anime image. Change ONLY the mouth of the amber girl: wide ope
 ### E open (talking) · `kuchipaku/EP4_E_whale_above_mouth-open.png`
 Attach: ep04/EP4_E_whale_above.png
 ```
-Edit the attached anime image. Change ONLY the mouth of the whale girl: open as when saying "a" in normal speech, a small rounded opening with a little of the upper teeth and the dark inside of the mouth. Not shouting, not wide. Keep her expression. Everything else stays exactly as it is: eyes, tears, hair, ears, outfit, hands, the other girls, the lighting, the framing and the background. Same 16:9 framing, same position and size, same anime style, no text.
+Mark ONLY her mouth. Her lips part just a little, as when calmly saying "e": a narrow opening with a thin line of upper teeth. Not a gasp, no tongue. Her face stays completely expressionless: do not change her eyes, eyelids, eyebrows, cheeks or blush in any way. (the whale girl)
 ```
 
 ### F open (talking) · `kuchipaku/EP4_F_fingers_mouth-open.png`
 Attach: ep04/EP4_F_fingers.png
 ```
-Edit the attached anime image. Change ONLY the mouth of the whale girl on the left: open as when saying "a" in normal speech, a small rounded opening with a little of the upper teeth and the dark inside of the mouth. Not shouting, not wide. Keep her expression. Everything else stays exactly as it is: eyes, tears, hair, ears, outfit, hands, the other girls, the lighting, the framing and the background. Same 16:9 framing, same position and size, same anime style, no text.
+Mark ONLY her mouth. Her lips part just a little, as when calmly saying "e": a narrow opening with a thin line of upper teeth. Not a gasp, no tongue. Her face stays completely expressionless: do not change her eyes, eyelids, eyebrows, cheeks or blush in any way. (the whale girl on the left)
 ```
 
 ### I open (talking) · `kuchipaku/EP4_I_overpass_mouth-open.png`
