@@ -69,6 +69,9 @@ function sameFolder(a, b) {
 function isGitCheckout(dir) {
   try { return sameFolder(git(dir, ['rev-parse', '--show-toplevel']).toString().trim(), dir); } catch { return false; }
 }
+function isShallow(dir) {
+  try { return git(dir, ['rev-parse', '--is-shallow-repository']).toString().trim() === 'true'; } catch { return false; }
+}
 function blob(dir, commit, rel) {
   try { return git(dir, ['cat-file', 'blob', `${commit}:${rel}`]); }
   catch (e) { throw new PinError(`Could not read ${rel} at commit ${commit.slice(0, 7)} in ${dir}: ${String(e.stderr || e.message).trim().split('\n')[0]}`); }
@@ -115,12 +118,17 @@ export function openLab(labDir) {
 
 /** PublishOps CrossCast at one fixed commit, read from a clone's Git objects. */
 export function openCrossCast(ccDir, commit) {
-  if (!Object.values(PINS).includes(commit)) throw new PinError(`${commit} is not one of the commits the paper evaluates.`);
+  if (commit !== PINS.crosscastEvaluated && commit !== PINS.crosscastRelease) {
+    throw new PinError(`${commit} is not one of the two CrossCast commits the paper evaluates.`);
+  }
   if (!fs.existsSync(ccDir) || !isGitCheckout(ccDir)) {
     throw new PinError(`No clone of publishops-crosscast at ${ccDir}. Clone https://github.com/whitecarp/publishops-crosscast next to this repository (full history), or set CROSSCAST_REPO to a clone.`);
   }
   if (!hasCommit(ccDir, commit)) {
-    throw new PinError(`The publishops-crosscast clone at ${ccDir} lacks commit ${commit.slice(0, 7)}. It must be a full clone (not shallow):  git -C "${ccDir}" fetch --unshallow`);
+    const advice = isShallow(ccDir)
+      ? `It is a shallow clone. Fetch its full history:  git -C "${ccDir}" fetch --unshallow`
+      : `Fetch the upstream history:  git -C "${ccDir}" fetch https://github.com/whitecarp/publishops-crosscast.git`;
+    throw new PinError(`The publishops-crosscast clone at ${ccDir} lacks commit ${commit.slice(0, 7)}. ${advice}`);
   }
   return {
     source: `git:${commit}`,
@@ -130,6 +138,16 @@ export function openCrossCast(ccDir, commit) {
     /** Size in bytes of the file as stored in Git (the same on every system). */
     size(rel) { return Number(git(ccDir, ['cat-file', '-s', `${commit}:${rel}`]).toString().trim()); },
   };
+}
+
+/** Returns the options given to a script, and stops on any that it does not know (a mistyped --check must not start a build). */
+export function knownOptions(allowed) {
+  const given = process.argv.slice(2);
+  const unknown = given.filter(option => !allowed.includes(option));
+  if (unknown.length) {
+    throw new PinError(`Unknown option ${unknown.join(' ')}. ${allowed.length ? `Use ${allowed.join(' or ')}, or no option.` : 'This script takes no options.'}`);
+  }
+  return given;
 }
 
 /** Stops a builder when its data differ from the numbers printed in its fixed captions. */

@@ -1,12 +1,13 @@
 // Recomputes the figures in Tables 3, 4, 6, 7, 9 and 10, the heartbeat timings and the Lab test
-// record from fixed inputs, and compares them with paper/paper_metrics_summary.json.
+// record from fixed inputs, and compares them with paper/paper_metrics_summary.json as it is in this
+// checkout (the working file, which is the committed one only when the checkout is clean).
 // Table 8 and the earlier rows of Table 5 quote the cited records; they are not recomputed here.
 //
 // Run from anywhere:
 //   node paper/reproduce_paper_tables.mjs            prints the figures, then MATCH or MISMATCH
 //   node paper/reproduce_paper_tables.mjs --check    prints only the verdict and writes nothing
 //   node paper/reproduce_paper_tables.mjs --write    also rewrites paper_metrics_summary.json
-// Exit code 0: every figure equals the committed summary. Exit code 1: a difference, or an input
+// Exit code 0: every figure equals the saved summary. Exit code 1: a difference, or an input
 // that could not be read.
 //
 // The inputs never come from whatever happens to be checked out (see paper/pinned_inputs.mjs):
@@ -188,7 +189,7 @@ const summary = {
 return { summary, sources: { lab: lab.source, crosscast_evaluated: ccEvaluated.source, crosscast_release: ccRelease.source } };
 }
 
-// Lists every figure that differs between the committed summary and the recomputed one.
+// Lists every figure that differs between the saved summary and the recomputed one.
 function differences(committed, recomputed, where = '') {
   if (committed === recomputed) return [];
   const isObject = v => v !== null && typeof v === 'object';
@@ -196,7 +197,7 @@ function differences(committed, recomputed, where = '') {
     return [...new Set([...Object.keys(committed), ...Object.keys(recomputed)])]
       .flatMap(key => differences(committed[key], recomputed[key], where ? `${where}.${key}` : key));
   }
-  return [`${where}: committed ${JSON.stringify(committed)}, recomputed ${JSON.stringify(recomputed)}`];
+  return [`${where}: saved ${JSON.stringify(committed)}, recomputed ${JSON.stringify(recomputed)}`];
 }
 
 failClearly(() => {
@@ -221,9 +222,9 @@ failClearly(() => {
     return;
   }
   if (diffs.length) {
-    console.error(`MISMATCH: ${diffs.length} figure(s) differ from paper_metrics_summary.json:`);
+    console.error(`MISMATCH: ${diffs.length} figure(s) differ from paper_metrics_summary.json in this checkout:`);
     diffs.slice(0, 40).forEach(d => console.error('  ' + d));
     process.exit(1);
   }
-  console.error('MATCH: every recomputed figure equals paper_metrics_summary.json.');
+  console.error('MATCH: every recomputed figure equals paper_metrics_summary.json in this checkout.');
 });
