@@ -56,8 +56,18 @@ function git(dir, args) {
 function hasCommit(dir, id) {
   try { git(dir, ['cat-file', '-e', `${id}^{commit}`]); return true; } catch { return false; }
 }
+// True only when dir is itself the top folder of a Git checkout. A plain copy that merely sits inside
+// some other repository must not be read through that repository's history.
+function sameFolder(a, b) {
+  const real = p => {
+    let full = path.resolve(p);
+    try { full = fs.realpathSync.native(full); } catch { /* keep the resolved path */ }
+    return process.platform === 'win32' ? full.toLowerCase() : full;
+  };
+  return real(a) === real(b);
+}
 function isGitCheckout(dir) {
-  try { return path.resolve(git(dir, ['rev-parse', '--show-toplevel']).toString().trim()) === path.resolve(dir); } catch { return false; }
+  try { return sameFolder(git(dir, ['rev-parse', '--show-toplevel']).toString().trim(), dir); } catch { return false; }
 }
 function blob(dir, commit, rel) {
   try { return git(dir, ['cat-file', 'blob', `${commit}:${rel}`]); }
