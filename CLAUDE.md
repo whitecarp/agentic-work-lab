@@ -36,8 +36,20 @@ All numbers reported in the manuscript and companion deliverables are determinis
    - Complete separation ($\min(\text{human}) = 274 > \max(\text{AI}) = 231$).
 
 ## 4. Build & Synchronization Pipeline (`paper/`)
+
+**Hold, 10 November 2026: do not rebuild the PDFs, `main.tex` or the ZIP packages.** The submission is on hold for a second, recorded evaluation round, and the manuscript text is being corrected. One final rebuild will follow. Until then, run only the read-only checks below.
+
+The three scripts that read data take their inputs from fixed commits (`paper/pinned_inputs.mjs`): Lab data at the 3 November snapshot `e3205d6` (or `8add4b5`, which is on `main` and holds identical files), and CrossCast at `75b7abc` and `a46bd19`. What is checked out no longer matters, in either repository. They need a full clone of `publishops-crosscast` next to this repository, or `CROSSCAST_REPO` pointing at one.
+
 ```bash
-node paper/reproduce_paper_tables.mjs          # Recomputes paper/paper_metrics_summary.json
+node paper/reproduce_paper_tables.mjs --check    # writes nothing; exit 0 when every figure equals paper_metrics_summary.json
+node paper/build_publication_pdf.mjs --check     # writes nothing; exit 0 when manuscript_print.html is what the script generates
+node paper/build_supplementary_pdf.mjs --check   # writes nothing; until the next rebuild it reports 241 file-size cells (sizes stored in Git replace Windows checkout sizes)
+```
+
+The build pipeline, for the final rebuild only:
+```bash
+node paper/reproduce_paper_tables.mjs --write  # Recomputes paper/paper_metrics_summary.json from the fixed inputs
 node paper/build_publication_pdf.mjs           # Builds manuscript.pdf (24 pages) + figures/fig1..5.pdf
 node paper/sync_main_tex.mjs                   # Generates main.tex from manuscript_print.html + tex_blocks/
 node paper/build_supplementary_pdf.mjs         # Builds supplementary_material.pdf (142 pages, Appendices A–H)
