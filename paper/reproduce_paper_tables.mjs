@@ -1,19 +1,30 @@
-// Recomputes every number the manuscript reports from the committed data files.
-// Run from anywhere:  node paper/reproduce_paper_tables.mjs
-// Reads:  this repository's data/, media/, results/ and tests/ folders, and a sibling
-//         checkout of publishops-crosscast (read-only; files are read with `git show`).
-// Writes: paper/paper_metrics_summary.json next to this script. Nothing else is changed.
+// Recomputes the figures in Tables 3, 4, 6, 7, 9 and 10, the heartbeat timings and the Lab test
+// record from fixed inputs, and compares them with paper/paper_metrics_summary.json.
+// Table 8 and the earlier rows of Table 5 quote the cited records; they are not recomputed here.
+//
+// Run from anywhere:
+//   node paper/reproduce_paper_tables.mjs            prints the figures, then MATCH or MISMATCH
+//   node paper/reproduce_paper_tables.mjs --check    prints only the verdict and writes nothing
+//   node paper/reproduce_paper_tables.mjs --write    also rewrites paper_metrics_summary.json
+// Exit code 0: every figure equals the committed summary. Exit code 1: a difference, or an input
+// that could not be read.
+//
+// The inputs never come from whatever happens to be checked out (see paper/pinned_inputs.mjs):
+//   Agentic Work Lab data at the 3 November snapshot (commit e3205d6, tag paper-data-snapshot-e3205d6);
+//   PublishOps CrossCast at commits 75b7abc (evaluated) and a46bd19 (v0.16.0), read from a full
+//   clone placed next to this repository, or named by the CROSSCAST_REPO environment variable.
 import fs from 'node:fs';
 import path from 'node:path';
-import { execFileSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
+import { PINS, PinError, openLab, openCrossCast, failClearly } from './pinned_inputs.mjs';
 
 const here = path.dirname(fileURLToPath(import.meta.url));
-const lab = path.resolve(here, '..');
-const cc = process.env.CROSSCAST_REPO || path.resolve(lab, '..', 'publishops-crosscast');
-const ccCommit = process.env.CROSSCAST_COMMIT || '75b7abc';
-const ccReleaseCommit = 'a46bd19';
-const readJson = rel => JSON.parse(fs.readFileSync(path.join(lab, rel), 'utf8'));
+const labDir = path.resolve(here, '..');
+const ccDir = process.env.CROSSCAST_REPO || path.resolve(labDir, '..', 'publishops-crosscast');
+
+function compute() {
+const lab = openLab(labDir);
+const readJson = rel => lab.json(rel);
 
 // ---------- helpers ----------
 const sum = a => a.reduce((s, x) => s + x, 0);
@@ -23,7 +34,6 @@ const quantile = (a, p) => { const s = [...a].sort((x, y) => x - y); const h = (
 const r2 = x => Math.round(x * 100) / 100;
 const pct = (a, b) => r2(a / b * 100);
 const has = (o, k) => Object.prototype.hasOwnProperty.call(o, k);
-const git = (...args) => execFileSync('git', ['-C', cc, ...args], { encoding: 'utf8', maxBuffer: 1 << 28 });
 const physicalLines = t => (t.length ? t.split('\n').length - (t.endsWith('\n') ? 1 : 0) : 0); // as `wc -l` counts them
 
 // ---------- Table 3: operational journal, tabulated by the evidence each record carries ----------
@@ -89,7 +99,7 @@ const table6 = { file: film.file, bytes: film.bytes, sha256: film.sha256, durati
 
 // ---------- Table 9: media manifest ----------
 const man = readJson('media/manifest.json');
-const sums = new Map(fs.readFileSync(path.join(lab, 'media/SHA256SUMS.txt'), 'utf8').trim().split(/\r?\n/).map(l => { const [h, f] = l.trim().split(/\s+\*?/); return [f.replace(/^\*/, ''), h]; }));
+const sums = new Map(lab.read('media/SHA256SUMS.txt').trim().split(/\r?\n/).map(l => { const [h, f] = l.trim().split(/\s+\*?/); return [f.replace(/^\*/, ''), h]; }));
 const bytes = sum(man.items.map(i => i.bytes));
 const table9 = {
   items: man.items.length, total_bytes: bytes, total_gb_decimal: r2(bytes / 1e9), total_mib: r2(bytes / 2 ** 20),
@@ -136,19 +146,19 @@ const groupRules = [
   ['messages_comments_engagement_safety', /message|comment|engage|likes|repl|hostile|safety|platform_warnings|stage1_limits|stage1_reading|stage1_reporting|stage2_|write_answers/],
   ['other_cli_docs_install', /./]
 ];
-function codeVolume(rev) {
-  const files = git('ls-tree', '-r', '--name-only', rev).split('\n').filter(Boolean);
+function codeVolume(repo) {
+  const files = repo.files();
   const src = files.filter(f => /^src\/.*\.py$/.test(f));
   const tests = files.filter(f => /^tests\/.*\.py$/.test(f));
-  const out = { commit: git('rev-parse', rev).trim(), src_files: src.length, src_lines: 0, own_package_files: 0, own_package_lines: 0, bundled_bili_cli_files: 0, bundled_bili_cli_lines: 0, test_files: tests.length, test_modules: tests.filter(f => /^tests\/test_[^/]*\.py$/.test(f)).length, test_lines: 0, test_functions: 0, groups: {} };
+  const out = { commit: repo.commit, src_files: src.length, src_lines: 0, own_package_files: 0, own_package_lines: 0, bundled_bili_cli_files: 0, bundled_bili_cli_lines: 0, test_files: tests.length, test_modules: tests.filter(f => /^tests\/test_[^/]*\.py$/.test(f)).length, test_lines: 0, test_functions: 0, groups: {} };
   for (const f of src) {
-    const n = physicalLines(git('show', `${rev}:${f}`));
+    const n = physicalLines(repo.read(f));
     out.src_lines += n;
     if (f.startsWith('src/bili_cli/')) { out.bundled_bili_cli_files++; out.bundled_bili_cli_lines += n; }
     else if (f.startsWith('src/video_publisher/')) { out.own_package_files++; out.own_package_lines += n; }
   }
   for (const f of tests) {
-    const t = git('show', `${rev}:${f}`);
+    const t = repo.read(f);
     const n = physicalLines(t);
     const fn = (t.match(/^\s*(async\s+)?def test_/gm) || []).length;
     out.test_lines += n; out.test_functions += fn;
@@ -161,16 +171,13 @@ function codeVolume(rev) {
   out.test_to_own_package_line_ratio = r2(out.test_lines / out.own_package_lines);
   return out;
 }
-let crosscast;
-try {
-  crosscast = { repository: 'https://github.com/whitecarp/publishops-crosscast', pinned: codeVolume(ccCommit), release_v0_16_0: codeVolume(ccReleaseCommit), group_rules: groupRules.map(([g, re]) => [g, String(re)]) };
-} catch (e) {
-  crosscast = { error: `Could not read ${cc} at ${ccCommit}: ${e.message.split('\n')[0]}` };
-}
+const ccEvaluated = openCrossCast(ccDir, PINS.crosscastEvaluated);
+const ccRelease = openCrossCast(ccDir, PINS.crosscastRelease);
+const crosscast = { repository: 'https://github.com/whitecarp/publishops-crosscast', pinned: codeVolume(ccEvaluated), release_v0_16_0: codeVolume(ccRelease), group_rules: groupRules.map(([g, re]) => [g, String(re)]) };
 
 // ---------- lab workflow tests ----------
 const validation = readJson('results/validation.json');
-const labTests = { file: 'tests/workflows.test.mjs', lines: physicalLines(fs.readFileSync(path.join(lab, 'tests/workflows.test.mjs'), 'utf8').replace(/\r\n/g, '\n')), recorded: validation.workflow_tests, recorded_on: validation.checked_date, node_version: validation.node_version };
+const labTests = { file: 'tests/workflows.test.mjs', lines: physicalLines(lab.read('tests/workflows.test.mjs')), recorded: validation.workflow_tests, recorded_on: validation.checked_date, node_version: validation.node_version };
 
 const summary = {
   generated_at: new Date().toISOString(),
@@ -178,5 +185,45 @@ const summary = {
   table9_manifest: table9, table10_channel_snapshot: table10, table4_crosscast: crosscast, lab_workflow_tests: labTests,
   note: 'Descriptive statistics only. No significance test is reported: lifetime views separate completely between the cohorts, so a rank test would restate the exposure-age confound rather than test a production effect.'
 };
-fs.writeFileSync(path.join(here, 'paper_metrics_summary.json'), JSON.stringify(summary, null, 2) + '\n');
-console.log(JSON.stringify(summary, null, 2));
+return { summary, sources: { lab: lab.source, crosscast_evaluated: ccEvaluated.source, crosscast_release: ccRelease.source } };
+}
+
+// Lists every figure that differs between the committed summary and the recomputed one.
+function differences(committed, recomputed, where = '') {
+  if (committed === recomputed) return [];
+  const isObject = v => v !== null && typeof v === 'object';
+  if (isObject(committed) && isObject(recomputed) && Array.isArray(committed) === Array.isArray(recomputed)) {
+    return [...new Set([...Object.keys(committed), ...Object.keys(recomputed)])]
+      .flatMap(key => differences(committed[key], recomputed[key], where ? `${where}.${key}` : key));
+  }
+  return [`${where}: committed ${JSON.stringify(committed)}, recomputed ${JSON.stringify(recomputed)}`];
+}
+
+failClearly(() => {
+  const args = process.argv.slice(2);
+  const unknown = args.filter(a => a !== '--check' && a !== '--write');
+  if (unknown.length) throw new PinError(`Unknown option ${unknown.join(' ')}. Use --check or --write, or no option.`);
+  if (process.env.CROSSCAST_COMMIT) {
+    throw new PinError(`CROSSCAST_COMMIT is set, and is not honoured: the paper's figures come from the fixed commits ${PINS.crosscastEvaluated.slice(0, 7)} and ${PINS.crosscastRelease.slice(0, 7)}. Unset it.`);
+  }
+  const { summary, sources } = compute();
+  const summaryPath = path.join(here, 'paper_metrics_summary.json');
+  const withoutTime = ({ generated_at, ...rest }) => rest;
+  let committed;
+  try { committed = JSON.parse(fs.readFileSync(summaryPath, 'utf8')); } catch { committed = undefined; }
+  const diffs = committed ? differences(withoutTime(committed), withoutTime(summary)) : ['paper_metrics_summary.json is missing or unreadable'];
+  if (!args.includes('--check')) console.log(JSON.stringify(summary, null, 2));
+  console.error(`Inputs: Lab ${sources.lab}; CrossCast ${sources.crosscast_evaluated} and ${sources.crosscast_release}.`);
+  if (args.includes('--write')) {
+    fs.writeFileSync(summaryPath, JSON.stringify(summary, null, 2) + '\n');
+    console.error(diffs.length ? `Wrote paper_metrics_summary.json; ${diffs.length} figure(s) changed:` : 'Wrote paper_metrics_summary.json; no figure changed.');
+    diffs.slice(0, 40).forEach(d => console.error('  ' + d));
+    return;
+  }
+  if (diffs.length) {
+    console.error(`MISMATCH: ${diffs.length} figure(s) differ from paper_metrics_summary.json:`);
+    diffs.slice(0, 40).forEach(d => console.error('  ' + d));
+    process.exit(1);
+  }
+  console.error('MATCH: every recomputed figure equals paper_metrics_summary.json.');
+});

@@ -2,61 +2,80 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { execFileSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
+import { PINS, openLab, openCrossCast, assertSnapshot, stopClearlyOnPinError, directChildren } from './pinned_inputs.mjs';
+
+// Builds supplementary_print.html and supplementary_material.pdf.
+//   node paper/build_supplementary_pdf.mjs            builds them
+//   node paper/build_supplementary_pdf.mjs --check    writes nothing; says whether the committed
+//                                                     supplementary_print.html is what this script generates
+//
+// Every input is read from fixed commits (see pinned_inputs.mjs), never from what is checked out:
+// the Lab's files at the 3 November snapshot, and PublishOps CrossCast's code, tests and docs at the
+// evaluated commit 75b7abc, from a full clone next to this repository or named by CROSSCAST_REPO.
+stopClearlyOnPinError();
 
 const __here = path.dirname(fileURLToPath(import.meta.url)); // this script's folder (the fork's paper/)
 const outDir = __here;
 const labDir = path.resolve(__here, '..');
-const ccDir = path.resolve(__here, '..', '..', 'publishops-crosscast'); // read-only sibling checkout
+const ccDir = process.env.CROSSCAST_REPO || path.resolve(__here, '..', '..', 'publishops-crosscast');
+const lab = openLab(labDir);
+const cc = openCrossCast(ccDir, PINS.crosscastEvaluated);
 
-const opsEvents = JSON.parse(fs.readFileSync(path.join(labDir, 'data/operations-events.json'), 'utf8'));
-const snapshot = JSON.parse(fs.readFileSync(path.join(labDir, 'data/creator-video-snapshot.json'), 'utf8'));
-const manifest = JSON.parse(fs.readFileSync(path.join(labDir, 'media/manifest.json'), 'utf8'));
-const schedEvidence = JSON.parse(fs.readFileSync(path.join(labDir, 'data/scheduled-run-evidence.json'), 'utf8'));
+const opsEvents = lab.json('data/operations-events.json');
+const snapshot = lab.json('data/creator-video-snapshot.json');
+const manifest = lab.json('media/manifest.json');
 
 function esc(s) {
   return String(s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 }
 
-// Walk CrossCast tests and src, extracting function & class names
-function walkPyDetailed(dir, baseDir) {
-  let results = [];
-  for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
-    const full = path.join(dir, entry.name);
-    if (entry.isDirectory()) {
-      results = results.concat(walkPyDetailed(full, baseDir));
-    } else if (entry.isFile() && entry.name.endsWith('.py')) {
-      const content = fs.readFileSync(full, 'utf8');
-      const lines = content.length ? content.split(/\r?\n/).length - (/\r?\n$/.test(content) ? 1 : 0) : 0; // physical lines
-      const testNames = [];
-      const funcNames = [];
-      const classNames = [];
-      for (const line of content.split(/\r?\n/)) {
-        const cm = line.match(/^\s*class\s+([A-Za-z0-9_]+)/);
-        if (cm) classNames.push(cm[1]);
-        const fm = line.match(/^\s*(?:async\s+)?def\s+([A-Za-z0-9_]+)\s*\(/);
-        if (fm) {
-          funcNames.push(fm[1]);
-          if (fm[1].startsWith('test_')) testNames.push(fm[1]);
-        }
+// CrossCast's Python files under one folder at the evaluated commit, with their function and class names.
+// Sizes are the sizes stored in Git, which are the same on every operating system.
+function pythonFiles(folder) {
+  return cc.files(folder).filter(rel => rel.endsWith('.py')).map(rel => {
+    const content = cc.read(rel);
+    const lines = content.length ? content.split('\n').length - (content.endsWith('\n') ? 1 : 0) : 0; // physical lines
+    const testNames = [];
+    const funcNames = [];
+    const classNames = [];
+    for (const line of content.split('\n')) {
+      const cm = line.match(/^\s*class\s+([A-Za-z0-9_]+)/);
+      if (cm) classNames.push(cm[1]);
+      const fm = line.match(/^\s*(?:async\s+)?def\s+([A-Za-z0-9_]+)\s*\(/);
+      if (fm) {
+        funcNames.push(fm[1]);
+        if (fm[1].startsWith('test_')) testNames.push(fm[1]);
       }
-      results.push({
-        relPath: path.relative(baseDir, full).replace(/\\/g, '/'),
-        lines,
-        testDefs: testNames.length,
-        testNames,
-        allDefs: funcNames.length,
-        funcNames,
-        classes: classNames.length,
-        classNames,
-        bytes: Buffer.byteLength(content, 'utf8')
-      });
     }
-  }
-  return results.sort((a, b) => a.relPath.localeCompare(b.relPath));
+    return {
+      relPath: rel,
+      lines,
+      testDefs: testNames.length,
+      testNames,
+      allDefs: funcNames.length,
+      funcNames,
+      classes: classNames.length,
+      classNames,
+      bytes: cc.size(rel)
+    };
+  }).sort((a, b) => a.relPath.localeCompare(b.relPath, 'en')); // fixed locale, so the order is the same on every PC
 }
 
-const testFiles = walkPyDetailed(path.join(ccDir, 'tests'), ccDir);
-const srcFiles = walkPyDetailed(path.join(ccDir, 'src'), ccDir);
+const testFiles = pythonFiles('tests');
+const srcFiles = pythonFiles('src');
+
+// The fixed text of this document prints these totals; stop if the data would not match them.
+assertSnapshot({
+  journalRecords: opsEvents.records.length,
+  channelSnapshotRecords: snapshot.items.length,
+  manifestItems: manifest.items.length,
+  manifestBytes: manifest.items.reduce((total, item) => total + item.bytes, 0),
+  manifestReleaseTags: manifest.release_urls.length,
+  crosscastSourceFiles: srcFiles.length,
+  crosscastSourceLines: srcFiles.reduce((total, file) => total + file.lines, 0),
+  crosscastTestFiles: testFiles.length,
+  crosscastTestFunctions: testFiles.reduce((total, file) => total + file.testDefs, 0),
+});
 
 const opsRows = opsEvents.records.map((e, i) => {
   const ts = e.at || e.checked_at || '—';
@@ -159,53 +178,36 @@ const allTestsDetailedHtml = testFiles.filter(t => t.testNames.length > 0).map((
   </table>`;
 }).join('\n');
 
-// Load all research docs and updates from agentic-work-lab/docs/ and templates/
-const docFiles = fs.readdirSync(path.join(labDir, 'docs'))
-  .filter(f => f.endsWith('.md'))
-  .sort();
-
-const updateFiles = fs.existsSync(path.join(labDir, 'docs/updates'))
-  ? fs.readdirSync(path.join(labDir, 'docs/updates')).filter(f => f.endsWith('.md')).sort().map(f => `updates/${f}`)
-  : [];
-
-const templateFiles = fs.existsSync(path.join(labDir, 'templates'))
-  ? fs.readdirSync(path.join(labDir, 'templates')).filter(f => f.endsWith('.md') || f.endsWith('.json')).sort()
-  : [];
-
-const scriptFiles = fs.existsSync(path.join(labDir, 'scripts'))
-  ? fs.readdirSync(path.join(labDir, 'scripts')).filter(f => f.endsWith('.mjs')).sort()
-  : [];
-
-const labTestFiles = fs.existsSync(path.join(labDir, 'tests'))
-  ? fs.readdirSync(path.join(labDir, 'tests')).filter(f => f.endsWith('.mjs')).sort()
-  : [];
-
-const pubDocFiles = fs.existsSync(path.join(ccDir, 'docs'))
-  ? fs.readdirSync(path.join(ccDir, 'docs')).filter(f => f.endsWith('.md')).sort()
-  : [];
+// Research docs, updates, templates, scripts and tests of the Lab at the snapshot, and CrossCast's docs
+// at the evaluated commit. Files added to either repository later are not listed.
+const labFiles = folder => directChildren(lab.list(folder), folder);
+const docFiles = labFiles('docs').filter(f => f.endsWith('.md')).sort();
+const updateFiles = labFiles('docs/updates').filter(f => f.endsWith('.md')).sort().map(f => `updates/${f}`);
+const templateFiles = labFiles('templates').filter(f => f.endsWith('.md') || f.endsWith('.json')).sort();
+const scriptFiles = labFiles('scripts').filter(f => f.endsWith('.mjs')).sort();
+const labTestFiles = labFiles('tests').filter(f => f.endsWith('.mjs')).sort();
+const pubDocFiles = directChildren(cc.files('docs'), 'docs').filter(f => f.endsWith('.md')).sort();
 
 const allDocEntries = [
-  ...docFiles.map(f => ({ label: `agentic-work-lab/docs/${f}`, full: path.join(labDir, 'docs', f) })),
-  ...updateFiles.map(f => ({ label: `agentic-work-lab/docs/${f}`, full: path.join(labDir, 'docs', f) })),
-  ...templateFiles.map(f => ({ label: `agentic-work-lab/templates/${f}`, full: path.join(labDir, 'templates', f) })),
-  ...scriptFiles.map(f => ({ label: `agentic-work-lab/scripts/${f}`, full: path.join(labDir, 'scripts', f) })),
-  ...labTestFiles.map(f => ({ label: `agentic-work-lab/tests/${f}`, full: path.join(labDir, 'tests', f) })),
-  ...pubDocFiles.map(f => ({ label: `publishops-crosscast/docs/${f}`, full: path.join(ccDir, 'docs', f) }))
+  ...docFiles.map(f => ({ label: `agentic-work-lab/docs/${f}`, read: () => lab.read(`docs/${f}`) })),
+  ...updateFiles.map(f => ({ label: `agentic-work-lab/docs/${f}`, read: () => lab.read(`docs/${f}`) })),
+  ...templateFiles.map(f => ({ label: `agentic-work-lab/templates/${f}`, read: () => lab.read(`templates/${f}`) })),
+  ...scriptFiles.map(f => ({ label: `agentic-work-lab/scripts/${f}`, read: () => lab.read(`scripts/${f}`) })),
+  ...labTestFiles.map(f => ({ label: `agentic-work-lab/tests/${f}`, read: () => lab.read(`tests/${f}`) })),
+  ...pubDocFiles.map(f => ({ label: `publishops-crosscast/docs/${f}`, read: () => cc.read(`docs/${f}`) }))
 ];
 
 const docsHtml = allDocEntries.map((entry, i) => {
-  const raw = fs.readFileSync(entry.full, 'utf8');
+  const raw = entry.read();
   return `<h3>G.${i + 1} Technical Protocol &amp; Record: <code>${esc(entry.label)}</code></h3>
   <pre class="json-box">${esc(raw)}</pre>`;
 }).join('\n');
 
-// Load all daily production update JSONs
-const prodUpdateFiles = fs.readdirSync(path.join(labDir, 'data'))
-  .filter(f => f.endsWith('.json'))
-  .sort();
+// Every data/*.json file of the Lab at the snapshot
+const prodUpdateFiles = labFiles('data').filter(f => f.endsWith('.json')).sort();
 
 const prodUpdateBlocks = prodUpdateFiles.map((fname, i) => {
-  const raw = fs.readFileSync(path.join(labDir, 'data', fname), 'utf8');
+  const raw = lab.read(`data/${fname}`);
   return `<h3>H.${i + 1} Primary Data Archive: <code>data/${esc(fname)}</code></h3>
   <pre class="json-box">${esc(raw)}</pre>`;
 }).join('\n');
@@ -456,6 +458,32 @@ ${prodUpdateBlocks}
 
 const htmlPath = path.join(outDir, 'supplementary_print.html');
 const pdfPath = path.join(outDir, 'supplementary_material.pdf');
+if (process.argv.includes('--check')) {
+  const toLf = text => text.replace(/\r\n/g, '\n');
+  if (!fs.existsSync(htmlPath)) {
+    console.error('CANNOT CHECK: supplementary_print.html is not in this checkout (it is kept on the paper branch), so there is nothing to compare with.');
+    process.exit(1);
+  }
+  const committed = toLf(fs.readFileSync(htmlPath, 'utf8')).split('\n');
+  const generated = toLf(htmlSupp).split('\n');
+  if (committed.length !== generated.length) {
+    console.error(`MISMATCH: supplementary_print.html has ${committed.length} lines; this script generates ${generated.length}.`);
+    process.exit(1);
+  }
+  const differing = committed.map((line, i) => (line === generated[i] ? -1 : i)).filter(i => i >= 0);
+  if (!differing.length) {
+    console.error('MATCH: supplementary_print.html is exactly what this script generates.');
+    process.exit(0);
+  }
+  const sizeCell = /^\s*<td class="num">[\d,]+<\/td>\s*$/;
+  const onlySizes = differing.every(i => sizeCell.test(committed[i]) && sizeCell.test(generated[i]));
+  console.error(`MISMATCH: ${differing.length} line(s) of supplementary_print.html differ from what this script generates.`);
+  console.error(onlySizes
+    ? 'All of them are single numeric cells. Expected until the next rebuild: the committed page printed file sizes from a Windows checkout, where line endings add one byte per line; this script prints the sizes stored in Git.'
+    : 'They are not all numeric cells, so the content itself differs.');
+  differing.slice(0, 5).forEach(i => console.error(`  line ${i + 1}: committed ${committed[i].trim().slice(0, 90)} | generated ${generated[i].trim().slice(0, 90)}`));
+  process.exit(1);
+}
 fs.writeFileSync(htmlPath, htmlSupp, 'utf8');
 
 const edgeExe = 'C:/Program Files (x86)/Microsoft/Edge/Application/msedge.exe';
