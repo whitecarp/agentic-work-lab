@@ -2,17 +2,19 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { execFileSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
-import { PINS, openLab, openCrossCast, assertSnapshot, stopClearlyOnPinError, directChildren } from './pinned_inputs.mjs';
+import { PINS, openLab, openCrossCast, assertSnapshot, stopClearlyOnPinError, directChildren, knownOptions } from './pinned_inputs.mjs';
 
 // Builds supplementary_print.html and supplementary_material.pdf.
 //   node paper/build_supplementary_pdf.mjs            builds them
-//   node paper/build_supplementary_pdf.mjs --check    writes nothing; says whether the committed
-//                                                     supplementary_print.html is what this script generates
+//   node paper/build_supplementary_pdf.mjs --check    writes nothing; says whether the supplementary_print.html
+//                                                     in this checkout is what this script generates
+// Any other option stops the script before it writes anything.
 //
 // Every input is read from fixed commits (see pinned_inputs.mjs), never from what is checked out:
 // the Lab's files at the 3 November snapshot, and PublishOps CrossCast's code, tests and docs at the
 // evaluated commit 75b7abc, from a full clone next to this repository or named by CROSSCAST_REPO.
 stopClearlyOnPinError();
+const options = knownOptions(['--check']);
 
 const __here = path.dirname(fileURLToPath(import.meta.url)); // this script's folder (the fork's paper/)
 const outDir = __here;
@@ -458,7 +460,7 @@ ${prodUpdateBlocks}
 
 const htmlPath = path.join(outDir, 'supplementary_print.html');
 const pdfPath = path.join(outDir, 'supplementary_material.pdf');
-if (process.argv.includes('--check')) {
+if (options.includes('--check')) {
   const toLf = text => text.replace(/\r\n/g, '\n');
   if (!fs.existsSync(htmlPath)) {
     console.error('CANNOT CHECK: supplementary_print.html is not in this checkout (it is kept on the paper branch), so there is nothing to compare with.');
@@ -472,15 +474,24 @@ if (process.argv.includes('--check')) {
   }
   const differing = committed.map((line, i) => (line === generated[i] ? -1 : i)).filter(i => i >= 0);
   if (!differing.length) {
-    console.error('MATCH: supplementary_print.html is exactly what this script generates.');
+    console.error('MATCH: supplementary_print.html in this checkout is exactly what this script generates.');
     process.exit(0);
   }
-  const sizeCell = /^\s*<td class="num">[\d,]+<\/td>\s*$/;
-  const onlySizes = differing.every(i => sizeCell.test(committed[i]) && sizeCell.test(generated[i]));
-  console.error(`MISMATCH: ${differing.length} line(s) of supplementary_print.html differ from what this script generates.`);
+  // A differing line is a known file-size cell only when it is the Bytes cell of a Python file's row (the
+  // row's path cell is two lines up and its line count one line up) and the saved size exceeds the Git
+  // size by exactly that line count: one carriage return per line in a Windows checkout.
+  const numberIn = line => { const m = /^\s*<td class="num">([\d,]+)<\/td>\s*$/.exec(line || ''); return m ? Number(m[1].replace(/,/g, '')) : null; };
+  const pythonPath = line => /^\s*<td><code>[^<]*\.py<\/code><\/td>\s*$/.test(line || '');
+  const isLineEndingSize = i => {
+    const saved = numberIn(committed[i]), fresh = numberIn(generated[i]), lineCount = numberIn(committed[i - 1]);
+    return saved !== null && fresh !== null && lineCount !== null && pythonPath(committed[i - 2])
+      && committed[i - 1] === generated[i - 1] && committed[i - 2] === generated[i - 2] && saved - fresh === lineCount;
+  };
+  const onlySizes = differing.every(isLineEndingSize);
+  console.error(`MISMATCH: ${differing.length} line(s) of supplementary_print.html in this checkout differ from what this script generates.`);
   console.error(onlySizes
-    ? 'All of them are single numeric cells. Expected until the next rebuild: the committed page printed file sizes from a Windows checkout, where line endings add one byte per line; this script prints the sizes stored in Git.'
-    : 'They are not all numeric cells, so the content itself differs.');
+    ? 'Every one is the Bytes cell of a Python file, larger than the size stored in Git by exactly that file\'s number of lines. Expected until the next rebuild: the saved page printed sizes from a Windows checkout, where each line ending adds one byte; this script prints the sizes stored in Git.'
+    : 'They are not all line-ending differences in file sizes, so the content itself differs.');
   differing.slice(0, 5).forEach(i => console.error(`  line ${i + 1}: committed ${committed[i].trim().slice(0, 90)} | generated ${generated[i].trim().slice(0, 90)}`));
   process.exit(1);
 }

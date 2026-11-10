@@ -2,12 +2,13 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { execFileSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
-import { openLab, assertSnapshot, failClearly } from './pinned_inputs.mjs';
+import { openLab, assertSnapshot, failClearly, knownOptions } from './pinned_inputs.mjs';
 
 // Builds manuscript_print.html, manuscript.pdf and figures/figN.pdf.
 //   node paper/build_publication_pdf.mjs            builds them
-//   node paper/build_publication_pdf.mjs --check    writes nothing; says whether the committed
-//                                                   manuscript_print.html is what this script generates
+//   node paper/build_publication_pdf.mjs --check    writes nothing; says whether the manuscript_print.html
+//                                                   in this checkout is what this script generates
+// Any other option stops the script before it writes anything.
 const __here = path.dirname(fileURLToPath(import.meta.url)); // this script's folder (the fork's paper/)
 const outDir = __here;
 const labDir = path.resolve(__here, '..');
@@ -15,6 +16,7 @@ const labDir = path.resolve(__here, '..');
 // Table 9's rows come from the 3 November snapshot of media/manifest.json (see pinned_inputs.mjs),
 // never from the file that happens to be checked out. The build stops if the rows would not match
 // the totals printed in the table's caption.
+const options = failClearly(() => knownOptions(['--check']));
 const manifest = failClearly(() => {
   const snapshot = openLab(labDir).json('media/manifest.json');
   assertSnapshot({
@@ -1697,7 +1699,7 @@ const htmlManuscript = `<!DOCTYPE html>
 
 const htmlPath = path.join(outDir, 'manuscript_print.html');
 const pdfPath = path.join(outDir, 'manuscript.pdf');
-if (process.argv.includes('--check')) {
+if (options.includes('--check')) {
   const toLf = text => text.replace(/\r\n/g, '\n');
   if (!fs.existsSync(htmlPath)) {
     console.error('CANNOT CHECK: manuscript_print.html is not in this checkout (it is kept on the paper branch), so there is nothing to compare with.');
@@ -1706,8 +1708,8 @@ if (process.argv.includes('--check')) {
   const committed = toLf(fs.readFileSync(htmlPath, 'utf8'));
   const same = committed === toLf(htmlManuscript);
   console.error(same
-    ? 'MATCH: manuscript_print.html is exactly what this script generates.'
-    : 'MISMATCH: manuscript_print.html differs from what this script generates.');
+    ? 'MATCH: manuscript_print.html in this checkout is exactly what this script generates.'
+    : 'MISMATCH: manuscript_print.html in this checkout differs from what this script generates.');
   process.exit(same ? 0 : 1);
 }
 fs.writeFileSync(htmlPath, htmlManuscript, 'utf8');
