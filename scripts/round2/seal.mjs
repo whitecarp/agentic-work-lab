@@ -4,7 +4,7 @@ import {pathToFileURL} from 'node:url';
 import {readJournal,verifyJournal,canonical,ZERO,context} from './journal.mjs';
 import {sha,atomic,withLock,parseFlags,allowed} from './io.mjs';
 
-export const TYPES=['PROTOCOL_SEAL','GATE_DECISION','GATE_ERROR','GO_AHEAD','STEP','STEP_REFUSED','RUN_END','JOB_END','OBSERVATION','FAULT','STOP_SET','STOP_CLEARED','HANDOFF','SIGN_OFF','VIOLATION','NOTE'];
+export const TYPES=['PROTOCOL_SEAL','GATE_DECISION','GATE_ERROR','GO_AHEAD','STEP','STEP_REFUSED','RUN_END','JOB_END','OBSERVATION','FAULT','FAULT_SETUP','REAL_RELEASE','STOP_SET','STOP_CLEARED','HANDOFF','SIGN_OFF','VIOLATION','NOTE'];
 export function day(value){
  if(typeof value!=='string'||!/^\d{4}-\d{2}-\d{2}$/.test(value)||!Number.isFinite(Date.parse(value))||new Date(value).toISOString().slice(0,10)!==value)throw new Error('invalid_day');
  return value;

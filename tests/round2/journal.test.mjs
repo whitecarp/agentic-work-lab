@@ -68,7 +68,10 @@ test('own words stay private and empty go-ahead/observation refuses',t=>{
   const text='Owner private sentence, path C:/private, token CANARY.';
   assert.equal(cli(f,'journal',['go-ahead',...args],text).status,0);
   assert.equal(fs.readFileSync(f.journal,'utf8').includes('CANARY'),false);
-  const record=last(f.ctx,'GO_AHEAD');assert.equal(record.d.words_sha256,sha(text));
+  const record=last(f.ctx,'GO_AHEAD'),digest=record.d.words_sha256;
+  const nonce=fs.readFileSync(path.join(f.home,'captures',digest+'.words.nonce'));
+  assert.equal(nonce.length,32);assert.equal(digest,sha(Buffer.concat([nonce,Buffer.from(text)])));
+  assert.notEqual(digest,sha(text));
   assert.equal(cli(f,'journal',['observe',...flags(f),'--job','job-1','--about','post','--client','phone_app',
     '--seen','present_private','--minutes-after','1'],'').status,70);
 });

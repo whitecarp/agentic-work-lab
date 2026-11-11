@@ -9,6 +9,7 @@ import {ID, SLOTS, PLATFORMS, REFUSALS} from './schema.mjs';
 import {sha, utc, atomic, withLock, readJSON, parseFlags, allowed, alive} from './io.mjs';
 import {classify, guardRole, grant, grantScope, limits, outcome, roles} from './policy.mjs';
 import {bindHome,HOME_ERRORS} from './site.mjs';
+import {jobList} from './jobs.mjs';
 
 const gateFile=new URL('../operations-gate.mjs',import.meta.url);
 const guard=ctx=>path.join(ctx.home,'operation.guard');
@@ -25,7 +26,7 @@ function operator(ctx, records) {
   return value;
 }
 function jobs(ctx) {
-  const list=readJSON(path.join(ctx.home,'jobs.json'),[]);
+  const list=jobList(ctx,readJournal(ctx.journal));
   if(!Array.isArray(list)) throw new Error('bad_job_list');
   const ids=new Set();
   for(const j of list){
@@ -120,7 +121,10 @@ function prepare(ctx,flags,command,launch){
     if(policy.tool==='bili' && command.slice(1).some(s=>['delete','remove','del'].includes(s))) throw new Error('bilibili_delete_forbidden');
     if(job.class!=='write'&&policy.class==='write') throw new Error('job_class_mismatch');
     const platforms=flags.platform??job.platforms??[];
-    if((job.platforms??[]).length && (platforms.length!==job.platforms.length || platforms.some(p=>!job.platforms.includes(p)))) throw new Error('platform_mismatch');
+    const keyed=['resume','verify','edit','delete','delete_dry_run','delete_verify'].includes(flags.role);
+    if(keyed&&platforms.length!==1)throw new Error('one_platform_required');
+    if((job.platforms??[]).length && (platforms.some(p=>!job.platforms.includes(p))||
+       (!keyed&&platforms.length!==job.platforms.length)))throw new Error('platform_mismatch');
     const list=reservations(ctx), rule=limits(records,job,flags.role,platforms,utc(),list,run.jobs);
     if(rule) throw new Error(rule);
     const scope=grantScope(records,job.id,policy.class,list,flags.role);
@@ -165,7 +169,7 @@ function captureChild(ctx,command,reservationId,pinned){
     };
     const env={...process.env,AWL_RUN_ID:reservationId,VPUB_BROWSER_IDLE_SECONDS:'0',VPUB_HOME:pinned.home};
     // Windows environment names are case-insensitive, including in mixed-case shells.
-    for(const key of Object.keys(env))if(key.toUpperCase()==='BILI_CLI_HOME')delete env[key];
+    for(const key of Object.keys(env))if(['BILI_CLI_HOME','VPUB_FAULT'].includes(key.toUpperCase()))delete env[key];
     if(pinned.biliHome)env.BILI_CLI_HOME=pinned.biliHome;
     try{child=spawn(command[0],command.slice(1),{stdio:['ignore','pipe','pipe'],shell:false,windowsHide:true,env});}
     catch{spawnError=true;}
@@ -250,13 +254,17 @@ export function closeJob(ctx,flags){
     if(!['done','nothing_posted','removed_by_hand','abandoned'].includes(reason)||!['operator','owner','tester'].includes(by)) throw new Error('invalid_close');
     if(job.run_class!=='test_post'&&!['done','abandoned'].includes(reason)) throw new Error('invalid_close');
     const own=records.filter(r=>r.d.job===job.id);
-    const lastWrite=own.filter(r=>r.type==='STEP'&&r.d.class==='write').at(-1);
     const pending=reservations(ctx).filter(r=>r.job===job.id&&r.class==='write'&&r.step_seq===null);
     if(job.run_class==='test_post'&&reason!=='abandoned'){
-      const absent=own.some(r=>r.type==='OBSERVATION'&&r.d.seen==='absent'&&r.seq>(lastWrite?.seq??0)&&
-        pending.every(x=>Date.parse(r.at)>=Date.parse(x.at)));
-      const verified=own.some(r=>r.type==='STEP'&&r.d.role==='delete_verify'&&r.d.result==='ok'&&r.seq>(lastWrite?.seq??0)&&pending.length===0);
-      const manual=own.some(r=>r.type==='NOTE'&&r.d.code==='manual_step');
+      const platformOf=r=>r.d.platform??(job.platforms?.length===1?job.platforms[0]:null);
+      const afterWrite=(r,p)=>r.seq>(own.filter(x=>x.type==='STEP'&&x.d.class==='write'&&x.d.platforms.includes(p)).at(-1)?.seq??0);
+      const absent=(job.platforms??[]).length>0&&!own.some(r=>r.type==='STEP'&&r.d.role==='delete')&&
+        pending.length===0&&job.platforms.every(p=>own.some(r=>r.type==='OBSERVATION'&&r.d.about==='post'&&
+          r.d.seen==='absent'&&platformOf(r)===p&&afterWrite(r,p)));
+      const verified=(job.platforms??[]).length>0&&pending.length===0&&job.platforms.every(p=>own.some(r=>
+        r.type==='STEP'&&r.d.role==='delete_verify'&&r.d.result==='ok'&&r.d.platforms.length===1&&r.d.platforms[0]===p&&afterWrite(r,p)));
+      const manual=(job.platforms??[]).length>0&&job.platforms.every(p=>own.some(r=>
+        r.type==='NOTE'&&r.d.code==='manual_step'&&platformOf(r)===p));
       if(!({done:verified,nothing_posted:absent,removed_by_hand:manual}[reason])) throw new Error('job_close_evidence_missing');
     }
     const digest=reason==='abandoned'?words(ctx.home):null;

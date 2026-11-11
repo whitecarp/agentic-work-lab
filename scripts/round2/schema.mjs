@@ -32,6 +32,13 @@ export function validateRecord(record) {
   const problems = check(record,definition,'record');
   if (problems.length) return problems;
   if (!Number.isFinite(Date.parse(record.at)) || new Date(record.at).toISOString() !== record.at) problems.push('invalid UTC time');
+  if(record.type==='REAL_RELEASE'){
+    const d=record.d;
+    if(!Number.isFinite(Date.parse(d.due_at))||new Date(d.due_at).toISOString()!==d.due_at||
+       !d.platforms.length||new Set(d.platforms).size!==d.platforms.length||
+       d.release_writes!==1+3*d.platforms.length||d.by!==record.site)problems.push('invalid real release');
+  }
+  if(record.type==='FAULT_SETUP'&&(record.d.by!==record.site||record.d.enabled!==record.d.stop_registered))problems.push('invalid fault setup');
   if (record.type === 'GATE_DECISION' && (!Number.isFinite(Date.parse(record.d.now)) || new Date(record.d.now).toISOString() !== record.d.now)) problems.push('invalid gate time');
   if (record.type === 'SIGN_OFF' && (!Number.isFinite(Date.parse(record.d.day)) || new Date(record.d.day).toISOString().slice(0,10) !== record.d.day)) problems.push('invalid sign-off day');
   if (record.type === 'SIGN_OFF' && record.d.answer==='no' && Object.hasOwn(record.d,'words_sha256') && record.d.words_sha256===null) problems.push('negative sign-off requires words digest');

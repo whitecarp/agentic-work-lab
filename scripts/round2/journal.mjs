@@ -5,6 +5,7 @@ import {createHmac, randomBytes} from 'node:crypto';
 import {validateRecord, SLOTS, PLATFORMS} from './schema.mjs';
 import {sha, utc, atomic, withLock, privateHome, readJSON, parseFlags, allowed, alive} from './io.mjs';
 import {bindHome,HOME_ERRORS} from './site.mjs';
+import {jobList} from './jobs.mjs';
 export {validateRecord};
 export const ZERO='0'.repeat(64);
 export const newRunId=()=>randomBytes(16).toString('hex');
@@ -88,8 +89,13 @@ export function put(ctx,type,d,run=null) {
 export function words(home) {
   const bytes=fs.readFileSync(0);
   if(!bytes.toString('utf8').trim()) throw new Error('empty_words');
-  const digest=sha(bytes), file=path.join(home,'captures',digest+'.words.txt');
-  if(!fs.existsSync(file)) atomic(file,bytes);
+  return commitWords(home,bytes);
+}
+export function commitWords(home,bytes) {
+  const nonce=randomBytes(32),digest=sha(Buffer.concat([nonce,Buffer.from(bytes)]));
+  // The opening stays beside the private words; neither is in a public record.
+  atomic(path.join(home,'captures',digest+'.words.nonce'),nonce);
+  atomic(path.join(home,'captures',digest+'.words.txt'),bytes);
   return digest;
 }
 const numeric=(s)=>{if(!/^\d+$/.test(s??''))throw new Error('invalid_integer');return Number(s);};
@@ -108,7 +114,7 @@ export function clearGuard(ctx,by,statement){
       return {file,bytes};
     });
     if(!verifyJournal(ctx.journal).ok) throw new Error('broken_journal');
-    const digest=sha(statement);atomic(path.join(ctx.home,'captures',digest+'.words.txt'),statement);
+    const digest=commitWords(ctx.home,statement);
     for(const {file,bytes} of originals){
       if(!fs.readFileSync(file).equals(bytes)) throw new Error('guard_changed');
       fs.unlinkSync(file);
@@ -136,6 +142,7 @@ export function main(argv=process.argv.slice(2)){
     note:['code','platform','job','agent','minutes-ago'],violation:['rule','found-by','job'],
     'sign-off':['day','by','answer'],handoff:['to','job','by'],stop:['by'],'clear-stop':['by'],'clear-guard':['by'],
     'protocol-seal':['phase','protocol','lab-commit','crosscast-commit','crosscast-digest','plan','analysis','rules-card'],
+    'real-release':['job','platform','due-at','by'],
   };
   if(!lists[sub]) throw new Error('unknown_command');
   allowed(f,['site','slot','journal','run',...lists[sub]]);
@@ -151,7 +158,7 @@ export function main(argv=process.argv.slice(2)){
         type='GO_AHEAD';d={job:f.job,scope:f.scope,count:numeric(f.count),by:f.by??ctx.site,words_sha256:words(ctx.home)};break;
       case 'observe':{
         if(![undefined,'true','false','null'].includes(f['fields-match'])) throw new Error('invalid_boolean');
-        const job=readJSON(path.join(ctx.home,'jobs.json'),[]).find(j=>j.id===f.job), choices=job?.platforms??[];
+        const job=jobList(ctx,readJournal(ctx.journal)).find(j=>j.id===f.job), choices=job?.platforms??[];
         if(f.platform?.length>1 || (!f.platform && choices.length>1)) throw new Error('one_platform_required');
         const platform=f.platform?.[0]??(choices.length===1?choices[0]:null);
         if(platform!==null&&(!PLATFORMS.includes(platform)||(choices.length&&!choices.includes(platform)))) throw new Error('invalid_platform');
@@ -169,8 +176,7 @@ export function main(argv=process.argv.slice(2)){
         // the person's explanation. Optional yes words are kept only privately.
         const statement=f.answer==='no'||!process.stdin.isTTY?fs.readFileSync(0):Buffer.alloc(0);
         if(f.answer==='no'&&!statement.toString('utf8').trim()) throw new Error('empty_words');
-        const digest=statement.toString('utf8').trim()?sha(statement):null;
-        if(digest)atomic(path.join(ctx.home,'captures',digest+'.words.txt'),statement);
+        const digest=statement.toString('utf8').trim()?commitWords(ctx.home,statement):null;
         type='SIGN_OFF';d={day:f.day,by:f.by??ctx.site,answer:f.answer,words_sha256:digest,head_sha256:head.head_sha256,records:head.records};break;
       }
       case 'handoff':
@@ -178,6 +184,14 @@ export function main(argv=process.argv.slice(2)){
           to:f.to,job:f.job??null,by:f.by??ctx.site,words_sha256:words(ctx.home)};break;
       case 'stop':type='STOP_SET';d={by:f.by??ctx.slot};break;
       case 'clear-stop':type='STOP_CLEARED';d={by:f.by??ctx.slot};break;
+      case 'real-release': {
+        const records=readJournal(ctx.journal),by=f.by??ctx.site;
+        if(by!==ctx.site||jobList(ctx,records).some(j=>j.id===f.job))throw new Error('invalid_real_release');
+        const platforms=f.platform??[];
+        if(!platforms.length||new Set(platforms).size!==platforms.length||platforms.some(p=>!PLATFORMS.includes(p))||!Number.isFinite(Date.parse(f['due-at'])))throw new Error('invalid_real_release');
+        type='REAL_RELEASE';d={job:f.job,platforms,due_at:new Date(f['due-at']).toISOString(),run_class:'real_release',
+          release_writes:1+3*platforms.length,by,words_sha256:words(ctx.home)};break;
+      }
       case 'protocol-seal':
         type='PROTOCOL_SEAL';d={vpub_home_sha256:bindHome(ctx,readJournal(ctx.journal),{sealing:true}).digest,
           protocol_sha256:fileHash(f.protocol),lab_commit:f['lab-commit'],crosscast_commit:f['crosscast-commit'],

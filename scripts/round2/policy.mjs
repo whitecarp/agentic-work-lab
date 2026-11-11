@@ -15,6 +15,7 @@ export function classify(command, flags) {
   if(tool==='vpub'){
     if(readActions.has(action)) cls='read';
     if(localActions.has(action)||command.includes('--help')||command.includes('--version')) cls='local';
+    if(action==='audit'&&command[2]==='export')cls='local';
     if(action==='delete'&&command.includes('--dry-run')) cls='local';
     if(['delete','edit'].includes(action)&&command.includes('--verify-only')) cls='read';
   } else if(tool==='other' && flags.tool==='other' && ['read','local'].includes(flags.class)) cls=flags.class;

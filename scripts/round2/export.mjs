@@ -1,10 +1,10 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import {pathToFileURL} from 'node:url';
-import {readJournal,verifyJournal,canonical,context} from './journal.mjs';
+import {readJournal,verifyJournal,canonical,context,keyedDigest} from './journal.mjs';
 import {verifySeals,counts} from './seal.mjs';
 import {crosscast} from './crosscast.mjs';
-import {atomic,parseFlags,allowed,withLock} from './io.mjs';
+import {atomic,parseFlags,allowed,withLock,sha} from './io.mjs';
 
 export function switches(argv,names){
  const set=new Set();const rest=argv.filter(a=>{if(!names.includes(a))return true;if(set.has(a))throw new Error('duplicate_flag');set.add(a);return false;});
@@ -18,10 +18,29 @@ export function exportData(ctx,{privacy=false,deny,crosscast:ccfile}={}){
   counts:counts(records),records:structuredClone(records),seals:seals.seals,unsealed_records:seals.unsealed_records,crosscast_present:cc.present,crosscast_chain_ok:cc.chain_ok,crosscast_command_losses:cc.losses,crosscast_integrity:cc.integrity};
  // Check the originals too: privacy coarsening must not hide a denied string.
  if(strings(result).some(s=>forbidden.some(word=>s.includes(word))))throw new Error('private_string_refused');
- if(privacy)for(const r of result.records){
-  r.at=r.at.slice(0,16)+':00.000Z';
-  if(r.type==='GATE_DECISION')r.d.now=r.d.now.slice(0,16)+':00.000Z';
-  if(r.type==='OBSERVATION')delete r.d.minutes_after;
+ if(privacy){
+  if(!ctx.home)throw new Error('private_home_required');
+  const key=value=>keyedDigest('round2-private-chain-v1\0'+value,ctx.home,
+    {create:!records.some(r=>r.type==='PROTOCOL_SEAL'&&r.d.vpub_home_sha256)});
+  result.source.head_sha256=key(head.head_sha256);
+  result.source.chain='hmac_sha256_source_commitments';
+  result.source.seal_head_sha256=key(seals.head_sha256);
+  for(const r of result.records){
+   r.source_sha256=key(sha(canonical(r)));
+   r.prev=key(r.prev);
+   r.at=r.at.slice(0,16)+':00.000Z';
+   if(r.type==='GATE_DECISION'){
+    r.d.now=r.d.now.slice(0,16)+':00.000Z';
+    for(const job of r.d.jobs)if(job.due_at)job.due_at=new Date(job.due_at).toISOString().slice(0,16)+':00.000Z';
+   }
+   if(r.type==='REAL_RELEASE')r.d.due_at=r.d.due_at.slice(0,16)+':00.000Z';
+   if(r.type==='OBSERVATION')delete r.d.minutes_after;
+   if(r.type==='SIGN_OFF')r.d.head_sha256=key(r.d.head_sha256);
+   // Protect legacy low-entropy words hashes too; original evidence is retained.
+   if(r.d.words_sha256)r.d.words_sha256=key(r.d.words_sha256);
+  }
+  result.seals=result.seals.map(s=>({...s,source_sha256:key(sha(canonical(s)+'\n')),
+    head_sha256:key(s.head_sha256),previous_sha256:key(s.previous_sha256)}));
  }
  return result;
 }

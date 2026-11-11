@@ -8,3 +8,4 @@ import './shared-id.test.mjs';
 import './look-window.test.mjs';
 import './v13.test.mjs';
 import './site.test.mjs';
+import './c34.test.mjs';

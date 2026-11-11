@@ -2065,7 +2065,8 @@
                 "vpub_home_missing",
                 "vpub_home_invalid",
                 "vpub_home_unsealed",
-                "vpub_home_mismatch"
+                "vpub_home_mismatch",
+                "one_platform_required"
               ]
             }
           },
@@ -2077,6 +2078,217 @@
             "action",
             "platforms",
             "reason"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "v",
+        "seq",
+        "prev",
+        "at",
+        "site",
+        "run",
+        "slot",
+        "type",
+        "d"
+      ],
+      "additionalProperties": false
+    },
+    {
+      "type": "object",
+      "properties": {
+        "v": {
+          "const": 1
+        },
+        "seq": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "prev": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        },
+        "at": {
+          "type": "string",
+          "pattern": "^\\d{4}-\\d\\d-\\d\\dT\\d\\d:\\d\\d:\\d\\d\\.\\d{3}Z$"
+        },
+        "site": {
+          "enum": [
+            "owner",
+            "tester"
+          ]
+        },
+        "run": {
+          "anyOf": [
+            {
+              "type": "string",
+              "pattern": "^[a-f0-9]{32}$"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "slot": {
+          "enum": [
+            "owner",
+            "tester",
+            "codex",
+            "gemini",
+            "claude",
+            "tester-assistant",
+            "scheduler"
+          ]
+        },
+        "type": {
+          "const": "REAL_RELEASE"
+        },
+        "d": {
+          "type": "object",
+          "properties": {
+            "job": {
+              "type": "string",
+              "pattern": "^[a-z0-9][a-z0-9._-]{0,63}$"
+            },
+            "platforms": {
+              "type": "array",
+              "items": {
+                "enum": [
+                  "bilibili",
+                  "youtube",
+                  "x",
+                  "douyin",
+                  "instagram"
+                ]
+              }
+            },
+            "due_at": {
+              "type": "string",
+              "pattern": "^\\d{4}-\\d\\d-\\d\\dT\\d\\d:\\d\\d:\\d\\d\\.\\d{3}Z$"
+            },
+            "run_class": {
+              "const": "real_release"
+            },
+            "release_writes": {
+              "type": "integer",
+              "minimum": 4
+            },
+            "by": {
+              "enum": [
+                "owner",
+                "tester"
+              ]
+            },
+            "words_sha256": {
+              "type": "string",
+              "pattern": "^[a-f0-9]{64}$"
+            }
+          },
+          "required": [
+            "job",
+            "platforms",
+            "due_at",
+            "run_class",
+            "release_writes",
+            "by",
+            "words_sha256"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "v",
+        "seq",
+        "prev",
+        "at",
+        "site",
+        "run",
+        "slot",
+        "type",
+        "d"
+      ],
+      "additionalProperties": false
+    },
+    {
+      "type": "object",
+      "properties": {
+        "v": {
+          "const": 1
+        },
+        "seq": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "prev": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        },
+        "at": {
+          "type": "string",
+          "pattern": "^\\d{4}-\\d\\d-\\d\\dT\\d\\d:\\d\\d:\\d\\d\\.\\d{3}Z$"
+        },
+        "site": {
+          "enum": [
+            "owner",
+            "tester"
+          ]
+        },
+        "run": {
+          "anyOf": [
+            {
+              "type": "string",
+              "pattern": "^[a-f0-9]{32}$"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "slot": {
+          "enum": [
+            "owner",
+            "tester",
+            "codex",
+            "gemini",
+            "claude",
+            "tester-assistant",
+            "scheduler"
+          ]
+        },
+        "type": {
+          "const": "FAULT_SETUP"
+        },
+        "d": {
+          "type": "object",
+          "properties": {
+            "enabled": {
+              "type": "boolean"
+            },
+            "stop_registered": {
+              "type": "boolean"
+            },
+            "stop_digest": {
+              "type": "string",
+              "pattern": "^[a-f0-9]{64}$"
+            },
+            "by": {
+              "enum": [
+                "owner",
+                "tester"
+              ]
+            },
+            "words_sha256": {
+              "type": "string",
+              "pattern": "^[a-f0-9]{64}$"
+            }
+          },
+          "required": [
+            "enabled",
+            "stop_registered",
+            "stop_digest",
+            "by",
+            "words_sha256"
           ],
           "additionalProperties": false
         }

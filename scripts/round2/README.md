@@ -176,8 +176,11 @@ node scripts/round2/journal.mjs sign-off --site owner --day 2026-11-12 --by owne
 
 All accept --journal PATH for isolated rehearsals. --crosscast and --deny are
 optional. The person supplies a real sign-off answer separately: daily never
-creates one. Its dry run prints five summary lines plus the proposed seal and
-sign-off prompt. --apply seals the checked prefix and prints the prompt. A later
+creates one. Its dry run prints six summary lines, two lists and two prompt
+lines. Daily partitions and seals use the UTC calendar date, not the local
+production date; use --day for each UTC day with records. An earlier unsealed
+day can be covered by a later seal, but that does not supply its sign-off.
+--apply seals the checked prefix and prints the prompt. A later
 SIGN_OFF is a new journal record and is covered by a later day's seal.
 
 Seals contain the journal prefix count/head, counts by type, Node/journal
@@ -196,10 +199,17 @@ explicitly reported as unsealed_records; no seal is invented. The denylist is
 one private substring per line and is applied before privacy coarsening. Output
 cannot overwrite the journal/seal directory or the private home. Captures are
 not opened by export. --privacy rounds timestamps down to a minute, drops
-OBSERVATION.minutes_after and marks the records as derived: their retained prev
-fields refer to the original source chain, not a newly claimed chain over the
-coarsened values. The source head remains available for comparison with a retained
-original. Exported IDs must be nonprivate study labels even when pattern-valid.
+OBSERVATION.minutes_after and marks the records as derived. All source-chain
+digests (prev, source head, record source_sha256, seal heads/previous digests,
+seal source_sha256, and SIGN_OFF heads) are HMAC commitments under the site's
+private salt with a common domain. Equal original digests remain equal, so a
+reader can check link consistency, including across seals. The reader cannot
+recompute the source chain from the derived copy or brute-force a timestamp
+against an unkeyed digest. A bound site's missing salt refuses export.
+Words digests are also keyed in the privacy copy to protect legacy records.
+Exported IDs must be nonprivate study labels even when pattern-valid. CrossCast
+relative seconds are not minute-coarse times; its separate export scope must
+follow the protocol and consent, not an assumption that relative means coarse.
 
 Reconcile checks capture bytes against STEP digests, identifies open uncertain
 steps, fixed refusal codes, violations, and started publish/edit/delete steps
@@ -213,9 +223,16 @@ STEP, then no_ground_truth. Unclear looks and looks after 24 hours never qualify
 The daily summary includes these all-record status counts and lists that day's
 go-aheads and observations before prompting for sign-off. Failed spawns and read-only edit verification do not create an
 owed look. This is not the separate full 24-hour release schedule audit.
-Only a matching unambiguous observation or successful read-class verification
-settles uncertainty, and an intervening write prevents crediting it as a clean
-read-only settlement. Plain vpub verify remains write-class. Printed session
+Only a matching clear observation or successful operation read-back settles
+uncertainty. A successful vpub verify may close a post despite its write class.
+Intervening write-class steps keep it open unless a complete, uniquely bound
+CrossCast command proves no press: a refusal at exit 2, or repeat_same/resume/
+verify at exit 0 or 4. The before/after snapshots must be present and unchanged,
+with no call, span, press or write evidence and no reported gaps/damaged loss
+records. Without this evidence the strict open count stays. In-doubt steps are
+grouped by job/platform/operation from the first step, under the planned rule
+of one attempt per platform per job; steps lists every contributing record.
+Plain vpub verify remains write-class. Printed session
 counts use run ids; planned runs use job ids. No missed_slots/timer is created.
 
 Each step gives its child AWL_RUN_ID, the durable reservation's random 32-hex id,
@@ -261,13 +278,87 @@ per-child recheck. Old records stay readable and are not rewritten.
 Use journal.mjs observe --platform youtube (or another planned platform).
 An observation must name one platform on a multi-platform job. A legacy look
 without a platform can qualify only when a single platform is established.
-One look covers one job/platform/operation after that operation's last started
-step, including repeats and read-back steps. It never covers another platform.
+One look covers one job/platform/operation after its last started write-class
+step that can press (post: publish/repeat_same/changed_plan/resume; edit; delete).
+Plain verify, edit --verify-only and delete --verify-only do not move that point.
+It never covers another platform. The person's minutes_after remains the source
+for the window; recorded_before_claimed_minute flags entries written before the
+minute they claim. Later transcription is allowed. This flag is reported for
+review, not silently used to rewrite or discard the person's statement.
 
 SIGN_OFF records words_sha256 (null when no explanation is supplied for yes).
 Pipe the person's explanation into sign-off when answering no; an empty no is
 refused. The original words remain in private captures, never the public log.
 Every child gets VPUB_BROWSER_IDLE_SECONDS=0 regardless of the parent setting.
+
+### C34: supplemental releases, approvals and fault setup
+
+On a multi-platform job, keyed resume/verify/edit/delete steps (including delete
+dry run and read-backs) require exactly one --platform from the job. Publish
+steps retain the entire platform set. This is an operator declaration; the
+wrapper does not decode an opaque receipt key to prove its identity. A test job
+can close as done only with successful delete read-backs for every platform.
+Nothing_posted requires post-absence observations for every platform and no
+preceding delete step; post-delete absence is not evidence of never posting.
+
+The gate admits a write job in a new session only while an unspent write unit
+exists. Later read/local steps must therefore run in an admitted session, or
+after the next real grant. They do not consume an additional write unit. Use
+`2 + 3P` for a day's test-post allowance and `1 + 3P` for real releases (P platforms),
+plus separately approved edits/deletes under the current site's rules. C20's
+generated list must derive its counts from the current approved counts file.
+
+A real release outside the sealed list is recorded separately; it never edits
+jobs.json. Pipe the account owner's actual words into:
+
+~~~text
+node scripts/round2/journal.mjs real-release --site owner --job release-EXAMPLE --platform youtube --due-at 2026-11-20T14:00:00Z --by owner
+~~~
+
+REAL_RELEASE records class real_release, platforms, due time, allowance and a
+private words commitment. It does not grant execution: a separate go-ahead is
+required. The gate and reconcile merge these records with planned jobs, refuse
+duplicate ids, and require one look per platform. Resume the current session or
+begin the next one after recording the new job.
+
+New words commitments at both sites are SHA-256(random 32-byte nonce || words).
+The nonce is kept beside the private .words.txt as .words.nonce. Neither leaves
+the site. Repeated short phrases produce different commitments. Old records
+are never rewritten; retaining their original plain hashes outside privacy
+mode must be reviewed under the protocol's publication rules.
+
+The daily CrossCast export is run by Gemini in the operator's shell through the
+wrapper, with --since at the phase seal (and --until at close), to a file outside
+the CrossCast data home. `vpub audit export` and `vpub plan` are local-class;
+Codex reads the resulting artifact and never runs CrossCast in the signed-in
+home. A dedicated approved local/read job can admit these export steps without
+inventing a write allowance for an exhausted release job.
+
+C15 fault arming is still a separate module. Its setup contract is now built:
+Gemini/the tester's operator, on that account owner's explicit word, registers
+ROUND2_HOME/STOP using CrossCast setup --external-stop-file and enables
+fault_injection in the selected config before the first planned shakedown fault.
+After that setup, pipe the owner's words into:
+
+~~~text
+node scripts/round2/fault-setup.mjs --site owner --enabled true --by owner
+~~~
+
+This reads only the named config and records FAULT_SETUP; it changes no CrossCast
+configuration. It requires both enabled fault configuration and exact study
+stop registration. C15 must call assertFaultReady(ctx, kind) immediately before
+arming: the saved record and current config must agree, and a stop-file fault
+requires current registration. It must never record a fired fault from setup
+alone. Every currently unarmed child strips all inherited VPUB_FAULT variants;
+C15 may add the selected variable only after its per-step checks.
+
+At close the authorized operator turns the setting off and removes/restores
+the study stop registration, then records --enabled false through the same
+command. Any existing unrelated stop registration must be reviewed before
+setup and restored by that operator where appropriate. Codex does not make
+these signed-in configuration changes. A stop is a checkpoint-based control;
+record actual press/termination evidence rather than assuming that creating
+the stop guarantees zero subsequent presses.
 The operator can use the read-class command vpub status and inspect
 background_browsers for an earlier live shared browser. This only reports;
 the wrapper does not close an existing browser.

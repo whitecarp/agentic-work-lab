@@ -37,6 +37,7 @@ for(const reason of REFUSALS)test(`wrapper refusal ${reason}: one durable record
   case 'job_not_due':args.job='unknown';break;
   case 'job_closed':put(f.ctx,'JOB_END',{job:'job-1',reason:'done',by:'operator',words_sha256:null});break;
   case 'platform_mismatch':args.platform=['douyin'];break;
+  case 'one_platform_required':args.role='verify';job.platforms=['youtube','douyin'];break;
   case 'job_class_mismatch':job.class='read';break;
   case 'bilibili_delete_forbidden':command=['bili','delete'];break;
   case 'test_platform_forbidden':job.platforms=['x'];args.role='publish';break;
@@ -87,7 +88,7 @@ test('one look covers only one platform and only after the operation last starte
  assert.deepEqual(reconcile(f.ctx).looks_owed.map(x=>x.platform),['douyin']);
  look(f,{platform:'douyin'});assert.equal(reconcile(f.ctx).looks_owed.length,0);
  recorded(f,{class:'read',role:'delete_verify',exit:0,result:'ok'});
- assert.deepEqual(reconcile(f.ctx).looks_owed.map(x=>x.platform),['youtube']);look(f);
+ assert.deepEqual(reconcile(f.ctx).looks_owed.map(x=>x.platform),[]);look(f);
  const r=reconcile(f.ctx);assert.equal(r.look_checks.length,2);assert.equal(r.looks_owed.length,0);
 });
 test('multi-platform observation CLI requires exactly one planned platform',t=>{
