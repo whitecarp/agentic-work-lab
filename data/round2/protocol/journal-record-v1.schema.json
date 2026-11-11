@@ -1,0 +1,1723 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "oneOf": [
+    {
+      "type": "object",
+      "properties": {
+        "v": {
+          "const": 1
+        },
+        "seq": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "prev": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        },
+        "at": {
+          "type": "string",
+          "pattern": "^\\d{4}-\\d\\d-\\d\\dT\\d\\d:\\d\\d:\\d\\d\\.\\d{3}Z$"
+        },
+        "site": {
+          "enum": [
+            "owner",
+            "tester"
+          ]
+        },
+        "run": {
+          "anyOf": [
+            {
+              "type": "string",
+              "pattern": "^[a-f0-9]{32}$"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "slot": {
+          "enum": [
+            "owner",
+            "tester",
+            "codex",
+            "gemini",
+            "claude",
+            "tester-assistant",
+            "scheduler"
+          ]
+        },
+        "type": {
+          "const": "PROTOCOL_SEAL"
+        },
+        "d": {
+          "type": "object",
+          "properties": {
+            "protocol_sha256": {
+              "type": "string",
+              "pattern": "^[a-f0-9]{64}$"
+            },
+            "lab_commit": {
+              "type": "string",
+              "pattern": "^[a-f0-9]{40}$"
+            },
+            "crosscast_commit": {
+              "type": "string",
+              "pattern": "^[a-f0-9]{40}$"
+            },
+            "phase": {
+              "enum": [
+                "rehearsal",
+                "2a",
+                "2b"
+              ]
+            },
+            "crosscast_digest": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "pattern": "^[a-f0-9]{64}$"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "plan_sha256": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "pattern": "^[a-f0-9]{64}$"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "analysis_sha256": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "pattern": "^[a-f0-9]{64}$"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "rules_card_sha256": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "pattern": "^[a-f0-9]{64}$"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          },
+          "required": [
+            "protocol_sha256",
+            "lab_commit",
+            "crosscast_commit",
+            "phase",
+            "crosscast_digest",
+            "plan_sha256",
+            "analysis_sha256",
+            "rules_card_sha256"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "v",
+        "seq",
+        "prev",
+        "at",
+        "site",
+        "run",
+        "slot",
+        "type",
+        "d"
+      ],
+      "additionalProperties": false
+    },
+    {
+      "type": "object",
+      "properties": {
+        "v": {
+          "const": 1
+        },
+        "seq": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "prev": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        },
+        "at": {
+          "type": "string",
+          "pattern": "^\\d{4}-\\d\\d-\\d\\dT\\d\\d:\\d\\d:\\d\\d\\.\\d{3}Z$"
+        },
+        "site": {
+          "enum": [
+            "owner",
+            "tester"
+          ]
+        },
+        "run": {
+          "anyOf": [
+            {
+              "type": "string",
+              "pattern": "^[a-f0-9]{32}$"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "slot": {
+          "enum": [
+            "owner",
+            "tester",
+            "codex",
+            "gemini",
+            "claude",
+            "tester-assistant",
+            "scheduler"
+          ]
+        },
+        "type": {
+          "const": "GATE_DECISION"
+        },
+        "d": {
+          "type": "object",
+          "properties": {
+            "executor": {
+              "enum": [
+                "owner",
+                "tester",
+                "codex",
+                "gemini",
+                "claude",
+                "tester-assistant",
+                "scheduler"
+              ]
+            },
+            "owner": {
+              "enum": [
+                "owner",
+                "tester",
+                "codex",
+                "gemini",
+                "claude",
+                "tester-assistant",
+                "scheduler"
+              ]
+            },
+            "stop": {
+              "type": "boolean"
+            },
+            "running": {
+              "type": "boolean"
+            },
+            "now": {
+              "type": "string",
+              "pattern": "^\\d{4}-\\d\\d-\\d\\dT\\d\\d:\\d\\d:\\d\\d\\.\\d{3}Z$"
+            },
+            "launcher": {
+              "enum": [
+                "os_scheduler",
+                "agent_host_automation",
+                "manual"
+              ]
+            },
+            "slot_id": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "pattern": "^[a-z0-9][a-z0-9._-]{0,63}$"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "decision": {
+              "enum": [
+                "skip",
+                "no_work_due",
+                "plan_only"
+              ]
+            },
+            "reason": {
+              "enum": [
+                "not_owner",
+                "stop_flag",
+                "already_running",
+                "checked"
+              ]
+            },
+            "due": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "pattern": "^[a-z0-9][a-z0-9._-]{0,63}$"
+              }
+            },
+            "jobs": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string",
+                    "pattern": "^[a-z0-9][a-z0-9._-]{0,63}$"
+                  },
+                  "verdict": {
+                    "enum": [
+                      "due",
+                      "not_due",
+                      "completed",
+                      "not_authorized",
+                      "forbidden_by_policy"
+                    ]
+                  }
+                },
+                "required": [
+                  "id",
+                  "verdict"
+                ],
+                "additionalProperties": false
+              }
+            },
+            "gate_sha256": {
+              "type": "string",
+              "pattern": "^[a-f0-9]{64}$"
+            }
+          },
+          "required": [
+            "executor",
+            "owner",
+            "stop",
+            "running",
+            "now",
+            "launcher",
+            "slot_id",
+            "decision",
+            "reason",
+            "due",
+            "jobs",
+            "gate_sha256"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "v",
+        "seq",
+        "prev",
+        "at",
+        "site",
+        "run",
+        "slot",
+        "type",
+        "d"
+      ],
+      "additionalProperties": false
+    },
+    {
+      "type": "object",
+      "properties": {
+        "v": {
+          "const": 1
+        },
+        "seq": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "prev": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        },
+        "at": {
+          "type": "string",
+          "pattern": "^\\d{4}-\\d\\d-\\d\\dT\\d\\d:\\d\\d:\\d\\d\\.\\d{3}Z$"
+        },
+        "site": {
+          "enum": [
+            "owner",
+            "tester"
+          ]
+        },
+        "run": {
+          "anyOf": [
+            {
+              "type": "string",
+              "pattern": "^[a-f0-9]{32}$"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "slot": {
+          "enum": [
+            "owner",
+            "tester",
+            "codex",
+            "gemini",
+            "claude",
+            "tester-assistant",
+            "scheduler"
+          ]
+        },
+        "type": {
+          "const": "GATE_ERROR"
+        },
+        "d": {
+          "type": "object",
+          "properties": {
+            "error": {
+              "enum": [
+                "invalid_time",
+                "bad_job_list",
+                "gate_threw",
+                "journal_unwritable"
+              ]
+            }
+          },
+          "required": [
+            "error"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "v",
+        "seq",
+        "prev",
+        "at",
+        "site",
+        "run",
+        "slot",
+        "type",
+        "d"
+      ],
+      "additionalProperties": false
+    },
+    {
+      "type": "object",
+      "properties": {
+        "v": {
+          "const": 1
+        },
+        "seq": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "prev": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        },
+        "at": {
+          "type": "string",
+          "pattern": "^\\d{4}-\\d\\d-\\d\\dT\\d\\d:\\d\\d:\\d\\d\\.\\d{3}Z$"
+        },
+        "site": {
+          "enum": [
+            "owner",
+            "tester"
+          ]
+        },
+        "run": {
+          "anyOf": [
+            {
+              "type": "string",
+              "pattern": "^[a-f0-9]{32}$"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "slot": {
+          "enum": [
+            "owner",
+            "tester",
+            "codex",
+            "gemini",
+            "claude",
+            "tester-assistant",
+            "scheduler"
+          ]
+        },
+        "type": {
+          "const": "GO_AHEAD"
+        },
+        "d": {
+          "type": "object",
+          "properties": {
+            "job": {
+              "type": "string",
+              "pattern": "^[a-z0-9][a-z0-9._-]{0,63}$"
+            },
+            "scope": {
+              "enum": [
+                "one_write",
+                "listed_test_posts",
+                "read_only"
+              ]
+            },
+            "count": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "by": {
+              "enum": [
+                "owner",
+                "tester"
+              ]
+            },
+            "words_sha256": {
+              "type": "string",
+              "pattern": "^[a-f0-9]{64}$"
+            }
+          },
+          "required": [
+            "job",
+            "scope",
+            "count",
+            "by",
+            "words_sha256"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "v",
+        "seq",
+        "prev",
+        "at",
+        "site",
+        "run",
+        "slot",
+        "type",
+        "d"
+      ],
+      "additionalProperties": false
+    },
+    {
+      "type": "object",
+      "properties": {
+        "v": {
+          "const": 1
+        },
+        "seq": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "prev": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        },
+        "at": {
+          "type": "string",
+          "pattern": "^\\d{4}-\\d\\d-\\d\\dT\\d\\d:\\d\\d:\\d\\d\\.\\d{3}Z$"
+        },
+        "site": {
+          "enum": [
+            "owner",
+            "tester"
+          ]
+        },
+        "run": {
+          "anyOf": [
+            {
+              "type": "string",
+              "pattern": "^[a-f0-9]{32}$"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "slot": {
+          "enum": [
+            "owner",
+            "tester",
+            "codex",
+            "gemini",
+            "claude",
+            "tester-assistant",
+            "scheduler"
+          ]
+        },
+        "type": {
+          "const": "STEP"
+        },
+        "d": {
+          "type": "object",
+          "properties": {
+            "job": {
+              "type": "string",
+              "pattern": "^[a-z0-9][a-z0-9._-]{0,63}$"
+            },
+            "class": {
+              "enum": [
+                "read",
+                "write",
+                "local"
+              ]
+            },
+            "tool": {
+              "enum": [
+                "vpub",
+                "bili",
+                "node",
+                "other"
+              ]
+            },
+            "action": {
+              "enum": [
+                "auth",
+                "login",
+                "status",
+                "chat-unlock",
+                "publish",
+                "go",
+                "verify",
+                "resume",
+                "edit",
+                "delete",
+                "plan",
+                "doctor",
+                "receipts",
+                "stats",
+                "comments",
+                "collections",
+                "operations",
+                "stop",
+                "clear-stop",
+                "audit",
+                "snapshot",
+                "works",
+                "configure",
+                "help",
+                "other"
+              ]
+            },
+            "role": {
+              "enum": [
+                "publish",
+                "repeat_same",
+                "resume",
+                "verify",
+                "edit",
+                "delete_dry_run",
+                "delete",
+                "delete_verify",
+                "status",
+                "changed_plan",
+                "other"
+              ]
+            },
+            "platforms": {
+              "type": "array",
+              "items": {
+                "enum": [
+                  "bilibili",
+                  "youtube",
+                  "x",
+                  "douyin",
+                  "instagram"
+                ]
+              }
+            },
+            "exit": {
+              "type": "integer"
+            },
+            "ms": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "capture_sha256": {
+              "type": "string",
+              "pattern": "^[a-f0-9]{64}$"
+            },
+            "result": {
+              "enum": [
+                "ok",
+                "refused",
+                "stopped",
+                "needs_person",
+                "in_doubt",
+                "failed",
+                "unknown"
+              ]
+            },
+            "code": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "pattern": "^[a-z0-9][a-z0-9._-]{0,63}$"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "refs": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "pattern": "^[a-f0-9]{16}$"
+              }
+            },
+            "fault_fired": {
+              "anyOf": [
+                {
+                  "type": "boolean"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          },
+          "required": [
+            "job",
+            "class",
+            "tool",
+            "action",
+            "role",
+            "platforms",
+            "exit",
+            "ms",
+            "capture_sha256",
+            "result",
+            "code",
+            "refs",
+            "fault_fired"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "v",
+        "seq",
+        "prev",
+        "at",
+        "site",
+        "run",
+        "slot",
+        "type",
+        "d"
+      ],
+      "additionalProperties": false
+    },
+    {
+      "type": "object",
+      "properties": {
+        "v": {
+          "const": 1
+        },
+        "seq": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "prev": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        },
+        "at": {
+          "type": "string",
+          "pattern": "^\\d{4}-\\d\\d-\\d\\dT\\d\\d:\\d\\d:\\d\\d\\.\\d{3}Z$"
+        },
+        "site": {
+          "enum": [
+            "owner",
+            "tester"
+          ]
+        },
+        "run": {
+          "anyOf": [
+            {
+              "type": "string",
+              "pattern": "^[a-f0-9]{32}$"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "slot": {
+          "enum": [
+            "owner",
+            "tester",
+            "codex",
+            "gemini",
+            "claude",
+            "tester-assistant",
+            "scheduler"
+          ]
+        },
+        "type": {
+          "const": "RUN_END"
+        },
+        "d": {
+          "type": "object",
+          "properties": {
+            "state": {
+              "enum": [
+                "completed",
+                "failed",
+                "interrupted",
+                "skipped"
+              ]
+            },
+            "steps": {
+              "type": "integer",
+              "minimum": 0
+            }
+          },
+          "required": [
+            "state",
+            "steps"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "v",
+        "seq",
+        "prev",
+        "at",
+        "site",
+        "run",
+        "slot",
+        "type",
+        "d"
+      ],
+      "additionalProperties": false
+    },
+    {
+      "type": "object",
+      "properties": {
+        "v": {
+          "const": 1
+        },
+        "seq": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "prev": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        },
+        "at": {
+          "type": "string",
+          "pattern": "^\\d{4}-\\d\\d-\\d\\dT\\d\\d:\\d\\d:\\d\\d\\.\\d{3}Z$"
+        },
+        "site": {
+          "enum": [
+            "owner",
+            "tester"
+          ]
+        },
+        "run": {
+          "anyOf": [
+            {
+              "type": "string",
+              "pattern": "^[a-f0-9]{32}$"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "slot": {
+          "enum": [
+            "owner",
+            "tester",
+            "codex",
+            "gemini",
+            "claude",
+            "tester-assistant",
+            "scheduler"
+          ]
+        },
+        "type": {
+          "const": "OBSERVATION"
+        },
+        "d": {
+          "type": "object",
+          "properties": {
+            "job": {
+              "type": "string",
+              "pattern": "^[a-z0-9][a-z0-9._-]{0,63}$"
+            },
+            "ref": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "pattern": "^[a-f0-9]{16}$"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "about": {
+              "enum": [
+                "post",
+                "edit",
+                "delete"
+              ]
+            },
+            "by": {
+              "enum": [
+                "owner",
+                "tester"
+              ]
+            },
+            "client": {
+              "enum": [
+                "phone_app",
+                "other_browser"
+              ]
+            },
+            "seen": {
+              "enum": [
+                "present_private",
+                "present_once",
+                "present_twice_or_more",
+                "absent",
+                "unclear"
+              ]
+            },
+            "fields_match": {
+              "anyOf": [
+                {
+                  "type": "boolean"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "minutes_after": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "words_sha256": {
+              "type": "string",
+              "pattern": "^[a-f0-9]{64}$"
+            },
+            "shot_sha256": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "pattern": "^[a-f0-9]{64}$"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          },
+          "required": [
+            "job",
+            "ref",
+            "about",
+            "by",
+            "client",
+            "seen",
+            "fields_match",
+            "minutes_after",
+            "words_sha256",
+            "shot_sha256"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "v",
+        "seq",
+        "prev",
+        "at",
+        "site",
+        "run",
+        "slot",
+        "type",
+        "d"
+      ],
+      "additionalProperties": false
+    },
+    {
+      "type": "object",
+      "properties": {
+        "v": {
+          "const": 1
+        },
+        "seq": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "prev": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        },
+        "at": {
+          "type": "string",
+          "pattern": "^\\d{4}-\\d\\d-\\d\\dT\\d\\d:\\d\\d:\\d\\d\\.\\d{3}Z$"
+        },
+        "site": {
+          "enum": [
+            "owner",
+            "tester"
+          ]
+        },
+        "run": {
+          "anyOf": [
+            {
+              "type": "string",
+              "pattern": "^[a-f0-9]{32}$"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "slot": {
+          "enum": [
+            "owner",
+            "tester",
+            "codex",
+            "gemini",
+            "claude",
+            "tester-assistant",
+            "scheduler"
+          ]
+        },
+        "type": {
+          "const": "FAULT"
+        },
+        "d": {
+          "type": "object",
+          "properties": {
+            "job": {
+              "type": "string",
+              "pattern": "^[a-z0-9][a-z0-9._-]{0,63}$"
+            },
+            "kind": {
+              "enum": [
+                "end_command_after_press",
+                "end_tree_after_press",
+                "readback_timeout",
+                "between_save_and_press",
+                "browser_lost_during_upload",
+                "stop_during_upload",
+                "delete_readback_lost",
+                "end_browser_after_edit_save"
+              ]
+            },
+            "mechanism": {
+              "enum": [
+                "wrapper_kill",
+                "tool_switch",
+                "stop_file"
+              ]
+            },
+            "role": {
+              "enum": [
+                "publish",
+                "delete",
+                "edit"
+              ]
+            },
+            "trigger": {
+              "type": "string",
+              "pattern": "^[a-z0-9][a-z0-9._-]{0,63}$"
+            },
+            "delay_ms": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "armed_on": {
+              "enum": [
+                "youtube_private",
+                "youtube_unlisted",
+                "douyin_private",
+                "x_scheduled"
+              ]
+            }
+          },
+          "required": [
+            "job",
+            "kind",
+            "mechanism",
+            "role",
+            "trigger",
+            "delay_ms",
+            "armed_on"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "v",
+        "seq",
+        "prev",
+        "at",
+        "site",
+        "run",
+        "slot",
+        "type",
+        "d"
+      ],
+      "additionalProperties": false
+    },
+    {
+      "type": "object",
+      "properties": {
+        "v": {
+          "const": 1
+        },
+        "seq": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "prev": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        },
+        "at": {
+          "type": "string",
+          "pattern": "^\\d{4}-\\d\\d-\\d\\dT\\d\\d:\\d\\d:\\d\\d\\.\\d{3}Z$"
+        },
+        "site": {
+          "enum": [
+            "owner",
+            "tester"
+          ]
+        },
+        "run": {
+          "anyOf": [
+            {
+              "type": "string",
+              "pattern": "^[a-f0-9]{32}$"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "slot": {
+          "enum": [
+            "owner",
+            "tester",
+            "codex",
+            "gemini",
+            "claude",
+            "tester-assistant",
+            "scheduler"
+          ]
+        },
+        "type": {
+          "const": "STOP_SET"
+        },
+        "d": {
+          "type": "object",
+          "properties": {
+            "by": {
+              "enum": [
+                "owner",
+                "tester",
+                "codex",
+                "gemini",
+                "claude",
+                "tester-assistant",
+                "scheduler"
+              ]
+            }
+          },
+          "required": [
+            "by"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "v",
+        "seq",
+        "prev",
+        "at",
+        "site",
+        "run",
+        "slot",
+        "type",
+        "d"
+      ],
+      "additionalProperties": false
+    },
+    {
+      "type": "object",
+      "properties": {
+        "v": {
+          "const": 1
+        },
+        "seq": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "prev": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        },
+        "at": {
+          "type": "string",
+          "pattern": "^\\d{4}-\\d\\d-\\d\\dT\\d\\d:\\d\\d:\\d\\d\\.\\d{3}Z$"
+        },
+        "site": {
+          "enum": [
+            "owner",
+            "tester"
+          ]
+        },
+        "run": {
+          "anyOf": [
+            {
+              "type": "string",
+              "pattern": "^[a-f0-9]{32}$"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "slot": {
+          "enum": [
+            "owner",
+            "tester",
+            "codex",
+            "gemini",
+            "claude",
+            "tester-assistant",
+            "scheduler"
+          ]
+        },
+        "type": {
+          "const": "STOP_CLEARED"
+        },
+        "d": {
+          "type": "object",
+          "properties": {
+            "by": {
+              "enum": [
+                "owner",
+                "tester",
+                "codex",
+                "gemini",
+                "claude",
+                "tester-assistant",
+                "scheduler"
+              ]
+            }
+          },
+          "required": [
+            "by"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "v",
+        "seq",
+        "prev",
+        "at",
+        "site",
+        "run",
+        "slot",
+        "type",
+        "d"
+      ],
+      "additionalProperties": false
+    },
+    {
+      "type": "object",
+      "properties": {
+        "v": {
+          "const": 1
+        },
+        "seq": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "prev": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        },
+        "at": {
+          "type": "string",
+          "pattern": "^\\d{4}-\\d\\d-\\d\\dT\\d\\d:\\d\\d:\\d\\d\\.\\d{3}Z$"
+        },
+        "site": {
+          "enum": [
+            "owner",
+            "tester"
+          ]
+        },
+        "run": {
+          "anyOf": [
+            {
+              "type": "string",
+              "pattern": "^[a-f0-9]{32}$"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "slot": {
+          "enum": [
+            "owner",
+            "tester",
+            "codex",
+            "gemini",
+            "claude",
+            "tester-assistant",
+            "scheduler"
+          ]
+        },
+        "type": {
+          "const": "HANDOFF"
+        },
+        "d": {
+          "type": "object",
+          "properties": {
+            "from": {
+              "enum": [
+                "owner",
+                "tester",
+                "codex",
+                "gemini",
+                "claude",
+                "tester-assistant",
+                "scheduler"
+              ]
+            },
+            "to": {
+              "enum": [
+                "owner",
+                "tester",
+                "codex",
+                "gemini",
+                "claude",
+                "tester-assistant",
+                "scheduler"
+              ]
+            },
+            "job": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "pattern": "^[a-z0-9][a-z0-9._-]{0,63}$"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "by": {
+              "enum": [
+                "owner",
+                "tester"
+              ]
+            },
+            "words_sha256": {
+              "type": "string",
+              "pattern": "^[a-f0-9]{64}$"
+            }
+          },
+          "required": [
+            "from",
+            "to",
+            "job",
+            "by",
+            "words_sha256"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "v",
+        "seq",
+        "prev",
+        "at",
+        "site",
+        "run",
+        "slot",
+        "type",
+        "d"
+      ],
+      "additionalProperties": false
+    },
+    {
+      "type": "object",
+      "properties": {
+        "v": {
+          "const": 1
+        },
+        "seq": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "prev": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        },
+        "at": {
+          "type": "string",
+          "pattern": "^\\d{4}-\\d\\d-\\d\\dT\\d\\d:\\d\\d:\\d\\d\\.\\d{3}Z$"
+        },
+        "site": {
+          "enum": [
+            "owner",
+            "tester"
+          ]
+        },
+        "run": {
+          "anyOf": [
+            {
+              "type": "string",
+              "pattern": "^[a-f0-9]{32}$"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "slot": {
+          "enum": [
+            "owner",
+            "tester",
+            "codex",
+            "gemini",
+            "claude",
+            "tester-assistant",
+            "scheduler"
+          ]
+        },
+        "type": {
+          "const": "SIGN_OFF"
+        },
+        "d": {
+          "type": "object",
+          "properties": {
+            "day": {
+              "type": "string",
+              "pattern": "^\\d{4}-\\d\\d-\\d\\d$"
+            },
+            "by": {
+              "enum": [
+                "owner",
+                "tester"
+              ]
+            },
+            "answer": {
+              "enum": [
+                "yes",
+                "no"
+              ]
+            },
+            "head_sha256": {
+              "type": "string",
+              "pattern": "^[a-f0-9]{64}$"
+            },
+            "records": {
+              "type": "integer",
+              "minimum": 0
+            }
+          },
+          "required": [
+            "day",
+            "by",
+            "answer",
+            "head_sha256",
+            "records"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "v",
+        "seq",
+        "prev",
+        "at",
+        "site",
+        "run",
+        "slot",
+        "type",
+        "d"
+      ],
+      "additionalProperties": false
+    },
+    {
+      "type": "object",
+      "properties": {
+        "v": {
+          "const": 1
+        },
+        "seq": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "prev": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        },
+        "at": {
+          "type": "string",
+          "pattern": "^\\d{4}-\\d\\d-\\d\\dT\\d\\d:\\d\\d:\\d\\d\\.\\d{3}Z$"
+        },
+        "site": {
+          "enum": [
+            "owner",
+            "tester"
+          ]
+        },
+        "run": {
+          "anyOf": [
+            {
+              "type": "string",
+              "pattern": "^[a-f0-9]{32}$"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "slot": {
+          "enum": [
+            "owner",
+            "tester",
+            "codex",
+            "gemini",
+            "claude",
+            "tester-assistant",
+            "scheduler"
+          ]
+        },
+        "type": {
+          "const": "VIOLATION"
+        },
+        "d": {
+          "type": "object",
+          "properties": {
+            "rule": {
+              "enum": [
+                "code_changed",
+                "page_driven_by_assistant",
+                "platform_called_directly",
+                "write_without_gate",
+                "write_without_go_ahead",
+                "account_used_by_other",
+                "record_edited",
+                "retry_around_tool",
+                "test_post_rule_broken",
+                "other"
+              ]
+            },
+            "found_by": {
+              "enum": [
+                "reconcile",
+                "owner",
+                "tester",
+                "self_report"
+              ]
+            },
+            "job": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "pattern": "^[a-z0-9][a-z0-9._-]{0,63}$"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          },
+          "required": [
+            "rule",
+            "found_by",
+            "job"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "v",
+        "seq",
+        "prev",
+        "at",
+        "site",
+        "run",
+        "slot",
+        "type",
+        "d"
+      ],
+      "additionalProperties": false
+    },
+    {
+      "type": "object",
+      "properties": {
+        "v": {
+          "const": 1
+        },
+        "seq": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "prev": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        },
+        "at": {
+          "type": "string",
+          "pattern": "^\\d{4}-\\d\\d-\\d\\dT\\d\\d:\\d\\d:\\d\\d\\.\\d{3}Z$"
+        },
+        "site": {
+          "enum": [
+            "owner",
+            "tester"
+          ]
+        },
+        "run": {
+          "anyOf": [
+            {
+              "type": "string",
+              "pattern": "^[a-f0-9]{32}$"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "slot": {
+          "enum": [
+            "owner",
+            "tester",
+            "codex",
+            "gemini",
+            "claude",
+            "tester-assistant",
+            "scheduler"
+          ]
+        },
+        "type": {
+          "const": "NOTE"
+        },
+        "d": {
+          "type": "object",
+          "properties": {
+            "code": {
+              "enum": [
+                "platform_warning",
+                "human_check",
+                "outage",
+                "clock_adjusted",
+                "outside_event",
+                "rehearsal",
+                "safety_stop",
+                "extension_declared",
+                "manual_step",
+                "model_changed",
+                "outside_upload"
+              ]
+            },
+            "platform": {
+              "anyOf": [
+                {
+                  "enum": [
+                    "bilibili",
+                    "youtube",
+                    "x",
+                    "douyin",
+                    "instagram"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "job": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "pattern": "^[a-z0-9][a-z0-9._-]{0,63}$"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "agent": {
+              "anyOf": [
+                {
+                  "enum": [
+                    "codex",
+                    "gemini",
+                    "claude",
+                    "tester-assistant",
+                    "owner",
+                    "tester",
+                    "other"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "minutes_ago": {
+              "anyOf": [
+                {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          },
+          "required": [
+            "code",
+            "platform",
+            "job",
+            "agent",
+            "minutes_ago"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "v",
+        "seq",
+        "prev",
+        "at",
+        "site",
+        "run",
+        "slot",
+        "type",
+        "d"
+      ],
+      "additionalProperties": false
+    }
+  ]
+}
