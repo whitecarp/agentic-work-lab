@@ -3,13 +3,24 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
 import {begin,step,end} from '../../scripts/round2/gate-run.mjs';
-import {readJournal} from '../../scripts/round2/journal.mjs';
+import {readJournal,keyedDigest} from '../../scripts/round2/journal.mjs';
 import {siteHome} from '../../scripts/round2/site.mjs';
 import {seal,verifySeals} from '../../scripts/round2/seal.mjs';
 import {exportData} from '../../scripts/round2/export.mjs';
 import {fixture,setup,approve,cli,flags,last} from './helpers.mjs';
 
 const setSite=(f,value)=>fs.writeFileSync(path.join(f.home,'site.json'),JSON.stringify(value));
+test('same resolved folder has a different keyed binding at each site',t=>{
+  const first=fixture(t),second=fixture(t);
+  setSite(second,{site:'owner',vpub_home:first.env.VPUB_HOME});
+  const bound=siteHome(first.ctx),other=siteHome(second.ctx);
+  assert.equal(bound.home,other.home);
+  assert.match(bound.digest,/^[a-f0-9]{64}$/);
+  assert.notEqual(bound.digest,other.digest);
+  const normalized=process.platform==='win32'?bound.home.toLowerCase():bound.home;
+  assert.equal(bound.digest,keyedDigest('round2-vpub-home-path-v1\0'+normalized,first.home));
+  assert.equal(siteHome(first.ctx).digest,bound.digest);
+});
 function sealArgs(f){
   const file=path.join(f.root,'protocol.txt');fs.writeFileSync(file,'offline protocol');
   return ['protocol-seal',...flags(f),'--phase','rehearsal','--protocol',file,

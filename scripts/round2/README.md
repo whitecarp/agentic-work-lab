@@ -24,7 +24,9 @@ Before a protocol seal or any `begin`, create private `ROUND2_HOME/site.json`
 with exactly `{"site":"owner","vpub_home":"ABSOLUTE_EXISTING_DIRECTORY"}`
 (use `tester` for the tester site). For rehearsals use an empty directory outside
 Git. The wrapper reads only directory metadata, never its profiles or sign-ins.
-`protocol-seal` records `vpub_home_sha256` of the resolved path, never the path.
+`protocol-seal` records `vpub_home_sha256`, an HMAC-SHA-256 of the resolved path
+using the site's private pseudonym salt. The public binding cannot be checked
+against guessed account names without that salt.
 The first bound seal fixes that directory across later phases. Missing, invalid,
 unsealed or changed setup refuses `begin` and `step` with fixed `vpub_home_*`
 words. Legacy journals remain readable but cannot admit a child until a bound

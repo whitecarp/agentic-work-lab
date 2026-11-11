@@ -57,7 +57,7 @@ export function appendRecord(file,fields) {
     return record;
   });
 }
-export function pseudonym(value,home) {
+export function keyedDigest(value,home) {
   const file=path.join(home,'salt');
   return withLock(file+'.lock',()=>{
     if(!fs.existsSync(file)) {
@@ -66,8 +66,11 @@ export function pseudonym(value,home) {
     }
     const salt=fs.readFileSync(file);
     if(salt.length!==32) throw new Error('invalid_salt');
-    return createHmac('sha256',salt).update(String(value)).digest('hex').slice(0,16);
+    return createHmac('sha256',salt).update(String(value)).digest('hex');
   });
+}
+export function pseudonym(value,home) {
+  return keyedDigest(value,home).slice(0,16);
 }
 export function context(flags, needHome=true) {
   const site=flags.site;

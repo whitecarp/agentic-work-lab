@@ -1,6 +1,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
-import {sha,readJSON} from './io.mjs';
+import {readJSON} from './io.mjs';
+import {keyedDigest} from './journal.mjs';
 
 export const HOME_ERRORS=['vpub_home_missing','vpub_home_invalid','vpub_home_unsealed','vpub_home_mismatch'];
 
@@ -16,7 +17,7 @@ export function siteHome(ctx){
     const resolved=fs.realpathSync.native(value.vpub_home);
     if(!fs.statSync(resolved).isDirectory())throw new Error('vpub_home_invalid');
     const normalized=process.platform==='win32'?resolved.toLowerCase():resolved;
-    return {home:resolved,digest:sha('round2-vpub-home-path-v1\0'+normalized)};
+    return {home:resolved,digest:keyedDigest('round2-vpub-home-path-v1\0'+normalized,ctx.home)};
   }catch(e){
     if(e.code==='ENOENT')throw new Error('vpub_home_missing');
     throw new Error('vpub_home_invalid');
