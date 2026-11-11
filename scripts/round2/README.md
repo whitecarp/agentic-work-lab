@@ -161,8 +161,14 @@ Reconcile checks capture bytes against STEP digests, identifies open uncertain
 steps, fixed refusal codes, violations, and started publish/edit/delete steps
 still owed a qualifying look. The jobs.json classes exclude refusal jobs and
 drills; missing class metadata is reported as unknown. A 2-minute look is retained
-but does not satisfy the protocol's 10-to-60-minute window. Failed spawns do not
-create an owed look. This is not the separate full 24-hour release schedule audit.
+but does not satisfy the protocol's window. A look at 10 through 60 minutes is
+on_time; after 60 through 1,440 minutes it satisfies the obligation as late.
+look_checks preserves those statuses and early observation sequence numbers.
+Without a qualifying look, status is pending or early until 24 hours after the
+STEP, then no_ground_truth. Unclear looks and looks after 24 hours never qualify.
+The day's five-line check includes these all-record status counts on its last
+summary line. Failed spawns and read-only edit verification do not create an
+owed look. This is not the separate full 24-hour release schedule audit.
 Only a matching unambiguous observation or successful read-class verification
 settles uncertainty, and an intervening write prevents crediting it as a clean
 read-only settlement. Plain vpub verify remains write-class. Printed session

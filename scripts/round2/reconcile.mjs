@@ -5,7 +5,7 @@ import {readJournal,context} from './journal.mjs';
 import {sha,parseFlags,allowed,readJSON} from './io.mjs';
 import {crosscast,commandClass} from './crosscast.mjs';
 
-export function reconcile(ctx,crosscastFile){
+export function reconcile(ctx,crosscastFile,{now=Date.now()}={}){
  const records=readJournal(ctx.journal),cc=crosscast(crosscastFile),steps=records.filter(r=>r.type==='STEP');
  const admissions=records.filter(r=>r.type==='GATE_DECISION'&&r.d.decision==='plan_only');
  const runs=[...new Set(admissions.map(r=>r.run))].map(id=>{
@@ -40,13 +40,22 @@ export function reconcile(ctx,crosscastFile){
  }
  const jobs=ctx.home?readJSON(path.join(ctx.home,'jobs.json'),[]):[];
  const reservations=ctx.home?readJSON(path.join(ctx.home,'reservations.json'),[]):[];
- const eligible=steps.filter(r=>['publish','edit','delete'].includes(r.d.role));
+ const eligible=steps.filter(r=>r.d.class==='write'&&['publish','edit','delete'].includes(r.d.role));
  const scope=job=>jobs.find(j=>j.id===job)?.run_class;
- const owesLook=eligible.filter(r=>['test_post','real_slot'].includes(scope(r.d.job))&&
-   !(reservations.find(x=>x.run===r.run&&x.step_seq===r.seq)?.started===false||r.d.exit===127)).filter(s=>{
+ const lookChecks=eligible.filter(r=>['test_post','real_slot'].includes(scope(r.d.job))&&
+   !(reservations.find(x=>x.run===r.run&&x.step_seq===r.seq)?.started===false||r.d.exit===127)).map(s=>{
   const about=s.d.role==='publish'?'post':s.d.role;
-  return !records.some(r=>r.seq>s.seq&&r.type==='OBSERVATION'&&r.d.job===s.d.job&&r.d.about===about&&r.d.seen!=='unclear'&&r.d.minutes_after>=10&&r.d.minutes_after<=60);
+  const looks=records.filter(r=>r.seq>s.seq&&r.type==='OBSERVATION'&&r.d.job===s.d.job&&r.d.about===about&&r.d.seen!=='unclear');
+  const qualifying=looks.find(r=>r.d.minutes_after>=10&&r.d.minutes_after<=1440);
+  const early=looks.filter(r=>r.d.minutes_after<10).map(r=>r.seq);
+  // A late look is usable ground truth through 24 hours, but must remain
+  // distinguishable from an on-time one. Never turn an early/unclear look
+  // into ground truth merely because the review is run after the deadline.
+  const status=qualifying?(qualifying.d.minutes_after<=60?'on_time':'late'):
+    now-Date.parse(s.at)>=86400000?'no_ground_truth':early.length?'early':'pending';
+  return {job:s.d.job,step:s.seq,about,status,observation:qualifying?.seq??null,early_observations:early};
  });
+ const owesLook=lookChecks.filter(r=>!['on_time','late'].includes(r.status));
  // Time overlap is never a substitute for the id passed to a specific child.
  // Missing STEP (including a crash before its append) is an unproven binding.
  const trusted=cc.present&&cc.chain_ok&&cc.runs.every(r=>r.chain_ok!==false);
@@ -69,7 +78,7 @@ export function reconcile(ctx,crosscastFile){
    ungated_writes:ungated,matched_write_commands:trusted?bindings.length-ungated:null,write_bindings:bindings,
    admitted_sessions_without_write:runs.filter(r=>!steps.some(s=>s.run===r.id&&s.d.class==='write')).length,
    captures_checked:!!ctx.home,captures_missing:ctx.home?missing:null,in_doubt:inDoubt,in_doubt_open:inDoubt.filter(r=>!r.closed).length,
-   looks_owed:owesLook.map(r=>({job:r.d.job,step:r.seq,about:r.d.role==='publish'?'post':r.d.role})),looks_scope_unknown:eligible.filter(r=>!scope(r.d.job)).length,refusals_by_code:refusals,
+   looks_owed:owesLook.map(({job,step,about})=>({job,step,about})),look_checks:lookChecks,looks_scope_unknown:eligible.filter(r=>!scope(r.d.job)).length,refusals_by_code:refusals,
    violations:records.filter(r=>r.type==='VIOLATION').length,crosscast_command_losses:cc.losses};
 }
 export function main(argv=process.argv.slice(2)){
