@@ -140,10 +140,10 @@ function prepare(ctx,flags,command,launch){
     list.push(reservation);writeReservations(ctx,list);
     atomic(runFile(ctx),{...run,child_pid:process.pid});
     if(stop(ctx)) throw new Error('stop_flag');
-    return {policy,reservation,run,capture:launch(reservation.id,pinned.home)};
+    return {policy,reservation,run,capture:launch(reservation.id,pinned)};
   });
 }
-function captureChild(ctx,command,reservationId,vpubHome){
+function captureChild(ctx,command,reservationId,pinned){
   return new Promise(resolve=>{
     const file=path.join(ctx.home,'captures',newRunId()+'.jsonl');
     fs.mkdirSync(path.dirname(file),{recursive:true});
@@ -163,8 +163,11 @@ function captureChild(ctx,command,reservationId,vpubHome){
       while((n=pending.indexOf(10))!==-1){row(stream,pending.subarray(0,n+1));pending=pending.subarray(n+1);}
       buffers[stream]=pending;
     };
-    try{child=spawn(command[0],command.slice(1),{stdio:['ignore','pipe','pipe'],shell:false,windowsHide:true,
-      env:{...process.env,AWL_RUN_ID:reservationId,VPUB_BROWSER_IDLE_SECONDS:'0',VPUB_HOME:vpubHome}});}
+    const env={...process.env,AWL_RUN_ID:reservationId,VPUB_BROWSER_IDLE_SECONDS:'0',VPUB_HOME:pinned.home};
+    // Windows environment names are case-insensitive, including in mixed-case shells.
+    for(const key of Object.keys(env))if(key.toUpperCase()==='BILI_CLI_HOME')delete env[key];
+    if(pinned.biliHome)env.BILI_CLI_HOME=pinned.biliHome;
+    try{child=spawn(command[0],command.slice(1),{stdio:['ignore','pipe','pipe'],shell:false,windowsHide:true,env});}
     catch{spawnError=true;}
     if(child){
       child.on('spawn',()=>{
@@ -187,7 +190,7 @@ function captureChild(ctx,command,reservationId,vpubHome){
 }
 export async function step(ctx,flags,command){
   let prepared;
-  try{prepared=prepare(ctx,flags,command,(id,home)=>captureChild(ctx,command,id,home));}
+  try{prepared=prepare(ctx,flags,command,(id,pinned)=>captureChild(ctx,command,id,pinned));}
   catch(e){
     if(['broken_journal','lock_unavailable'].includes(e.message)) throw e;
     // Fixed words only. No command arguments, path or child error is echoed.

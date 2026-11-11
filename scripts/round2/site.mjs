@@ -12,12 +12,20 @@ export function siteHome(ctx){
     const setup=path.join(ctx.home,'site.json');
     if(fs.lstatSync(setup).isSymbolicLink())throw new Error('vpub_home_invalid');
     const value=readJSON(setup);
-    if(!value||Object.keys(value).sort().join(',')!=='site,vpub_home'||value.site!==ctx.site||
+    if(!value||Object.keys(value).some(k=>!['site','vpub_home','bili_cli_home'].includes(k))||value.site!==ctx.site||
        typeof value.vpub_home!=='string'||!path.isAbsolute(value.vpub_home))throw new Error('vpub_home_invalid');
     const resolved=fs.realpathSync.native(value.vpub_home);
     if(!fs.statSync(resolved).isDirectory())throw new Error('vpub_home_invalid');
     const normalized=process.platform==='win32'?resolved.toLowerCase():resolved;
-    return {home:resolved,digest:keyedDigest('round2-vpub-home-path-v1\0'+normalized,ctx.home)};
+    let biliHome;
+    let binding='round2-vpub-home-path-v1\0'+normalized;
+    if(Object.hasOwn(value,'bili_cli_home')){
+      if(typeof value.bili_cli_home!=='string'||!path.isAbsolute(value.bili_cli_home))throw new Error('vpub_home_invalid');
+      biliHome=fs.realpathSync.native(value.bili_cli_home);
+      if(!fs.statSync(biliHome).isDirectory())throw new Error('vpub_home_invalid');
+      binding+='\0bili-cli-home\0'+(process.platform==='win32'?biliHome.toLowerCase():biliHome);
+    }
+    return {home:resolved,biliHome,digest:keyedDigest(binding,ctx.home)};
   }catch(e){
     if(e.code==='ENOENT')throw new Error('vpub_home_missing');
     throw new Error('vpub_home_invalid');

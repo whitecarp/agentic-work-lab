@@ -21,7 +21,7 @@ The commands below illustrate the interface, not account authorization. Use
 stand-ins and empty homes until the study's separate account gates are cleared.
 
 Before a protocol seal or any `begin`, create private `ROUND2_HOME/site.json`
-with exactly `{"site":"owner","vpub_home":"ABSOLUTE_EXISTING_DIRECTORY"}`
+with `{"site":"owner","vpub_home":"ABSOLUTE_EXISTING_DIRECTORY"}`
 (use `tester` for the tester site). For rehearsals use an empty directory outside
 Git. The wrapper reads only directory metadata, never its profiles or sign-ins.
 `protocol-seal` records `vpub_home_sha256`, an HMAC-SHA-256 of the resolved path
@@ -33,6 +33,15 @@ words. Legacy journals remain readable but cannot admit a child until a bound
 protocol seal is made. Every child receives this resolved `VPUB_HOME`, overriding
 the invoking shell, as well as `VPUB_BROWSER_IDLE_SECONDS=0`. This pins a path,
 not the identity of a directory recreated at the same path; keep it in place.
+
+The wrapper removes every inherited `BILI_CLI_HOME` setting from child processes,
+so Bilibili uses its standard location. If a site needs a custom location, add
+`"bili_cli_home":"ABSOLUTE_EXISTING_DIRECTORY"` to private `site.json` **before**
+the first seal. That resolved path becomes part of the same keyed binding and
+is set for every child. Adding, removing or changing it after sealing refuses
+commands and cannot be replaced by a later seal. Offline rehearsals must use
+an explicit empty custom Bilibili directory; they must not invoke Bilibili with
+the standard live location. Validation reads only directory metadata.
 
 Every study CrossCast export must specify `--since PHASE_SEAL_UTC` and
 `--until CLOSE_UTC` (and `--times exact` for local reconciliation). Keep the

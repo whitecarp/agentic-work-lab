@@ -87,6 +87,55 @@ test('same resolved folder spelling stays bound and may enter a later phase',t=>
   assert.equal(cli(f,'journal',sealArgs(f)).status,0);
   assert.equal(begin(f.ctx,{}).exit,0);
 });
+
+test('Bilibili shell override is removed unless a custom folder was sealed',async t=>{
+  const prior=process.env.BILI_CLI_HOME;
+  try{
+    for(const custom of [false,true]){
+      const f=fixture(t);
+      const bili=path.join(f.root,'bili');fs.mkdirSync(bili);
+      if(custom)setSite(f,{site:'owner',vpub_home:f.env.VPUB_HOME,bili_cli_home:bili});
+      setup(f.ctx);approve(f.ctx);f.ctx.run=begin(f.ctx,{}).run;
+      process.env.BILI_CLI_HOME=path.join(f.root,'wrong-shell-home');
+      const out=path.join(f.root,'child-env.json');
+      assert.equal(await step(f.ctx,{job:'job-1',role:'other'},[process.execPath,'-e',
+        "require('fs').writeFileSync(process.argv[1],JSON.stringify(process.env.BILI_CLI_HOME??null))",out]),0);
+      assert.equal(JSON.parse(fs.readFileSync(out)),custom?fs.realpathSync.native(bili):null);
+      assert.equal(fs.existsSync(process.env.BILI_CLI_HOME),false);
+    }
+  }finally{if(prior===undefined)delete process.env.BILI_CLI_HOME;else process.env.BILI_CLI_HOME=prior;}
+});
+
+test('custom Bilibili folder is keyed and cannot be changed or removed after sealing',t=>{
+  const f=fixture(t),bili=path.join(f.root,'bili');fs.mkdirSync(bili);
+  const defaultDigest=siteHome(f.ctx).digest;
+  setSite(f,{site:'owner',vpub_home:f.env.VPUB_HOME,bili_cli_home:bili});
+  setup(f.ctx);assert.notEqual(siteHome(f.ctx).digest,defaultDigest);
+  for(const change of [{site:'owner',vpub_home:f.env.VPUB_HOME},
+    {site:'owner',vpub_home:f.env.VPUB_HOME,bili_cli_home:f.root}]){
+    setSite(f,change);
+    assert.equal(begin(f.ctx,{}).error,'vpub_home_mismatch');
+    assert.equal(cli(f,'journal',sealArgs(f)).status,70);
+  }
+  assert.equal(readJournal(f.journal).filter(r=>r.type==='PROTOCOL_SEAL').length,1);
+});
+
+test('adding a custom Bilibili folder after the default binding is sealed is refused',t=>{
+  const f=fixture(t);setup(f.ctx);
+  setSite(f,{site:'owner',vpub_home:f.env.VPUB_HOME,bili_cli_home:f.root});
+  assert.equal(begin(f.ctx,{}).error,'vpub_home_mismatch');
+  assert.equal(cli(f,'journal',sealArgs(f)).status,70);
+});
+
+test('custom Bilibili folder must be an existing absolute directory',t=>{
+  const f=fixture(t),file=path.join(f.root,'not-directory');fs.writeFileSync(file,'fixture');
+  for(const candidate of ['relative',file,42]){
+    setSite(f,{site:'owner',vpub_home:f.env.VPUB_HOME,bili_cli_home:candidate});
+    assert.throws(()=>siteHome(f.ctx),/vpub_home_invalid/);
+  }
+  setSite(f,{site:'owner',vpub_home:f.env.VPUB_HOME,bili_cli_home:path.join(f.root,'absent')});
+  assert.throws(()=>siteHome(f.ctx),/vpub_home_missing/);
+});
 test('refused steps survive daily seal verification and export',async t=>{
   const f=fixture(t);setup(f.ctx);approve(f.ctx);f.ctx.run=begin(f.ctx,{}).run;
   setSite(f,{site:'owner',vpub_home:f.root});
