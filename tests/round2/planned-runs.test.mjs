@@ -35,6 +35,18 @@ for(const site of ['owner','tester'])test(`planned ${site} totals, variants, pai
   for(const h of hands){const next=a.plan.runs[h.order];assert.equal(next.id,h.uses);assert.equal(next.run_class,'refusal');assert.equal(next.day,h.day);}
  }
 });
+test('operator identifiers and cross-references describe only shuffled order',()=>{
+ for(const site of ['owner','tester']){
+  const {plan,jobs}=generate(counts,site,Buffer.alloc(32,7),options);
+  for(const [i,job] of jobs.entries()){
+   const id=`${site}-${String(i+1).padStart(3,'0')}`;
+   assert.equal(job.id,id);assert.equal(plan.runs[i].id,id);
+   assert.ok(!Object.hasOwn(job,'group'));assert.ok(!Object.hasOwn(job,'faults'));
+   if(job.pair){const first=jobs.find(j=>j.pair===job.pair);assert.equal(job.pair,`pair-${first.id}`);}
+   if(job.uses)assert.equal(job.uses,jobs[i+1].id);
+  }
+ }
+});
 test('make never overwrites, same seed produces identical bytes, check catches one byte',t=>{
  const a=fixture(t),b=fixture(t);for(const f of [a,b])fs.writeFileSync(path.join(f.home,'plan-seed'),Buffer.alloc(32,9));
  const result=make(a.home,counts,'owner',options);make(b.home,counts,'owner',options);

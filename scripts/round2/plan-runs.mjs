@@ -73,7 +73,20 @@ export function generate(counts,site,seed,{dueFrom,firstShort,firstLong=1}={}){
   if(site==='owner'){const [lo,hi]=counts.clip_pools.refusal_runs.short;r.clip_no=lo+(refusalIndex++%(hi-lo+1));}
   else {if(short>uploads.short[1])throw new Error('clip_pool_exhausted');r.clip_no=short++;}
  }
- ordered.forEach((r,i)=>r.order=i+1);
+ // Source IDs follow the public counts file, where consecutive rows name a
+ // specific fault. Give operators only the final shuffled order, including
+ // in references to a paired run or the refusal used for a handoff.
+ const jobIds=new Map(ordered.map((r,i)=>[r.id,`${site}-${String(i+1).padStart(3,'0')}`]));
+ const pairIds=new Map();
+ for(const [i,r] of ordered.entries()){
+  r.order=i+1;
+  r.id=jobIds.get(r.id);
+  if(r.uses)r.uses=jobIds.get(r.uses);
+  if(r.pair){
+   if(!pairIds.has(r.pair))pairIds.set(r.pair,`pair-${r.id}`);
+   r.pair=pairIds.get(r.pair);
+  }
+ }
  const tests=ordered.filter(r=>r.run_class==='test_post'),faults=tests.flatMap(r=>r.faults),totals={
   test_post_runs:tests.length,test_posts:tests.reduce((n,r)=>n+r.platforms.length,0),
   faults_around_the_press:faults.filter(f=>['end_command_after_press','end_tree_after_press','readback_timeout','between_save_and_press'].includes(f.kind)).length,
@@ -85,7 +98,10 @@ export function generate(counts,site,seed,{dueFrom,firstShort,firstLong=1}={}){
  for(const p of ['youtube','douyin'])if(tests.filter(r=>r.platforms.includes(p)).length!==expected.test_posts_per_platform)throw new Error('platform_total_mismatch');
  const approval=counts.write_steps_a_go_ahead_covers;
  if(approval.test_post_from_the_days_list!==5||approval.test_post_on_two_platforms_from_the_days_list!==8||approval.real_release!==4||approval.delete!==2)throw new Error('approval_counts_mismatch');
- const jobs=ordered.map(r=>{const {faults,...j}=r,P=r.platforms.length;
+ const jobs=ordered.map(r=>{const P=r.platforms.length;
+  const j={id:r.id,order:r.order,run_class:r.run_class,platforms:r.platforms,visibility:r.visibility,
+   clip:r.clip,edit:r.edit,wrong_delete_code_first:r.wrong_delete_code_first,pair:r.pair,pair_mode:r.pair_mode};
+  for(const field of ['clip_no','kind','uses','day'])if(Object.hasOwn(r,field))j[field]=r[field];
   Object.assign(j,{class:r.run_class==='drill'?'local':'write',due_at:new Date(dueFrom).toISOString()});
   if(r.run_class==='test_post'){j.listed_writes=2+3*P+(site==='owner'&&r.edit?P:0);j.edit_writes=r.edit?P:0;j.delete_writes=(r.wrong_delete_code_first?approval.delete_with_another_posts_code_first:approval.delete)*P;
    j.approval_mode=site==='tester'?'each_post_edit_delete_separately':'daily_list_and_separate_delete';}
