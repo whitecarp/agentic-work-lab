@@ -14,7 +14,7 @@ function ready(t){const f=fixture(t);setup(f.ctx);approve(f.ctx);f.ctx.run=begin
 function recorded(f,changes={}){return put(f.ctx,'STEP',{job:'job-1',class:'write',tool:'vpub',action:'delete',role:'delete',platforms:['youtube'],exit:4,ms:1,capture_sha256:'a'.repeat(64),result:'in_doubt',code:null,refs:[],fault_fired:null,...changes},f.ctx.run);}
 function look(f,changes={}){return put(f.ctx,'OBSERVATION',{job:'job-1',platform:'youtube',ref:null,about:'delete',by:'owner',client:'phone_app',seen:'absent',fields_match:null,minutes_after:15,words_sha256:'b'.repeat(64),shot_sha256:null,...changes});}
 
-for(const reason of REFUSALS)test(`wrapper refusal ${reason}: one durable record, no child`,async t=>{
+for(const reason of REFUSALS.filter(r=>!r.startsWith('fault_')))test(`wrapper refusal ${reason}: one durable record, no child`,async t=>{
  const f=ready(t),control=JSON.parse(fs.readFileSync(path.join(f.home,'run.lock'))),job=control.jobs[0];
  const marker=path.join(f.root,'CHILD'),args={job:'job-1',role:'other'};
  let command=[process.execPath,'-e',`require('fs').writeFileSync(${JSON.stringify(marker)},'started')`];

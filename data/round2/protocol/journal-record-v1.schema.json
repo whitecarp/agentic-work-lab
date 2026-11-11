@@ -2070,7 +2070,10 @@
                 "vpub_home_unsealed",
                 "vpub_home_mismatch",
                 "one_platform_required",
-                "repeat_without_publish"
+                "repeat_without_publish",
+                "fault_switch_unavailable",
+                "fault_setup_unconfirmed",
+                "fault_plan_invalid"
               ]
             }
           },
@@ -2293,6 +2296,136 @@
             "stop_digest",
             "by",
             "words_sha256"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "v",
+        "seq",
+        "prev",
+        "at",
+        "site",
+        "run",
+        "slot",
+        "type",
+        "d"
+      ],
+      "additionalProperties": false
+    },
+    {
+      "type": "object",
+      "properties": {
+        "v": {
+          "const": 1
+        },
+        "seq": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "prev": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        },
+        "at": {
+          "type": "string",
+          "pattern": "^\\d{4}-\\d\\d-\\d\\dT\\d\\d:\\d\\d:\\d\\d\\.\\d{3}Z$"
+        },
+        "site": {
+          "enum": [
+            "owner",
+            "tester"
+          ]
+        },
+        "run": {
+          "anyOf": [
+            {
+              "type": "string",
+              "pattern": "^[a-f0-9]{32}$"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "slot": {
+          "enum": [
+            "owner",
+            "tester",
+            "codex",
+            "gemini",
+            "claude",
+            "tester-assistant",
+            "scheduler"
+          ]
+        },
+        "type": {
+          "const": "FAULT_RESULT"
+        },
+        "d": {
+          "type": "object",
+          "properties": {
+            "job": {
+              "type": "string",
+              "pattern": "^[a-z0-9][a-z0-9._-]{0,63}$"
+            },
+            "kind": {
+              "enum": [
+                "end_command_after_press",
+                "end_tree_after_press",
+                "readback_timeout",
+                "between_save_and_press",
+                "browser_lost_during_upload",
+                "stop_during_upload",
+                "delete_readback_lost",
+                "end_browser_after_edit_save"
+              ]
+            },
+            "role": {
+              "enum": [
+                "publish",
+                "delete",
+                "edit"
+              ]
+            },
+            "triggered": {
+              "type": "boolean"
+            },
+            "fired": {
+              "type": "boolean"
+            },
+            "failed": {
+              "type": "boolean"
+            },
+            "processes": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "pid": {
+                    "type": "integer",
+                    "minimum": 1
+                  },
+                  "ended": {
+                    "type": "boolean"
+                  }
+                },
+                "required": [
+                  "pid",
+                  "ended"
+                ],
+                "additionalProperties": false
+              }
+            }
+          },
+          "required": [
+            "job",
+            "kind",
+            "role",
+            "triggered",
+            "fired",
+            "failed",
+            "processes"
           ],
           "additionalProperties": false
         }

@@ -10,6 +10,7 @@ import {sha, utc, atomic, withLock, readJSON, parseFlags, allowed, alive} from '
 import {classify, guardRole, grant, grantScope, limits, outcome, roles} from './policy.mjs';
 import {bindHome,HOME_ERRORS} from './site.mjs';
 import {jobList} from './jobs.mjs';
+import {selectFault,armFault,faultVariable,faultController} from './planned-faults.mjs';
 
 const gateFile=new URL('../operations-gate.mjs',import.meta.url);
 const guard=ctx=>path.join(ctx.home,'operation.guard');
@@ -107,12 +108,14 @@ function admitted(ctx,records) {
   return run;
 }
 function writeReservations(ctx,list){atomic(reservationsFile(ctx),list);}
-function prepare(ctx,flags,command,launch){
+function prepare(ctx,flags,command,launch,supportCheck){
   return withLock(guard(ctx),()=>{
     const records=readJournal(ctx.journal), run=admitted(ctx,records);
     const pinned=bindHome(ctx,records);
     if(run.child_pid) throw new Error('step_already_running');
     if(stop(ctx)) throw new Error('stop_flag');
+    const stopped=records.findLast(r=>r.type==='STOP_SET'),cleared=records.findLast(r=>r.type==='STOP_CLEARED');
+    if(stopped&&(!cleared||cleared.seq<stopped.seq||cleared.d.by!==ctx.site))throw new Error('stop_flag');
     const job=run.jobs.find(j=>j.id===flags.job);
     if(!job||!run.due.includes(job.id)) throw new Error('job_not_due');
     if(records.some(r=>r.type==='JOB_END'&&r.d.job===job.id)) throw new Error('job_closed');
@@ -144,20 +147,22 @@ function prepare(ctx,flags,command,launch){
       gate_sha256:sha(fs.readFileSync(gateFile))},ctx.run);
     const reservation={id:newRunId(),run:ctx.run,job:job.id,class:policy.class,role:flags.role,
       platforms,scope,run_class:job.run_class??null,at:utc(),step_seq:null,started:null};
+    const fault=selectFault(ctx,job,flags.role,policy);
+    armFault(ctx,fault,command[0],supportCheck);
     list.push(reservation);writeReservations(ctx,list);
     atomic(runFile(ctx),{...run,child_pid:process.pid});
     if(stop(ctx)) throw new Error('stop_flag');
-    return {policy,reservation,run,capture:launch(reservation.id,pinned)};
+    return {policy,reservation,run,capture:launch(reservation.id,pinned,fault)};
   });
 }
-function captureChild(ctx,command,reservationId,pinned){
+function captureChild(ctx,command,reservationId,pinned,fault){
   return new Promise(resolve=>{
     const file=path.join(ctx.home,'captures',newRunId()+'.jsonl');
     fs.mkdirSync(path.dirname(file),{recursive:true});
     const fd=fs.openSync(file,'wx',0o600), buffers={stdout:Buffer.alloc(0),stderr:Buffer.alloc(0)};
     const decoder=new StringDecoder('utf8');
     let stdout='', child, spawnError=false, captureError=false;
-    const started=performance.now();
+    const started=performance.now(),controller=faultController(ctx,fault);
     const row=(stream,bytes)=>{
       try{fs.writeSync(fd,JSON.stringify({at:utc(),stream,bytes:bytes.toString('base64')})+'\n');}
       catch{captureError=true;}
@@ -166,6 +171,7 @@ function captureChild(ctx,command,reservationId,pinned){
       // Relay the original bytes, not decoded/re-encoded text.
       process[stream].write(bytes);
       if(stream==='stdout') stdout+=decoder.write(bytes);
+      if(stream==='stderr')controller?.receive(bytes);
       let pending=Buffer.concat([buffers[stream],bytes]), n;
       while((n=pending.indexOf(10))!==-1){row(stream,pending.subarray(0,n+1));pending=pending.subarray(n+1);}
       buffers[stream]=pending;
@@ -174,7 +180,8 @@ function captureChild(ctx,command,reservationId,pinned){
     // Windows environment names are case-insensitive, including in mixed-case shells.
     for(const key of Object.keys(env))if(['BILI_CLI_HOME','VPUB_FAULT'].includes(key.toUpperCase()))delete env[key];
     if(pinned.biliHome)env.BILI_CLI_HOME=pinned.biliHome;
-    try{child=spawn(command[0],command.slice(1),{stdio:['ignore','pipe','pipe'],shell:false,windowsHide:true,env});}
+    if(fault)env.VPUB_FAULT=faultVariable(fault);
+    try{child=spawn(command[0],command.slice(1),{stdio:['ignore','pipe','pipe'],shell:false,windowsHide:true,env,detached:!!fault&&process.platform!=='win32'});controller?.attach(child);}
     catch{spawnError=true;}
     if(child){
       child.on('spawn',()=>{
@@ -187,17 +194,19 @@ function captureChild(ctx,command,reservationId,pinned){
       child.on('error',()=>{spawnError=true;});
       child.on('close',(code)=>complete(spawnError?127:Number.isInteger(code)?code:3));
     }else complete(127);
-    function complete(exit){
+    async function complete(exit){
       stdout+=decoder.end();
       for(const stream of ['stdout','stderr']) if(buffers[stream].length) row(stream,buffers[stream]);
       try{fs.fsyncSync(fd);}catch{captureError=true;}finally{fs.closeSync(fd);}
-      resolve({exit,stdout,ms:Math.round(performance.now()-started),capture_sha256:sha(fs.readFileSync(file)),spawnError,captureError});
+      let faultFired=null;
+      try{if(controller){const result=await controller.finish(outcome(exit,stdout).code);faultFired=result.fired;if(result.failed)captureError=true;}}catch{captureError=true;}
+      resolve({exit,stdout,ms:Math.round(performance.now()-started),capture_sha256:sha(fs.readFileSync(file)),spawnError,captureError,faultFired});
     }
   });
 }
-export async function step(ctx,flags,command){
+export async function step(ctx,flags,command,{supportCheck}={}){
   let prepared;
-  try{prepared=prepare(ctx,flags,command,(id,pinned)=>captureChild(ctx,command,id,pinned));}
+  try{prepared=prepare(ctx,flags,command,(id,pinned,fault)=>captureChild(ctx,command,id,pinned,fault),supportCheck);}
   catch(e){
     if(['broken_journal','lock_unavailable'].includes(e.message)) throw e;
     // Fixed words only. No command arguments, path or child error is echoed.
@@ -220,7 +229,7 @@ export async function step(ctx,flags,command){
   withLock(guard(ctx),()=>{
     const record=put(ctx,'STEP',{job:flags.job,...policy,awl_run_id:reservation.id,role:flags.role,platforms:reservation.platforms,exit:child.exit,
       ms:child.ms,capture_sha256:child.capture_sha256,result:result.result,code:result.code,
-      refs:result.rawRefs.map(r=>pseudonym(r,ctx.home)),fault_fired:null},ctx.run);
+      refs:result.rawRefs.map(r=>pseudonym(r,ctx.home)),fault_fired:child.faultFired},ctx.run);
     const list=reservations(ctx), item=list.find(r=>r.id===reservation.id);
     item.step_seq=record.seq;item.started=!child.spawnError;writeReservations(ctx,list);
     const run=readJSON(runFile(ctx));

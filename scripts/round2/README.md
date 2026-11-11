@@ -2,7 +2,7 @@
 
 These tools record one-off, approved study jobs. They do not grant permission
 to act on an account. No scheduler, network client or fault injector is installed
-by these modules. Module 5 fault arming is a later task.
+by importing these modules. C15 provides opt-in planned fault arming in admitted steps.
 
 Use Node 20 or newer. All commands run from the Lab checkout. Set ROUND2_HOME to
 a private folder outside every Git checkout, shared by the operator and checker.
@@ -333,7 +333,7 @@ Codex reads the resulting artifact and never runs CrossCast in the signed-in
 home. A dedicated approved local/read job can admit these export steps without
 inventing a write allowance for an exhausted release job.
 
-C15 fault arming is still a separate module. Its setup contract is now built:
+C15 integrates the setup guard into planned-fault arming:
 Gemini/the tester's operator, on that account owner's explicit word, registers
 ROUND2_HOME/STOP using CrossCast setup --external-stop-file and enables
 fault_injection in the selected config before the first planned shakedown fault.
@@ -381,3 +381,76 @@ that job/platform in the same planned run, including an earlier admitted session
 A failed spawn cannot satisfy it (`repeat_without_publish`).
 The tester's copy says `dates_only_UTC`; compute timing results on site first.
 The tester's operator requests CrossCast exports bounded by whole UTC days.
+
+
+## C15: fault setup, private planned list and cleanup
+
+No real-account action is authorized by these commands or by this code delivery.
+Gemini (owner site) or the tester's operator performs setup only after that
+account owner's specific approval, before a session starts. The configure
+command records the supplied owner's words, saves only the two old settings
+privately, registers ROUND2_HOME/STOP and enables fault_injection. Record-only
+mode remains available to audit settings the operator changed separately.
+
+~~~text
+node scripts/round2/fault-setup.mjs configure --site owner --enabled true --by owner
+node scripts/round2/plan-runs.mjs make --counts COUNTS_JSON --site owner --due-from 2026-11-19T00:00:00Z --first-short 1 --first-long 1
+node scripts/round2/plan-runs.mjs check --sealed SHA256
+node scripts/round2/fault-setup.mjs configure --site owner --enabled false --by owner
+node scripts/round2/journal.mjs sign-off --site owner --day 2026-12-01 --answer yes --closing
+node scripts/round2/plan-runs.mjs reveal --site owner
+~~~
+
+Setup/cleanup need the owner's words on stdin; do not paste these examples as
+approval. Actual first clip numbers follow shakedown usage. `make` creates no
+approval and starts no command. It requires an empty list destination; a partial
+write is preserved for inspection. The private 32-byte seed plus counts and
+explicit arguments determine the bytes. SHA-256 counter draws use rejection
+sampling; timing pairs stay adjacent. Variant selection and clip allocation
+are checked, both sites use separate pools, and jobs.json reveals no faults.
+The owner refusal pool may be reused only while those clips were never uploaded;
+retire any accidentally published refusal clip before another session. A tester
+refusal receives its own unused clip. Supplemental real releases still use the
+separate journal command. Real-slot/handoff day numbers describe the plan;
+the human operator applies the protocol's actual daily gates and clip retirement.
+
+A planned fault is selected only for one eligible private/unlisted YouTube or
+private Douyin test-post job, the specified role, and a vpub executable. The
+wrapper validates the current config immediately before appending FAULT and
+spawning; any FAULT already recorded for this job/role consumes that choice,
+even if it never fires. The frozen plan digest is checked when sealed. Inherited
+VPUB_FAULT is removed on unarmed steps. Armed children receive before_press,
+after_press, delete_readback_lost, or external; CrossCast's own in-tool private
+visibility guard remains mandatory. The supported study build must include B8;
+this Lab code alone does not prove an arbitrary installed executable supports it.
+
+Stage matching uses whole stage words, not substrings. The edit kill waits for
+reading back after pressing. Command-only termination targets only the command;
+a detached worker may survive. Tree termination inspects the owned descendants,
+ends the tree and checks each observed PID's creation identity afterward. It
+never selects by process name. FAULT_RESULT separately records trigger, firing,
+errors and per-PID end observations; no firing or all-ended claim is invented.
+Windows uses PID-targeted taskkill, Linux uses the detached process group;
+other OS tree inspection is explicitly unsupported. Child signals map to exit 3.
+
+A stop during upload creates STOP and STOP_SET; CrossCast notices it at its next
+check. It can be pre-press stopped or post-press in doubt. Manually removing the
+file does not permit repeat/resume: the owner's STOP_CLEARED record is required.
+At close, the operator restores the two prior settings with configure --enabled
+false; unrelated settings are preserved, and changed registrations refuse rather
+than overwrite an intervening operator change. The original settings backup is
+retained privately. Reveal requires a marked closing sign-off after the last
+STEP and a matching sealed plan digest. None of these steps runs automatically.
+
+
+Before arming, the wrapper also checks the fault module and its four audited
+call sites against `templates/round2/crosscast-fault-support.json` (CrossCast
+f2eb520). Only the normal Windows venv `Scripts/vpub.exe` plus `Lib/site-packages`
+layout is recognized. Missing, changed or unrecognized support gives
+`fault_switch_unavailable`, exit 5, with a STEP_REFUSED and no FAULT/child.
+A later code revision must re-audit these files and update the manifest; a version
+label or config flag alone does not establish switch support. The tests' synthetic
+executable uses a function-level probe stand-in, unavailable as a CLI option;
+separate tests exercise fingerprint mismatch and the production refusal path.
+Linux process-group code is implemented but this Windows validation does not
+claim Linux acceptance. No real installed executable or real settings were read.

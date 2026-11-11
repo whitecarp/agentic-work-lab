@@ -10,3 +10,5 @@ import './v13.test.mjs';
 import './site.test.mjs';
 import './c34.test.mjs';
 import './c35.test.mjs';
+import './planned-runs.test.mjs';
+import './planned-faults.test.mjs';
