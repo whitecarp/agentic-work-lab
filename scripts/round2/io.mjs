@@ -11,7 +11,17 @@ export function atomic(file, value) {
     fd=fs.openSync(temp,'wx',0o600);
     fs.writeFileSync(fd,typeof value==='string'||Buffer.isBuffer(value)?value:JSON.stringify(value)+'\n');
     fs.fsyncSync(fd); fs.closeSync(fd); fd=undefined;
-    fs.renameSync(temp,file);
+    // A Windows sharing handle can briefly deny replacement even after our
+    // own file is closed. Keep the old destination intact and bound retries;
+    // permanent permission failures still propagate without unlinking it.
+    const deadline=Date.now()+1000;
+    for(;;){
+      try {fs.renameSync(temp,file);break;}
+      catch(e){
+        if(!['EPERM','EACCES','EBUSY'].includes(e.code)||Date.now()>=deadline)throw e;
+        Atomics.wait(new Int32Array(new SharedArrayBuffer(4)),0,0,10);
+      }
+    }
   } finally {
     if (fd !== undefined) fs.closeSync(fd);
     if (fs.existsSync(temp)) fs.unlinkSync(temp);
