@@ -74,6 +74,7 @@ export function reconcile(ctx,crosscastFile,{now=Date.now()}={}){
  const ungated=trusted?bindings.filter(b=>b.status!=='matched').length:null;
  const provenRefusal=s=>{
   if(s.d.result!=='refused'||s.d.exit!==2||!trusted)return false;
+  if(cc.integrity?.unreadable_loss_records>0||cc.integrity?.loss_records_complete===false)return false;
   const binding=bindings.find(b=>b.step_seq===s.seq&&b.status==='matched');
   const command=binding&&cc.runs.find(r=>r.run===binding.run);
   if(!command||command.exit_code!==2||command.ended!==true||command.dropped_events!==0||command.sequence_gap!==false)return false;
@@ -103,7 +104,7 @@ export function reconcile(ctx,crosscastFile,{now=Date.now()}={}){
    captures_checked:!!ctx.home,captures_missing:ctx.home?missing:null,in_doubt:inDoubt,in_doubt_open:inDoubt.filter(r=>!r.closed).length,
    in_doubt_open_strict:inDoubt.filter(r=>!r.closed_strict).length,
    looks_owed:owesLook.map(({job,platform,step,about})=>({job,platform,step,about})),look_checks:lookChecks,looks_scope_unknown:eligible.filter(r=>!scope(r.d.job)).length,refusals_by_code:refusals,
-   violations:records.filter(r=>r.type==='VIOLATION').length,crosscast_command_losses:cc.losses};
+   violations:records.filter(r=>r.type==='VIOLATION').length,crosscast_command_losses:cc.losses,crosscast_integrity:cc.integrity};
 }
 export function main(argv=process.argv.slice(2)){
  const {flags:f,command}=parseFlags(argv);allowed(f,['site','journal','crosscast']);if(command.length)throw new Error('invalid_arguments');

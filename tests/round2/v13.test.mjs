@@ -117,4 +117,8 @@ test('matched, complete no-operation refusal permits read closure while strict c
  assert.equal(reconcile(f.ctx).in_doubt_open,1);
  cc.events.push({run:rid,type:'call'});fs.writeFileSync(file,JSON.stringify(cc));assert.equal(reconcile(f.ctx,file).in_doubt_open,1);
  cc.events.pop();cc.runs[0].dropped_events=1;fs.writeFileSync(file,JSON.stringify(cc));assert.equal(reconcile(f.ctx,file).in_doubt_open,1);
+ cc.runs[0].dropped_events=0;cc.integrity.unreadable_loss_records=1;cc.integrity.loss_records_complete=false;
+ fs.writeFileSync(file,JSON.stringify(cc));r=reconcile(f.ctx,file);
+ assert.equal(r.crosscast_integrity.unreadable_loss_records,1);assert.equal(r.in_doubt_open,1);
+ assert.deepEqual(r.in_doubt[0].ignored_refused_steps,[]);
 });

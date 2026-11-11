@@ -224,6 +224,13 @@ time_alignment remains diagnostic only; commands_without_time_coverage is
 replaced by write_bindings. An id is a correlation label, not a secret or proof
 against deliberate environment copying. Lost commands remain unobservable.
 
+Both Lab export and reconcile carry the closed global `crosscast_integrity`
+counters and flags, including unreadable loss records and losses with unknown
+original times. Missing older fields stay null; unknown text is not copied.
+An unreadable loss record cannot be assigned to a particular command, so the
+reconcile cannot use an otherwise matched refusal as proof that no operation
+occurred when that flag is present. It keeps the case open for review.
+
 Both Lab export and reconcile carry CrossCast per-command dropped_events,
 sequence_gap, chain_ok and loss_complete. Older inputs give null for absent
 loss counts. False loss_complete reflects CrossCast's process-local lower bound:

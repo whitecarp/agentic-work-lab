@@ -15,7 +15,7 @@ export function exportData(ctx,{privacy=false,deny,crosscast:ccfile}={}){
  const records=readJournal(ctx.journal),head=verifyJournal(ctx.journal),seals=verifySeals(ctx,records),cc=crosscast(ccfile);
  const forbidden=deny?fs.readFileSync(deny,'utf8').split(/\r?\n/).filter(Boolean):[];
  const result={schema:'round2-export/1',privacy,source:{records:head.records,head_sha256:head.head_sha256,chain:'sha256_without_lf',derived_records:privacy},
-  counts:counts(records),records:structuredClone(records),seals:seals.seals,unsealed_records:seals.unsealed_records,crosscast_present:cc.present,crosscast_chain_ok:cc.chain_ok,crosscast_command_losses:cc.losses};
+  counts:counts(records),records:structuredClone(records),seals:seals.seals,unsealed_records:seals.unsealed_records,crosscast_present:cc.present,crosscast_chain_ok:cc.chain_ok,crosscast_command_losses:cc.losses,crosscast_integrity:cc.integrity};
  // Check the originals too: privacy coarsening must not hide a denied string.
  if(strings(result).some(s=>forbidden.some(word=>s.includes(word))))throw new Error('private_string_refused');
  if(privacy)for(const r of result.records){

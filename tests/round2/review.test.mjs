@@ -102,6 +102,27 @@ test('export carries command-level losses but drops all other CrossCast content'
 test('old CrossCast exports retain unknown rather than zero losses',t=>{
  const f=ready(t),file=audit(f,[{run:'a'.repeat(32)}]);const result=exportData(f.ctx,{crosscast:file}).crosscast_command_losses[0];
  assert.equal(result.dropped_events,null);assert.equal(result.sequence_gap,null);assert.equal(result.loss_complete,false);
+ assert.equal(exportData(f.ctx,{crosscast:file}).crosscast_integrity.unreadable_loss_records,null);
+});
+
+test('global unknown-time and unreadable losses survive export and reconcile without text',t=>{
+ const f=ready(t),integrity={chain_ok:true,dropped_events:2,unplaced_dropped_events:2,
+  unreadable_loss_records:1,loss_records_complete:false,dropped_count_is_lower_bound:true,private_note:'PRIVATE'};
+ const file=audit(f,[run()],{integrity});
+ for(const value of [exportData(f.ctx,{crosscast:file}),reconcile(f.ctx,file)]){
+  assert.equal(value.crosscast_integrity.unreadable_loss_records,1);
+  assert.equal(value.crosscast_integrity.unplaced_dropped_events,2);
+  assert.equal(value.crosscast_integrity.loss_records_complete,false);
+  assert.ok(!JSON.stringify(value).includes('PRIVATE'));
+ }
+});
+
+test('invalid global loss flags cannot enter a public summary',t=>{
+ const f=ready(t);
+ for(const fields of [{unreadable_loss_records:-1},{unplaced_dropped_events:'PRIVATE'},{loss_records_complete:'false'}]){
+  const file=audit(f,[],{integrity:{chain_ok:true,...fields}});
+  assert.throws(()=>exportData(f.ctx,{crosscast:file}),/invalid_crosscast_loss/);
+ }
 });
 test('invalid CrossCast loss fields, duplicate commands and schema are refused',t=>{
  const f=ready(t);for(const rows of [[run({dropped_events:-1})],[run({sequence_gap:'false'})],[run(),run()],[run({run:'PRIVATE'})]])assert.throws(()=>crosscast(audit(f,rows)));
