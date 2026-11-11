@@ -47,19 +47,27 @@ export function reconcile(ctx,crosscastFile){
   const about=s.d.role==='publish'?'post':s.d.role;
   return !records.some(r=>r.seq>s.seq&&r.type==='OBSERVATION'&&r.d.job===s.d.job&&r.d.about===about&&r.d.seen!=='unclear'&&r.d.minutes_after>=10&&r.d.minutes_after<=60);
  });
- let ungated=null,unmatched=0;
- if(cc.present&&cc.chain_ok&&cc.times==='exact'){
-  ungated=0;
-  for(const command of cc.runs.filter(r=>commandClass(r)==='write')){
-   const time=typeof command.t_start==='string'?Date.parse(command.t_start):NaN;
-   if(!Number.isFinite(time)){unmatched++;continue;}
-   if(!runs.some(r=>time>=r.start&&r.end!==null&&time<=r.end)){
-    if(runs.some(r=>time>=r.start&&r.end===null))unmatched++;else ungated++;
-   }
-  }
- }else if(cc.present)unmatched=cc.runs.filter(r=>commandClass(r)==='write').length;
+ // Time overlap is never a substitute for the id passed to a specific child.
+ // Missing STEP (including a crash before its append) is an unproven binding.
+ const trusted=cc.present&&cc.chain_ok&&cc.runs.every(r=>r.chain_ok!==false);
+ const bindings=cc.runs.filter(r=>commandClass(r)==='write').map(command=>{
+  const id=command.awl_run_id??null,candidates=id?steps.filter(s=>s.d.awl_run_id===id):[];
+  let status='matched',s=candidates[0];
+  if(!trusted)status='unverifiable';
+  else if(!id)status='missing_id';
+  else if(!candidates.length)status='unknown_id';
+  else if(candidates.length!==1||cc.runs.filter(r=>r.awl_run_id===id).length!==1)status='ambiguous_id';
+  else if(s.d.class!=='write'||s.d.exit===127||
+    !admissions.some(a=>a.run===s.run&&a.seq<s.seq&&a.d.due.includes(s.d.job))||
+    records.some(r=>r.type==='RUN_END'&&r.run===s.run&&r.seq<s.seq)||
+    reservations.some(r=>r.run===s.run&&r.step_seq===s.seq&&r.started===false))status='ineligible_step';
+  return {run:command.run,awl_run_id:id,step_seq:status==='matched'?s.seq:null,status};
+ });
+ const ungated=trusted?bindings.filter(b=>b.status!=='matched').length:null;
  return {schema:'round2-reconcile/1',records:records.length,crosscast_present:cc.present,crosscast_chain_ok:cc.chain_ok,time_alignment:!cc.present?'journal_only':cc.times==='exact'&&cc.chain_ok?'exact':'unavailable',
-   ungated_writes:ungated,commands_without_time_coverage:unmatched,admitted_sessions_without_write:runs.filter(r=>!steps.some(s=>s.run===r.id&&s.d.class==='write')).length,
+   command_binding:!cc.present?'journal_only':trusted?'shared_id':'unavailable',
+   ungated_writes:ungated,matched_write_commands:trusted?bindings.length-ungated:null,write_bindings:bindings,
+   admitted_sessions_without_write:runs.filter(r=>!steps.some(s=>s.run===r.id&&s.d.class==='write')).length,
    captures_checked:!!ctx.home,captures_missing:ctx.home?missing:null,in_doubt:inDoubt,in_doubt_open:inDoubt.filter(r=>!r.closed).length,
    looks_owed:owesLook.map(r=>({job:r.d.job,step:r.seq,about:r.d.role==='publish'?'post':r.d.role})),looks_scope_unknown:eligible.filter(r=>!scope(r.d.job)).length,refusals_by_code:refusals,
    violations:records.filter(r=>r.type==='VIOLATION').length,crosscast_command_losses:cc.losses};

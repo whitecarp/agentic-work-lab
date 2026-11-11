@@ -129,19 +129,22 @@ test('reconcile is explicit journal-only without CrossCast and detects missing c
  const f=ready(t);step(f);assert.equal(reconcile(f.ctx).captures_missing,0);fs.unlinkSync(path.join(f.home,'captures','fixture.jsonl'));
  const r=reconcile(f.ctx);assert.equal(r.captures_missing,1);assert.equal(r.crosscast_present,false);assert.equal(r.time_alignment,'journal_only');assert.equal(r.ungated_writes,null);
 });
-test('exact CrossCast writes match sessions; plain verify is write-class',t=>{
+test('closed-session time and a later STEP cannot cover writes; plain verify is write-class',t=>{
  const f=ready(t);f.ctx.run=begin(f.ctx,{}).run;const at=readJournal(f.journal).at(-1).at;step(f,{},f.ctx.run);end(f.ctx);
- const file=audit(f,[run({t_start:at}),run({run:'b'.repeat(32),command:'verify',t_start:'2020-01-01T00:00:00.000Z'}),run({run:'c'.repeat(32),command:'delete',flags:{verify_only:true},t_start:'2020-01-01T00:00:00.000Z'})]);
- const r=reconcile(f.ctx,file);assert.equal(r.ungated_writes,1);assert.equal(r.admitted_sessions_without_write,0);
+ const id='f'.repeat(32);step(f,{awl_run_id:id},f.ctx.run);
+ // That STEP was appended after RUN_END: even a known id cannot cover it.
+ const file=audit(f,[run({t_start:at,awl_run_id:id}),run({run:'b'.repeat(32),command:'verify',t_start:'2020-01-01T00:00:00.000Z'}),run({run:'c'.repeat(32),command:'delete',flags:{verify_only:true},t_start:'2020-01-01T00:00:00.000Z'})]);
+ const r=reconcile(f.ctx,file);assert.equal(r.ungated_writes,2);assert.equal(r.write_bindings[0].status,'ineligible_step');assert.equal(r.admitted_sessions_without_write,0);
 });
-test('relative times and damaged chains cannot imply ungated zero',t=>{
- const f=ready(t);for(const changes of [{times:'relative'},{integrity:{chain_ok:false}}]){
-  const r=reconcile(f.ctx,audit(f,[run()],changes));assert.equal(r.ungated_writes,null);assert.equal(r.commands_without_time_coverage,1);
- }
+test('relative times need ids; damaged chains cannot imply ungated zero',t=>{
+ const f=ready(t),relative=reconcile(f.ctx,audit(f,[run()],{times:'relative'}));
+ assert.equal(relative.ungated_writes,1);assert.equal(relative.write_bindings[0].status,'missing_id');
+ const broken=reconcile(f.ctx,audit(f,[run()],{integrity:{chain_ok:false}}));
+ assert.equal(broken.ungated_writes,null);assert.equal(broken.write_bindings[0].status,'unverifiable');
 });
 test('open sessions and missing command times stay unmatched',t=>{
  const f=ready(t);f.ctx.run=begin(f.ctx,{}).run;
- const r=reconcile(f.ctx,audit(f,[run(),run({run:'b'.repeat(32),t_start:null})]));assert.equal(r.ungated_writes,0);assert.equal(r.commands_without_time_coverage,2);assert.equal(r.admitted_sessions_without_write,1);
+ const r=reconcile(f.ctx,audit(f,[run(),run({run:'b'.repeat(32),t_start:null})]));assert.equal(r.ungated_writes,2);assert.ok(r.write_bindings.every(b=>b.status==='missing_id'));assert.equal(r.admitted_sessions_without_write,1);
 });
 test('in-doubt resolves on matching person evidence, not unrelated or unclear looks',t=>{
  const f=ready(t);step(f);observe(f,{job:'another'});observe(f,{seen:'unclear'});observe(f,{about:'delete'});

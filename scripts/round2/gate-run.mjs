@@ -132,10 +132,10 @@ function prepare(ctx,flags,command,launch){
     list.push(reservation);writeReservations(ctx,list);
     atomic(runFile(ctx),{...run,child_pid:process.pid});
     if(stop(ctx)) throw new Error('stop_flag');
-    return {policy,reservation,run,capture:launch()};
+    return {policy,reservation,run,capture:launch(reservation.id)};
   });
 }
-function captureChild(ctx,command){
+function captureChild(ctx,command,reservationId){
   return new Promise(resolve=>{
     const file=path.join(ctx.home,'captures',newRunId()+'.jsonl');
     fs.mkdirSync(path.dirname(file),{recursive:true});
@@ -155,7 +155,8 @@ function captureChild(ctx,command){
       while((n=pending.indexOf(10))!==-1){row(stream,pending.subarray(0,n+1));pending=pending.subarray(n+1);}
       buffers[stream]=pending;
     };
-    try{child=spawn(command[0],command.slice(1),{stdio:['ignore','pipe','pipe'],shell:false,windowsHide:true});}
+    try{child=spawn(command[0],command.slice(1),{stdio:['ignore','pipe','pipe'],shell:false,windowsHide:true,
+      env:{...process.env,AWL_RUN_ID:reservationId}});}
     catch{spawnError=true;}
     if(child){
       child.on('spawn',()=>{
@@ -178,7 +179,7 @@ function captureChild(ctx,command){
 }
 export async function step(ctx,flags,command){
   let prepared;
-  try{prepared=prepare(ctx,flags,command,()=>captureChild(ctx,command));}
+  try{prepared=prepare(ctx,flags,command,id=>captureChild(ctx,command,id));}
   catch(e){
     if(['broken_journal','lock_unavailable'].includes(e.message)) throw e;
     // Fixed words only. No command arguments, path or child error is echoed.
@@ -194,7 +195,7 @@ export async function step(ctx,flags,command){
   if(child.captureError) throw new Error('capture_unwritable');
   const result=outcome(child.exit,child.stdout), {policy,reservation}=prepared;
   withLock(guard(ctx),()=>{
-    const record=put(ctx,'STEP',{job:flags.job,...policy,role:flags.role,platforms:reservation.platforms,exit:child.exit,
+    const record=put(ctx,'STEP',{job:flags.job,...policy,awl_run_id:reservation.id,role:flags.role,platforms:reservation.platforms,exit:child.exit,
       ms:child.ms,capture_sha256:child.capture_sha256,result:result.result,code:result.code,
       refs:result.rawRefs.map(r=>pseudonym(r,ctx.home)),fault_fired:null},ctx.run);
     const list=reservations(ctx), item=list.find(r=>r.id===reservation.id);

@@ -168,14 +168,23 @@ settles uncertainty, and an intervening write prevents crediting it as a clean
 read-only settlement. Plain vpub verify remains write-class. Printed session
 counts use run ids; planned runs use job ids. No missed_slots/timer is created.
 
-Use CrossCast's --times exact export locally when reconciling command times.
-Relative times intentionally omit the absolute origin and cannot be matched to
-Lab sessions; reconcile says unavailable with ungated_writes=null, not zero.
-Open sessions and missing starts are unmatched rather than assumed covered.
-Without CrossCast input the result explicitly says journal_only. Damaged
-CrossCast chains are reported and not used to assert ungated-write counts.
-Time coverage is evidence of an admitted session, not proof the same OS child
-made that command; there is no trustworthy cross-tool run-id binding yet.
+Each step gives its child AWL_RUN_ID, the durable reservation's random 32-hex id,
+and records it as STEP.d.awl_run_id. It overrides an inherited value only in that
+child; the parent environment is unchanged. CrossCast records this separately
+from its own command run id at command_start and exports it in events and runs.
+Reconcile joins a unique write command to a unique admitted write STEP by this
+id, with relative or exact exports. It never falls back to time coverage.
+write_bindings gives matched, missing_id, unknown_id, ambiguous_id,
+ineligible_step or unverifiable for each observed write command. ungated_writes
+counts those without a proven binding; it is not a count of platform mutations.
+A missing STEP after a wrapper crash remains unmatched even if a private
+reservation exists. Reused ids, failed spawns and read/local STEPs cannot cover a
+write. Old records lacking the optional id remain readable and are not backfilled.
+command_binding is journal_only without input and unavailable for damaged
+CrossCast chains, where ungated_writes and matched_write_commands stay null.
+time_alignment remains diagnostic only; commands_without_time_coverage is
+replaced by write_bindings. An id is a correlation label, not a secret or proof
+against deliberate environment copying. Lost commands remain unobservable.
 
 Both Lab export and reconcile carry CrossCast per-command dropped_events,
 sequence_gap, chain_ok and loss_complete. Older inputs give null for absent

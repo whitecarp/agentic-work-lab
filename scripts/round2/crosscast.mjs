@@ -1,5 +1,5 @@
 import fs from 'node:fs';
-const hex32=v=>typeof v==='string'&&/^[a-f0-9]{32}$/.test(v);
+const hex32=v=>typeof v==='string'&&v.length===32&&/^[a-f0-9]{32}$/.test(v);
 const number=v=>Number.isSafeInteger(v)&&v>=0;
 const bool=v=>typeof v==='boolean';
 export function crosscast(file){
@@ -9,6 +9,7 @@ export function crosscast(file){
  const seen=new Set(),losses=[];
  for(const run of value.runs){
   if(!hex32(run.run)||seen.has(run.run))throw new Error('invalid_crosscast_command');seen.add(run.run);
+  if(run.awl_run_id!=null&&!hex32(run.awl_run_id))throw new Error('invalid_crosscast_shared_id');
   // Older exports can be read, but unavailable loss evidence stays explicitly null.
   for(const field of ['dropped_events'])if(run[field]!==undefined&&!number(run[field]))throw new Error('invalid_crosscast_loss');
   for(const field of ['sequence_gap','loss_complete','chain_ok'])if(run[field]!==undefined&&!bool(run[field]))throw new Error('invalid_crosscast_loss');
