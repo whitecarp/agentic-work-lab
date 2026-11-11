@@ -19,7 +19,6 @@ or raw captures.
 
 The commands below illustrate the interface, not account authorization. Use
 stand-ins and empty homes until the study's separate account gates are cleared.
-Keep jobs.json under ROUND2_HOME, for example:
 
 Before a protocol seal or any `begin`, create private `ROUND2_HOME/site.json`
 with exactly `{"site":"owner","vpub_home":"ABSOLUTE_EXISTING_DIRECTORY"}`
@@ -40,6 +39,8 @@ runs CrossCast or constructs an unwindowed export. Without a time window,
 CrossCast includes historical ledger publications; a window includes only
 publications referred to by events in that window.
 
+Keep jobs.json under ROUND2_HOME, for example:
+
 ~~~json
 [{"id":"rehearsal-1","class":"write","due_at":"2026-11-11T12:00:00.000Z","run_class":"test_post","platforms":["youtube"]}]
 ~~~
@@ -47,6 +48,7 @@ publications referred to by events in that window.
 The owner supplies their own words to standard input for handoff and go-ahead:
 
 ~~~text
+node scripts/round2/journal.mjs protocol-seal --site owner --phase rehearsal --protocol PROTOCOL_FILE --lab-commit LAB_COMMIT_40_HEX --crosscast-commit CROSSCAST_COMMIT_40_HEX
 node scripts/round2/journal.mjs handoff --site owner --to gemini --by owner
 node scripts/round2/journal.mjs go-ahead --site owner --job rehearsal-1 --scope one_write --count 1 --by owner
 node scripts/round2/gate-run.mjs begin --site owner --slot gemini --launcher manual
