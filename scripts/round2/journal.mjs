@@ -4,7 +4,7 @@ import {pathToFileURL} from 'node:url';
 import {createHmac, randomBytes} from 'node:crypto';
 import {validateRecord, SLOTS, PLATFORMS} from './schema.mjs';
 import {sha, utc, atomic, withLock, privateHome, readJSON, parseFlags, allowed, alive} from './io.mjs';
-import {bindHome} from './site.mjs';
+import {bindHome,HOME_ERRORS} from './site.mjs';
 export {validateRecord};
 export const ZERO='0'.repeat(64);
 export const newRunId=()=>randomBytes(16).toString('hex');
@@ -57,10 +57,11 @@ export function appendRecord(file,fields) {
     return record;
   });
 }
-export function keyedDigest(value,home) {
+export function keyedDigest(value,home,{create=true}={}) {
   const file=path.join(home,'salt');
   return withLock(file+'.lock',()=>{
     if(!fs.existsSync(file)) {
+      if(!create)throw new Error('invalid_salt');
       const fd=fs.openSync(file,'wx',0o600);
       try{fs.writeFileSync(fd,randomBytes(32));fs.fsyncSync(fd);}finally{fs.closeSync(fd);}
     }
@@ -191,5 +192,5 @@ export function main(argv=process.argv.slice(2)){
   });
 }
 if(process.argv[1] && import.meta.url===pathToFileURL(path.resolve(process.argv[1])).href){
-  try{process.exitCode=main();}catch{console.error('journal_refused');process.exitCode=70;}
+  try{process.exitCode=main();}catch(e){console.error(HOME_ERRORS.includes(e.message)?e.message:'journal_refused');process.exitCode=70;}
 }

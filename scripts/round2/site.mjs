@@ -7,7 +7,7 @@ export const HOME_ERRORS=['vpub_home_missing','vpub_home_invalid','vpub_home_uns
 
 // Only the private setup file and directory metadata are read. Never inspect
 // the selected directory's contents, profiles, sign-ins or ledger here.
-export function siteHome(ctx){
+export function siteHome(ctx,{createSalt=true}={}){
   try{
     const setup=path.join(ctx.home,'site.json');
     if(fs.lstatSync(setup).isSymbolicLink())throw new Error('vpub_home_invalid');
@@ -25,7 +25,7 @@ export function siteHome(ctx){
       if(!fs.statSync(biliHome).isDirectory())throw new Error('vpub_home_invalid');
       binding+='\0bili-cli-home\0'+(process.platform==='win32'?biliHome.toLowerCase():biliHome);
     }
-    return {home:resolved,biliHome,digest:keyedDigest(binding,ctx.home)};
+    return {home:resolved,biliHome,digest:keyedDigest(binding,ctx.home,{create:createSalt})};
   }catch(e){
     if(e.code==='ENOENT')throw new Error('vpub_home_missing');
     throw new Error('vpub_home_invalid');
@@ -33,8 +33,8 @@ export function siteHome(ctx){
 }
 
 export function bindHome(ctx,records,{sealing=false}={}){
-  const value=siteHome(ctx);
   const digests=records.filter(r=>r.type==='PROTOCOL_SEAL'&&r.d.vpub_home_sha256).map(r=>r.d.vpub_home_sha256);
+  const value=siteHome(ctx,{createSalt:digests.length===0});
   if(digests.some(d=>d!==value.digest))throw new Error('vpub_home_mismatch');
   if(!sealing&&!digests.length)throw new Error('vpub_home_unsealed');
   return value;

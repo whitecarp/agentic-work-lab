@@ -106,25 +106,52 @@ test('Bilibili shell override is removed unless a custom folder was sealed',asyn
   }finally{if(prior===undefined)delete process.env.BILI_CLI_HOME;else process.env.BILI_CLI_HOME=prior;}
 });
 
-test('custom Bilibili folder is keyed and cannot be changed or removed after sealing',t=>{
+test('custom Bilibili folder is keyed and cannot be changed or removed after sealing',async t=>{
   const f=fixture(t),bili=path.join(f.root,'bili');fs.mkdirSync(bili);
   const defaultDigest=siteHome(f.ctx).digest;
   setSite(f,{site:'owner',vpub_home:f.env.VPUB_HOME,bili_cli_home:bili});
-  setup(f.ctx);assert.notEqual(siteHome(f.ctx).digest,defaultDigest);
+  setup(f.ctx);approve(f.ctx);f.ctx.run=begin(f.ctx,{}).run;
+  assert.notEqual(siteHome(f.ctx).digest,defaultDigest);
   for(const change of [{site:'owner',vpub_home:f.env.VPUB_HOME},
     {site:'owner',vpub_home:f.env.VPUB_HOME,bili_cli_home:f.root}]){
     setSite(f,change);
     assert.equal(begin(f.ctx,{}).error,'vpub_home_mismatch');
+    assert.equal(await step(f.ctx,{job:'job-1',role:'other'},[process.execPath,'-e','throw new Error("must not run")']),5);
+    assert.equal(last(f.ctx,'STEP_REFUSED').d.reason,'vpub_home_mismatch');
     assert.equal(cli(f,'journal',sealArgs(f)).status,70);
   }
   assert.equal(readJournal(f.journal).filter(r=>r.type==='PROTOCOL_SEAL').length,1);
 });
 
-test('adding a custom Bilibili folder after the default binding is sealed is refused',t=>{
-  const f=fixture(t);setup(f.ctx);
+test('adding a custom Bilibili folder after the default binding is sealed is refused',async t=>{
+  const f=fixture(t);setup(f.ctx);approve(f.ctx);f.ctx.run=begin(f.ctx,{}).run;
   setSite(f,{site:'owner',vpub_home:f.env.VPUB_HOME,bili_cli_home:f.root});
   assert.equal(begin(f.ctx,{}).error,'vpub_home_mismatch');
+  assert.equal(await step(f.ctx,{job:'job-1',role:'other'},[process.execPath,'-e','throw new Error("must not run")']),5);
+  assert.equal(last(f.ctx,'STEP_REFUSED').d.reason,'vpub_home_mismatch');
   assert.equal(cli(f,'journal',sealArgs(f)).status,70);
+});
+
+test('a sealed journal with a lost salt refuses without creating a replacement',async t=>{
+  const f=fixture(t);setup(f.ctx);approve(f.ctx);f.ctx.run=begin(f.ctx,{}).run;
+  const salt=path.join(f.home,'salt');fs.unlinkSync(salt);
+  assert.equal(begin(f.ctx,{}).error,'vpub_home_invalid');
+  assert.equal(await step(f.ctx,{job:'job-1',role:'other'},[process.execPath,'-e','throw new Error("must not run")']),5);
+  const result=cli(f,'journal',sealArgs(f));
+  assert.equal(result.status,70);assert.equal(result.stderr.trim(),'vpub_home_invalid');
+  assert.equal(fs.existsSync(salt),false);
+  assert.equal(readJournal(f.journal).filter(r=>r.type==='PROTOCOL_SEAL').length,1);
+});
+
+test('a mixed-case Bilibili shell override never reaches a child',t=>{
+  const f=fixture(t);setup(f.ctx);approve(f.ctx);f.ctx.run=begin(f.ctx,{}).run;
+  for(const key of Object.keys(f.env))if(key.toUpperCase()==='BILI_CLI_HOME')delete f.env[key];
+  f.env.Bili_Cli_Home=path.join(f.root,'wrong-shell-home');
+  const out=path.join(f.root,'child-env.json');
+  const result=cli(f,'gate-run',['step',...flags(f),'--run',f.ctx.run,'--job','job-1','--role','other','--',
+    process.execPath,'-e',"require('fs').writeFileSync(process.argv[1],JSON.stringify(Object.keys(process.env).filter(k=>k.toUpperCase()==='BILI_CLI_HOME')))",out]);
+  assert.equal(result.status,0,result.stderr);
+  assert.deepEqual(JSON.parse(fs.readFileSync(out)),[]);
 });
 
 test('custom Bilibili folder must be an existing absolute directory',t=>{

@@ -74,7 +74,7 @@ export function reconcile(ctx,crosscastFile,{now=Date.now()}={}){
  const ungated=trusted?bindings.filter(b=>b.status!=='matched').length:null;
  const provenRefusal=s=>{
   if(s.d.result!=='refused'||s.d.exit!==2||!trusted)return false;
-  if(cc.integrity?.unreadable_loss_records>0||cc.integrity?.loss_records_complete===false)return false;
+  if(cc.integrity?.unreadable_loss_records!==0||cc.integrity?.loss_records_complete!==true)return false;
   const binding=bindings.find(b=>b.step_seq===s.seq&&b.status==='matched');
   const command=binding&&cc.runs.find(r=>r.run===binding.run);
   if(!command||command.exit_code!==2||command.ended!==true||command.dropped_events!==0||command.sequence_gap!==false)return false;

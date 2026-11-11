@@ -133,6 +133,14 @@ test('outcome sanitizes unknown message/code and preserves uncertainty',()=>{
   const x=outcome(4,JSON.stringify({error:{code:'secret-private-code',message:'CANARY'},data:{state:'UNKNOWN'}}));
   assert.equal(x.code,null);assert.equal(x.result,'in_doubt');
 });
+
+test('lock refusals retain their closed code without exposing messages',()=>{
+ for(const code of ['lock_marker_unreadable','browser_busy']){
+  const result=outcome(2,JSON.stringify({error:{code,message:'PRIVATE'}}));
+  assert.equal(result.code,code);assert.equal(result.result,'refused');
+  assert.ok(!JSON.stringify(result).includes('PRIVATE'));
+ }
+});
 const now='2026-11-11T12:00:00.000Z',job={id:'job-1',run_class:'test_post'};
 for(const [reason,entries] of [
   ['test_post_daily_cap',Array.from({length:4},()=>({at:'2026-11-11T10:00:00.000Z',platforms:['youtube'],role:'publish',run_class:'test_post'}))],

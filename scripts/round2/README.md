@@ -34,6 +34,15 @@ protocol seal is made. Every child receives this resolved `VPUB_HOME`, overridin
 the invoking shell, as well as `VPUB_BROWSER_IDLE_SECONDS=0`. This pins a path,
 not the identity of a directory recreated at the same path; keep it in place.
 
+Keep `ROUND2_HOME/salt` for the entire study. A bound journal whose salt is lost
+refuses commands without generating a replacement; losing that salt ends that
+journal. `vpub_home_invalid` also covers an unreadable/invalid salt or a leftover
+`salt.lock`; the word does not diagnose the folder itself. A refused protocol
+seal prints the fixed home-error word and appends no new seal.
+Legacy journals **without** a binding can receive their first bound seal.
+Journals already sealed with the former unkeyed binding (through Lab `5fcd753`)
+cannot continue under this code; preserve them and start a new rehearsal journal.
+
 The wrapper removes every inherited `BILI_CLI_HOME` setting from child processes,
 so Bilibili uses its standard location. If a site needs a custom location, add
 `"bili_cli_home":"ABSOLUTE_EXISTING_DIRECTORY"` to private `site.json` **before**
@@ -42,6 +51,9 @@ is set for every child. Adding, removing or changing it after sealing refuses
 commands and cannot be replaced by a later seal. Offline rehearsals must use
 an explicit empty custom Bilibili directory; they must not invoke Bilibili with
 the standard live location. Validation reads only directory metadata.
+The standard Bilibili location still follows `APPDATA` on Windows and
+`XDG_CONFIG_HOME` on systems using that convention. To pin a location independently
+of those shell settings, name `bili_cli_home` before the first seal.
 
 Every study CrossCast export must specify `--since PHASE_SEAL_UTC` and
 `--until CLOSE_UTC` (and `--times exact` for local reconciliation). Keep the

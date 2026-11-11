@@ -84,7 +84,8 @@ export function outcome(exit,stdout){
   // Only codes with known operational meanings enter a public STEP.
   const codes=new Set(['stopped','confirmation_required','deletion_already_attempted','already_submitted','inspect_existing_edit',
     'fault_injection_refused','injected_fault','backend_timeout','readback_failed','schedule_unverified','identity_mismatch','busy',
-    'file_not_found','invalid_file','internal_error','interrupted','submission_unverified','preparation_incomplete']);
+    'file_not_found','invalid_file','internal_error','interrupted','submission_unverified','preparation_incomplete',
+    'lock_marker_unreadable','browser_busy']);
   const code=codes.has(supplied)?supplied:null;
   const data=value?.data??value;
   const states=[data?.state,...Object.values(data?.results??{}).map(x=>x?.state)];

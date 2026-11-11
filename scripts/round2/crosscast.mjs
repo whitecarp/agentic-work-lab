@@ -11,7 +11,7 @@ export function crosscast(file){
   if(value.integrity[field]!==undefined&&!number(value.integrity[field]))throw new Error('invalid_crosscast_loss');
   integrity[field]=value.integrity[field]??null;
  }
- for(const field of ['dropped_count_is_lower_bound','loss_records_complete']){
+ for(const field of ['dropped_count_is_lower_bound','loss_records_complete','loss_folder_unreadable']){
   if(value.integrity[field]!==undefined&&!bool(value.integrity[field]))throw new Error('invalid_crosscast_loss');
   integrity[field]=value.integrity[field]??null;
  }
