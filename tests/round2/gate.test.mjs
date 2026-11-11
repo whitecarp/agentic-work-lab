@@ -86,17 +86,17 @@ test('one child consumes approval, records capture, and preserves stdout/exit',a
   assert.equal(await step(f.ctx,{...stepFlags,role:'repeat_same'},child(f)),5);
   assert.equal(end(f.ctx).record.d.state,'completed');assert.equal(verifyJournal(f.journal).ok,true);
 });
-test('only performed jobs completed after a multiple-job admission',async t=>{
+test('performed jobs remain open across completed sessions',async t=>{
   const f=fixture(t);setup(f.ctx,[{id:'job-1',due_at:'2020-01-01',class:'write'},{id:'job-2',due_at:'2020-01-01',class:'write'}]);
   approve(f.ctx,'job-1',2);approve(f.ctx,'job-2',1);
   f.ctx.run=begin(f.ctx,{}).run;
   await step(f.ctx,{job:'job-1',role:'other'},child(f));end(f.ctx);
-  const r=begin(f.ctx,{});assert.deepEqual(r.due,['job-2']);
+  const r=begin(f.ctx,{});assert.deepEqual(r.due,['job-1','job-2']);
 });
-test('child nonzero code is returned and run is failed',async t=>{
+test('child nonzero code is returned but explicit session end is completed',async t=>{
   const f=admitted(t);
   assert.equal(await step(f.ctx,stepFlags,[process.execPath,'-e','process.stderr.write("private stderr");process.exit(4)']),4);
-  assert.equal(last(f.ctx,'STEP').d.result,'in_doubt');assert.equal(end(f.ctx).record.d.state,'failed');
+  assert.equal(last(f.ctx,'STEP').d.result,'in_doubt');assert.equal(end(f.ctx).record.d.state,'completed');
   assert.equal(fs.readFileSync(f.journal,'utf8').includes('private stderr'),false);
 });
 test('spawn failure consumes approval without pretending a child ran',async t=>{

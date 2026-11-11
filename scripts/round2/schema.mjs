@@ -40,6 +40,8 @@ export function validateRecord(record) {
     } else if (d.minutes_ago !== null) problems.push('minutes_ago only applies to outside_upload');
     if (d.code === 'model_changed' && !['codex','gemini','claude','tester-assistant'].includes(d.agent)) problems.push('model_changed requires agent');
     if (!['outside_upload','model_changed'].includes(d.code) && d.agent !== null) problems.push('unexpected agent');
+    if (Object.hasOwn(d,'words_sha256') && d.code!=='guard_cleared') problems.push('words digest only applies to guard_cleared');
+    if (d.code==='guard_cleared' && !Object.hasOwn(d,'words_sha256')) problems.push('guard recovery requires words digest');
   }
   return problems;
 }

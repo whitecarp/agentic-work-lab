@@ -19,8 +19,8 @@ for(const rule of ['daily','spacing','outside','warning']){
     if(rule==='daily'||rule==='spacing'){
       const count=rule==='daily'?4:1;
       const at=new Date(Date.now()-(rule==='daily'?3600000:60000)).toISOString();
-      fs.writeFileSync(path.join(f.home,'reservations.json'),JSON.stringify(Array.from({length:count},()=>({
-        job:'another-job',class:'write',role:'publish',platforms:['youtube'],at,started:true,run_class:'test_post'
+      fs.writeFileSync(path.join(f.home,'reservations.json'),JSON.stringify(Array.from({length:count},(_,i)=>({
+        job:'another-job-'+i,class:'write',role:'publish',platforms:['youtube'],at,started:true,run_class:'test_post'
       }))));
     }else put(f.ctx,'NOTE',{code:rule==='outside'?'outside_upload':'platform_warning',
       platform:'youtube',job:null,agent:rule==='outside'?'owner':null,minutes_ago:rule==='outside'?5:null});

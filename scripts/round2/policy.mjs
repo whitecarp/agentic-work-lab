@@ -29,15 +29,24 @@ export function guardRole(role, policy, command){
     a==='edit'?['edit']:a==='resume'?['resume']:a==='verify'?['verify']:['publish','go'].includes(a)?['publish','repeat_same','changed_plan']:null;
   if(expected && !expected.includes(role)) throw new Error('role_mismatch');
 }
-export function grant(records,job,cls,reservations=[]) {
+export function grantScope(records,job,cls,reservations=[],role=null) {
   const grants=records.filter(r=>r.type==='GO_AHEAD'&&r.d.job===job);
   if(cls==='write') {
-    const capacity=grants.filter(r=>r.d.scope!=='read_only').reduce((a,r)=>a+r.d.count,0);
-    // Reservations are durable before spawn, including an interrupted attempt.
-    const spent=reservations.filter(r=>r.job===job&&r.class==='write').length;
-    return spent < capacity;
+    const left={listed_test_posts:0,one_write:0};
+    for(const r of grants) if(r.d.scope in left) left[r.d.scope]+=r.d.count;
+    for(const r of reservations.filter(r=>r.job===job&&r.class==='write')) {
+      // Legacy reservations have no provable scope. Debit both pools rather
+      // than turn a previously spent unit into new delete authorization.
+      if(r.scope in left) left[r.scope]--; else for(const s in left) left[s]--;
+    }
+    const listed=['publish','repeat_same','resume','verify','edit','changed_plan'];
+    if((role===null||listed.includes(role))&&left.listed_test_posts>0) return 'listed_test_posts';
+    return left.one_write>0?'one_write':null;
   }
-  return grants.length>0;
+  return grants.length?'read_only':null;
+}
+export function grant(records,job,cls,reservations=[],role=null) {
+  return grantScope(records,job,cls,reservations,role)!==null;
 }
 export function limits(records,job,role,platforms,now,reservations=[],jobs=[]) {
   if(platforms.some(p=>!PLATFORMS.includes(p))||new Set(platforms).size!==platforms.length) return 'invalid_platforms';
@@ -53,7 +62,12 @@ export function limits(records,job,role,platforms,now,reservations=[],jobs=[]) {
       run_class:jobs.find(j=>j.id===r.d.job)?.run_class}));
   for(const p of platforms){
     const recent=[...starts,...fallback].filter(s=>s.platforms.includes(p));
-    if(recent.filter(s=>s.run_class==='test_post'&&when-Date.parse(s.at)<86400000).length>=4) return 'test_post_daily_cap';
+    const first=new Map();
+    for(const s of recent.filter(s=>s.run_class==='test_post')) {
+      const id=s.job??s; // Unlabelled legacy rows cannot prove a shared job.
+      if(!first.has(id)||Date.parse(s.at)<Date.parse(first.get(id).at)) first.set(id,s);
+    }
+    if([...first.values()].filter(s=>when-Date.parse(s.at)<86400000).length>=4) return 'test_post_daily_cap';
     if(recent.some(s=>when-Date.parse(s.at)<1200000)) return 'publish_spacing';
     if(records.some(r=>r.type==='NOTE'&&r.d.platform===p&&r.d.code==='outside_upload'&&
         when-(Date.parse(r.at)-r.d.minutes_ago*60000)<1200000)) return 'outside_upload_spacing';

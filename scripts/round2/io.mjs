@@ -22,6 +22,7 @@ export function withLock(file, fn) {
   const deadline=Date.now()+1000;
   let fd;
   while (fd === undefined) {
+    if(fs.existsSync(file+'.recovery')) throw new Error('lock_unavailable');
     try { fd=fs.openSync(file,'wx',0o600); }
     catch (e) {
       // Windows can report a sharing/delete race as EACCES/EPERM while an
@@ -30,7 +31,10 @@ export function withLock(file, fn) {
       Atomics.wait(new Int32Array(new SharedArrayBuffer(4)),0,0,10);
     }
   }
-  try { fs.writeFileSync(fd,JSON.stringify({pid:process.pid})); fs.fsyncSync(fd); return fn(); }
+  try {
+    if(fs.existsSync(file+'.recovery')) throw new Error('lock_unavailable');
+    fs.writeFileSync(fd,JSON.stringify({pid:process.pid})); fs.fsyncSync(fd); return fn();
+  }
   finally { fs.closeSync(fd); fs.unlinkSync(file); }
 }
 export function privateHome() {

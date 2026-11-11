@@ -3,7 +3,7 @@ import path from 'node:path';
 import {pathToFileURL} from 'node:url';
 import {createHmac, randomBytes} from 'node:crypto';
 import {validateRecord, SLOTS} from './schema.mjs';
-import {sha, utc, atomic, withLock, privateHome, readJSON, parseFlags, allowed} from './io.mjs';
+import {sha, utc, atomic, withLock, privateHome, readJSON, parseFlags, allowed, alive} from './io.mjs';
 export {validateRecord};
 export const ZERO='0'.repeat(64);
 export const newRunId=()=>randomBytes(16).toString('hex');
@@ -80,7 +80,7 @@ export function context(flags, needHome=true) {
 export function put(ctx,type,d,run=null) {
   return appendRecord(ctx.journal,{site:ctx.site,slot:ctx.slot,type,run,d});
 }
-function words(home) {
+export function words(home) {
   const bytes=fs.readFileSync(0);
   if(!bytes.toString('utf8').trim()) throw new Error('empty_words');
   const digest=sha(bytes), file=path.join(home,'captures',digest+'.words.txt');
@@ -89,6 +89,35 @@ function words(home) {
 }
 const numeric=(s)=>{if(!/^\d+$/.test(s??''))throw new Error('invalid_integer');return Number(s);};
 function fileHash(file){return sha(fs.readFileSync(file,'utf8').replace(/\r\n/g,'\n'));}
+export function clearGuard(ctx,by,statement){
+  if(!['owner','tester'].includes(by)) throw new Error('invalid_person');
+  if(!statement.toString('utf8').trim()) throw new Error('empty_words');
+  const guard=path.join(ctx.home,'operation.guard');
+  return withLock(guard+'.recovery',()=>{
+    // Recovery is explicit and never clears the session, STOP, or reservations.
+    const candidates=[guard,ctx.journal+'.lock'].filter(f=>fs.existsSync(f));
+    if(!candidates.length) throw new Error('no_guard');
+    const originals=candidates.map(file=>{
+      const bytes=fs.readFileSync(file), owner=JSON.parse(bytes);
+      if(!Number.isSafeInteger(owner.pid)||owner.pid<=0||alive(owner.pid)) throw new Error('guard_owner_not_dead');
+      return {file,bytes};
+    });
+    if(!verifyJournal(ctx.journal).ok) throw new Error('broken_journal');
+    const digest=sha(statement);atomic(path.join(ctx.home,'captures',digest+'.words.txt'),statement);
+    for(const {file,bytes} of originals){
+      if(!fs.readFileSync(file).equals(bytes)) throw new Error('guard_changed');
+      fs.unlinkSync(file);
+    }
+    try{
+      return put({...ctx,slot:by},'NOTE',{code:'guard_cleared',platform:null,job:null,agent:null,minutes_ago:null,words_sha256:digest});
+    }catch(e){
+      // A recording failure must not silently reopen the gate. The preserved
+      // stale owner can be reviewed again; no run or command is retried.
+      for(const {file,bytes} of originals) if(!fs.existsSync(file)) fs.writeFileSync(file,bytes,{flag:'wx',mode:0o600});
+      throw e;
+    }
+  });
+}
 export function main(argv=process.argv.slice(2)){
   const sub=argv.shift();
   if(sub==='verify') {
@@ -100,13 +129,14 @@ export function main(argv=process.argv.slice(2)){
   const lists={
     'go-ahead':['job','scope','count','by'],observe:['job','ref','about','by','client','seen','fields-match','minutes-after','shot-sha256'],
     note:['code','platform','job','agent','minutes-ago'],violation:['rule','found-by','job'],
-    'sign-off':['day','by','answer'],handoff:['to','job','by'],stop:['by'],'clear-stop':['by'],
+    'sign-off':['day','by','answer'],handoff:['to','job','by'],stop:['by'],'clear-stop':['by'],'clear-guard':['by'],
     'protocol-seal':['phase','protocol','lab-commit','crosscast-commit','crosscast-digest','plan','analysis','rules-card'],
   };
   if(!lists[sub]) throw new Error('unknown_command');
   allowed(f,['site','slot','journal','run',...lists[sub]]);
   if(sub==='note' && f.platform?.length>1) throw new Error('one_platform_required');
   const ctx=context(f), run=f.run??null;
+  if(sub==='clear-guard') {console.log(JSON.stringify(clearGuard(ctx,f.by,fs.readFileSync(0))));return 0;}
   return withLock(path.join(ctx.home,'operation.guard'),()=>{
     // Verify before reading private statements or changing any control file.
     if(!verifyJournal(ctx.journal).ok) throw new Error('broken_journal');

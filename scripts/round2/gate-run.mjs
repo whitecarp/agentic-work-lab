@@ -4,10 +4,10 @@ import {pathToFileURL} from 'node:url';
 import {spawn} from 'node:child_process';
 import {StringDecoder} from 'node:string_decoder';
 import {planRun} from '../operations-gate.mjs';
-import {context, put, readJournal, verifyJournal, newRunId, pseudonym} from './journal.mjs';
+import {context, put, readJournal, verifyJournal, newRunId, pseudonym, words} from './journal.mjs';
 import {ID, SLOTS, PLATFORMS} from './schema.mjs';
 import {sha, utc, atomic, withLock, readJSON, parseFlags, allowed, alive} from './io.mjs';
-import {classify, guardRole, grant, limits, outcome} from './policy.mjs';
+import {classify, guardRole, grant, grantScope, limits, outcome} from './policy.mjs';
 
 const gateFile=new URL('../operations-gate.mjs',import.meta.url);
 const guard=ctx=>path.join(ctx.home,'operation.guard');
@@ -67,9 +67,7 @@ export function begin(ctx,flags) {
       if(!Number.isFinite(Date.parse(now))) throw new Error('invalid_time');
       const all=jobs(ctx), savedReservations=reservations(ctx);
       prepared=all.map(j=>{
-        const done=records.some(r=>r.type==='GATE_DECISION'&&(r.d.slot_id===j.id ||
-          records.some(s=>s.type==='STEP'&&s.run===r.run&&s.d.job===j.id))&&
-          records.some(e=>e.type==='RUN_END'&&e.run===r.run&&e.d.state==='completed'));
+        const done=records.some(r=>r.type==='JOB_END'&&r.d.job===j.id);
         const forbidden=j.run_class==='test_post' && (j.platforms??[]).some(p=>!['youtube','douyin'].includes(p));
         const authorized=!forbidden&&grant(records,j.id,j.class,savedReservations);
         const verdict=done?'completed':forbidden?'forbidden_by_policy':!authorized?'not_authorized':Date.parse(j.due_at)<=Date.parse(now)?'due':'not_due';
@@ -109,6 +107,7 @@ function prepare(ctx,flags,command,launch){
     if(stop(ctx)) throw new Error('stop_flag');
     const job=run.jobs.find(j=>j.id===flags.job);
     if(!job||!run.due.includes(job.id)) throw new Error('job_not_due');
+    if(records.some(r=>r.type==='JOB_END'&&r.d.job===job.id)) throw new Error('job_closed');
     const policy=classify(command,flags);
     guardRole(flags.role,policy,command);
     if(policy.tool==='bili' && command.slice(1).some(s=>['delete','remove','del'].includes(s))) throw new Error('bilibili_delete_forbidden');
@@ -117,7 +116,8 @@ function prepare(ctx,flags,command,launch){
     if((job.platforms??[]).length && (platforms.length!==job.platforms.length || platforms.some(p=>!job.platforms.includes(p)))) throw new Error('platform_mismatch');
     const list=reservations(ctx), rule=limits(records,job,flags.role,platforms,utc(),list,run.jobs);
     if(rule) throw new Error(rule);
-    if(!grant(records,job.id,policy.class,list)) throw new Error('go_ahead_exhausted');
+    const scope=grantScope(records,job.id,policy.class,list,flags.role);
+    if(scope===null) throw new Error('go_ahead_exhausted');
     // A verified journal and fsynced private reservation precede every spawn.
     // Failed/uncertain spawns spend approval conservatively; never retry them.
     if(!verifyJournal(ctx.journal).ok) throw new Error('broken_journal');
@@ -128,7 +128,7 @@ function prepare(ctx,flags,command,launch){
     put(ctx,'GATE_DECISION',{...admission.d,...checked,now:utc(),stop:false,running:false,
       gate_sha256:sha(fs.readFileSync(gateFile))},ctx.run);
     const reservation={id:newRunId(),run:ctx.run,job:job.id,class:policy.class,role:flags.role,
-      platforms,run_class:job.run_class??null,at:utc(),step_seq:null,started:null};
+      platforms,scope,run_class:job.run_class??null,at:utc(),step_seq:null,started:null};
     list.push(reservation);writeReservations(ctx,list);
     atomic(runFile(ctx),{...run,child_pid:process.pid});
     if(stop(ctx)) throw new Error('stop_flag');
@@ -182,13 +182,14 @@ export async function step(ctx,flags,command){
   catch(e){
     if(['broken_journal','lock_unavailable'].includes(e.message)) throw e;
     // Fixed words only. No command arguments, path or child error is echoed.
-    const refusals=['run_not_admitted','step_already_running','stop_flag','job_not_due','platform_mismatch','job_class_mismatch',
+    const refusals=['run_not_admitted','step_already_running','stop_flag','job_not_due','job_closed','platform_mismatch','job_class_mismatch',
       'bilibili_delete_forbidden','test_platform_forbidden','test_post_daily_cap','publish_spacing','outside_upload_spacing',
       'platform_warning_hold','go_ahead_exhausted','invalid_platforms','missing_command','tool_mismatch','class_mismatch',
       'invalid_role','role_mismatch','operator_record_mismatch'];
     if(!refusals.includes(e.message)) throw e;
     console.error(e.message);return 5;
   }
+  try {
   const child=await prepared.capture;
   if(child.captureError) throw new Error('capture_unwritable');
   const result=outcome(child.exit,child.stdout), {policy,reservation}=prepared;
@@ -199,9 +200,18 @@ export async function step(ctx,flags,command){
     const list=reservations(ctx), item=list.find(r=>r.id===reservation.id);
     item.step_seq=record.seq;item.started=!child.spawnError;writeReservations(ctx,list);
     const run=readJSON(runFile(ctx));
-    atomic(runFile(ctx),{...run,child_pid:null,wrapper_pid:null,failed:run.failed||child.exit!==0});
+    atomic(runFile(ctx),{...run,child_pid:null,wrapper_pid:null});
   });
   return child.exit;
+  } catch(e) {
+    // Only a wrapper recording failure marks the session failed. Preserve its
+    // reservation and capture; never start a second child to repair evidence.
+    try { withLock(guard(ctx),()=>{
+      const run=readJSON(runFile(ctx));
+      atomic(runFile(ctx),{...run,failed:true,child_pid:null,wrapper_pid:null});
+    }); } catch { /* A stale guard remains fail-closed for explicit review. */ }
+    throw e;
+  }
 }
 export function end(ctx){
   return withLock(guard(ctx),()=>{
@@ -211,15 +221,41 @@ export function end(ctx){
     return {exit:0,record};
   });
 }
+export function closeJob(ctx,flags){
+  return withLock(guard(ctx),()=>{
+    const records=readJournal(ctx.journal), active=readJSON(runFile(ctx),null);
+    if(operator(ctx,records)!==ctx.slot) throw new Error('not_owner');
+    if(active?.child_pid) throw new Error('step_already_running');
+    const job=jobs(ctx).find(j=>j.id===flags.job);
+    if(!job) throw new Error('unknown_job');
+    if(records.some(r=>r.type==='JOB_END'&&r.d.job===job.id)) throw new Error('job_closed');
+    const reason=flags.reason, by=flags.by??'operator';
+    if(!['done','nothing_posted','removed_by_hand','abandoned'].includes(reason)||!['operator','owner','tester'].includes(by)) throw new Error('invalid_close');
+    if(job.run_class!=='test_post'&&!['done','abandoned'].includes(reason)) throw new Error('invalid_close');
+    const own=records.filter(r=>r.d.job===job.id);
+    const lastWrite=own.filter(r=>r.type==='STEP'&&r.d.class==='write').at(-1);
+    const pending=reservations(ctx).filter(r=>r.job===job.id&&r.class==='write'&&r.step_seq===null);
+    if(job.run_class==='test_post'&&reason!=='abandoned'){
+      const absent=own.some(r=>r.type==='OBSERVATION'&&r.d.seen==='absent'&&r.seq>(lastWrite?.seq??0)&&
+        pending.every(x=>Date.parse(r.at)>=Date.parse(x.at)));
+      const verified=own.some(r=>r.type==='STEP'&&r.d.role==='delete_verify'&&r.d.result==='ok'&&r.seq>(lastWrite?.seq??0)&&pending.length===0);
+      const manual=own.some(r=>r.type==='NOTE'&&r.d.code==='manual_step');
+      if(!({done:verified,nothing_posted:absent,removed_by_hand:manual}[reason])) throw new Error('job_close_evidence_missing');
+    }
+    const digest=reason==='abandoned'?words(ctx.home):null;
+    const record=put(ctx,'JOB_END',{job:job.id,reason,by,words_sha256:digest});
+    return {exit:0,record};
+  });
+}
 export async function main(argv=process.argv.slice(2)){
   const sub=argv.shift(),{flags,command}=parseFlags(argv);
-  const keys={begin:['launcher','slot-id'],step:['run','job','role','platform','tool','class'],end:['run']};
+  const keys={begin:['launcher','slot-id'],step:['run','job','role','platform','tool','class'],end:['run'],'close-job':['job','reason','by']};
   if(!keys[sub]) throw new Error('unknown_command');
   allowed(flags,['site','slot','journal',...keys[sub]]);
   if(sub!=='step'&&command.length) throw new Error('unexpected_command');
   const ctx={...context(flags),run:flags.run};
   if(sub==='step') return step(ctx,flags,command);
-  const result=sub==='begin'?begin(ctx,flags):end(ctx);
+  const result=sub==='begin'?begin(ctx,flags):sub==='close-job'?closeJob(ctx,flags):end(ctx);
   console.log(JSON.stringify(result));return result.exit;
 }
 if(process.argv[1]&&import.meta.url===pathToFileURL(path.resolve(process.argv[1])).href){

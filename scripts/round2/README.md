@@ -1,4 +1,4 @@
-# Round-two journal and gate (Modules 1 and 2)
+# Round-two instruments
 
 These tools record one-off, approved study jobs. They do not grant permission
 to act on an account. No scheduler, network client or fault injector is installed
@@ -87,3 +87,34 @@ No command validates a human's claimed identity or consent independently.
 Closed identifiers and session labels must be nonprivate study labels.
 These instruments provide evidence of the checked workflow, not an OS boundary
 against a person launching other commands or editing the underlying files.
+
+## Brief v1.2: sessions and planned runs
+
+A session is one run id. A planned run is one job id and can span sessions.
+`end` closes only the session, even when a child returned a refusal or nonzero
+exit. A wrapper recording failure marks the session failed; the spent reservation
+and any capture remain. A job closes only through `close-job`; there is no reopen.
+
+~~~text
+node scripts/round2/gate-run.mjs close-job --site owner --slot gemini --job rehearsal-1 --reason done
+node scripts/round2/journal.mjs clear-guard --site owner --by owner
+~~~
+
+For a test post, done requires a successful delete_verify after the last write;
+nothing_posted requires an absent observation after the last write; removed_by_hand
+requires that job's manual_step note. Abandoned reads the person's words from stdin
+and stores only their digest. Other job classes use done or abandoned. The operator
+is responsible for the required real-release observation windows before closing.
+
+listed_test_posts units cover publish, repeat_same, resume, verify, edit and
+changed_plan only. Other writes, especially delete, require one_write units of
+that exact job. Eligible writes consume listed units first. Old unscoped pending
+reservations are conservatively deducted from both pools; no credit is invented.
+
+Use clear-guard **only after Codex has reviewed the evidence and on the owner's
+word**, supplied through stdin. It requires a valid journal and positively dead
+PID metadata for every stale guard; live or ambiguous guards stay closed. Recovery
+records guard_cleared with the words digest, separately from manual post removal.
+It preserves STOP, session state, reservations and receipts; it never kills or
+retries a child. A damaged journal, an empty guard or a stale recovery guard needs
+separate review, not automatic clearing. PID reuse can conservatively refuse.
