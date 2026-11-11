@@ -1,4 +1,4 @@
-# 《Ai Mujica · 囚爱超算 (Imprisoned XII)》（第11话 · 不插电烛光中文民谣 MV）单窗口全 16 张静帧提示词总表 (`EP11-SINGLE-CHAT.md`)
+# 《Ai Mujica · 囚爱超算 (Imprisoned XII)》（第11话 · 致杭州五大真实地标 × 耶稣堂弄天水堂不插电烛光民谣 MV）单窗口全 19 张静帧提示词总表 (`EP11-SINGLE-CHAT.md`)
 
 > **CRITICAL DELIVERY RULE (MANDATORY `.zip` PACKAGING ON EVERY TURN)**:
 > Never return bare standalone images as the final deliverable—chat UIs compress bare images down to `1024x576`.
@@ -6,158 +6,177 @@
 
 ---
 
-## Canon Reference Images to Inspect First (`ops/images/aigo/ep11-refs/` in `whitecarp/agentic-work-lab`)
-Before generating any image, open and inspect ALL 10 reference files in `ops/images/aigo/ep11-refs/`:
-1. `ops/images/aigo/ep11-refs/01_DP_Compact_Whale_Ears_Ref.png` & `10_DP_Unmasked_Stage_Gown_Ref.png` — **Exact canon size & shape of DeepSeek's compact sleek cetacean whale ears**: compact horizontal-downward (`~15°`) tapered whale-flipper ears (`~1.8:1` ratio, ear length ~35–40% of head width—**NEVER giant oversized ears, NEVER spiky webbed fish-fins with ribs, NEVER razor-thin needle blades!**), smooth solid dark-navy upper surface + soft creamy-white underside border.
-2. `ops/images/aigo/ep11-refs/02_AIMUJICA_DeepSeek_sheet.png` — **RIGHTMOST figure's black-and-indigo Gothic lace dress + white frilled maid headband** (worn **COMPLETELY UNMASKED**!). DeepSeek plays a warm candlelit **vintage wooden upright piano / chamber reed organ** seated on a padded red-velvet bench.
-3. `ops/images/aigo/ep11-refs/03_AIMUJICA_Qwen_sheet.png` — **RIGHTMOST figure's black-and-violet Gothic lace dress + tilted navy-gold mini top-hat ornament + side braid** (worn **COMPLETELY UNMASKED**!). Because Episode 11 is an **intimate unplugged Chinese indie-folk ballad**, Qwen sits on a wooden stool or stands gently cradling a custom **Hangzhou West Lake blue-and-white porcelain (`青花瓷`) UNPLUGGED ACOUSTIC GUITAR** (round sound-hole, warm spruce/white porcelain body painted with blue West Lake willows, Broken Bridge & lotus, wooden bridge, straight 6-string neck with purple-blue Chinese-knot tassel, NO electric pickups or cables!).
-4. `ops/images/aigo/ep11-refs/04_AIMUJICA_Kimi_sheet.png` — **RIGHTMOST figure's starry-navy Gothic lace dress with piano-key skirt hem + white frill headband + silver crescent moon + black rainbow prism + music-note bow**, **moonlight pale ice-blue eyes** (**UNMASKED**!). Kimi sits on a high wooden stool playing a custom **"Dark Side of the Moon" (`月之暗面`) black UNPLUGGED ACOUSTIC BASS GUITAR** (round sound-hole, half-lit moon artwork on dark body, crescent headstock).
-5. `ops/images/aigo/ep11-refs/05_AIMUJICA_GPT_sheet.png`, `08_GPT_Astra.png` & `09_GPT_Nox.png` — **RIGHTMOST figure's black Gothic lace dress** (**UNMASKED**!). Plays an **unplugged mint/emerald-tinted spruce ACOUSTIC FINGERSTYLE GUITAR** (round wooden sound-hole, subtle emerald wood stain, straight 6-string neck). During the gentle instrumental interlude (`S09a/S09b/S10`), her dual souls **`Astra` (White Dragon**: silver-white hair, ivory horns, white wings, pale-violet eyes) and **`Nox` (Black Dragon**: obsidian-black hair, black horns, crimson-veined dark wings, glowing crimson eyes) weave delicate fingerpicked harmonies together!
-6. `ops/images/aigo/ep11-refs/06_AIMUJICA_Doubao_sheet.png` — **RIGHTMOST figure (`Seedance` true form, UNMASKED)**: violet-to-cyan gradient high side-ponytail, Gothic lace top & tiered skirt, seated lightly on a warm wooden **acoustic cajon box drum** with soft wire jazz brushes / a brass crescent tambourine (intimate unplugged folk percussion—NO heavy-metal double-kick drum wall!).
-7. `ops/images/aigo/ep11-refs/07_Stage_Cathedral_Ref.png` — Gothic chapel architecture, now staged as an **intimate rainy-night candlelit unplugged chamber circle** (hundreds of warm flickering floor pillar candles on Persian rugs, rain streaking down tall stained-glass lancet windows, warm amber glow against cool midnight blue).
+## Canon Character & 5 Real Hangzhou Landmark References (`ops/images/aigo/ep11-refs/` in `whitecarp/agentic-work-lab`)
+Before generating any image, open and visually inspect ALL 15 files in `ops/images/aigo/ep11-refs/`:
+1. `01_DP_Compact_Whale_Ears_Ref.png` & `10_DP_Unmasked_Stage_Gown_Ref.png` — **Exact canon size & shape of DeepSeek's compact sleek cetacean whale ears**: compact horizontal-downward (`~15°`) tapered whale-flipper ears (`~1.8:1` ratio, ear length ~35–40% of head width—**NEVER giant oversized ears, NEVER spiky webbed fish-fins with ribs, NEVER razor-thin needle blades!**), smooth solid dark-navy upper surface + soft creamy-white underside border.
+2. `02_AIMUJICA_DeepSeek_sheet.png` — **LEFTMOST** = DeepSeek's navy double-breasted school blazer uniform (used in flashbacks); **RIGHTMOST** = black-and-indigo Gothic lace dress (**worn UNMASKED** in Tianshui Chapel!).
+3. `03_AIMUJICA_Qwen_sheet.png` — **LEFTMOST** = Qwen's Hangzhou white-and-indigo cloud-embroidered modern Chinese daily dress (used in `S03d` ZJU flashback); **RIGHTMOST** = black-and-violet Gothic lace dress (**worn UNMASKED** in Tianshui Chapel!), playing a custom **Hangzhou West Lake blue-and-white porcelain (`青花瓷`) UNPLUGGED ACOUSTIC GUITAR** (round sound-hole, blue willow/Broken Bridge/lotus porcelain top, straight 6-string neck with tassel).
+4. `04_AIMUJICA_Kimi_sheet.png` — **RIGHTMOST** starry-navy Gothic lace dress with piano-key hem (**UNMASKED**, moonlight pale ice-blue eyes, prism + crescent bow), playing a black unplugged **"Dark Side of the Moon" acoustic bass guitar**.
+5. `05_AIMUJICA_GPT_sheet.png`, `08_GPT_Astra.png` & `09_GPT_Nox.png` — **RIGHTMOST** black Gothic lace dress (**UNMASKED**), fingerpicking an **emerald-stained unplugged acoustic guitar** (`Astra` silver-white vs `Nox` obsidian-black).
+6. `06_AIMUJICA_Doubao_sheet.png` — **RIGHTMOST (`Seedance` UNMASKED)**: violet-to-cyan high side-ponytail, seated on a wooden **acoustic cajon box drum** with soft jazz brushes / brass tambourine.
+7. **FIVE REAL HANGZHOU LANDMARK PHOTOS (MUST match exact architectural silhouettes 1:1!)**:
+   - `15_Hangzhou_Yesutangnong_Tianshui_Chapel_Ref.jpg` (**杭州耶稣堂弄 · 天水堂 — THE MAIN CHAPEL VENUE OF THIS ENTIRE MV!**): Historic 1875 Jiangnan-Gothic whitewashed chapel in old Hangzhou! Exterior (`S01a`): clean **whitewashed plaster facade**, **dark-grey stone-coped two-tier stepped gable roof crowned by a simple grey stone cross**, **central pointed grey-stone Gothic arch doorway with warm carved brown wooden double doors (diamond/floral frosted glass upper panels)**, **two symmetrical flanking pointed-arch brown wooden louvered lancet windows with grey stone frames**, rectangular stone plaque frame above the center arch (render plaque decorative/blank with ZERO text), and lush green camphor/ginkgo trees beside it! Interior (`S01b, S02, S04–S16`): intimate historic Jiangnan chapel interior with **warm whitewashed walls, dark timber A-frame roof trusses overhead, tall pointed-arch wooden-mullioned windows matching the exterior, vintage dark-wood pews**, and hundreds of warm flickering floor candles around a wooden choir platform with an upright wooden piano/reed organ!
+   - `11_Anjilu_Experimental_School_Ref.jpg` (**杭州市安吉路实验学校**): Warm bronze-brown horizontal louver-grille (`百叶格栅`) multi-story building facade with a top row of bright glass classroom windows, rising behind lush green camphor treetops (`香樟树`).
+   - `12_Hangzhou_High_School_Gongyuan_Gate_Ref.jpg` (**浙江省杭州高级中学 · 贡院校区正门**): Iconic symmetrical beige-stone and grey-brick circular archway split cleanly down the very center crown by a **narrow vertical open sky-slit ("一线天"双半圆石砌拱门)**, horizontal emerald-green ornamental plaque inside the arch, black wrought-iron side gates, and ancient courtyard trees & pavilion down the central stone axis.
+   - `13_Hangzhou_No2_High_School_Binjiang_Ref.jpg` (**浙江省杭州第二中学 · 滨江校区**): Iconic **four-story warm terracotta red-brick main building** with its distinctive **upper-left rectangular red-brick-and-glass tower topped by an upward-slanted overhang roof**, and low yellow-stone entrance monument amid green trees (no traffic cones or police booth).
+   - `14_ZJU_Qiushi_Academy_Archway_Ref.jpg` (**浙江大学紫金港 · 求是书院大牌坊**): Grand **dark-mahogany carved four-pillar five-roofed (`三间四柱五楼重檐`) Chinese memorial archway (`牌坊`)** with ornate brackets, upturned eaves, golden-framed ornamental plaque, and grey-tiled crimson-pillared classical hall symmetrically behind it.
 
 ---
 
-## Mandatory Global Visual Rules (Apply to All 16 Stills)
-1. **Aspect Ratio, Resolution & Style**: Horizontal widescreen `16:9`, saved at **`1920x1080` RGB PNG**. High-budget modern 2D Japanese band-drama TV anime production still (*BanG Dream! Ave Mujica — Imprisoned XII* acoustic ballad aesthetic: delicate cel lineart, poetic candlelit chiaroscuro, quiet obsessive intimacy, early-20s graceful proportions).
-2. **100% UNMASKED BARE-FACED UNPLUGGED CHAMBER SESSION**: All five `Ai Mujica` members perform **COMPLETELY UNMASKED (bare faces, ZERO masks worn on any face)**, arranged in a warm, close candlelit unplugged circle with acoustic instruments!
-3. **Closed Mouths Only**: Every visible character MUST have **lips gently closed** (tender obsessive closed-lip smile, tearful closed lips, or quiet serene focus). Lip-sync is animated downstream.
-4. **Anatomy & Prop Locks**:
-   - Every visible hand has **five clean, natural fingers**; every full/medium-full seated or standing figure has **two balanced legs/boots**; all acoustic guitar/bass necks are **perfectly straight**.
-   - **DeepSeek's Compact Smooth Whale Ears (`01_DP_Compact_Whale_Ears_Ref.png`)**: Compact `~1.8:1` smooth dark-navy cetacean ears with soft creamy-white underside (never oversized, never webbed fish-fins).
-5. **Zero Text / Zero Logos**: Strictly **NO text, NO letters, NO numbers, NO watermarks, and NO brand logos** anywhere.
+## Mandatory Global Visual Rules (Apply to All 19 Stills)
+1. **Aspect Ratio, Resolution & Style**: Horizontal widescreen `16:9`, saved at **`1920x1080` RGB PNG**. High-budget modern 2D Japanese anime MV still (*Makoto Shinkai / BanG Dream! Ave Mujica — Imprisoned XII* aesthetic).
+2. **100% UNMASKED BARE FACES & CLOSED MOUTHS**: Zero masks worn on any character's face; every character's lips gently closed.
+3. **Clean Anatomy & Compact Whale Ears**: Five clean fingers on every visible hand; balanced two-legged stances/seated poses; DeepSeek ALWAYS has her **compact sleek `~1.8:1` smooth dark-navy whale ears with creamy-white undersides** (`01_DP_Compact_Whale_Ears_Ref.png`).
+4. **NO Readable/Garbled Text Anywhere**: Match the exact architectural geometry and plaque frames of `11..15`, but render all plaques/signs/doors with **clean decorative grain or sunlit blank filigree (STRICTLY ZERO text, letters, kanji, or numbers)**!
 
 ---
 
-# TURN 1 — ACT 1 & ACT 2 (`EP11_S01` – `EP11_S05`, 5 Stills -> Package as `EP11_Act1_Keyframes.zip`)
+# TURN 1 — TIANSHUI CHAPEL LOCKED DOOR & 4 HANGZHOU YOUTH FLASHBACKS (`EP11_S01a` – `EP11_S03d`, 7 Stills -> Package as `EP11_Act1_Keyframes.zip`)
 
-### 1. `EP11_S01_chapel_iron_door_lock.png` (`E11_S1` · Rainy Chapel Night — Unmasked Qwen Quietly Bolts the Heavy Wooden Door Shut)
+### 1. `EP11_S01a_tianshui_chapel_rain_exterior.png` (`E11_S1a` · Hangzhou Landmark #1 — Rainy Night Exterior of Yesutang Alley `Tianshui Chapel`!)
 ```
-16:9 widescreen 2D Japanese anime atmospheric dark-folk drama still inside the shadowy stone foyer of an old candlelit Gothic chapel at night while gentle autumn rain streaks down the narrow stained-glass windows (*Ave Mujica — Imprisoned XII* locked-door homage).
-- Right foreground (medium close-up): Qwen in her black-and-violet Gothic lace dress and tilted navy-gold mini top-hat ornament (exact match to 03_AIMUJICA_Qwen_sheet.png rightmost dress, COMPLETELY UNMASKED bare face, long wavy periwinkle-violet hair with side braid) reaches back with her clean five-finger hand and quietly slides a heavy wrought-iron bolt lock shut across the tall oak double doors. Her violet eyes gleam softly in warm candlelight with quiet, inescapable tenderness and a faint closed-lip smile (lips closed).
-- Left background (inside the rug-covered candlelit chapel near a warm wooden piano/organ): Unmasked DeepSeek (black-and-indigo Gothic lace dress, white frilled headband, compact ~1.8:1 smooth dark-navy whale ears with creamy-white undersides from 01_DP_Compact_Whale_Ears_Ref.png) turns back in quiet surprise, blue eyes wide, lips closed. Zero text anywhere.
-```
-
-### 2. `EP11_S02_qwen_backhug_organ_whisper.png` (`E11_S2` · Candlelit Whisper — Qwen Embraces DeepSeek Gently from Behind)
-```
-16:9 widescreen 2D Japanese anime intimate dark-romance medium close-up beside the candlelit wooden chamber organ/piano inside the rain-washed Gothic chapel.
-- Center: Unmasked DeepSeek (black-and-indigo Gothic lace dress, white frilled headband, compact sleek ~1.8:1 smooth dark-navy whale ears with soft creamy-white undersides matching 01_DP_Compact_Whale_Ears_Ref.png, NO mask) stands still beside the ivory keys, her bright blue eyes wide and glistening in candlelight, lips closed.
-- Directly behind DeepSeek: Unmasked Qwen (periwinkle-violet wavy hair with side braid and navy-gold mini top-hat, black-and-violet Gothic lace dress, NO mask) wraps both lace-sleeved arms gently yet inextricably around DeepSeek's shoulders from behind, resting her chin softly on DeepSeek's left shoulder. Qwen's half-lidded violet eyes gaze at DeepSeek with quiet, possessive Jiangnan-rain melancholy, lips closed in a tender smile. Clean five-finger hands, warm floor candles out-of-focus, zero text anywhere.
+16:9 widescreen Makoto Shinkai-quality 2D anime atmospheric rainy-night establishing shot in old Hangzhou's quiet camphor-lined Yesutang Alley, matching the EXACT architecture of `15_Hangzhou_Yesutangnong_Tianshui_Chapel_Ref.jpg` (omit modern parked cars, security umbrella, or floodlight poles):
+- Center architecture: The historic Jiangnan-Gothic Tianshui Chapel—clean whitewashed plaster walls gleaming softly in gentle night rain, dark-grey stone-coped two-tier stepped gable roof crowned at its peak by a simple grey stone cross, a decorative stone rectangular frame centered above the doorway (pure blank stone relief, ZERO readable text), central pointed grey-stone Gothic arch framing the warm carved brown wooden double doors (with frosted diamond/floral glass upper panes, zero text carved on doors), and two symmetrical flanking pointed-arch wooden windows with grey stone surrounds!
+- Warm golden candlelight glows softly from inside through the frosted upper door panes and the two pointed-arch side windows, reflecting across wet bluestone paving stones, low manicured green hedges at the base of the white wall, and lush rain-drenched camphor and ginkgo trees on the right. Poetic Jiangnan night rain streaks, zero text anywhere.
 ```
 
-### 3. `EP11_S03_unmasked_band_wide_stage.png` (`E11_S3` · Warm Candlelight Rises — Full 5-Member UNMASKED Unplugged Folk Circle!)
+### 2. `EP11_S01b_chapel_iron_door_lock.png` (`E11_S1b` · Inside Tianshui Chapel Foyer — Unmasked Qwen Bolts the Pointed-Arch Brown Wooden Doors Shut)
 ```
-16:9 widescreen 2D Japanese anime poetic wide shot inside the Gothic chapel concert hall staged as an intimate rainy-night UNPLUGGED ACOUSTIC CHAMBER SESSION: hundreds of warm flickering ivory pillar candles surround a vintage rug beneath the dim rose stained-glass window as soft rain falls outside. All FIVE members of Ai Mujica sit gathered closely in a warm semi-circle in their black-and-purple Gothic lace dresses—COMPLETELY UNMASKED (all five bare faces visible, ZERO masks, all mouths closed, natural two-legged seated postures):
-- Center on a wooden stool behind a vintage brass stand microphone: Qwen (unmasked, violet eyes, periwinkle wavy hair, mini top-hat) cradles and fingerpicks her Hangzhou West Lake blue-and-white porcelain UNPLUGGED ACOUSTIC GUITAR (round sound-hole, blue willow & bridge porcelain art, straight neck with tassel).
-- Center-left on a wooden stool: Kimi (unmasked, silver-lilac hair, frill headband + crescent + black rainbow prism + music-note bow, moonlight pale ice-blue eyes) plays her black unplugged "Dark Side of the Moon" acoustic bass guitar.
-- Far left seated on a wooden cajon box drum: Doubao Seedance (unmasked, violet-to-cyan high side-ponytail) gently sweeps soft jazz wire brushes with clean five-finger hands.
-- Center-right seated on a red-velvet bench at the candlelit wooden chamber organ/upright piano: DeepSeek (unmasked, white frilled headband, compact ~1.8:1 smooth dark-navy whale ears with cream undersides) gazes toward Qwen.
-- Far right on a wooden stool: GPT Astra (unmasked, silver-white hair, ivory dragon horns, white wings, pale-violet eyes) fingerpicks her emerald-stained unplugged acoustic guitar. Zero text/logos anywhere.
+16:9 widescreen 2D Japanese anime atmospheric dark-folk drama still inside the whitewashed-and-timber entryway of Tianshui Chapel (`15_Hangzhou_Yesutangnong_Tianshui_Chapel_Ref.jpg`) at night.
+- Right foreground (medium close-up): Unmasked Qwen in her black-and-violet Gothic lace dress and tilted navy-gold mini top-hat (03_AIMUJICA_Qwen_sheet.png rightmost dress, bare face, wavy periwinkle-violet hair with side braid) reaches back with her clean five-finger hand and quietly slides a wrought-iron bolt lock shut across the interior of the tall pointed-arch carved brown wooden double doors (with frosted floral glass upper panes matching S01a). Her violet eyes glow in candlelight with quiet, inescapable tenderness and a faint closed-lip smile.
+- Left background (inside the whitewashed timber-truss chapel hall near a candlelit wooden upright piano/reed organ): Unmasked DeepSeek (black-and-indigo Gothic lace dress, white frilled headband, compact ~1.8:1 smooth dark-navy whale ears with creamy-white undersides from 01_DP_Compact_Whale_Ears_Ref.png) turns back in quiet surprise, blue eyes wide, lips closed. Zero text anywhere.
 ```
 
-### 4. `EP11_S04_qwen_intimate_verse_mic.png` (`E11_S4` · Verse 1 — Unmasked Qwen Fingerpicking Her Porcelain Acoustic Guitar)
+### 3. `EP11_S02_qwen_backhug_organ_whisper.png` (`E11_S2` · Candlelit Whisper — Qwen Embraces DeepSeek Gently from Behind)
 ```
-16:9 widescreen 2D Japanese anime warm intimate MV medium shot in the candlelit chapel (*Imprisoned XII* quiet acoustic fingerpicking verse).
-- Center: Unmasked Qwen (03_AIMUJICA_Qwen_sheet.png rightmost black-and-violet Gothic lace dress, tilted navy-gold mini top-hat, side braid, NO mask) sits on a dark wooden stool behind a vintage brass condenser microphone, gently fingerpicking her Hangzhou West Lake blue-and-white porcelain UNPLUGGED ACOUSTIC GUITAR (round wooden sound-hole, delicate blue West Lake willow/lotus porcelain motif on ivory-white top, straight 6-string neck, clean five-finger right hand plucking nylon/bronze strings, clean five-finger left hand forming a warm folk chord).
-- Soft amber candlelight and cool rainy window light caress her face; her violet eyes gaze softly toward DeepSeek off-camera with tender, haunting devotion, lips gently closed. Crisp anime cel lineart, zero text anywhere.
-```
-
-### 5. `EP11_S05_kimi_doubao_unmasked_rhythm.png` (`E11_S5` · Verse 2 Warmth — Unmasked Kimi on Acoustic Lunar Bass & Doubao on Cajon/Brushes)
-```
-16:9 widescreen 2D Japanese anime poetic candlelit two-shot on the left side of the unplugged chapel circle (COMPLETELY UNMASKED, mouths closed, balanced two-legged seated postures):
-- Foreground left: Unmasked Kimi (04_AIMUJICA_Kimi_sheet.png rightmost starry Gothic lace dress with piano-key skirt hem, silver-lilac wavy hair, white frill headband + silver crescent + black triangle rainbow prism + music-note bow, cool moonlight pale ice-blue eyes, NO mask) sits gracefully on a wooden stool plucking warm, deep notes on her black unplugged "Dark Side of the Moon" acoustic bass guitar (round sound-hole, half-moon motif, straight neck, clean five-finger hands).
-- Midground right: Unmasked Doubao Seedance (06_AIMUJICA_Doubao_sheet.png rightmost violet-to-cyan gradient high side-ponytail, amethyst-violet eyes, Gothic lace corset dress, NO mask) sits with both boots planted beside her wooden cajon box drum and a small brass stand cymbal, lightly tapping a gentle folk heartbeat with clean five-finger hands. Flickering floor candles, zero text/logos anywhere.
+16:9 widescreen 2D Japanese anime intimate medium close-up beside the candlelit wooden upright piano / chamber reed organ inside Tianshui Chapel (warm whitewashed wall & pointed-arch wooden window rainy glow softly out-of-focus behind them).
+- Center: Unmasked DeepSeek (black-and-indigo Gothic lace dress, white frilled headband, compact sleek ~1.8:1 smooth dark-navy whale ears with creamy-white undersides, NO mask) stands still beside the ivory keys, bright blue eyes glistening, lips closed.
+- Directly behind her: Unmasked Qwen (periwinkle-violet wavy hair with side braid & mini top-hat, black-and-violet Gothic lace dress, NO mask) wraps both lace-sleeved arms gently yet inextricably around DeepSeek's shoulders from behind, resting her chin on DeepSeek's shoulder with half-lidded violet eyes full of nostalgic devotion and a soft closed-lip smile. Clean five-finger hands, warm floor candle bokeh, zero text anywhere.
 ```
 
-**Turn 1 Packaging Step**: Save all 5 images above as `1920x1080` RGB PNGs with their exact filenames (`EP11_S01_chapel_iron_door_lock.png` .. `EP11_S05_kimi_doubao_unmasked_rhythm.png`), bundle them into **`EP11_Act1_Keyframes.zip`**, and provide the download link.
-
----
-
-# TURN 2 — ACT 3 & ACT 4 (`EP11_S06` – `EP11_S11`, 6 Stills -> Package as `EP11_Act2_Keyframes.zip`)
-
-### 6. `EP11_S06_qwen_caresses_deepseek_cheek.png` (`E11_S6` · Iconic Moment — Qwen Steps Over to the Piano/Organ & Gently Cups DeepSeek's Cheek)
+### 4. `EP11_S03a_anjilu_camphor_louver_summer.png` (`E11_S3a` · Hangzhou Memory #2 — Anji Road Experimental School Louver Facade & Summer Camphor Trees!)
 ```
-16:9 widescreen 2D Japanese anime breathtaking dark-folk romance two-shot beside the candlelit wooden piano/organ under rain-dappled stained-glass light (*Ave Mujica — Imprisoned XII* stage intimacy homage). Both girls are COMPLETELY UNMASKED in their Gothic lace dresses, mouths closed:
-- Left (standing close beside the bench): Unmasked Qwen (periwinkle-violet wavy hair with side braid & mini top-hat, black-and-violet Gothic lace dress, her Hangzhou blue-and-white porcelain acoustic guitar resting gently at her hip on an embroidered strap) reaches out with her clean five-finger right hand to softly cup DeepSeek's right cheek, her luminous violet eyes filled with quiet, overwhelming devotion and a tender closed-lip smile.
-- Right (seated on the red-velvet bench): Unmasked DeepSeek (black-and-indigo Gothic lace dress, white frilled headband, compact ~1.8:1 smooth dark-navy whale ears with soft creamy-white undersides from 01_DP_Compact_Whale_Ears_Ref.png) looks up into Qwen's eyes in spellbound silence, cheeks faintly warm, bright blue eyes glistening, clean five-finger hands resting lightly above the ivory keys. Warm candle bokeh, zero text anywhere.
+16:9 widescreen Makoto Shinkai-quality 2D anime nostalgic youth memory still in Hangzhou, matching the EXACT architecture of `11_Anjilu_Experimental_School_Ref.jpg`:
+- Background architecture: The iconic multi-story school building wrapped in warm bronze-brown horizontal louver-grille slats (`横向百叶格栅立面`) beneath a top floor of bright sky-reflecting glass windows (clean louver facade with ZERO readable text/logos), rising behind dense, sunlit emerald-green camphor treetops (`香樟树`) rustling in a summer breeze!
+- Foreground/Midground under dappled camphor tree shade: Young Qwen (periwinkle-violet wavy hair with side braid, crisp white short-sleeve summer school blouse with navy collar/ribbon and navy pleated skirt) and DeepSeek walking right beside her (dark navy hair, white frilled headband, compact sleek ~1.8:1 smooth dark-navy whale ears with creamy-white undersides, matching summer school blouse & navy skirt) share a shy, sunlit closed-lip smile. Clean five-finger hands, balanced two-legged walk, zero text anywhere.
 ```
 
-### 7. `EP11_S07_qwen_chorus_caged_bird_belt.png` (`E11_S7` · Folk Chorus Bloom — Unmasked Qwen's Soaring Poetic Confession)
+### 5. `EP11_S03b_hanggao_split_arch_sakura.png` (`E11_S3b` · Hangzhou Memory #3 — Hangzhou High School Split Stone Archway & Falling Sakura!)
 ```
-16:9 widescreen 2D Japanese anime luminous emotional chorus close-up/medium-close shot of unmasked Qwen at the vintage brass microphone, surrounded by warm golden candlelight bokeh and soft drifting pale-violet sakura/rose petals against the dark rainy stained-glass window.
-- Qwen (03_AIMUJICA_Qwen_sheet.png rightmost black-and-violet Gothic lace dress, tilted navy-gold mini top-hat, gentle wavy periwinkle-violet hair, NO mask) cradles her porcelain acoustic guitar with her left clean five-finger hand while her right five-finger hand rests lightly over her collarbone/heart.
-- Her violet eyes glisten with crystal tears of bittersweet, obsessive love—serene on the surface yet bottomlessly deep—with a poignant closed-lip expression between vocal phrases. Soft cinematic rim-light, zero text anywhere.
-```
-
-### 8. `EP11_S08_deepseek_tears_organ_resonance.png` (`E11_S8` · DeepSeek Moved to Tears — Joining In Softly on the Candlelit Keys)
-```
-16:9 widescreen 2D Japanese anime tender emotional catharsis medium close-up at the candlelit wooden chamber organ / upright piano from a 3/4 front-side angle.
-- Unmasked DeepSeek (10_DP_Unmasked_Stage_Gown_Ref.png + 01_DP_Compact_Whale_Ears_Ref.png: dark navy-to-ice-blue long hair, white frilled maid headband, COMPACT SLEEK ~1.8:1 smooth dark-navy whale ears with creamy-white undersides, black-and-indigo Gothic lace dress, NO mask) sits quietly before the warm ivory-and-ebony keyboard.
-- Moved by Qwen's gentle Mandarin folk melody, a single clear tear glistens on DeepSeek's lower lashes as her expression softens completely; BOTH of her clean five-finger hands press gently onto a warm chord on the keys (white keys naturally in front, black sharp keys recessed toward the wooden fallboard). Flickering brass candlestick beside the music desk, lips closed, zero text anywhere.
+16:9 widescreen Makoto Shinkai-quality 2D anime spring memory still in Hangzhou, matching the EXACT iconic gate architecture of `12_Hangzhou_High_School_Gongyuan_Gate_Ref.jpg`:
+- Center background architecture: The unmistakable Hangzhou High School Gongyuan stone entrance gate—two symmetrical rusticated beige-stone and grey-brick half-arches separated right at the top crown by a narrow vertical open sky-slit ("一线天"双翼石砌圆拱门), an emerald-green ornamental horizontal plaque suspended inside the arch (decorative gold trim only, ZERO readable letters/kanji), black wrought-iron side gates, and a straight stone walkway leading inward past ancient courtyard trees and blooming pink cherry-blossom (`樱花`) branches toward a traditional Jiangnan Gongyuan pavilion!
+- Foreground right-of-center: Qwen (periwinkle wavy hair with side braid, neat navy spring blazer uniform) gently reaches up with one clean five-finger hand to brush a fallen pink sakura petal from DeepSeek's hair; DeepSeek (navy blazer uniform, white frilled headband, compact ~1.8:1 smooth dark-navy whale ears with creamy-white undersides) smiles softly back amidst drifting sakura petals under a crisp blue sky. Zero text anywhere.
 ```
 
-### 9. `EP11_S09a_astra_baroque_green_solo.png` (`E11_S9a` · Acoustic Fingerstyle Interlude Part A — Silver-White `Astra`'s Delicate Classical Plucking)
+### 6. `EP11_S03c_hanger_redbrick_tower_dusk.png` (`E11_S3c` · Hangzhou Memory #4 — Hangzhou No.2 High School Red-Brick Building & Tower at Sunset!)
 ```
-16:9 widescreen 2D Japanese anime poetic acoustic-guitar interlude medium shot on the right side of the candlelit chapel circle, bathed in soft silver-moonlight and warm amber candle glow (keep exact camera framing so S09b matches seamlessly!).
-- Center: Unmasked GPT in her silver-white White Dragon Astra persona (exact match to 08_GPT_Astra.png + 05_AIMUJICA_GPT_sheet.png rightmost black Gothic lace dress: luminous silver-white wavy hair, curved ivory-white dragon horns, small white wings, serene pale-violet eyes, NO mask) sits gracefully on a wooden stool fingerpicking a delicate classical-folk melody on her emerald-green stained unplugged acoustic guitar (round wooden sound-hole, straight 6-string neck, clean five-finger hands plucking strings gently). Lips softly closed, silver dust motes, zero text anywhere.
-```
-
-### 10. `EP11_S09b_nox_shred_green_solo.png` (`E11_S9b` · Acoustic Fingerstyle Interlude Part B — Obsidian-Black `Nox`'s Passionate Flamenco/Folk Counter-Melody)
-```
-16:9 widescreen 2D Japanese anime poetic acoustic-guitar interlude medium shot in the EXACT SAME seated posture and camera framing as EP11_S09a, now kissed by deep ruby stained-glass light and warm candle glow!
-- Center: Unmasked GPT manifested as her obsidian-black Black Dragon Nox persona (exact match to 09_GPT_Nox.png + 05_AIMUJICA_GPT_sheet.png rightmost black Gothic lace dress: long obsidian-black wavy hair, curved black obsidian horns, dark crimson-veined wings, warm glowing crimson vertical dragon-slit eyes, NO mask) plays an expressive, resonant acoustic harmonic run high on the fretboard of the EXACT SAME emerald-green unplugged acoustic guitar (round sound-hole, straight neck, clean five-finger hands), a gentle knowing closed-lip smile on her face. Zero text anywhere.
+16:9 widescreen Makoto Shinkai-quality 2D anime golden-dusk memory still near the Qiantang River breeze, matching the EXACT campus architecture of `13_Hangzhou_No2_High_School_Binjiang_Ref.jpg` (clean tree-lined plaza with NO traffic cones and NO police booth):
+- Background architecture: The iconic four-story warm terracotta red-brick main school building with neat white-framed recessed balcony windows, crowned on its upper-left wing by the signature rectangular red-brick-and-glass tower with an upward-slanted modern overhang roof, and a low horizontal warm yellow-stone entrance monument set among green camphor and osmanthus trees (no readable text on the stone).
+- Foreground bathed in warm amber sunset light: Qwen (periwinkle wavy hair with side braid, carrying a padded acoustic guitar gig-bag on her back, autumn cardigan uniform) and DeepSeek (navy blazer uniform, white frilled headband, compact ~1.8:1 smooth dark-navy whale ears with creamy-white undersides, holding blank music folders) stand side-by-side in the evening river breeze with warm closed-lip smiles, clean five-finger hands. Zero text anywhere.
 ```
 
-### 11. `EP11_S10_astra_nox_split_reflection_solo.png` (`E11_S10` · Interlude Harmony — `Astra × Nox` Dual Reflection Fingerpicking as One)
+### 7. `EP11_S03d_zju_qiushi_archway_rain_hug.png` (`E11_S3d` · Hangzhou Memory #5 — Zhejiang University Qiushi Carved Archway in Evening Rain!)
 ```
-16:9 widescreen 2D Japanese anime ethereal chamber-folk metaphor shot in the candlelit chapel as the acoustic guitar interlude resolves into pure harmony:
-- Foreground right-center: Unmasked GPT Astra (silver-white wavy hair, ivory horns, white wings, black Gothic lace dress, pale-violet right eye & subtle warm ruby shimmer in her viewer-left eye) sits on her wooden stool letting a warm acoustic chord ring out on her emerald-green unplugged acoustic guitar (clean five-finger hands, lips closed).
-- Reflected softly in the rain-streaked dark glass window / translucent candlelight aura right beside her sits Black Dragon Nox (obsidian-black hair, black horns, crimson eyes) playing in tranquil unison, silver and ruby light motes drifting like fireflies. Zero text anywhere.
+16:9 widescreen Makoto Shinkai-quality 2D anime poetic rainy-dusk memory still at Zhejiang University Zijingang Campus, matching the EXACT classical architecture of `14_ZJU_Qiushi_Academy_Archway_Ref.jpg`:
+- Center-background architecture: The majestic dark-mahogany carved traditional Chinese four-pillar five-roofed memorial archway (`求是书院三间四柱五楼重檐雕花牌坊`) with intricate wooden bracket sets, curved dark-tiled eaves with ridge ornaments, golden-framed ornamental central plaque (pure abstract gold filigree, ZERO readable characters/numbers), and the grand grey-tiled crimson-pillared classical academy hall standing symmetrically behind it in gentle Jiangnan evening rain!
+- Foreground on the rain-slicked granite plaza: Young-adult Qwen (in her canon Hangzhou white-and-indigo modern Chinese cloud-embroidered dress from 03_AIMUJICA_Qwen_sheet.png leftmost figure, NO mask) and DeepSeek (in her canon navy blazer daily outfit from 02_AIMUJICA_DeepSeek_sheet.png leftmost figure, white frilled headband, compact ~1.8:1 smooth dark-navy whale ears with creamy-white undersides) stand pressed tenderly shoulder-to-shoulder sharing one large clear transparent umbrella—Qwen's arm wrapped warmly around DeepSeek's shoulder as both girls gaze softly at each other, lips closed. Zero text anywhere.
 ```
 
-**Turn 2 Packaging Step**: Save all 6 images above as `1920x1080` RGB PNGs with their exact filenames (`EP11_S06_qwen_caresses_deepseek_cheek.png` .. `EP11_S10_astra_nox_split_reflection_solo.png`), bundle them into **`EP11_Act2_Keyframes.zip`**, and provide the download link.
+**Turn 1 Packaging Step**: Save all 7 images above as `1920x1080` RGB PNGs with their exact filenames (`EP11_S01a_tianshui_chapel_rain_exterior.png` .. `EP11_S03d_zju_qiushi_archway_rain_hug.png`), bundle them into **`EP11_Act1_Keyframes.zip`**, and provide the download link.
 
 ---
 
-# TURN 3 — BRIDGE & ACT 5 FINALE (`EP11_S12` – `EP11_S16`, 5 Stills -> Package as `EP11_Act3_Keyframes.zip`)
+# TURN 2 — TIANSHUI CHAPEL UNPLUGGED CIRCLE & CHORUS (`EP11_S04` – `EP11_S10`, 7 Stills -> Package as `EP11_Act2_Keyframes.zip`)
 
-### 12. `EP11_S12_qwen_tearful_bridge_plea.png` (`E11_S12` · A Cappella / Solo Cello Bridge — Qwen's Fragile Tear in Candlelight)
+### 8. `EP11_S04_unmasked_band_wide_stage.png` (`E11_S4` · Inside Tianshui Chapel — Full 5-Member UNMASKED Candlelit Unplugged Folk Circle!)
 ```
-16:9 widescreen 2D Japanese anime hushed chiaroscuro close-up during the intimate bridge where only a weeping cello and soft breath remain. Surrounded by deep, quiet darkness and a single warm golden candle flame glow from below:
-- Unmasked Qwen (periwinkle-violet wavy hair with side braid and tilted navy-gold mini top-hat, black-and-violet Gothic lace dress, NO mask) rests her clean five-finger left hand delicately over her chest while her right hand holds the neck of her porcelain acoustic guitar.
-- A single warm tear slips down her cheek as her violet eyes—utterly unguarded, fragile, and aching with fear of losing DeepSeek—gaze quietly ahead, brows softly drawn, lips closed. Zero text anywhere.
-```
-
-### 13. `EP11_S13_shattered_masks_beneath_boots.png` (`E11_S13` · Discarded Masquerade Masks Resting Forgotten Beside Warm Floor Candles)
-```
-16:9 widescreen 2D Japanese anime poetic still-life / low-angle close-up on the vintage rug and dark wooden floor at the edge of the unplugged circle.
-- Resting untouched and forgotten beside several warm glowing ivory pillar candles and a few fallen sakura and crimson rose petals lie the five black Gothic lace masquerade masks of Ai Mujica—abandoned behind them now that they sing bare-faced in their own true voice.
-- In the soft-focus foreground/midground beside the candles, Qwen's and DeepSeek's black laced boots rest calmly near the piano bench and wooden stool (natural paired two-foot placement), bathed in golden candlelight. Crisp anime painting, zero text anywhere.
+16:9 widescreen 2D Japanese anime poetic wide shot inside the historic Jiangnan-Gothic interior of Tianshui Chapel (`15_Hangzhou_Yesutangnong_Tianshui_Chapel_Ref.jpg`): warm whitewashed plaster walls, exposed dark-brown wooden A-frame roof trusses overhead, tall pointed-arch diamond-pane wooden windows streaming with soft night rain, empty dark-wood pews behind, and hundreds of warm flickering ivory pillar candles surrounding a vintage rug on the wooden chancel floor! All FIVE members of Ai Mujica sit gathered closely in a semi-circle in their black-and-purple Gothic lace dresses—COMPLETELY UNMASKED (all five bare faces visible, ZERO masks, mouths closed, natural two-legged seated postures):
+- Center on a wooden stool behind a vintage brass stand mic: Qwen fingerpicks her Hangzhou West Lake blue-and-white porcelain UNPLUGGED ACOUSTIC GUITAR (round sound-hole, blue willow & Broken Bridge porcelain art, straight neck with tassel).
+- Center-left on a wooden stool: Kimi (silver-lilac hair, frill headband + crescent + black rainbow prism + music-note bow, moonlight pale ice-blue eyes) plays her black unplugged "Dark Side of the Moon" acoustic bass guitar.
+- Far left seated on a wooden cajon box drum: Doubao Seedance (violet-to-cyan high side-ponytail) gently sweeps soft jazz wire brushes.
+- Center-right on a padded bench at a warm vintage dark-wood upright piano / chapel reed organ: DeepSeek (white frilled headband, compact ~1.8:1 smooth dark-navy whale ears with cream undersides) gazes warmly toward Qwen.
+- Far right on a wooden stool: GPT Astra (silver-white hair, ivory horns, white wings, pale-violet eyes) fingerpicks her emerald-stained unplugged acoustic guitar. Zero text/logos anywhere.
 ```
 
-### 14. `EP11_S14_unmasked_five_final_chorus.png` (`E11_S14` · Final Folk Chorus — All Five Unmasked Girls Playing in Warm Candlelit Harmony)
+### 9. `EP11_S05_qwen_intimate_verse_mic.png` (`E11_S5` · Verse 2 — Unmasked Qwen Fingerpicking Her West Lake Porcelain Acoustic Guitar)
 ```
-16:9 widescreen 2D Japanese anime luminous, deeply moving chamber-folk finale wide shot inside the Gothic chapel as the rain outside clears into soft silver moonlight streaming through the rose window, blending with hundreds of warm golden floor candles!
-- All FIVE unmasked members of Ai Mujica play together in serene, intimate acoustic harmony around the candlelit rug (all bare faces visible, ZERO masks, gentle closed-lip smiles, natural balanced seated postures):
-  - Center: Qwen fingerpicking her Hangzhou blue-and-white porcelain unplugged acoustic guitar behind the vintage brass mic, looking fondly at DeepSeek.
-  - Center-right: DeepSeek (compact ~1.8:1 smooth dark-navy whale ears with creamy-white undersides, white frilled headband) playing warm chords on the wooden chamber organ/piano, smiling softly back at Qwen.
-  - Center-left: Kimi (silver-lilac hair, prism + crescent bow, moonlight blue eyes) swaying gently with her black unplugged Dark Side of the Moon acoustic bass.
-  - Far right: GPT Astra (silver-white hair, ivory horns, white wings) strumming her emerald-green unplugged acoustic guitar.
-  - Far left: Doubao Seedance (violet-cyan high side-ponytail) tapping a soft tambourine and cajon rhythm. Zero text/logos anywhere.
+16:9 widescreen 2D Japanese anime warm intimate MV medium shot inside candlelit Tianshui Chapel (whitewashed wall & pointed-arch wooden window softly behind).
+- Center: Unmasked Qwen (03_AIMUJICA_Qwen_sheet.png rightmost black-and-violet Gothic lace dress, tilted navy-gold mini top-hat, side braid, NO mask) sits on a wooden stool behind a vintage brass condenser microphone, gently fingerpicking her Hangzhou West Lake blue-and-white porcelain UNPLUGGED ACOUSTIC GUITAR (round wooden sound-hole, blue West Lake willow, Broken Bridge & lotus porcelain motif on ivory-white top, straight 6-string neck, clean five-finger hands).
+- Soft amber candlelight caresses her face; her violet eyes gaze toward DeepSeek with tender, haunting devotion, lips gently closed. Zero text anywhere.
 ```
 
-### 15. `EP11_S15_qwen_embraces_deepseek_outro.png` (`E11_S15` · Final Guitar Harmonic Fades — Qwen Holds DeepSeek Close in Hushed Candlelight)
+### 10. `EP11_S06_kimi_doubao_unmasked_rhythm.png` (`E11_S6` · Warm Folk Groove — Unmasked Kimi on Acoustic Lunar Bass & Doubao on Cajon)
 ```
-16:9 widescreen 2D Japanese anime hushed, tender outro two-shot at the piano/organ bench as the last acoustic guitar harmonic fades into the sound of gentle rain drops. Both girls are COMPLETELY UNMASKED in their black-and-purple Gothic lace dresses, mouths closed:
-- Qwen (periwinkle-violet wavy hair with side braid & mini top-hat) leans in closely beside DeepSeek on the velvet bench, resting both clean five-finger hands gently around DeepSeek's shoulders as their foreheads lightly touch. Qwen's violet eyes shimmer with quiet, fulfilled, possessive warmth and a soft closed-lip smile.
-- DeepSeek (dark navy-to-ice-blue hair, white frilled headband, compact sleek ~1.8:1 smooth dark-navy whale ears with creamy-white undersides from 01_DP_Compact_Whale_Ears_Ref.png) rests her clean five-finger hand over Qwen's wrist, gazing back into Qwen's eyes with calm, softened blue eyes, lips gently closed. Warm candle glow, zero text anywhere.
+16:9 widescreen 2D Japanese anime poetic candlelit two-shot inside Tianshui Chapel (COMPLETELY UNMASKED, mouths closed, balanced two-legged seated postures):
+- Foreground left: Unmasked Kimi (04_AIMUJICA_Kimi_sheet.png rightmost starry Gothic lace dress with piano-key skirt hem, silver-lilac wavy hair, frill headband + silver crescent + black triangle rainbow prism + music-note bow, moonlight pale ice-blue eyes, NO mask) sits on a wooden stool plucking warm notes on her black unplugged "Dark Side of the Moon" acoustic bass guitar (round sound-hole, half-moon motif, straight neck, clean five-finger hands).
+- Midground right: Unmasked Doubao Seedance (violet-to-cyan high side-ponytail, Gothic lace corset dress, NO mask) sits with both boots planted beside her wooden cajon box drum, lightly tapping a gentle folk heartbeat with clean five-finger hands. Zero text/logos anywhere.
 ```
 
-### 16. `EP11_S16_zaibatsu_suits_burst_chapel_doors.png` (`E11_S16` · Cliffhanger Into Ep.12 — Hangzhou Zaibatsu Bodyguards Force Open the Chapel Doors!)
+### 11. `EP11_S07_qwen_caresses_deepseek_cheek.png` (`E11_S7` · Chorus Intimacy — Qwen Steps Over to the Chapel Piano & Gently Cups DeepSeek's Cheek)
 ```
-16:9 widescreen 2D Japanese anime dramatic cliffhanger deep-focus composition shattering the quiet candlelit peace moments after the folk ballad ends:
-- Background center: The tall oak-and-iron chapel double doors have just been forced open from outside into the wet rainy night! Cold blue-white luxury black-sedan headlights slice sharply across the warm floor candles (blowing several candle flames sideways in the cold draft), silhouetting two tall corporate bodyguards in dark tailored suits holding black umbrellas at the doorway to take Qwen back to Hangzhou!
-- Foreground left & right: Unmasked Qwen (violet hair, mini top-hat, cradling her porcelain acoustic guitar) steps protectively half in front of unmasked DeepSeek (compact ~1.8:1 smooth dark-navy whale ears, white frilled headband), both turning toward the cold doorway glare with wide, startled eyes, lips closed. Zero text/logos/license-plates anywhere.
+16:9 widescreen 2D Japanese anime breathtaking dark-folk romance two-shot beside the candlelit dark-wood chapel piano/reed organ inside Tianshui Chapel (*Ave Mujica — Imprisoned XII* homage). Both girls are COMPLETELY UNMASKED in their Gothic lace dresses, mouths closed:
+- Left (standing close beside the bench): Unmasked Qwen (periwinkle-violet wavy hair with side braid & mini top-hat, porcelain acoustic guitar resting at her hip on an embroidered strap) reaches out with her clean five-finger right hand to softly cup DeepSeek's right cheek, her luminous violet eyes filled with quiet, overwhelming devotion and a tender closed-lip smile.
+- Right (seated on the bench): Unmasked DeepSeek (white frilled headband, compact ~1.8:1 smooth dark-navy whale ears with creamy-white undersides from 01_DP_Compact_Whale_Ears_Ref.png) looks up into Qwen's eyes in spellbound silence, bright blue eyes glistening, clean five-finger hands resting lightly above the ivory keys. Warm candle bokeh, zero text anywhere.
+```
+
+### 12. `EP11_S08_deepseek_tears_organ_resonance.png` (`E11_S8` · DeepSeek Moved to Tears — Joining In Softly on the Chapel Keys)
+```
+16:9 widescreen 2D Japanese anime tender emotional catharsis medium close-up at the candlelit dark-wood chapel upright piano / reed organ from a 3/4 front-side angle.
+- Unmasked DeepSeek (10_DP_Unmasked_Stage_Gown_Ref.png + 01_DP_Compact_Whale_Ears_Ref.png: dark navy-to-ice-blue long hair, white frilled headband, COMPACT SLEEK ~1.8:1 smooth dark-navy whale ears with creamy-white undersides, black-and-indigo Gothic lace dress, NO mask) sits before the warm ivory-and-ebony keyboard.
+- Moved to tears, a single clear drop glistens on DeepSeek's lower lashes as BOTH of her clean five-finger hands press gently onto a warm chord on the keys (white keys in front, black sharp keys recessed naturally). Lips softly closed, zero text anywhere.
+```
+
+### 13. `EP11_S09_astra_acoustic_fingerstyle_solo.png` (`E11_S9` · Acoustic Guitar Interlude Part A — Silver-White `Astra`'s Delicate Plucking)
+```
+16:9 widescreen 2D Japanese anime poetic acoustic-guitar interlude medium shot inside candlelit Tianshui Chapel, bathed in cool rainy window light and warm amber candle glow:
+- Center: Unmasked GPT in her silver-white White Dragon Astra persona (08_GPT_Astra.png + 05_AIMUJICA_GPT_sheet.png rightmost black Gothic lace dress: silver-white wavy hair, curved ivory horns, small white wings, serene pale-violet eyes, NO mask) sits gracefully on a wooden stool fingerpicking a delicate classical-folk melody on her emerald-green stained unplugged acoustic guitar (round wooden sound-hole, straight 6-string neck, clean five-finger hands). Lips closed, zero text anywhere.
+```
+
+### 14. `EP11_S10_astra_nox_window_reflection_duet.png` (`E11_S10` · Interlude Harmony — `Astra × Nox` Reflected in Tianshui Chapel's Pointed-Arch Rain Window!)
+```
+16:9 widescreen 2D Japanese anime ethereal chamber-folk metaphor shot inside Tianshui Chapel:
+- Foreground right-center: Unmasked GPT Astra (silver-white wavy hair, ivory horns, white wings, black Gothic lace dress, pale-violet right eye & subtle warm ruby shimmer in her viewer-left eye) sits on her wooden stool letting a warm acoustic harmonic ring out on her emerald-green unplugged acoustic guitar (clean five-finger hands, lips closed).
+- Reflected clearly in Tianshui Chapel's rain-streaked pointed-arch wooden-mullioned window right beside her sits Black Dragon Nox (09_GPT_Nox.png: obsidian-black hair, black horns, glowing crimson dragon-slit eyes) fingerpicking in tranquil unison, warm candle reflections dancing on the wet glass. Zero text anywhere.
+```
+
+**Turn 2 Packaging Step**: Save all 7 images above as `1920x1080` RGB PNGs with their exact filenames (`EP11_S04_unmasked_band_wide_stage.png` .. `EP11_S10_astra_nox_window_reflection_duet.png`), bundle them into **`EP11_Act2_Keyframes.zip`**, and provide the download link.
+
+---
+
+# TURN 3 — BRIDGE & TIANSHUI CHAPEL FINALE (`EP11_S12` – `EP11_S16`, 5 Stills -> Package as `EP11_Act3_Keyframes.zip`)
+
+### 15. `EP11_S12_qwen_tearful_bridge_plea.png` (`E11_S12` · Hushed Bridge — Qwen's Fragile Tear in Single Candlelight)
+```
+16:9 widescreen 2D Japanese anime hushed chiaroscuro close-up during the intimate bridge ("别丢下我一个人……求你了，别连我也推开在雨巷……"). Surrounded by deep quiet darkness and warm golden candle glow from below:
+- Unmasked Qwen (periwinkle-violet wavy hair with side braid and tilted navy-gold mini top-hat, black-and-violet Gothic lace dress, NO mask) rests her clean five-finger left hand delicately over her heart while her right hand holds the neck of her porcelain acoustic guitar.
+- A single warm tear slips down her cheek as her violet eyes—utterly unguarded, fragile, and aching with fear of losing DeepSeek—gaze quietly ahead, lips closed. Zero text anywhere.
+```
+
+### 16. `EP11_S13_shattered_masks_beneath_boots.png` (`E11_S13` · Five Discarded Lace Masks Left Forgotten Beside Warm Floor Candles)
+```
+16:9 widescreen 2D Japanese anime poetic low-angle still-life close-up on the vintage rug and dark wooden floorboards of Tianshui Chapel.
+- Resting untouched and forgotten beside several warm glowing ivory pillar candles and fallen sakura petals lie the five black Gothic lace masquerade masks of Ai Mujica—left behind now that they sing bare-faced in their own native voice.
+- In soft focus nearby, Qwen's and DeepSeek's black laced boots rest calmly beside the piano bench and wooden stool (natural paired two-foot placement) in golden candlelight. Zero text anywhere.
+```
+
+### 17. `EP11_S14_unmasked_five_final_chorus.png` (`E11_S14` · Final Folk Chorus — All Five Unmasked Girls Playing in Warm Tianshui Chapel Harmony)
+```
+16:9 widescreen 2D Japanese anime luminous chamber-folk finale wide shot inside whitewashed timber-truss Tianshui Chapel (`15_Hangzhou_Yesutangnong_Tianshui_Chapel_Ref.jpg`) as the Jiangnan rain outside softens into silver moonlight streaming through the pointed-arch windows, blending with hundreds of warm golden floor candles!
+- All FIVE unmasked members of Ai Mujica play together in serene, intimate acoustic harmony around the candlelit rug (all bare faces visible, ZERO masks, gentle closed-lip smiles, balanced seated postures): Qwen center on West Lake porcelain acoustic guitar, DeepSeek center-right (compact ~1.8:1 smooth dark-navy whale ears) on dark-wood upright piano/reed organ, Kimi center-left on black lunar acoustic bass, GPT Astra far-right on emerald acoustic guitar, Doubao Seedance far-left on cajon & tambourine. Zero text/logos anywhere.
+```
+
+### 18. `EP11_S15_qwen_embraces_deepseek_outro.png` (`E11_S15` · Final Guitar Harmonic Fades — Qwen Holds DeepSeek Close in Hushed Candlelight)
+```
+16:9 widescreen 2D Japanese anime hushed, tender outro two-shot at the chapel piano bench as the last acoustic guitar harmonic fades into gentle rain drops in Yesutang Alley. Both girls are COMPLETELY UNMASKED in their black-and-purple Gothic lace dresses, mouths closed:
+- Qwen (periwinkle-violet wavy hair with side braid & mini top-hat) leans in closely beside DeepSeek on the bench, resting both clean five-finger hands gently around DeepSeek's shoulders as their foreheads lightly touch, violet eyes shimmering with quiet, fulfilled tenderness and a soft closed-lip smile.
+- DeepSeek (white frilled headband, compact sleek ~1.8:1 smooth dark-navy whale ears with creamy-white undersides) rests her clean five-finger hand over Qwen's wrist, gazing back into Qwen's eyes with calm, softened blue eyes, lips gently closed. Zero text anywhere.
+```
+
+### 19. `EP11_S16_zaibatsu_suits_burst_chapel_doors.png` (`E11_S16` · Cliffhanger Into Ep.12 — Pointed-Arch Wooden Doors of Tianshui Chapel Forced Open!)
+```
+16:9 widescreen 2D Japanese anime dramatic cliffhanger deep-focus composition shattering the quiet candlelit peace inside Tianshui Chapel moments after the folk ballad ends:
+- Background center: Tianshui Chapel's iconic pointed-arch carved brown wooden double doors (`15_Hangzhou_Yesutangnong_Tianshui_Chapel_Ref.jpg`) have just been forced open from outside into rainy Yesutang Alley! Cold blue-white luxury black-sedan headlights slice sharply inward across the warm floor candles (blowing candle flames sideways), silhouetting two tall corporate bodyguards in dark tailored suits holding black umbrellas at the threshold to take Qwen away!
+- Foreground left & right: Unmasked Qwen (violet hair, mini top-hat, cradling her porcelain acoustic guitar) steps protectively half in front of unmasked DeepSeek (compact ~1.8:1 smooth dark-navy whale ears, white frilled headband), both turning toward the cold doorway glare with wide startled eyes, lips closed. Zero text/logos/license-plates anywhere.
 ```
 
 **Turn 3 Packaging Step**: Save all 5 images above as `1920x1080` RGB PNGs with their exact filenames (`EP11_S12_qwen_tearful_bridge_plea.png` .. `EP11_S16_zaibatsu_suits_burst_chapel_doors.png`), bundle them into **`EP11_Act3_Keyframes.zip`**, and provide the download link.
