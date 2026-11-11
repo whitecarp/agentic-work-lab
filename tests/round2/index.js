@@ -3,3 +3,4 @@ import './journal.test.mjs';
 import './gate.test.mjs';
 import './guards.test.mjs';
 import './v12.test.mjs';
+import './review.test.mjs';

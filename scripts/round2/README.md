@@ -12,7 +12,7 @@ private homes and site journals for owner and tester.
 Public records are in data/round2/SITE/journal.jsonl. The companion .head file
 retains the last count and digest and detects a removed final record. External
 seals/anchors remain necessary against an actor rewriting the journal and its
-head together. Modules 3 and 4 add seals and export. Never publish private homes
+head together. Modules 3 and 4 provide seals and export. Never publish private homes
 or raw captures.
 
 ## Offline setup example
@@ -118,3 +118,68 @@ records guard_cleared with the words digest, separately from manual post removal
 It preserves STOP, session state, reservations and receipts; it never kills or
 retries a child. A damaged journal, an empty guard or a stale recovery guard needs
 separate review, not automatic clearing. PID reuse can conservatively refuse.
+
+## Seal, export, daily check and reconcile (Modules 3 and 4)
+
+~~~text
+node scripts/round2/daily.mjs --site owner
+node scripts/round2/seal.mjs --site owner --day 2026-11-12
+node scripts/round2/export.mjs --site owner --out PUBLIC_FILE --privacy --deny PRIVATE_DENY_FILE --crosscast CROSSCAST_AUDIT_FILE
+node scripts/round2/reconcile.mjs --site owner --crosscast CROSSCAST_AUDIT_FILE
+node scripts/round2/daily.mjs --site owner --apply
+node scripts/round2/journal.mjs sign-off --site owner --day 2026-11-12 --by owner --answer yes
+~~~
+
+All accept --journal PATH for isolated rehearsals. --crosscast and --deny are
+optional. The person supplies a real sign-off answer separately: daily never
+creates one. Its dry run prints five summary lines plus the proposed seal and
+sign-off prompt. --apply seals the checked prefix and prints the prompt. A later
+SIGN_OFF is a new journal record and is covered by a later day's seal.
+
+Seals contain the journal prefix count/head, counts by type, Node/journal
+versions and the previous seal's SHA-256. Their bytes are canonical UTF-8 with
+LF. Existing different seals are refused, including a second same-day seal after
+more records. Use seal once the day's recording is ready, not after every step.
+The local seals/.head digest inventory detects accidental removal/rewriting,
+including the last seal. A crash between the seal and its inventory can require
+review; no silent repair occurs. These are local anchors, not network timestamps
+or protection against rewriting both evidence and anchors. Keep external copies
+under the protocol's separate sealing procedure.
+
+Export is deterministic JSON (round2-export/1). Every original journal record is
+schema/chain checked and every existing seal is verified. Missing seals are
+explicitly reported as unsealed_records; no seal is invented. The denylist is
+one private substring per line and is applied before privacy coarsening. Output
+cannot overwrite the journal/seal directory or the private home. Captures are
+not opened by export. --privacy rounds timestamps down to a minute, drops
+OBSERVATION.minutes_after and marks the records as derived: their retained prev
+fields refer to the original source chain, not a newly claimed chain over the
+coarsened values. The source head remains available for comparison with a retained
+original. Exported IDs must be nonprivate study labels even when pattern-valid.
+
+Reconcile checks capture bytes against STEP digests, identifies open uncertain
+steps, fixed refusal codes, violations, and started publish/edit/delete steps
+still owed a qualifying look. The jobs.json classes exclude refusal jobs and
+drills; missing class metadata is reported as unknown. A 2-minute look is retained
+but does not satisfy the protocol's 10-to-60-minute window. Failed spawns do not
+create an owed look. This is not the separate full 24-hour release schedule audit.
+Only a matching unambiguous observation or successful read-class verification
+settles uncertainty, and an intervening write prevents crediting it as a clean
+read-only settlement. Plain vpub verify remains write-class. Printed session
+counts use run ids; planned runs use job ids. No missed_slots/timer is created.
+
+Use CrossCast's --times exact export locally when reconciling command times.
+Relative times intentionally omit the absolute origin and cannot be matched to
+Lab sessions; reconcile says unavailable with ungated_writes=null, not zero.
+Open sessions and missing starts are unmatched rather than assumed covered.
+Without CrossCast input the result explicitly says journal_only. Damaged
+CrossCast chains are reported and not used to assert ungated-write counts.
+Time coverage is evidence of an admitted session, not proof the same OS child
+made that command; there is no trustworthy cross-tool run-id binding yet.
+
+Both Lab export and reconcile carry CrossCast per-command dropped_events,
+sequence_gap, chain_ok and loss_complete. Older inputs give null for absent
+loss counts. False loss_complete reflects CrossCast's process-local lower bound:
+zero reported drops does not prove zero loss on process death. No private
+CrossCast fields are copied into Lab exports. CrossCast hashes the previous line
+including LF; this journal hashes the previous line excluding LF.
