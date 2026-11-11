@@ -117,7 +117,7 @@ test('export command prints counts and never edits source journal',t=>{
 });
 test('daily defaults to five summary lines and writes no seal or signoff',t=>{
  const f=ready(t);step(f);const bytes=fs.readFileSync(f.journal),result=daily(f.ctx);
- assert.equal(result.lines.length,7);assert.match(result.lines[0],/^records_today: 3$/);assert.equal(result.checked.in_doubt_open,1);
+ assert.equal(result.lines.length,10);assert.match(result.lines[0],/^records_today: 3$/);assert.equal(result.checked.in_doubt_open,1);
  assert.equal(fs.existsSync(sealFile(f)),false);assert.deepEqual(fs.readFileSync(f.journal),bytes);
 });
 test('daily apply seals and prompts without fabricating a SIGN_OFF',t=>{

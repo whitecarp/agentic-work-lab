@@ -166,8 +166,8 @@ on_time; after 60 through 1,440 minutes it satisfies the obligation as late.
 look_checks preserves those statuses and early observation sequence numbers.
 Without a qualifying look, status is pending or early until 24 hours after the
 STEP, then no_ground_truth. Unclear looks and looks after 24 hours never qualify.
-The day's five-line check includes these all-record status counts on its last
-summary line. Failed spawns and read-only edit verification do not create an
+The daily summary includes these all-record status counts and lists that day's
+go-aheads and observations before prompting for sign-off. Failed spawns and read-only edit verification do not create an
 owed look. This is not the separate full 24-hour release schedule audit.
 Only a matching unambiguous observation or successful read-class verification
 settles uncertainty, and an intervening write prevents crediting it as a clean
@@ -198,3 +198,33 @@ loss counts. False loss_complete reflects CrossCast's process-local lower bound:
 zero reported drops does not prove zero loss on process death. No private
 CrossCast fields are copied into Lab exports. CrossCast hashes the previous line
 including LF; this journal hashes the previous line excluding LF.
+
+### Brief v1.3 recording changes (C27)
+
+Wrapper refusals now append STEP_REFUSED with closed reason words and no child.
+Invalid descriptors become null or an empty platform list; rejected arguments
+are never copied. A journal failure remains exit 70. GATE_DECISION jobs retain
+due_at, completed and authorized, exactly as passed to planRun, including the
+per-child recheck. Old records stay readable and are not rewritten.
+
+Use journal.mjs observe --platform youtube (or another planned platform).
+An observation must name one platform on a multi-platform job. A legacy look
+without a platform can qualify only when a single platform is established.
+One look covers one job/platform/operation after that operation's last started
+step, including repeats and read-back steps. It never covers another platform.
+
+SIGN_OFF records words_sha256 (null when no explanation is supplied for yes).
+Pipe the person's explanation into sign-off when answering no; an empty no is
+refused. The original words remain in private captures, never the public log.
+Every child gets VPUB_BROWSER_IDLE_SECONDS=0 regardless of the parent setting.
+The operator can use the read-class command vpub status and inspect
+background_browsers for an earlier live shared browser. This only reports;
+the wrapper does not close an existing browser.
+
+Reconcile prints in_doubt_open and in_doubt_open_strict. The former disregards
+an intervening tool refusal only with a unique matched command, intact chain,
+recorded start/end, zero reported losses, unchanged before/after press fields,
+and no recorded platform call, span, press or write. Missing evidence retains
+the strict result. This is proof within recorded events, not a guarantee
+against unrecorded events or process death. ignored_refused_steps lists every
+such exception; wrapper refusals themselves never started a child.

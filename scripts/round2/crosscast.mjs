@@ -15,7 +15,7 @@ export function crosscast(file){
   for(const field of ['sequence_gap','loss_complete','chain_ok'])if(run[field]!==undefined&&!bool(run[field]))throw new Error('invalid_crosscast_loss');
   losses.push({run:run.run,dropped_events:run.dropped_events??null,sequence_gap:run.sequence_gap??null,chain_ok:run.chain_ok??value.integrity.chain_ok,loss_complete:run.loss_complete??false});
  }
- return {present:true,losses,runs:value.runs,times:value.times,chain_ok:value.integrity.chain_ok};
+ return {present:true,losses,runs:value.runs,events:Array.isArray(value.events)?value.events:[],times:value.times,chain_ok:value.integrity.chain_ok};
 }
 export function commandClass(run){
  const read=new Set(['status','doctor','receipts','stats','works','capabilities','report']);

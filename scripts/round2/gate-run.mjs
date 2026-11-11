@@ -5,9 +5,9 @@ import {spawn} from 'node:child_process';
 import {StringDecoder} from 'node:string_decoder';
 import {planRun} from '../operations-gate.mjs';
 import {context, put, readJournal, verifyJournal, newRunId, pseudonym, words} from './journal.mjs';
-import {ID, SLOTS, PLATFORMS} from './schema.mjs';
+import {ID, SLOTS, PLATFORMS, REFUSALS} from './schema.mjs';
 import {sha, utc, atomic, withLock, readJSON, parseFlags, allowed, alive} from './io.mjs';
-import {classify, guardRole, grant, grantScope, limits, outcome} from './policy.mjs';
+import {classify, guardRole, grant, grantScope, limits, outcome, roles} from './policy.mjs';
 
 const gateFile=new URL('../operations-gate.mjs',import.meta.url);
 const guard=ctx=>path.join(ctx.home,'operation.guard');
@@ -15,6 +15,7 @@ const runFile=ctx=>path.join(ctx.home,'run.lock');
 const reservationsFile=ctx=>path.join(ctx.home,'reservations.json');
 const reservations=ctx=>readJSON(reservationsFile(ctx),[]);
 const stop=ctx=>fs.existsSync(path.join(ctx.home,'STOP'));
+const gateJobs=list=>list.map(j=>({id:j.id,verdict:j.verdict,due_at:j.due_at,completed:j.completed,authorized:j.authorized}));
 function operator(ctx, records) {
   const value=readJSON(path.join(ctx.home,'operator.json'),{operator:ctx.site}).operator;
   const last=records.filter(r=>r.type==='HANDOFF').at(-1);
@@ -81,7 +82,7 @@ export function begin(ctx,flags) {
     }
     put(ctx,'GATE_DECISION',{executor:ctx.slot,owner,stop:input.stop,running:input.running,now:input.now,
       launcher:flags.launcher??'manual',slot_id:flags['slot-id']??null,...result,
-      jobs:prepared.map(j=>({id:j.id,verdict:j.verdict})),gate_sha256:sha(fs.readFileSync(gateFile))},run);
+      jobs:gateJobs(prepared),gate_sha256:sha(fs.readFileSync(gateFile))},run);
     if(result.decision!=='plan_only'){
       put(ctx,'RUN_END',{state:'skipped',steps:0},run);return {exit:3,run,...result,home:ctx.home};
     }
@@ -124,8 +125,9 @@ function prepare(ctx,flags,command,launch){
     const admission=records.find(r=>r.type==='GATE_DECISION'&&r.run===ctx.run&&r.d.decision==='plan_only');
     // Journal writability is established durably before the child, not inferred
     // from a successful read. This re-check uses the same admitted due set.
-    const checked=planRun({executor:ctx.slot,owner:ctx.slot,stop:false,running:false,now:utc(),jobs:run.jobs});
-    put(ctx,'GATE_DECISION',{...admission.d,...checked,now:utc(),stop:false,running:false,
+    const checkedInput={executor:ctx.slot,owner:ctx.slot,stop:false,running:false,now:utc(),jobs:run.jobs};
+    const checked=planRun(checkedInput);
+    put(ctx,'GATE_DECISION',{...admission.d,...checked,now:checkedInput.now,jobs:gateJobs(run.jobs),stop:false,running:false,
       gate_sha256:sha(fs.readFileSync(gateFile))},ctx.run);
     const reservation={id:newRunId(),run:ctx.run,job:job.id,class:policy.class,role:flags.role,
       platforms,scope,run_class:job.run_class??null,at:utc(),step_seq:null,started:null};
@@ -156,7 +158,7 @@ function captureChild(ctx,command,reservationId){
       buffers[stream]=pending;
     };
     try{child=spawn(command[0],command.slice(1),{stdio:['ignore','pipe','pipe'],shell:false,windowsHide:true,
-      env:{...process.env,AWL_RUN_ID:reservationId}});}
+      env:{...process.env,AWL_RUN_ID:reservationId,VPUB_BROWSER_IDLE_SECONDS:'0'}});}
     catch{spawnError=true;}
     if(child){
       child.on('spawn',()=>{
@@ -183,11 +185,16 @@ export async function step(ctx,flags,command){
   catch(e){
     if(['broken_journal','lock_unavailable'].includes(e.message)) throw e;
     // Fixed words only. No command arguments, path or child error is echoed.
-    const refusals=['run_not_admitted','step_already_running','stop_flag','job_not_due','job_closed','platform_mismatch','job_class_mismatch',
-      'bilibili_delete_forbidden','test_platform_forbidden','test_post_daily_cap','publish_spacing','outside_upload_spacing',
-      'platform_warning_hold','go_ahead_exhausted','invalid_platforms','missing_command','tool_mismatch','class_mismatch',
-      'invalid_role','role_mismatch','operator_record_mismatch'];
-    if(!refusals.includes(e.message)) throw e;
+    if(!REFUSALS.includes(e.message)) throw e;
+    // Never serialize rejected arguments. An invalid descriptor is null; the
+    // closed reason records the failure without leaking paths or free text.
+    let policy={tool:null,action:null,class:null};
+    try{policy=classify(command,{tool:flags.tool==='other'?'other':undefined,class:['read','local'].includes(flags.class)?flags.class:undefined});}catch{}
+    const run=readJSON(runFile(ctx),null), job=run?.jobs?.find(j=>j.id===flags.job);
+    const platforms=flags.platform??job?.platforms??[];
+    put(ctx,'STEP_REFUSED',{job:ID.test(flags.job??'')?flags.job:null,role:roles.includes(flags.role)?flags.role:null,...policy,
+      platforms:Array.isArray(platforms)?[...new Set(platforms.filter(p=>PLATFORMS.includes(p)))]:[],reason:e.message},
+      /^[a-f0-9]{32}$/.test(ctx.run??'')?ctx.run:null);
     console.error(e.message);return 5;
   }
   try {

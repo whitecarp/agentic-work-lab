@@ -18,7 +18,7 @@ for(const [minutes,status,owed] of [[0,'early',1],[9,'early',1],[10,'on_time',0]
   const f=fixture(t);setup(f.ctx);const s=started(f);look(f,minutes);
   const now=Date.parse(s.at)+minutes*60000,r=reconcile(f.ctx,undefined,{now});
   assert.equal(r.look_checks[0].status,status);assert.equal(r.looks_owed.length,owed);
-  const d=daily(f.ctx,{now});assert.equal(d.lines.length,7);
+  const d=daily(f.ctx,{now});assert.equal(d.lines.length,10);
   assert.match(d.lines[4],new RegExp('"'+status+'":1'));assert.deepEqual(d.checked.look_checks,r.look_checks);
  });
 }

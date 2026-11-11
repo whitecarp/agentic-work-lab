@@ -2,7 +2,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import {pathToFileURL} from 'node:url';
 import {createHmac, randomBytes} from 'node:crypto';
-import {validateRecord, SLOTS} from './schema.mjs';
+import {validateRecord, SLOTS, PLATFORMS} from './schema.mjs';
 import {sha, utc, atomic, withLock, privateHome, readJSON, parseFlags, allowed, alive} from './io.mjs';
 export {validateRecord};
 export const ZERO='0'.repeat(64);
@@ -127,7 +127,7 @@ export function main(argv=process.argv.slice(2)){
   const {flags:f,command}=parseFlags(argv);
   if(command.length) throw new Error('invalid_arguments');
   const lists={
-    'go-ahead':['job','scope','count','by'],observe:['job','ref','about','by','client','seen','fields-match','minutes-after','shot-sha256'],
+    'go-ahead':['job','scope','count','by'],observe:['job','ref','about','by','client','seen','fields-match','minutes-after','shot-sha256','platform'],
     note:['code','platform','job','agent','minutes-ago'],violation:['rule','found-by','job'],
     'sign-off':['day','by','answer'],handoff:['to','job','by'],stop:['by'],'clear-stop':['by'],'clear-guard':['by'],
     'protocol-seal':['phase','protocol','lab-commit','crosscast-commit','crosscast-digest','plan','analysis','rules-card'],
@@ -144,17 +144,29 @@ export function main(argv=process.argv.slice(2)){
     switch(sub){
       case 'go-ahead':
         type='GO_AHEAD';d={job:f.job,scope:f.scope,count:numeric(f.count),by:f.by??ctx.site,words_sha256:words(ctx.home)};break;
-      case 'observe':
+      case 'observe':{
         if(![undefined,'true','false','null'].includes(f['fields-match'])) throw new Error('invalid_boolean');
-        type='OBSERVATION';d={job:f.job,ref:f.ref??null,about:f.about,by:f.by??ctx.site,client:f.client,seen:f.seen,
+        const job=readJSON(path.join(ctx.home,'jobs.json'),[]).find(j=>j.id===f.job), choices=job?.platforms??[];
+        if(f.platform?.length>1 || (!f.platform && choices.length>1)) throw new Error('one_platform_required');
+        const platform=f.platform?.[0]??(choices.length===1?choices[0]:null);
+        if(platform!==null&&(!PLATFORMS.includes(platform)||(choices.length&&!choices.includes(platform)))) throw new Error('invalid_platform');
+        type='OBSERVATION';d={job:f.job,platform,ref:f.ref??null,about:f.about,by:f.by??ctx.site,client:f.client,seen:f.seen,
           fields_match:f['fields-match']==='true'?true:f['fields-match']==='false'?false:null,
           minutes_after:numeric(f['minutes-after']),words_sha256:words(ctx.home),shot_sha256:f['shot-sha256']??null};break;
+      }
       case 'note':
         type='NOTE';d={code:f.code,platform:f.platform?.length===1?f.platform[0]:null,job:f.job??null,agent:f.agent??null,
           minutes_ago:f['minutes-ago']===undefined?null:numeric(f['minutes-ago'])};break;
       case 'violation':type='VIOLATION';d={rule:f.rule,found_by:f['found-by'],job:f.job??null};break;
       case 'sign-off':{
-        const head=verifyJournal(ctx.journal);type='SIGN_OFF';d={day:f.day,by:f.by??ctx.site,answer:f.answer,head_sha256:head.head_sha256,records:head.records};break;
+        const head=verifyJournal(ctx.journal);
+        // A yes without piped text needs no stdin prompt; a no always requires
+        // the person's explanation. Optional yes words are kept only privately.
+        const statement=f.answer==='no'||!process.stdin.isTTY?fs.readFileSync(0):Buffer.alloc(0);
+        if(f.answer==='no'&&!statement.toString('utf8').trim()) throw new Error('empty_words');
+        const digest=statement.toString('utf8').trim()?sha(statement):null;
+        if(digest)atomic(path.join(ctx.home,'captures',digest+'.words.txt'),statement);
+        type='SIGN_OFF';d={day:f.day,by:f.by??ctx.site,answer:f.answer,words_sha256:digest,head_sha256:head.head_sha256,records:head.records};break;
       }
       case 'handoff':
         type='HANDOFF';d={from:readJSON(path.join(ctx.home,'operator.json'),{operator:ctx.site}).operator,
