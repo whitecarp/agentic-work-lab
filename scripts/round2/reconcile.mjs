@@ -7,6 +7,7 @@ import {crosscast,commandClass} from './crosscast.mjs';
 import {jobList} from './jobs.mjs';
 
 export function reconcile(ctx,crosscastFile,{now=Date.now()}={}){
+ if(typeof now==='string'&&!/^\d{4}-\d\d-\d\dT\d\d:\d\d(?::\d\d(?:\.\d+)?)?(?:Z|[+-]\d\d:\d\d)$/.test(now))throw new Error('invalid_as_of');
  now=typeof now==='string'?Date.parse(now):now;
  if(!Number.isFinite(now))throw new Error('invalid_as_of');
  const records=readJournal(ctx.journal),cc=crosscast(crosscastFile),steps=records.filter(r=>r.type==='STEP');

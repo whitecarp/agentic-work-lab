@@ -19,7 +19,7 @@ test('reconcile CLI records a fixed judgment moment and rejects invalid ones',t=
  const a=cli(f,'reconcile',['--site','owner','--journal',f.journal,'--as-of','2026-11-30T12:00:00Z']);assert.equal(a.status,0,a.stderr);
  assert.equal(JSON.parse(a.stdout).as_of,'2026-11-30T12:00:00.000Z');
  assert.deepEqual(reconcile(f.ctx,undefined,{now:'2026-11-30T12:00:00Z'}),JSON.parse(a.stdout));
- assert.notEqual(cli(f,'reconcile',['--site','owner','--journal',f.journal,'--as-of','invalid']).status,0);
+ for(const invalid of ['invalid','2026-11-30T12:00:00'])assert.notEqual(cli(f,'reconcile',['--site','owner','--journal',f.journal,'--as-of',invalid]).status,0);
 });
 test('closing sign-off is explicit, normal sign-off remains daily',t=>{
  const f=fixture(t);setup(f.ctx);

@@ -7,7 +7,7 @@ import {fixture,setup,approve,cli,flags,last} from './helpers.mjs';
 import {begin,step} from '../../scripts/round2/gate-run.mjs';
 import {put,readJournal} from '../../scripts/round2/journal.mjs';
 import {configureSetup,recordSetup} from '../../scripts/round2/fault-setup.mjs';
-import {selectFault,FAULTS,verifyFaultSupport} from '../../scripts/round2/planned-faults.mjs';
+import {selectFault,FAULTS,verifyFaultSupport,injectedReply} from '../../scripts/round2/planned-faults.mjs';
 import {sha,alive} from '../../scripts/round2/io.mjs';
 
 const job={id:'job-1',class:'write',run_class:'test_post',platforms:['youtube'],visibility:'private',due_at:'2020-01-01'};
@@ -52,12 +52,12 @@ test('a damaged journal prevents an arming record and any child',async t=>{
  assert.equal(fs.existsSync(path.join(f.home,'captures')),false);
 });
 test('fault never triggered remains false and is not eligible again',async t=>{
- const f=ready(t,'end_tree_after_press',"console.error('not waiting for platform confirmation yet'); console.log('{}');");
+ const f=ready(t,'end_tree_after_press',"console.error('waiting for platform confirmation'); console.error(JSON.stringify({event:'browser_progress',platform:'douyin',stage:'waiting for platform confirmation'})); console.error(JSON.stringify({event:'other',platform:'youtube',stage:'waiting for platform confirmation'})); console.log('{}');");
  assert.equal(await step(f.ctx,{job:'job-1',role:'publish'},f.command,{supportCheck:()=>true}),0);assert.equal(last(f.ctx,'STEP').d.fault_fired,false);
  assert.equal(selectFault(f.ctx,job,'publish',{tool:'vpub'}),null);
 });
 test('stop during upload is observed at next check; manual removal does not authorize resume',async t=>{
- const source="const fs=require('fs'),path=require('path');console.error('uploading');const t=setInterval(()=>{if(fs.existsSync(path.join(process.env.ROUND2_HOME,'STOP'))){clearInterval(t);console.log(JSON.stringify({error:{code:'stopped'}}));process.exitCode=2;}},40);setTimeout(()=>process.exit(99),10000).unref();";
+ const source="const fs=require('fs'),path=require('path');console.error(JSON.stringify({event:'browser_progress',platform:'youtube',stage:'uploading'}));const t=setInterval(()=>{if(fs.existsSync(path.join(process.env.ROUND2_HOME,'STOP'))){clearInterval(t);console.log(JSON.stringify({error:{code:'stopped'}}));process.exitCode=2;}},40);setTimeout(()=>process.exit(99),10000).unref();";
  const f=ready(t,'stop_during_upload',source);const prior=process.env.ROUND2_HOME;process.env.ROUND2_HOME=f.home;t.after(()=>{if(prior===undefined)delete process.env.ROUND2_HOME;else process.env.ROUND2_HOME=prior;});
  assert.equal(await step(f.ctx,{job:'job-1',role:'publish'},f.command,{supportCheck:()=>true}),2);assert.equal(last(f.ctx,'STEP').d.fault_fired,true);
  assert.equal(last(f.ctx,'STOP_SET').d.by,'scheduler');fs.unlinkSync(path.join(f.home,'STOP'));
@@ -66,7 +66,7 @@ test('stop during upload is observed at next check; manual removal does not auth
  assert.equal(await step(f.ctx,{job:'job-1',role:'resume'},[process.execPath,'-e','process.exit(0)']),0);
 });
 for(const [kind,tree]of [['end_command_after_press',false],['end_tree_after_press',true]])test(`${kind} ends only its owned targets and records observations`,{timeout:45000},async t=>{
- const source="const {spawn}=require('child_process'),fs=require('fs'),path=require('path');const c=spawn(process.execPath,['-e','setTimeout(()=>{},30000)'],{stdio:'ignore',windowsHide:true,detached:true});c.unref();fs.writeFileSync(path.join(process.env.ROUND2_HOME,'grandchild.pid'),String(c.pid));console.error('waiting for platform confirmation');setTimeout(()=>{},30000);";
+ const source="const {spawn}=require('child_process'),fs=require('fs'),path=require('path');const c=spawn(process.execPath,['-e','setTimeout(()=>{},30000)'],{stdio:'ignore',windowsHide:true,detached:true});c.unref();fs.writeFileSync(path.join(process.env.ROUND2_HOME,'grandchild.pid'),String(c.pid));console.error(JSON.stringify({event:'browser_progress',platform:'youtube',stage:'waiting for platform confirmation'}));setTimeout(()=>{},30000);";
  const f=ready(t,kind,source,500),prior=process.env.ROUND2_HOME;process.env.ROUND2_HOME=f.home;
  t.after(()=>{if(prior===undefined)delete process.env.ROUND2_HOME;else process.env.ROUND2_HOME=prior;});
  const start=performance.now();await step(f.ctx,{job:'job-1',role:'publish'},f.command,{supportCheck:()=>true});
@@ -78,7 +78,7 @@ for(const [kind,tree]of [['end_command_after_press',false],['end_tree_after_pres
  else {assert.equal(alive(grand),false);assert.ok(result.processes.some(p=>p.pid===grand));}
 });
 test('edit fault ignores pre-save readback and fires only after pressing', {timeout:45000},async t=>{
- const source="console.error('reading back');setTimeout(()=>{console.error('pressing');console.error('reading back')},700);setTimeout(()=>{},30000);";
+ const source="console.error(JSON.stringify({event:'browser_progress',platform:'youtube',stage:'reading back'}));setTimeout(()=>{console.error(JSON.stringify({event:'browser_progress',platform:'youtube',stage:'pressing'}));console.error(JSON.stringify({event:'browser_progress',platform:'youtube',stage:'reading back'}))},700);setTimeout(()=>{},30000);";
  const f=ready(t,'end_browser_after_edit_save',source);const start=performance.now();await step(f.ctx,{job:'job-1',role:'edit'},f.command,{supportCheck:()=>true});
  assert.ok(performance.now()-start>=700);assert.equal(last(f.ctx,'FAULT_RESULT').d.fired,true);
 });
@@ -106,15 +106,22 @@ test('a contradictory private plan refuses without a reservation or child',async
 });
 
 for(const [kind,point]of [['between_save_and_press','before_press'],['delete_readback_lost','delete_readback_lost']])test(`${kind} carries its matching in-tool point`,async t=>{
- const f=ready(t,kind,`if(process.env.VPUB_FAULT!==${JSON.stringify(point)})process.exit(99);console.log(JSON.stringify({error:{code:'injected_fault'}}));process.exitCode=4;`);
+ const data=kind==='delete_readback_lost'?{state:'DELETE_PENDING',error:{code:'injected_fault'}}:{results:{youtube:{state:'UNKNOWN',error:{code:'injected_fault'}}}};
+ const f=ready(t,kind,`if(process.env.VPUB_FAULT!==${JSON.stringify(point)})process.exit(99);console.log(${JSON.stringify(JSON.stringify({ok:false,data}))});process.exitCode=4;`);
  assert.equal(await step(f.ctx,{job:'job-1',role:f.fault.role},f.command,{supportCheck:()=>true}),4);
  assert.equal(last(f.ctx,'STEP').d.fault_fired,true);
+});
+test('fault response recognizes actual envelopes without borrowing another platform error',()=>{
+ assert.equal(injectedReply(JSON.stringify({data:{results:{youtube:{state:'UNKNOWN',code:'injected_fault'}}}}),'youtube'),true);
+ assert.equal(injectedReply(JSON.stringify({data:{results:{douyin:{error:{code:'injected_fault'}}}}}),'youtube'),false);
+ assert.equal(injectedReply('{"error":{"code":"injected_fault"}}\n{}','youtube'),false);
+ assert.equal(injectedReply('{"error":{"code":"readback_failed"}}','youtube'),false);
 });
 test('upload tree fault waits for its delay and never targets an unrelated process',{timeout:45000},async t=>{
  const sentinel=spawn(process.execPath,['-e','setTimeout(()=>{},30000)'],{stdio:'ignore',windowsHide:true});
  await new Promise((resolve,reject)=>{sentinel.once('spawn',resolve);sentinel.once('error',reject);});
  try{
-  const f=ready(t,'browser_lost_during_upload',"if(process.env.VPUB_FAULT!=='external')process.exit(99);console.error('uploading');setTimeout(()=>{},30000);",2000),start=performance.now();
+  const f=ready(t,'browser_lost_during_upload',"if(process.env.VPUB_FAULT!=='external')process.exit(99);console.error(JSON.stringify({event:'browser_progress',platform:'youtube',stage:'uploading'}));setTimeout(()=>{},30000);",2000),start=performance.now();
   await step(f.ctx,{job:'job-1',role:'publish'},f.command,{supportCheck:()=>true});
   assert.ok(performance.now()-start>=2000);assert.equal(alive(sentinel.pid),true);
   const r=last(f.ctx,'FAULT_RESULT').d;assert.equal(r.fired,true);assert.ok(!r.processes.some(p=>p.pid===sentinel.pid));

@@ -199,7 +199,7 @@ function captureChild(ctx,command,reservationId,pinned,fault){
       for(const stream of ['stdout','stderr']) if(buffers[stream].length) row(stream,buffers[stream]);
       try{fs.fsyncSync(fd);}catch{captureError=true;}finally{fs.closeSync(fd);}
       let faultFired=null;
-      try{if(controller){const result=await controller.finish(outcome(exit,stdout).code);faultFired=result.fired;if(result.failed)captureError=true;}}catch{captureError=true;}
+      try{if(controller){const result=await controller.finish(stdout);faultFired=result.fired;if(result.failed)captureError=true;}}catch{captureError=true;}
       resolve({exit,stdout,ms:Math.round(performance.now()-started),capture_sha256:sha(fs.readFileSync(file)),spawnError,captureError,faultFired});
     }
   });

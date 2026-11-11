@@ -56,6 +56,13 @@ export function armFault(ctx,fault,executable,supportCheck=verifyFaultSupport){
  put(ctx,'FAULT',fault,ctx.run);
 }
 export const faultVariable=f=>f?(FAULTS[f.kind].switch??'external'):null;
+export function injectedReply(stdout,platform){
+ const lines=stdout.trim().split(/\r?\n/);if(lines.length!==1)return false;
+ try{const value=JSON.parse(lines[0]),data=value?.data??value;
+  const part=data?.results?.[platform];
+  return [value?.error?.code,data?.error?.code,data?.code,part?.error?.code,part?.code].includes('injected_fault');
+ }catch{return false;}
+}
 
 // Enumerate only identity/parent fields, never command lines or account files.
 async function processes(){
@@ -82,8 +89,11 @@ export function faultController(ctx,fault){
  const api={
   attach(c){child=c;if(rule.mechanism==='wrapper_kill')c.once('spawn',()=>{rootReady=processes().then(rows=>{rootIdentity=rows.find(r=>r.pid===c.pid);}).catch(()=>{failed=true;});});},
   line(line){
-   // The tool relays fixed stage words; never match arbitrary substrings.
-   const stage=line.trim().replace(/^\[[^\]\r\n]+\]\s*/, '');
+   // CrossCast progress.show emits JSON, not a bare word. Ignore unrelated
+   // stderr, another platform and arbitrary strings containing the trigger.
+   let packet;try{packet=JSON.parse(line);}catch{return;}
+   if(packet?.event!=='browser_progress'||packet.platform!==fault.armed_on.split('_')[0])return;
+   const stage=packet.stage;
    if(stage==='pressing')press=true;
    if(triggered||rule.mechanism==='tool_switch'||stage!==rule.trigger.replaceAll('_',' ')||(rule.afterPress&&!press))return;
    triggered=true;
@@ -107,7 +117,7 @@ export function faultController(ctx,fault){
    })().catch(()=>{failed=true;});
   },
   receive(bytes){partial+=bytes.toString('utf8');let i;while((i=partial.indexOf('\n'))!==-1){api.line(partial.slice(0,i));partial=partial.slice(i+1);}if(partial.length>8192)partial='';},
-  async finish(code){if(partial)api.line(partial);await rootReady;await pending;if(rule.mechanism==='tool_switch')fired=code==='injected_fault';
+  async finish(stdout){if(partial)api.line(partial);await rootReady;await pending;if(rule.mechanism==='tool_switch')fired=injectedReply(stdout,fault.armed_on.split('_')[0]);
    put(ctx,'FAULT_RESULT',{job:fault.job,kind:fault.kind,role:fault.role,triggered,fired,failed,processes:ended},ctx.run);
    return {fired,failed};
   }

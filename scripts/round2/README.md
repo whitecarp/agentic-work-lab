@@ -424,7 +424,7 @@ after_press, delete_readback_lost, or external; CrossCast's own in-tool private
 visibility guard remains mandatory. The supported study build must include B8;
 this Lab code alone does not prove an arbitrary installed executable supports it.
 
-Stage matching uses whole stage words, not substrings. The edit kill waits for
+Stage matching reads browser_progress JSON from stderr, requires the armed platform, and compares whole stage words; bare text and unrelated JSON never trigger. The edit kill waits for
 reading back after pressing. Command-only termination targets only the command;
 a detached worker may survive. Tree termination inspects the owned descendants,
 ends the tree and checks each observed PID's creation identity afterward. It
@@ -443,8 +443,8 @@ retained privately. Reveal requires a marked closing sign-off after the last
 STEP and a matching sealed plan digest. None of these steps runs automatically.
 
 
-Before arming, the wrapper also checks the fault module and its four audited
-call sites against `templates/round2/crosscast-fault-support.json` (CrossCast
+Before arming, the wrapper also checks the fault module, its four audited
+call sites and progress JSON formatter against `templates/round2/crosscast-fault-support.json` (CrossCast
 f2eb520). Only the normal Windows venv `Scripts/vpub.exe` plus `Lib/site-packages`
 layout is recognized. Missing, changed or unrecognized support gives
 `fault_switch_unavailable`, exit 5, with a STEP_REFUSED and no FAULT/child.
@@ -454,3 +454,5 @@ executable uses a function-level probe stand-in, unavailable as a CLI option;
 separate tests exercise fingerprint mismatch and the production refusal path.
 Linux process-group code is implemented but this Windows validation does not
 claim Linux acceptance. No real installed executable or real settings were read.
+
+Fixed review cutoffs require an explicit UTC Z or offset; timezone-naive --as-of input is refused.
