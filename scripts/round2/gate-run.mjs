@@ -126,6 +126,9 @@ function prepare(ctx,flags,command,launch){
     if((job.platforms??[]).length && (platforms.some(p=>!job.platforms.includes(p))||
        (!keyed&&platforms.length!==job.platforms.length)))throw new Error('platform_mismatch');
     const list=reservations(ctx), rule=limits(records,job,flags.role,platforms,utc(),list,run.jobs);
+    if(['repeat_same','changed_plan','resume'].includes(flags.role)&&!records.some(r=>r.type==='STEP'&&
+       r.d.job===job.id&&r.d.role==='publish'&&r.d.exit!==127&&platforms.every(p=>r.d.platforms.includes(p))&&
+       list.some(x=>x.step_seq===r.seq&&x.run===r.run&&x.started===true)))throw new Error('repeat_without_publish');
     if(rule) throw new Error(rule);
     const scope=grantScope(records,job.id,policy.class,list,flags.role);
     if(scope===null) throw new Error('go_ahead_exhausted');

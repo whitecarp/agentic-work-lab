@@ -11,6 +11,13 @@ export function switches(argv,names){
  return {set,...parseFlags(rest)};
 }
 function strings(value){return typeof value==='string'?[value]:Array.isArray(value)?value.flatMap(strings):value&&typeof value==='object'?Object.values(value).flatMap(strings):[];}
+function datesOnly(value){
+ if(typeof value==='string'&&/^\d{4}-\d\d-\d\dT\d\d:\d\d/.test(value))return value.slice(0,10);
+ if(Array.isArray(value))return value.map(datesOnly);
+ if(value&&typeof value==='object')return Object.fromEntries(Object.entries(value)
+   .filter(([key])=>!/(^|_)minutes?(_|$)/.test(key)).map(([key,v])=>[key,datesOnly(v)]));
+ return value;
+}
 export function exportData(ctx,{privacy=false,deny,crosscast:ccfile}={}){
  const records=readJournal(ctx.journal),head=verifyJournal(ctx.journal),seals=verifySeals(ctx,records),cc=crosscast(ccfile);
  const forbidden=deny?fs.readFileSync(deny,'utf8').split(/\r?\n/).filter(Boolean):[];
@@ -28,12 +35,12 @@ export function exportData(ctx,{privacy=false,deny,crosscast:ccfile}={}){
   for(const r of result.records){
    r.source_sha256=key(sha(canonical(r)));
    r.prev=key(r.prev);
-   r.at=r.at.slice(0,16)+':00.000Z';
+   r.at=r.at.slice(0,10);
    if(r.type==='GATE_DECISION'){
-    r.d.now=r.d.now.slice(0,16)+':00.000Z';
-    for(const job of r.d.jobs)if(job.due_at)job.due_at=new Date(job.due_at).toISOString().slice(0,16)+':00.000Z';
+    r.d.now=r.d.now.slice(0,10);
+    for(const job of r.d.jobs)if(job.due_at)job.due_at=new Date(job.due_at).toISOString().slice(0,10);
    }
-   if(r.type==='REAL_RELEASE')r.d.due_at=r.d.due_at.slice(0,16)+':00.000Z';
+   if(r.type==='REAL_RELEASE')r.d.due_at=r.d.due_at.slice(0,10);
    if(r.type==='OBSERVATION')delete r.d.minutes_after;
    if(r.type==='SIGN_OFF')r.d.head_sha256=key(r.d.head_sha256);
    // Protect legacy low-entropy words hashes too; original evidence is retained.
@@ -41,6 +48,8 @@ export function exportData(ctx,{privacy=false,deny,crosscast:ccfile}={}){
   }
   result.seals=result.seals.map(s=>({...s,source_sha256:key(sha(canonical(s)+'\n')),
     head_sha256:key(s.head_sha256),previous_sha256:key(s.previous_sha256)}));
+  result.time_policy='dates_only_UTC; minute_fields_removed; compute_timing_on_site; tool_export_whole_UTC_days';
+  return datesOnly(result);
  }
  return result;
 }

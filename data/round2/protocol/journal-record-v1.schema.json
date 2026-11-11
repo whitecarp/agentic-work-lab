@@ -1488,6 +1488,9 @@
                   "type": "null"
                 }
               ]
+            },
+            "closing": {
+              "type": "boolean"
             }
           },
           "required": [
@@ -2066,7 +2069,8 @@
                 "vpub_home_invalid",
                 "vpub_home_unsealed",
                 "vpub_home_mismatch",
-                "one_platform_required"
+                "one_platform_required",
+                "repeat_without_publish"
               ]
             }
           },

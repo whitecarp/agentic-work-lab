@@ -37,6 +37,7 @@ for(const reason of REFUSALS)test(`wrapper refusal ${reason}: one durable record
   case 'job_not_due':args.job='unknown';break;
   case 'job_closed':put(f.ctx,'JOB_END',{job:'job-1',reason:'done',by:'operator',words_sha256:null});break;
   case 'platform_mismatch':args.platform=['douyin'];break;
+  case 'repeat_without_publish':args.role='resume';break;
   case 'one_platform_required':args.role='verify';job.platforms=['youtube','douyin'];break;
   case 'job_class_mismatch':job.class='read';break;
   case 'bilibili_delete_forbidden':command=['bili','delete'];break;

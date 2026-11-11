@@ -33,7 +33,7 @@ test('uncertain legacy reservation never creates new deletion credit',t=>{
 });
 test('one job spans sessions with a refusal and later readback; only JOB_END closes',async t=>{
  const f=admitted(t);
- assert.equal(await step(f.ctx,{...sf,role:'repeat_same'},[process.execPath,'-e','process.exit(2)']),2);
+ assert.equal(await step(f.ctx,{...sf,role:'publish'},[process.execPath,'-e','process.exit(2)']),2);
  assert.equal(end(f.ctx).record.d.state,'completed');
  f.ctx.run=begin(f.ctx,{}).run;
  approve(f.ctx,'job-1',1,'one_write');assert.equal(await step(f.ctx,sf,command),0);

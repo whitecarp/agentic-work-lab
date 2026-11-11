@@ -73,10 +73,10 @@ test('export validates records, preserves original chain evidence, never reads p
  const result=exportData(f.ctx);spy.mock.restore();assert.equal(result.records.length,4);assert.equal(result.unsealed_records,0);
  assert.equal(result.source.head_sha256,verifyJournal(f.journal).head_sha256);assert.ok(!JSON.stringify(result).includes('private command'));
 });
-test('privacy coarsens all record and gate times to minutes and drops observation minutes',t=>{
+test('privacy coarsens all record and gate times to dates and drops observation minutes',t=>{
  const f=ready(t);f.ctx.run=begin(f.ctx,{}).run;observe(f);end(f.ctx);
  const value=exportData(f.ctx,{privacy:true});assert.equal(value.source.derived_records,true);
- for(const r of value.records){assert.match(r.at,/:00\.000Z$/);if(r.type==='GATE_DECISION')assert.match(r.d.now,/:00\.000Z$/);}
+ for(const r of value.records){assert.match(r.at,/^\d{4}-\d\d-\d\d$/);if(r.type==='GATE_DECISION')assert.match(r.d.now,/^\d{4}-\d\d-\d\d$/);}
  assert.ok(!Object.hasOwn(value.records.find(r=>r.type==='OBSERVATION').d,'minutes_after'));
  assert.equal(readJournal(f.journal).find(r=>r.type==='OBSERVATION').d.minutes_after,15);
 });

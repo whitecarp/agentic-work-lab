@@ -84,6 +84,7 @@ test('successful verify closes the matching platform only; unchanged strict coun
 for(const role of ['resume','verify','edit','delete','delete_dry_run','delete_verify'])test(`keyed ${role} needs one declared platform before spawning`,async t=>{
  const f=ready(t,['youtube','douyin']),out=path.join(f.root,'spawned');
  const cmd=[process.execPath,'-e',"require('fs').writeFileSync(process.argv[1],'once')",out];
+ if(role==='resume')assert.equal(await step(f.ctx,{job:'job-1',role:'publish'},[process.execPath,'-e','process.exit(0)']),0);
  assert.equal(await step(f.ctx,{job:'job-1',role},cmd),5);assert.ok(!fs.existsSync(out));
  assert.equal(await step(f.ctx,{job:'job-1',role,platform:['x']},cmd),5);assert.ok(!fs.existsSync(out));
  assert.equal(await step(f.ctx,{job:'job-1',role,platform:['youtube']},cmd),0);
@@ -138,7 +139,7 @@ test('supplemental real release is recorded separately, needs its own grant and 
  assert.deepEqual(reconcile(f.ctx).looks_owed.map(x=>x.platform),['youtube','x']);
  assert.equal(cli(f,'journal',['observe',...flags(f),'--job','release-1','--about','post','--client','phone_app','--seen','present_once','--minutes-after','30'],'words').status,70);
  const copy=exportData(f.ctx,{privacy:true});
- assert.equal(copy.records.find(r=>r.type==='REAL_RELEASE').d.due_at,'2020-01-01T00:00:00.000Z');
+ assert.equal(copy.records.find(r=>r.type==='REAL_RELEASE').d.due_at,'2020-01-01');
 });
 test('manual removal evidence must cover both platforms before a two-platform close',t=>{
  const f=ready(t,['youtube','douyin']);

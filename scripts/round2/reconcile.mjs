@@ -7,6 +7,8 @@ import {crosscast,commandClass} from './crosscast.mjs';
 import {jobList} from './jobs.mjs';
 
 export function reconcile(ctx,crosscastFile,{now=Date.now()}={}){
+ now=typeof now==='string'?Date.parse(now):now;
+ if(!Number.isFinite(now))throw new Error('invalid_as_of');
  const records=readJournal(ctx.journal),cc=crosscast(crosscastFile),steps=records.filter(r=>r.type==='STEP');
  const admissions=records.filter(r=>r.type==='GATE_DECISION'&&r.d.decision==='plan_only');
  const runs=[...new Set(admissions.map(r=>r.run))].map(id=>{
@@ -109,7 +111,7 @@ export function reconcile(ctx,crosscastFile,{now=Date.now()}={}){
     by:closed?(closure.type==='OBSERVATION'?'person':'read'):null,
     seconds:closed?Math.max(0,(Date.parse(closure.at)-Date.parse(s.at))/1000):null,clock_reversed:!!closure&&Date.parse(closure.at)<Date.parse(s.at)};
   });
- return {schema:'round2-reconcile/1',records:records.length,crosscast_present:cc.present,crosscast_chain_ok:cc.chain_ok,time_alignment:!cc.present?'journal_only':cc.times==='exact'&&cc.chain_ok?'exact':'unavailable',
+ return {schema:'round2-reconcile/1',as_of:new Date(now).toISOString(),records:records.length,crosscast_present:cc.present,crosscast_chain_ok:cc.chain_ok,time_alignment:!cc.present?'journal_only':cc.times==='exact'&&cc.chain_ok?'exact':'unavailable',
    command_binding:!cc.present?'journal_only':trusted?'shared_id':'unavailable',
    ungated_writes:ungated,matched_write_commands:trusted?bindings.length-ungated:null,write_bindings:bindings,
    admitted_sessions_without_write:runs.filter(r=>!steps.some(s=>s.run===r.id&&s.d.class==='write')).length,
@@ -119,7 +121,7 @@ export function reconcile(ctx,crosscastFile,{now=Date.now()}={}){
    violations:records.filter(r=>r.type==='VIOLATION').length,crosscast_command_losses:cc.losses,crosscast_integrity:cc.integrity};
 }
 export function main(argv=process.argv.slice(2)){
- const {flags:f,command}=parseFlags(argv);allowed(f,['site','journal','crosscast']);if(command.length)throw new Error('invalid_arguments');
- console.log(JSON.stringify(reconcile(context(f),f.crosscast)));return 0;
+ const {flags:f,command}=parseFlags(argv);allowed(f,['site','journal','crosscast','as-of']);if(command.length)throw new Error('invalid_arguments');
+ console.log(JSON.stringify(reconcile(context(f),f.crosscast,{now:f['as-of']})));return 0;
 }
 if(process.argv[1]&&import.meta.url===pathToFileURL(path.resolve(process.argv[1])).href){try{process.exitCode=main();}catch{console.error('reconcile_refused');process.exitCode=70;}}

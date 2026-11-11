@@ -198,8 +198,7 @@ schema/chain checked and every existing seal is verified. Missing seals are
 explicitly reported as unsealed_records; no seal is invented. The denylist is
 one private substring per line and is applied before privacy coarsening. Output
 cannot overwrite the journal/seal directory or the private home. Captures are
-not opened by export. --privacy rounds timestamps down to a minute, drops
-OBSERVATION.minutes_after and marks the records as derived. All source-chain
+not opened by export. --privacy replaces all clock timestamps with UTC dates, drops every minute-valued field and marks the records as derived. All source-chain
 digests (prev, source head, record source_sha256, seal heads/previous digests,
 seal source_sha256, and SIGN_OFF heads) are HMAC commitments under the site's
 private salt with a common domain. Equal original digests remain equal, so a
@@ -370,3 +369,15 @@ and no recorded platform call, span, press or write. Missing evidence retains
 the strict result. This is proof within recorded events, not a guarantee
 against unrecorded events or process death. ignored_refused_steps lists every
 such exception; wrapper refusals themselves never started a child.
+
+
+C35: `reconcile --as-of ISO_UTC_TIME` fixes and records the moment used for the
+missing-ground-truth deadline; use the same value when reproducing a result.
+`daily --as-of ISO_UTC_TIME` passes it through. Daily output explicitly marks
+selected-UTC-day counts versus all-record running totals. A closing answer uses
+`journal sign-off ... --closing`; ordinary answers record `closing: false`.
+A repeat_same, changed_plan or resume requires an actually started publish for
+that job/platform in the same planned run, including an earlier admitted session.
+A failed spawn cannot satisfy it (`repeat_without_publish`).
+The tester's copy says `dates_only_UTC`; compute timing results on site first.
+The tester's operator requests CrossCast exports bounded by whole UTC days.

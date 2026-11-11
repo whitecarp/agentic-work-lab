@@ -135,7 +135,9 @@ export function main(argv=process.argv.slice(2)){
     if(argv.length!==1) throw new Error('invalid_arguments');
     const result=verifyJournal(argv[0]);console.log(JSON.stringify(result));return result.ok?0:70;
   }
-  const {flags:f,command}=parseFlags(argv);
+  const closing=argv.includes('--closing');
+  if(closing&&(sub!=='sign-off'||argv.filter(a=>a==='--closing').length!==1))throw new Error('invalid_arguments');
+  const {flags:f,command}=parseFlags(argv.filter(a=>a!=='--closing'));
   if(command.length) throw new Error('invalid_arguments');
   const lists={
     'go-ahead':['job','scope','count','by'],observe:['job','ref','about','by','client','seen','fields-match','minutes-after','shot-sha256','platform'],
@@ -177,7 +179,7 @@ export function main(argv=process.argv.slice(2)){
         const statement=f.answer==='no'||!process.stdin.isTTY?fs.readFileSync(0):Buffer.alloc(0);
         if(f.answer==='no'&&!statement.toString('utf8').trim()) throw new Error('empty_words');
         const digest=statement.toString('utf8').trim()?commitWords(ctx.home,statement):null;
-        type='SIGN_OFF';d={day:f.day,by:f.by??ctx.site,answer:f.answer,words_sha256:digest,head_sha256:head.head_sha256,records:head.records};break;
+        type='SIGN_OFF';d={day:f.day,by:f.by??ctx.site,answer:f.answer,words_sha256:digest,head_sha256:head.head_sha256,records:head.records,closing};break;
       }
       case 'handoff':
         type='HANDOFF';d={from:readJSON(path.join(ctx.home,'operator.json'),{operator:ctx.site}).operator,
