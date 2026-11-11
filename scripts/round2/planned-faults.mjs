@@ -42,7 +42,7 @@ export function selectFault(ctx,job,role,policy){
  if(choices.length>1)throw new Error('fault_plan_invalid');
  const fault=choices[0];
  if(!fault||!permitted.has(fault.armed_on)||records.some(r=>r.type==='FAULT'&&r.d.job===job.id&&r.d.role===role))return null;
- if(['2a','2b'].includes(seal?.phase)&&!sealed)throw new Error('fault_plan_invalid');
+ if(seal?.phase==='2b'&&!sealed)throw new Error('fault_plan_invalid');
  const rule=FAULTS[fault.kind];
  if(!rule||rule.role!==role||rule.trigger!==fault.trigger||rule.mechanism!==fault.mechanism||
    ![0,500,2000].includes(fault.delay_ms)||row.run_class!=='test_post'||row.site!==ctx.site||

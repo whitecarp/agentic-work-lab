@@ -22,5 +22,6 @@ test('counted-phase missing digest refuses a listed fault; rehearsal may use the
  const data={runs:[{...job,site:'owner',faults:[{role:'publish',kind:'readback_timeout',trigger:'none',mechanism:'tool_switch',delay_ms:0,armed_on:'youtube_private'}]}]};
  fs.writeFileSync(path.join(f.home,'planned-runs.json'),JSON.stringify(data));const select=()=>selectFault(f.ctx,job,'publish',{tool:'vpub'});
  assert.ok(select());const seal=readJournal(f.journal).find(r=>r.type==='PROTOCOL_SEAL').d;
+ put(f.ctx,'PROTOCOL_SEAL',{...seal,phase:'2a',plan_sha256:null});assert.ok(select());
  put(f.ctx,'PROTOCOL_SEAL',{...seal,phase:'2b',plan_sha256:null});assert.throws(select,/fault_plan_invalid/);
 });
