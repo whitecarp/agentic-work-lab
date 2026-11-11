@@ -8,6 +8,7 @@ import {context, put, readJournal, verifyJournal, newRunId, pseudonym, words} fr
 import {ID, SLOTS, PLATFORMS, REFUSALS} from './schema.mjs';
 import {sha, utc, atomic, withLock, readJSON, parseFlags, allowed, alive} from './io.mjs';
 import {classify, guardRole, grant, grantScope, limits, outcome, roles} from './policy.mjs';
+import {bindHome,HOME_ERRORS} from './site.mjs';
 
 const gateFile=new URL('../operations-gate.mjs',import.meta.url);
 const guard=ctx=>path.join(ctx.home,'operation.guard');
@@ -43,6 +44,10 @@ function finish(ctx,state,records){
 export function begin(ctx,flags) {
   return withLock(guard(ctx),()=>{
     let records=readJournal(ctx.journal), existing=readJSON(runFile(ctx),null);
+    try{bindHome(ctx,records);}catch(e){
+      if(!HOME_ERRORS.includes(e.message))throw e;
+      put(ctx,'GATE_ERROR',{error:e.message},newRunId());return {exit:4,error:e.message};
+    }
     if(existing){
       if(records.some(r=>r.type==='RUN_END'&&r.run===existing.run)){
         fs.unlinkSync(runFile(ctx));existing=null;
@@ -104,6 +109,7 @@ function writeReservations(ctx,list){atomic(reservationsFile(ctx),list);}
 function prepare(ctx,flags,command,launch){
   return withLock(guard(ctx),()=>{
     const records=readJournal(ctx.journal), run=admitted(ctx,records);
+    const pinned=bindHome(ctx,records);
     if(run.child_pid) throw new Error('step_already_running');
     if(stop(ctx)) throw new Error('stop_flag');
     const job=run.jobs.find(j=>j.id===flags.job);
@@ -134,10 +140,10 @@ function prepare(ctx,flags,command,launch){
     list.push(reservation);writeReservations(ctx,list);
     atomic(runFile(ctx),{...run,child_pid:process.pid});
     if(stop(ctx)) throw new Error('stop_flag');
-    return {policy,reservation,run,capture:launch(reservation.id)};
+    return {policy,reservation,run,capture:launch(reservation.id,pinned.home)};
   });
 }
-function captureChild(ctx,command,reservationId){
+function captureChild(ctx,command,reservationId,vpubHome){
   return new Promise(resolve=>{
     const file=path.join(ctx.home,'captures',newRunId()+'.jsonl');
     fs.mkdirSync(path.dirname(file),{recursive:true});
@@ -158,7 +164,7 @@ function captureChild(ctx,command,reservationId){
       buffers[stream]=pending;
     };
     try{child=spawn(command[0],command.slice(1),{stdio:['ignore','pipe','pipe'],shell:false,windowsHide:true,
-      env:{...process.env,AWL_RUN_ID:reservationId,VPUB_BROWSER_IDLE_SECONDS:'0'}});}
+      env:{...process.env,AWL_RUN_ID:reservationId,VPUB_BROWSER_IDLE_SECONDS:'0',VPUB_HOME:vpubHome}});}
     catch{spawnError=true;}
     if(child){
       child.on('spawn',()=>{
@@ -181,7 +187,7 @@ function captureChild(ctx,command,reservationId){
 }
 export async function step(ctx,flags,command){
   let prepared;
-  try{prepared=prepare(ctx,flags,command,id=>captureChild(ctx,command,id));}
+  try{prepared=prepare(ctx,flags,command,(id,home)=>captureChild(ctx,command,id,home));}
   catch(e){
     if(['broken_journal','lock_unavailable'].includes(e.message)) throw e;
     // Fixed words only. No command arguments, path or child error is echoed.

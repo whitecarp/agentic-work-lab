@@ -21,6 +21,25 @@ The commands below illustrate the interface, not account authorization. Use
 stand-ins and empty homes until the study's separate account gates are cleared.
 Keep jobs.json under ROUND2_HOME, for example:
 
+Before a protocol seal or any `begin`, create private `ROUND2_HOME/site.json`
+with exactly `{"site":"owner","vpub_home":"ABSOLUTE_EXISTING_DIRECTORY"}`
+(use `tester` for the tester site). For rehearsals use an empty directory outside
+Git. The wrapper reads only directory metadata, never its profiles or sign-ins.
+`protocol-seal` records `vpub_home_sha256` of the resolved path, never the path.
+The first bound seal fixes that directory across later phases. Missing, invalid,
+unsealed or changed setup refuses `begin` and `step` with fixed `vpub_home_*`
+words. Legacy journals remain readable but cannot admit a child until a bound
+protocol seal is made. Every child receives this resolved `VPUB_HOME`, overriding
+the invoking shell, as well as `VPUB_BROWSER_IDLE_SECONDS=0`. This pins a path,
+not the identity of a directory recreated at the same path; keep it in place.
+
+Every study CrossCast export must specify `--since PHASE_SEAL_UTC` and
+`--until CLOSE_UTC` (and `--times exact` for local reconciliation). Keep the
+output outside both data homes. `daily` consumes an existing export; it never
+runs CrossCast or constructs an unwindowed export. Without a time window,
+CrossCast includes historical ledger publications; a window includes only
+publications referred to by events in that window.
+
 ~~~json
 [{"id":"rehearsal-1","class":"write","due_at":"2026-11-11T12:00:00.000Z","run_class":"test_post","platforms":["youtube"]}]
 ~~~

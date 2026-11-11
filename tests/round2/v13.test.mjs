@@ -20,6 +20,17 @@ for(const reason of REFUSALS)test(`wrapper refusal ${reason}: one durable record
  let command=[process.execPath,'-e',`require('fs').writeFileSync(${JSON.stringify(marker)},'started')`];
  const reservation={job:'job-1',class:'write',role:'other',scope:'one_write',at:new Date().toISOString(),platforms:['youtube'],started:true};
  switch(reason){
+  case 'vpub_home_missing':fs.unlinkSync(path.join(f.home,'site.json'));break;
+  case 'vpub_home_invalid':write(f,'site.json',{site:'owner',vpub_home:'relative'});break;
+  case 'vpub_home_unsealed':{
+    // A journal can predate the binding field; retain a valid hash chain.
+    const rows=readJournal(f.journal).map(r=>({site:r.site,slot:r.slot,type:r.type,run:r.run,d:{...r.d}}));
+    for(const row of rows)if(row.type==='PROTOCOL_SEAL')delete row.d.vpub_home_sha256;
+    fs.unlinkSync(f.journal);fs.unlinkSync(f.journal+'.head');
+    for(const row of rows)put({...f.ctx,slot:row.slot},row.type,row.d,row.run);
+    break;
+  }
+  case 'vpub_home_mismatch':write(f,'site.json',{site:'owner',vpub_home:f.root});break;
   case 'run_not_admitted':f.ctx.run='f'.repeat(32);break;
   case 'step_already_running':control.child_pid=process.pid;break;
   case 'stop_flag':fs.writeFileSync(path.join(f.home,'STOP'),'stop');break;

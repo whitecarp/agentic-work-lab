@@ -28,7 +28,7 @@ const sealFile=f=>path.join(path.dirname(f.journal),'seals',today()+'.json');
 
 test('seal records exact head, types, versions and is byte-idempotent',t=>{
  const f=ready(t),a=seal(f.ctx),bytes=fs.readFileSync(sealFile(f));
- assert.equal(a.records,2);assert.equal(a.head_sha256,verifyJournal(f.journal).head_sha256);assert.deepEqual(a.counts,{HANDOFF:1,GO_AHEAD:1});
+ assert.equal(a.records,3);assert.equal(a.head_sha256,verifyJournal(f.journal).head_sha256);assert.deepEqual(a.counts,{PROTOCOL_SEAL:1,HANDOFF:1,GO_AHEAD:1});
  assert.equal(a.tools.node,process.versions.node);assert.deepEqual(seal(f.ctx),a);assert.deepEqual(fs.readFileSync(sealFile(f)),bytes);
 });
 test('new day links the exact previous seal bytes',t=>{
@@ -44,7 +44,7 @@ test('changed seal count, digest and version are rejected',t=>{
  for(const altered of [{...s,records:0},{...s,head_sha256:'e'.repeat(64)},{...s,tools:{journal:'1',node:'99.0.0'}}]){
   fs.writeFileSync(sealFile(f),canonical(altered)+'\n');assert.throws(()=>verifySeals(f.ctx));
  }
- fs.writeFileSync(sealFile(f),bytes);assert.equal(verifySeals(f.ctx).sealed_records,2);
+ fs.writeFileSync(sealFile(f),bytes);assert.equal(verifySeals(f.ctx).sealed_records,3);
 });
 test('removed final seal and missing seal anchor fail verification',t=>{
  const f=ready(t);seal(f.ctx);seal(f.ctx,tomorrow());
@@ -70,7 +70,7 @@ test('export validates records, preserves original chain evidence, never reads p
  const spy=t.mock.method(fs,'readFileSync',function(file,...args){
   assert.ok(!String(file).includes('captures'));return original.call(this,file,...args);
  });
- const result=exportData(f.ctx);spy.mock.restore();assert.equal(result.records.length,3);assert.equal(result.unsealed_records,0);
+ const result=exportData(f.ctx);spy.mock.restore();assert.equal(result.records.length,4);assert.equal(result.unsealed_records,0);
  assert.equal(result.source.head_sha256,verifyJournal(f.journal).head_sha256);assert.ok(!JSON.stringify(result).includes('private command'));
 });
 test('privacy coarsens all record and gate times to minutes and drops observation minutes',t=>{
@@ -108,16 +108,16 @@ test('invalid CrossCast loss fields, duplicate commands and schema are refused',
  assert.throws(()=>crosscast(audit(f,[],{schema:'other'})));
 });
 test('export validates seals, and absent seals are explicitly unsealed',t=>{
- const f=ready(t);assert.equal(exportData(f.ctx).unsealed_records,2);seal(f.ctx);fs.writeFileSync(sealFile(f),'{}');assert.throws(()=>exportData(f.ctx));
+ const f=ready(t);assert.equal(exportData(f.ctx).unsealed_records,3);seal(f.ctx);fs.writeFileSync(sealFile(f),'{}');assert.throws(()=>exportData(f.ctx));
 });
 test('export command prints counts and never edits source journal',t=>{
  const f=ready(t),out=path.join(f.root,'output.json'),bytes=fs.readFileSync(f.journal);
  const result=cli(f,'export',['--site','owner','--journal',f.journal,'--out',out,'--privacy']);
- assert.equal(result.status,0,result.stderr);assert.equal(JSON.parse(result.stdout).records,2);assert.deepEqual(fs.readFileSync(f.journal),bytes);
+ assert.equal(result.status,0,result.stderr);assert.equal(JSON.parse(result.stdout).records,3);assert.deepEqual(fs.readFileSync(f.journal),bytes);
 });
 test('daily defaults to five summary lines and writes no seal or signoff',t=>{
  const f=ready(t);step(f);const bytes=fs.readFileSync(f.journal),result=daily(f.ctx);
- assert.equal(result.lines.length,10);assert.match(result.lines[0],/^records_today: 3$/);assert.equal(result.checked.in_doubt_open,1);
+ assert.equal(result.lines.length,10);assert.match(result.lines[0],/^records_today: 4$/);assert.equal(result.checked.in_doubt_open,1);
  assert.equal(fs.existsSync(sealFile(f)),false);assert.deepEqual(fs.readFileSync(f.journal),bytes);
 });
 test('daily apply seals and prompts without fabricating a SIGN_OFF',t=>{

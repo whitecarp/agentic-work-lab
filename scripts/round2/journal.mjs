@@ -4,6 +4,7 @@ import {pathToFileURL} from 'node:url';
 import {createHmac, randomBytes} from 'node:crypto';
 import {validateRecord, SLOTS, PLATFORMS} from './schema.mjs';
 import {sha, utc, atomic, withLock, privateHome, readJSON, parseFlags, allowed, alive} from './io.mjs';
+import {bindHome} from './site.mjs';
 export {validateRecord};
 export const ZERO='0'.repeat(64);
 export const newRunId=()=>randomBytes(16).toString('hex');
@@ -174,7 +175,8 @@ export function main(argv=process.argv.slice(2)){
       case 'stop':type='STOP_SET';d={by:f.by??ctx.slot};break;
       case 'clear-stop':type='STOP_CLEARED';d={by:f.by??ctx.slot};break;
       case 'protocol-seal':
-        type='PROTOCOL_SEAL';d={protocol_sha256:fileHash(f.protocol),lab_commit:f['lab-commit'],crosscast_commit:f['crosscast-commit'],
+        type='PROTOCOL_SEAL';d={vpub_home_sha256:bindHome(ctx,readJournal(ctx.journal),{sealing:true}).digest,
+          protocol_sha256:fileHash(f.protocol),lab_commit:f['lab-commit'],crosscast_commit:f['crosscast-commit'],
           phase:f.phase,crosscast_digest:f['crosscast-digest']??null,plan_sha256:f.plan?fileHash(f.plan):null,
           analysis_sha256:f.analysis?fileHash(f.analysis):null,rules_card_sha256:f['rules-card']?fileHash(f['rules-card']):null};break;
     }

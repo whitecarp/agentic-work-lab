@@ -115,6 +115,10 @@
                   "type": "null"
                 }
               ]
+            },
+            "vpub_home_sha256": {
+              "type": "string",
+              "pattern": "^[a-f0-9]{64}$"
             }
           },
           "required": [
@@ -394,7 +398,11 @@
                 "invalid_time",
                 "bad_job_list",
                 "gate_threw",
-                "journal_unwritable"
+                "journal_unwritable",
+                "vpub_home_missing",
+                "vpub_home_invalid",
+                "vpub_home_unsealed",
+                "vpub_home_mismatch"
               ]
             }
           },
@@ -2053,7 +2061,11 @@
                 "class_mismatch",
                 "invalid_role",
                 "role_mismatch",
-                "operator_record_mismatch"
+                "operator_record_mismatch",
+                "vpub_home_missing",
+                "vpub_home_invalid",
+                "vpub_home_unsealed",
+                "vpub_home_mismatch"
               ]
             }
           },
