@@ -706,6 +706,20 @@
                   "type": "null"
                 }
               ]
+            },
+            "answered": {
+              "type": "boolean"
+            },
+            "started": {
+              "type": "boolean"
+            },
+            "confirmed_state": {
+              "enum": [
+                null,
+                "SUBMISSION_VERIFIED",
+                "EDIT_VERIFIED",
+                "DELETED_VERIFIED"
+              ]
             }
           },
           "required": [
@@ -1262,6 +1276,10 @@
                 "tester-assistant",
                 "scheduler"
               ]
+            },
+            "words_sha256": {
+              "type": "string",
+              "pattern": "^[a-f0-9]{64}$"
             }
           },
           "required": [
@@ -2392,7 +2410,14 @@
               "type": "boolean"
             },
             "fired": {
-              "type": "boolean"
+              "anyOf": [
+                {
+                  "type": "boolean"
+                },
+                {
+                  "type": "null"
+                }
+              ]
             },
             "failed": {
               "type": "boolean"
@@ -2407,7 +2432,33 @@
                     "minimum": 1
                   },
                   "ended": {
+                    "anyOf": [
+                      {
+                        "type": "boolean"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "parent": {
+                    "type": "integer"
+                  },
+                  "root": {
                     "type": "boolean"
+                  },
+                  "born": {
+                    "type": "string",
+                    "pattern": "^[0-9]+$"
+                  },
+                  "kind": {
+                    "enum": [
+                      "launcher",
+                      "python",
+                      "driver",
+                      "chromium",
+                      "other"
+                    ]
                   }
                 },
                 "required": [
@@ -2416,6 +2467,27 @@
                 ],
                 "additionalProperties": false
               }
+            },
+            "action_delay_ms": {
+              "anyOf": [
+                {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "kill_exit": {
+              "anyOf": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ]
             }
           },
           "required": [

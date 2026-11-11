@@ -63,7 +63,7 @@ test('reveal requires explicit closing after last step and matching sealed bytes
  const f=fixture(t),made=make(f.home,counts,'owner',options);setup(f.ctx);
  put(f.ctx,'PROTOCOL_SEAL',{protocol_sha256:'a'.repeat(64),lab_commit:'b'.repeat(40),crosscast_commit:'c'.repeat(40),phase:'2b',crosscast_digest:null,plan_sha256:made.sha256,analysis_sha256:null,rules_card_sha256:null});
  const sign=closing=>{const h=verifyJournal(f.journal);return put(f.ctx,'SIGN_OFF',{day:new Date().toISOString().slice(0,10),by:'owner',answer:'yes',words_sha256:null,head_sha256:h.head_sha256,records:h.records,closing});};
- sign(false);assert.throws(()=>reveal(f.ctx),/closing/);sign(true);assert.equal(reveal(f.ctx).sha256,made.sha256);assert.throws(()=>reveal(f.ctx));
+ sign(false);assert.throws(()=>reveal(f.ctx),/closing/);sign(true);assert.equal(reveal(f.ctx).sha256,made.sha256);assert.deepEqual(fs.readFileSync(path.join(path.dirname(f.journal),'plan-seed')),fs.readFileSync(path.join(f.home,'plan-seed')));assert.throws(()=>reveal(f.ctx));
 });
 test('make CLI uses only isolated private home',t=>{
  const f=fixture(t),r=cli(f,'plan-runs',['make','--counts',path.resolve('tests/round2/fixtures/planned-counts-v1.json'),'--site','tester','--due-from',options.dueFrom]);

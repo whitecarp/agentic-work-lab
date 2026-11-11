@@ -456,3 +456,32 @@ Linux process-group code is implemented but this Windows validation does not
 claim Linux acceptance. No real installed executable or real settings were read.
 
 Fixed review cutoffs require an explicit UTC Z or offset; timezone-naive --as-of input is refused.
+
+The named operator configures the fault switch once. An existing different
+external stop file yields `external_stop_already_registered` and the operator
+reports that to the owner. Cleanup keeps the original settings backup, so any
+second setup needs review. Clearing a scheduled or personal stop requires that
+site person's words on stdin. An agent can clear its own drill or refusal stop.
+
+C36 records the presence of a tool reply and the started state on new steps.
+A cutoff publish, edit or delete opens an unknown case at that step. A confirmed
+read or a person's recorded look must follow the last possible press for the
+same job, platform and operation. The stricter count is retained.
+
+The Windows interruption record carries the measured delay and taskkill exit
+code, plus observed process identity, parent, category and ended status. Unknown
+controller results keep the original STEP. Tool-switch faults have no action
+delay. The Windows starter is the command-only target. Its children are observed.
+
+For the tester share, run the Lab export with both --privacy and --crosscast.
+Share the resulting derived file. Its crosscast section rebases times per command,
+publication and deletion. Keep the input tool export on site. Review results
+requiring absolute times there. The counted-phase seal must contain the digest
+of the plan to arm from it. After the closing sign-off, reveal writes both the
+sealed list and its verified 32-byte seed. A legacy list without a seed commitment
+cannot certify a recovered seed.
+
+Precise intervals on a command spanning UTC midnight can narrow its clock time
+when paired with the Lab STEP date. The tester copy withholds those intervals
+and the corresponding Lab STEP duration. Each person's on-site analysis retains
+the original durations. Process creation identities are keyed in the share.

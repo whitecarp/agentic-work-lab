@@ -32,7 +32,8 @@ export function selectFault(ctx,job,role,policy){
  if(!fs.existsSync(file))return null;
  if(fs.lstatSync(file).isSymbolicLink())throw new Error('fault_plan_invalid');
  const bytes=fs.readFileSync(file),plan=JSON.parse(bytes),records=readJournal(ctx.journal);
- const sealed=records.filter(r=>r.type==='PROTOCOL_SEAL').at(-1)?.d.plan_sha256;
+ const seal=records.findLast(r=>r.type==='PROTOCOL_SEAL')?.d;
+ const sealed=seal?.plan_sha256;
  if(sealed&&sha(bytes)!==sealed)throw new Error('fault_plan_invalid');
  if(!Array.isArray(plan.runs))throw new Error('fault_plan_invalid');
  const matches=plan.runs.filter(r=>r.id===job.id);if(matches.length>1)throw new Error('fault_plan_invalid');
@@ -41,6 +42,7 @@ export function selectFault(ctx,job,role,policy){
  if(choices.length>1)throw new Error('fault_plan_invalid');
  const fault=choices[0];
  if(!fault||!permitted.has(fault.armed_on)||records.some(r=>r.type==='FAULT'&&r.d.job===job.id&&r.d.role===role))return null;
+ if(['2a','2b'].includes(seal?.phase)&&!sealed)throw new Error('fault_plan_invalid');
  const rule=FAULTS[fault.kind];
  if(!rule||rule.role!==role||rule.trigger!==fault.trigger||rule.mechanism!==fault.mechanism||
    ![0,500,2000].includes(fault.delay_ms)||row.run_class!=='test_post'||row.site!==ctx.site||
@@ -68,9 +70,9 @@ export function injectedReply(stdout,platform){
 async function processes(){
  if(process.platform==='win32'){
   const {stdout}=await exec('powershell.exe',['-NoProfile','-NonInteractive','-Command',
-   'Get-CimInstance Win32_Process | Select-Object ProcessId,ParentProcessId,@{n="born";e={$_.CreationDate.ToUniversalTime().Ticks.ToString()}} | ConvertTo-Json -Compress'],
+   'Get-CimInstance Win32_Process | Select-Object Name,ProcessId,ParentProcessId,@{n="born";e={$_.CreationDate.ToUniversalTime().Ticks.ToString()}} | ConvertTo-Json -Compress'],
    {windowsHide:true,maxBuffer:4*1024*1024,timeout:15000});
-  const rows=JSON.parse(stdout);return (Array.isArray(rows)?rows:[rows]).map(r=>({pid:r.ProcessId,parent:r.ParentProcessId,born:r.born}));
+  const rows=JSON.parse(stdout);return (Array.isArray(rows)?rows:[rows]).map(r=>({pid:r.ProcessId,parent:r.ParentProcessId,born:r.born,image:r.Name}));
  }
  if(process.platform==='linux')return fs.readdirSync('/proc').filter(n=>/^\d+$/.test(n)).flatMap(n=>{
   try{const s=fs.readFileSync(`/proc/${n}/stat`,'utf8').split(') ')[1].split(' ');return [{pid:+n,parent:+s[1],born:s[19],zombie:s[0]==='Z'}];}catch{return [];}
@@ -83,11 +85,20 @@ function family(rows,root){const selected=new Map([[root,rows.find(r=>r.pid===ro
  if(BigInt(r.born)<BigInt(selected.get(r.parent).born))throw new Error('ambiguous_process_parent');
  selected.set(r.pid,r);changed=true;
  }}return [...selected.values()];}
-export function faultController(ctx,fault){
+async function terminate(pid,tree,child){
+ if(process.platform==='win32'){
+  try{await exec('taskkill.exe',['/PID',String(pid),...(tree?['/T']:[]),'/F'],{windowsHide:true,timeout:15000});return 0;}
+  catch(e){return Number.isInteger(e.code)?e.code:null;}
+ }
+ if(tree)process.kill(-pid,'SIGKILL');else child.kill('SIGKILL');
+ return 0;
+}
+export function faultController(ctx,fault,{snapshot=processes,kill=terminate}={}){
  if(!fault)return null;
  const rule=FAULTS[fault.kind];let child,rootIdentity,rootReady=Promise.resolve(),press=false,triggered=false,fired=false,failed=false,pending=Promise.resolve(),ended=[],partial='';
+ let measured=null,killExit=null;
  const api={
-  attach(c){child=c;if(rule.mechanism==='wrapper_kill')c.once('spawn',()=>{rootReady=processes().then(rows=>{rootIdentity=rows.find(r=>r.pid===c.pid);}).catch(()=>{failed=true;});});},
+  attach(c){child=c;if(rule.mechanism==='wrapper_kill')c.once('spawn',()=>{rootReady=snapshot().then(rows=>{rootIdentity=rows.find(r=>r.pid===c.pid);}).catch(()=>{failed=true;});});},
   line(line){
    // CrossCast progress.show emits JSON, not a bare word. Ignore unrelated
    // stderr, another platform and arbitrary strings containing the trigger.
@@ -97,29 +108,43 @@ export function faultController(ctx,fault){
    if(stage==='pressing')press=true;
    if(triggered||rule.mechanism==='tool_switch'||stage!==rule.trigger.replaceAll('_',' ')||(rule.afterPress&&!press))return;
    triggered=true;
+   const start=performance.now();
    pending=(async()=>{
-    await pause(fault.delay_ms);
     if(rule.mechanism==='stop_file'){
-     put(ctx,'STOP_SET',{by:'scheduler'},ctx.run);atomic(path.join(ctx.home,'STOP'),'planned fault\n');fired=true;return;
+     await pause(fault.delay_ms);
+     put(ctx,'STOP_SET',{by:'scheduler'},ctx.run);
+     measured=Math.round(performance.now()-start);
+     atomic(path.join(ctx.home,'STOP'),'planned fault\n');fired=true;return;
     }
-    await rootReady;if(failed||!rootIdentity||child.exitCode!==null||child.signalCode!==null)return;
-    const before=await processes(),root=before.find(r=>r.pid===child.pid&&r.born===rootIdentity.born);
+    const [before]=await Promise.all([snapshot(),rootReady,pause(fault.delay_ms)]);
+    if(failed||!rootIdentity){failed=true;fired=null;return;}
+    if(child.exitCode!==null||child.signalCode!==null)return;
+    const root=before.find(r=>r.pid===child.pid&&r.born===rootIdentity.born);
     if(!root)return;
-    const owned=rule.tree?family(before,child.pid):[root];
-    if(process.platform==='win32'){
-     await exec('taskkill.exe',['/PID',String(child.pid),...(rule.tree?['/T']:[]),'/F'],{windowsHide:true,timeout:15000});
-    }else if(rule.tree){process.kill(-child.pid,'SIGKILL');}else child.kill('SIGKILL');
-    fired=true;
-    for(let n=0;n<30;n++){
-     const after=await processes();ended=owned.map(r=>({pid:r.pid,ended:!after.some(a=>a.pid===r.pid&&a.born===r.born&&!a.zombie)}));
-     if(ended.every(r=>r.ended))break;await pause(100);
+    const owned=family(before,child.pid);
+    const category=r=>r.pid===root.pid?'launcher':/^python(?:w)?(?:\.exe)?$/i.test(r.image)?'python':
+      /^node(?:\.exe)?$/i.test(r.image)?'driver':/chrome|chromium/i.test(r.image)?'chromium':'other';
+    ended=owned.map(r=>({pid:r.pid,parent:r.parent,root:r.pid===root.pid,born:r.born,kind:category(r),ended:null}));
+    measured=Math.round(performance.now()-start);
+    killExit=await kill(root.pid,rule.tree,child);
+    // Also observe descendants of the launcher for a command-only trial.
+    // A nonzero taskkill code can coincide with an already-ended member.
+    if(!rule.tree)await pause(2200);
+    for(let n=0;n<4;n++){
+     const after=await snapshot();
+     ended=ended.map(r=>({...r,ended:!after.some(a=>a.pid===r.pid&&a.born===r.born&&!a.zombie)}));
+     const targets=ended.filter(r=>rule.tree||r.root);
+     if(targets.every(r=>r.ended)){fired=true;return;}
+     if(n<3)await pause(200);
     }
-   })().catch(()=>{failed=true;});
+    failed=true;
+    fired=ended.filter(r=>rule.tree||r.root).some(r=>r.ended)?null:false;
+   })().catch(()=>{failed=true;fired=null;});
   },
   receive(bytes){partial+=bytes.toString('utf8');let i;while((i=partial.indexOf('\n'))!==-1){api.line(partial.slice(0,i));partial=partial.slice(i+1);}if(partial.length>8192)partial='';},
   async finish(stdout){if(partial)api.line(partial);await rootReady;await pending;if(rule.mechanism==='tool_switch')fired=injectedReply(stdout,fault.armed_on.split('_')[0]);
-   put(ctx,'FAULT_RESULT',{job:fault.job,kind:fault.kind,role:fault.role,triggered,fired,failed,processes:ended},ctx.run);
-   return {fired,failed};
+   put(ctx,'FAULT_RESULT',{job:fault.job,kind:fault.kind,role:fault.role,triggered,fired:failed&&!triggered?null:fired,failed,action_delay_ms:measured,kill_exit:killExit,processes:ended},ctx.run);
+   return {fired:failed&&!triggered?null:fired,failed};
   }
  };return api;
 }

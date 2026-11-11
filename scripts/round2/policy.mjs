@@ -77,7 +77,7 @@ export function limits(records,job,role,platforms,now,reservations=[],jobs=[]) {
   }
   return null;
 }
-export function outcome(exit,stdout){
+export function outcome(exit,stdout,{started=true,role,platform}={}){
   let value;
   const lines=stdout.trim().split(/\r?\n/);
   try{if(lines.length===1)value=JSON.parse(lines[0]);}catch{}
@@ -97,5 +97,11 @@ export function outcome(exit,stdout){
   if(states.includes('PREPARATION_INCOMPLETE')) result='needs_person';
   if(['stopped','interrupted'].includes(code)) result='stopped';
   if(!Number.isInteger(exit)) result='unknown';
-  return {result,code,rawRefs:[data?.key,...Object.values(data?.results??{}).map(x=>x?.key)].filter(x=>typeof x==='string'&&/^[a-f0-9]{64}$/.test(x))};
+  const answered=!!value && typeof value==='object' && !Array.isArray(value) &&
+    (typeof value.ok==='boolean'||typeof data?.state==='string'||typeof value.error?.code==='string'||!!data?.results);
+  if(started&&!answered&&['publish','edit','delete'].includes(role)) result='unknown';
+  const state=data?.results?.[platform]?.state??data?.state;
+  const confirmed_state=answered&&exit===0&&value.ok!==false&&
+    ['SUBMISSION_VERIFIED','EDIT_VERIFIED','DELETED_VERIFIED'].includes(state)?state:null;
+  return {result,code,answered,confirmed_state,rawRefs:[data?.key,...Object.values(data?.results??{}).map(x=>x?.key)].filter(x=>typeof x==='string'&&/^[a-f0-9]{64}$/.test(x))};
 }

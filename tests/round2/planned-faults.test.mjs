@@ -12,7 +12,7 @@ import {sha,alive} from '../../scripts/round2/io.mjs';
 
 const job={id:'job-1',class:'write',run_class:'test_post',platforms:['youtube'],visibility:'private',due_at:'2020-01-01'};
 function ready(t,kind='readback_timeout',script,delay=0){
- const f=fixture(t);setup(f.ctx,[job]);fs.writeFileSync(path.join(f.root,'vpub','config.json'),JSON.stringify({unrelated:17,external_stop_file:path.join(f.root,'old-stop')}));
+ const f=fixture(t);setup(f.ctx,[job]);fs.writeFileSync(path.join(f.root,'vpub','config.json'),JSON.stringify({unrelated:17}));
  configureSetup(f.ctx,{enabled:true,by:'owner'},()=> 'a'.repeat(64));
  const rule=FAULTS[kind];f.fault={kind,mechanism:rule.mechanism,role:rule.role,trigger:rule.trigger,delay_ms:delay,armed_on:'youtube_private'};
  f.plan={runs:[{...job,site:'owner',faults:[f.fault]}]};f.save=()=>fs.writeFileSync(path.join(f.home,'planned-runs.json'),JSON.stringify(f.plan));f.save();
@@ -22,10 +22,10 @@ function ready(t,kind='readback_timeout',script,delay=0){
  f.command=[exe,file];return f;
 }
 test('setup and cleanup restore only prior settings, preserve other edits, require owner',t=>{
- const f=fixture(t);setup(f.ctx);const file=path.join(f.root,'vpub','config.json');fs.writeFileSync(file,JSON.stringify({external_stop_file:'old-relative-stop',x:1}));
+ const f=fixture(t);setup(f.ctx);const file=path.join(f.root,'vpub','config.json');fs.writeFileSync(file,JSON.stringify({x:1}));
  assert.throws(()=>configureSetup(f.ctx,{enabled:true,by:'gemini'},()=> 'a'.repeat(64)));
  configureSetup(f.ctx,{enabled:true,by:'owner'},()=> 'a'.repeat(64));const c=JSON.parse(fs.readFileSync(file));c.x=2;fs.writeFileSync(file,JSON.stringify(c));
- configureSetup(f.ctx,{enabled:false,by:'owner'},()=> 'b'.repeat(64));assert.deepEqual(JSON.parse(fs.readFileSync(file)),{external_stop_file:'old-relative-stop',x:2});
+ configureSetup(f.ctx,{enabled:false,by:'owner'},()=> 'b'.repeat(64));assert.deepEqual(JSON.parse(fs.readFileSync(file)),{x:2});
  assert.equal(last(f.ctx,'FAULT_SETUP').d.enabled,false);assert.ok(fs.existsSync(path.join(f.home,'fault-config-original.json')));
 });
 test('fault selection skips absent/wrong role/other tool/public/real jobs and never repeats',t=>{
@@ -62,7 +62,7 @@ test('stop during upload is observed at next check; manual removal does not auth
  assert.equal(await step(f.ctx,{job:'job-1',role:'publish'},f.command,{supportCheck:()=>true}),2);assert.equal(last(f.ctx,'STEP').d.fault_fired,true);
  assert.equal(last(f.ctx,'STOP_SET').d.by,'scheduler');fs.unlinkSync(path.join(f.home,'STOP'));
  assert.equal(await step(f.ctx,{job:'job-1',role:'resume'},[process.execPath,'-e','process.exit(0)']),5);
- assert.equal(cli(f,'journal',['clear-stop',...flags(f),'--by','owner']).status,0);
+ assert.equal(cli(f,'journal',['clear-stop',...flags(f),'--by','owner'],'Account owner clears synthetic upload stop').status,0);
  assert.equal(await step(f.ctx,{job:'job-1',role:'resume'},[process.execPath,'-e','process.exit(0)']),0);
 });
 for(const [kind,tree]of [['end_command_after_press',false],['end_tree_after_press',true]])test(`${kind} ends only its owned targets and records observations`,{timeout:45000},async t=>{
@@ -71,10 +71,10 @@ for(const [kind,tree]of [['end_command_after_press',false],['end_tree_after_pres
  t.after(()=>{if(prior===undefined)delete process.env.ROUND2_HOME;else process.env.ROUND2_HOME=prior;});
  const start=performance.now();await step(f.ctx,{job:'job-1',role:'publish'},f.command,{supportCheck:()=>true});
  const result=last(f.ctx,'FAULT_RESULT').d;assert.equal(result.fired,true);assert.equal(result.failed,false);assert.ok(performance.now()-start>=500);
- assert.ok(result.processes.every(p=>p.ended));assert.equal(last(f.ctx,'STEP').d.fault_fired,true);
+ assert.ok(result.processes.filter(p=>p.root||tree).every(p=>p.ended));assert.equal(last(f.ctx,'STEP').d.fault_fired,true);
  const grand=Number(fs.readFileSync(path.join(f.home,'grandchild.pid')));
  // This is solely the PID created by the synthetic child above.
- if(!tree){assert.equal(alive(grand),true);process.kill(grand);for(let n=0;n<30&&alive(grand);n++)await new Promise(r=>setTimeout(r,50));assert.equal(alive(grand),false);await new Promise(r=>setTimeout(r,150));assert.equal(result.processes.some(p=>p.pid===grand),false);}
+ if(!tree){assert.equal(alive(grand),true);process.kill(grand);for(let n=0;n<30&&alive(grand);n++)await new Promise(r=>setTimeout(r,50));assert.equal(alive(grand),false);await new Promise(r=>setTimeout(r,150));assert.ok(result.processes.some(p=>p.pid===grand&&p.ended===false));}
  else {assert.equal(alive(grand),false);assert.ok(result.processes.some(p=>p.pid===grand));}
 });
 test('edit fault ignores pre-save readback and fires only after pressing', {timeout:45000},async t=>{

@@ -1,7 +1,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import {pathToFileURL} from 'node:url';
-import {context,readJournal,put,keyedDigest,words} from './journal.mjs';
+import {context,operator,readJournal,put,keyedDigest,words} from './journal.mjs';
 import {bindHome} from './site.mjs';
 import {withLock,parseFlags,allowed,readJSON,atomic} from './io.mjs';
 
@@ -38,9 +38,13 @@ export function recordSetup(ctx,{enabled,by},statement){
 export function configureSetup(ctx,{enabled,by},statement){
  if(by!==ctx.site||typeof enabled!=='boolean')throw new Error('fault_setup_unconfirmed');
  return withLock(path.join(ctx.home,'operation.guard'),()=>{
-  const records=readJournal(ctx.journal),pinned=bindHome(ctx,records),file=path.join(pinned.home,'config.json');
+  const records=readJournal(ctx.journal);
+  if(ctx.slot!==operator(ctx,records))throw new Error('not_operator');
+  const pinned=bindHome(ctx,records),file=path.join(pinned.home,'config.json');
   if(readJSON(path.join(ctx.home,'run.lock'),null))throw new Error('fault_setup_during_session');
   const before=inspect(ctx,records),config=readJSON(file),backup=path.join(ctx.home,'fault-config-original.json');
+  if(enabled && config.external_stop_file!=null && config.external_stop_file!=='' && !before.registered)
+    throw new Error('external_stop_already_registered');
   const digest=statement();
   if(enabled){
    if(fs.existsSync(backup)||before.enabled||before.registered)throw new Error('fault_setup_already_enabled');
@@ -65,5 +69,5 @@ export function main(argv=process.argv.slice(2)){
  console.log(JSON.stringify((configure?configureSetup:recordSetup)(ctx,{enabled:f.enabled==='true',by:f.by??ctx.site},()=>words(ctx.home))));return 0;
 }
 if(process.argv[1]&&import.meta.url===pathToFileURL(path.resolve(process.argv[1])).href){
- try{process.exitCode=main();}catch{console.error('fault_setup_unconfirmed');process.exitCode=70;}
+ try{process.exitCode=main();}catch(e){console.error(['not_operator','external_stop_already_registered'].includes(e.message)?e.message:'fault_setup_unconfirmed');process.exitCode=70;}
 }

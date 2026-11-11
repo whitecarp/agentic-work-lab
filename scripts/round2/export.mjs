@@ -3,6 +3,7 @@ import path from 'node:path';
 import {pathToFileURL} from 'node:url';
 import {readJournal,verifyJournal,canonical,context,keyedDigest} from './journal.mjs';
 import {verifySeals,counts} from './seal.mjs';
+import {privateToolCopy} from './private-tool-copy.mjs';
 import {crosscast} from './crosscast.mjs';
 import {atomic,parseFlags,allowed,withLock,sha} from './io.mjs';
 
@@ -48,6 +49,15 @@ export function exportData(ctx,{privacy=false,deny,crosscast:ccfile}={}){
   }
   result.seals=result.seals.map(s=>({...s,source_sha256:key(sha(canonical(s)+'\n')),
     head_sha256:key(s.head_sha256),previous_sha256:key(s.previous_sha256)}));
+  if(ccfile)result.crosscast=privateToolCopy(JSON.parse(fs.readFileSync(ccfile)),key);
+  const withheld=new Set(result.crosscast?.runs.filter(r=>r.t_start===null).map(r=>r.awl_run_id)??[]);
+  for(const r of result.records){
+   if(r.type==='STEP'&&r.d.awl_run_id&&withheld.has(r.d.awl_run_id))delete r.d.ms;
+   if(r.type==='FAULT_RESULT')for(const p of r.d.processes??[]){
+    if(p.born){p.instance=key(p.pid+'/'+p.born);delete p.born;}
+   }
+  }
+  if(strings(result).some(s=>forbidden.some(word=>s.includes(word))))throw new Error('private_string_refused');
   result.time_policy='dates_only_UTC; minute_fields_removed; compute_timing_on_site; tool_export_whole_UTC_days';
   return datesOnly(result);
  }

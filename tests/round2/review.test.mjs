@@ -174,10 +174,10 @@ test('in-doubt resolves on matching person evidence, not unrelated or unclear lo
 });
 test('delete uncertainty resolves on read-only verification without another write',t=>{
  const f=ready(t);step(f,{role:'delete',action:'delete'});step(f,{role:'status',class:'read',result:'ok'});assert.equal(reconcile(f.ctx).in_doubt_open,1);
- step(f,{role:'delete_verify',action:'delete',class:'read',result:'ok'});assert.equal(reconcile(f.ctx).in_doubt[0].by,'read');
+ step(f,{role:'delete_verify',action:'delete',class:'read',result:'ok',confirmed_state:'DELETED_VERIFIED'});assert.equal(reconcile(f.ctx).in_doubt[0].by,'read');
 });
-test('a later write cannot be credited as settling the original uncertainty',t=>{
- const f=ready(t);step(f);step(f,{role:'repeat_same',result:'ok'});observe(f);assert.equal(reconcile(f.ctx).in_doubt_open,1);
+test('a later write moves the settling point to a subsequent observation',t=>{
+ const f=ready(t);step(f);step(f,{role:'repeat_same',result:'ok'});observe(f);assert.equal(reconcile(f.ctx).in_doubt_open,0);assert.equal(reconcile(f.ctx).in_doubt_open_strict,1);
 });
 test('looks are owed only for started publication/edit/delete in test or real jobs',t=>{
  const f=ready(t);const jobs=JSON.parse(fs.readFileSync(path.join(f.home,'jobs.json')));

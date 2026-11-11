@@ -32,7 +32,7 @@ test('release verify at 10m, 1h and 24h never invalidates the 30m look',t=>{
  const f=ready(t);write(f,'jobs.json',[{id:'job-1',run_class:'real_slot',platforms:['youtube']}]);
  const base=Date.parse('2026-01-01T00:00:00.000Z'),s=recorded(f);redate(f,s.seq,new Date(base).toISOString());
  for(const minute of [10,30,60,1440]){
-  const r=minute===30?look(f):recorded(f,{role:'verify',action:'verify'});
+  const r=minute===30?look(f):recorded(f,{role:'verify',action:'verify',confirmed_state:'SUBMISSION_VERIFIED'});
   redate(f,r.seq,new Date(base+minute*60000).toISOString());
  }
  const r=reconcile(f.ctx,undefined,{now:base+1500*60000});
@@ -40,7 +40,7 @@ test('release verify at 10m, 1h and 24h never invalidates the 30m look',t=>{
  assert.deepEqual(r.look_checks[0].recorded_before_claimed_minute,[]);
 });
 test('post, edit and delete looks survive their later read-backs, but a resume moves the post point',t=>{
- const f=ready(t);recorded(f);look(f);recorded(f,{role:'verify',action:'verify'});
+ const f=ready(t);recorded(f);look(f);recorded(f,{role:'verify',action:'verify',confirmed_state:'SUBMISSION_VERIFIED'});
  recorded(f,{role:'edit',action:'edit'});look(f,{about:'edit'});recorded(f,{role:'edit',action:'edit',class:'read'});
  recorded(f,{role:'delete',action:'delete'});look(f,{about:'delete',seen:'absent'});recorded(f,{role:'delete_verify',action:'delete',class:'read'});
  assert.equal(reconcile(f.ctx).looks_owed.length,0);
@@ -56,7 +56,7 @@ test('premature recording is flagged while late transcription is allowed and sta
 for(const exit of [0,4])test(`complete no-press repeat exit ${exit} permits verify closure; strict view and dedup preserved`,t=>{
  const f=ready(t),id='c'.repeat(32),rid='d'.repeat(32),first=recorded(f,{result:'in_doubt',exit:4});
  const repeat=recorded(f,{role:'repeat_same',exit,result:exit===4?'in_doubt':'ok',awl_run_id:id});
- recorded(f,{role:'verify',action:'verify'});
+ recorded(f,{role:'verify',action:'verify',confirmed_state:'SUBMISSION_VERIFIED'});
  const file=path.join(f.root,'cc.json'),snap={final_presses:1,delete_attempted:false};
  const cc={schema:'crosscast-audit/1',times:'relative',integrity:{chain_ok:true,unreadable_loss_records:0,loss_records_complete:true,loss_folder_unreadable:false},
   runs:[{run:rid,awl_run_id:id,command:'publish',flags:{},exit_code:exit,ended:true,dropped_events:0,sequence_gap:false,chain_ok:true}],
@@ -64,7 +64,7 @@ for(const exit of [0,4])test(`complete no-press repeat exit ${exit} permits veri
  const check=()=>{fs.writeFileSync(file,JSON.stringify(cc));return reconcile(f.ctx,file);};
  let r=check();assert.equal(r.in_doubt.length,1);assert.equal(r.in_doubt[0].step,first.seq);
  assert.equal(r.in_doubt_open,0);assert.equal(r.in_doubt_open_strict,1);assert.deepEqual(r.in_doubt[0].ignored_no_press_steps,[repeat.seq]);
- assert.equal(reconcile(f.ctx).in_doubt_open,1);
+ assert.equal(reconcile(f.ctx).in_doubt[0].last_may_press,repeat.seq);
  for(const change of ['missing','writes','gap','damage','exit']){
   const before=structuredClone(cc);
   if(change==='missing')delete cc.events[0].before;
@@ -72,12 +72,12 @@ for(const exit of [0,4])test(`complete no-press repeat exit ${exit} permits veri
   if(change==='gap')cc.runs[0].sequence_gap=true;
   if(change==='damage')cc.integrity.loss_folder_unreadable=true;
   if(change==='exit')cc.runs[0].exit_code=99;
-  assert.equal(check().in_doubt_open,1,change);Object.assign(cc,before);
+  assert.equal(check().in_doubt[0].last_may_press,repeat.seq,change);Object.assign(cc,before);
  }
 });
 test('successful verify closes the matching platform only; unchanged strict count without repeat',t=>{
  const f=ready(t,['youtube','douyin']);recorded(f,{platforms:['youtube','douyin'],exit:4,result:'in_doubt'});
- recorded(f,{role:'verify',action:'verify'});let r=reconcile(f.ctx);assert.equal(r.in_doubt_open,1);
+ recorded(f,{role:'verify',action:'verify',confirmed_state:'SUBMISSION_VERIFIED'});let r=reconcile(f.ctx);assert.equal(r.in_doubt_open,1);
  assert.equal(r.in_doubt.find(x=>x.platform==='youtube').closed,true);
  assert.equal(r.in_doubt.find(x=>x.platform==='douyin').closed,false);
 });

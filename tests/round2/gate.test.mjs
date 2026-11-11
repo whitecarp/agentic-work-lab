@@ -96,7 +96,7 @@ test('performed jobs remain open across completed sessions',async t=>{
 test('child nonzero code is returned but explicit session end is completed',async t=>{
   const f=admitted(t);
   assert.equal(await step(f.ctx,stepFlags,[process.execPath,'-e','process.stderr.write("private stderr");process.exit(4)']),4);
-  assert.equal(last(f.ctx,'STEP').d.result,'in_doubt');assert.equal(end(f.ctx).record.d.state,'completed');
+  assert.equal(last(f.ctx,'STEP').d.result,'unknown');assert.equal(last(f.ctx,'STEP').d.answered,false);assert.equal(end(f.ctx).record.d.state,'completed');
   assert.equal(fs.readFileSync(f.journal,'utf8').includes('private stderr'),false);
 });
 test('spawn failure consumes approval without pretending a child ran',async t=>{

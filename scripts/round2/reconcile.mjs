@@ -35,7 +35,7 @@ export function reconcile(ctx,crosscastFile,{now=Date.now()}={}){
  const reservations=ctx.home?readJSON(path.join(ctx.home,'reservations.json'),[]):[];
   const eligible=steps.filter(r=>r.d.class==='write'&&['publish','repeat_same','changed_plan','resume','edit','delete'].includes(r.d.role));
  const scope=job=>jobs.find(j=>j.id===job)?.run_class;
- const started=s=>!(reservations.find(x=>x.run===s.run&&x.step_seq===s.seq)?.started===false||s.d.exit===127);
+ const started=s=>s.d.started??!(reservations.find(x=>x.run===s.run&&x.step_seq===s.seq)?.started===false||s.d.exit===127);
  const operation=s=>s.d.action==='delete'||['delete','delete_verify'].includes(s.d.role)?'delete':s.d.role==='edit'?'edit':
    ['publish','repeat_same','changed_plan','resume','verify'].includes(s.d.role)?'post':null;
  const observationPlatform=r=>{
@@ -78,45 +78,95 @@ export function reconcile(ctx,crosscastFile,{now=Date.now()}={}){
   return {run:command.run,awl_run_id:id,step_seq:status==='matched'?s.seq:null,status};
  });
  const ungated=trusted?bindings.filter(b=>b.status!=='matched').length:null;
-  const provenNoPress=s=>{
-    if(!trusted||!((s.d.result==='refused'&&s.d.exit===2)||
-        (['repeat_same','resume','verify'].includes(s.d.role)&&[0,4].includes(s.d.exit))))return false;
-  if(cc.integrity?.unreadable_loss_records!==0||cc.integrity?.loss_records_complete!==true||cc.integrity?.loss_folder_unreadable!==false)return false;
-  const binding=bindings.find(b=>b.step_seq===s.seq&&b.status==='matched');
-  const command=binding&&cc.runs.find(r=>r.run===binding.run);
-    if(!command||command.exit_code!==s.d.exit||command.ended!==true||command.dropped_events!==0||command.sequence_gap!==false)return false;
-  const events=cc.events.filter(e=>e.run===command.run),first=events.find(e=>e.type==='command_start'),last=events.findLast(e=>e.type==='command_end');
-  if(!first||!last)return false;
-  // Require complete unchanged snapshots; absence of evidence or a missing
-  // export is never proof that the refused command sent nothing.
-  if(!first.before||!last.after||!['final_presses','delete_attempted'].every(k=>
-     first.before[k]!==undefined&&first.before[k]!==null&&first.before[k]===last.after[k]))return false;
-  return !events.some(e=>e.type==='call'||e.type==='span'||e.operation==='press'||e.platform_writes>0||e.stage==='pressing');
- };
-  const cases=new Map();
-  for(const s of steps.filter(r=>r.d.result==='in_doubt'))for(const platform of s.d.platforms.length?s.d.platforms:[null]){
-    const key=JSON.stringify([s.d.job,platform,operation(s)??'post']);
-    if(!cases.has(key))cases.set(key,{s,platform,members:[]});
-    cases.get(key).members.push(s.seq);
-  }
-  const inDoubt=[...cases.values()].map(({s,platform,members})=>{
-  const about=operation(s)??'post',later=records.filter(r=>r.seq>s.seq&&r.d.job===s.d.job);
-  const closure=later.find(r=>(r.type==='OBSERVATION'&&r.d.about===about&&r.d.seen!=='unclear'&&observationPlatform(r)===platform)||
-      (r.type==='STEP'&&r.d.platforms.length===1&&r.d.platforms.includes(platform)&&
-        (r.d.class==='read'||(about==='post'&&r.d.role==='verify'))&&r.d.result==='ok'&&
-       (about==='delete'?r.d.role==='delete_verify':about==='edit'?r.d.role==='edit':r.d.role==='verify')));
-  const writes=later.filter(r=>r.seq<(closure?.seq??Infinity)&&r.type==='STEP'&&r.d.class==='write'&&r.d.platforms.includes(platform));
-    const ignored=writes.filter(provenNoPress),closed=!!closure&&writes.length===ignored.length,strict=!!closure&&!writes.length;
-    return {job:s.d.job,platform,step:s.seq,steps:members,closed,closed_strict:strict,
-      ignored_refused_steps:ignored.filter(r=>r.d.result==='refused').map(r=>r.seq),ignored_no_press_steps:ignored.map(r=>r.seq),
-    by:closed?(closure.type==='OBSERVATION'?'person':'read'):null,
-    seconds:closed?Math.max(0,(Date.parse(closure.at)-Date.parse(s.at))/1000):null,clock_reversed:!!closure&&Date.parse(closure.at)<Date.parse(s.at)};
-  });
+ const intact=cc.integrity?.unreadable_loss_records===0 && cc.integrity?.loss_records_complete===true &&
+   cc.integrity?.loss_folder_unreadable===false && (cc.integrity?.unplaced_dropped_events??0)===0;
+ function matched(s){
+   const b=bindings.find(b=>b.step_seq===s.seq&&b.status==='matched');
+   return b&&cc.runs.find(r=>r.run===b.run);
+ }
+ function eventsFor(s){
+   const cmd=matched(s);
+   if(!intact||!cmd||cmd.dropped_events!==0||cmd.sequence_gap!==false)return null;
+   return cc.events.filter(e=>e.run===cmd.run);
+ }
+ function provenNoPress(s){
+   const cmd=matched(s), events=eventsFor(s);
+   if(!events||cmd.exit_code!==s.d.exit||cmd.ended!==true)return false;
+   const first=events[0],last=events.at(-1);
+   if(first?.type!=='command_start'||last?.type!=='command_end')return false;
+   const middle=events.slice(1,-1);
+   if(middle.some(e=>!['call','span','stage','transition'].includes(e.type)))return false;
+   if(events.some(e=>e.operation==='press'||e.platform_writes>0||e.stage==='pressing'))return false;
+   const before=first.before,after=last.after;
+   const sameCounts=before&&after&&['final_presses','delete_attempted'].every(k=>
+     before[k]!=null&&before[k]===after[k]);
+   // A timing span accompanies even a skipped publish. A transition, stage
+   // or platform call prevents the no-contact route to proof.
+   if(middle.every(e=>e.type==='span') &&
+      ((before===null&&after===null)||(sameCounts&&before.state===after.state)))return true;
+   if(!sameCounts||after.final_submit_attempted===true&&before.final_submit_attempted!==true)return false;
+   return !middle.some(e=>e.type==='transition'&&
+     ((e.final_presses!=null&&e.final_presses!==before.final_presses)||
+      (e.delete_attempted!=null&&e.delete_attempted!==before.delete_attempted)||
+      (e.final_submit_attempted===true&&before.final_submit_attempted!==true)));
+ }
+ const cutoff=s=>s.d.result==='unknown'&&s.d.answered===false&&started(s)&&['publish','edit','delete'].includes(s.d.role);
+ function pressEvidence(s,platform){
+   const events=eventsFor(s);if(!events)return null;
+   const snapshots=events.filter(e=>!e.platform||e.platform===platform)
+     .flatMap(e=>e.type==='transition'?[e]:[e.before,e.after].filter(Boolean));
+   if(snapshots.some(e=>e.final_submit_attempted===true||e.final_presses>0||e.delete_attempted===true))return true;
+   return snapshots.some(e=>e.final_submit_attempted===false||e.final_presses===0||e.delete_attempted===false)?false:null;
+ }
+ const cases=new Map();
+ for(const s of steps.filter(r=>started(r)&&(r.d.result==='in_doubt'||r.d.exit===4||cutoff(r))&&operation(r))){
+   for(const platform of s.d.platforms){
+     const key=JSON.stringify([s.d.job,platform,operation(s)]);
+     if(!cases.has(key))cases.set(key,{s,platform,members:[]});
+     cases.get(key).members.push(s.seq);
+   }
+ }
+ const confirmed={post:'SUBMISSION_VERIFIED',edit:'EDIT_VERIFIED',delete:'DELETED_VERIFIED'};
+ const inDoubt=[...cases.values()].map(({s,platform,members})=>{
+   const about=operation(s),later=records.filter(r=>r.seq>s.seq&&r.d.job===s.d.job);
+   function settles(r){
+     if(r.type==='OBSERVATION')return r.d.about===about&&r.d.seen!=='unclear'&&observationPlatform(r)===platform;
+     if(r.type!=='STEP'||r.d.platforms.length!==1||r.d.platforms[0]!==platform||r.d.result!=='ok')return false;
+     if(r.d.role!==({post:'verify',edit:'edit',delete:'delete_verify'})[about])return false;
+     if(about==='edit'&&r.d.class!=='read')return false;
+     if(Object.hasOwn(r.d,'confirmed_state'))return r.d.confirmed_state===confirmed[about];
+     // Old journals lack this field. Require an affirmative state in the
+     // paired command or its final snapshot before treating a read as verified.
+     const cmd=cc.runs.find(x=>x.awl_run_id&&x.awl_run_id===r.d.awl_run_id);
+     if(!trusted||!intact||!cmd||cmd.ended!==true||cmd.exit_code!==0||cmd.dropped_events!==0||cmd.sequence_gap!==false)return false;
+     return cc.events.some(e=>e.run===cmd.run&&(!e.platform||e.platform===platform)&&
+       [e.state,e.after?.state].includes(confirmed[about]));
+   }
+   const writes=later.filter(r=>r.type==='STEP'&&r.d.class==='write'&&started(r)&&r.d.platforms.includes(platform));
+   const relevant=writes.filter(r=>operation(r)===about&&['publish','repeat_same','changed_plan','resume','edit','delete'].includes(r.d.role));
+   const ignored=relevant.filter(provenNoPress),mayPress=relevant.filter(r=>!ignored.includes(r));
+   const firstEligible=Math.max(s.seq,...mayPress.map(r=>r.seq));
+   const closure=later.find(r=>r.seq>firstEligible&&settles(r));
+   const strict=!!closure&&!writes.some(r=>r.seq<closure.seq);
+   const press=cutoff(s)?pressEvidence(s,platform):null;
+   return {job:s.d.job,platform,step:s.seq,steps:members,closed:!!closure,closed_strict:strict,
+     cutoff:cutoff(s),cutoff_press_flag:press,last_may_press:firstEligible,settled_at_seq:closure?.seq??null,
+     ignored_refused_steps:ignored.filter(r=>r.d.result==='refused').map(r=>r.seq),ignored_no_press_steps:ignored.map(r=>r.seq),
+     by:closure?(closure.type==='OBSERVATION'?'person':'read'):null,
+     seconds:closure?Math.max(0,(Date.parse(closure.at)-Date.parse(s.at))/1000):null,clock_reversed:!!closure&&Date.parse(closure.at)<Date.parse(s.at)};
+ });
  return {schema:'round2-reconcile/1',as_of:new Date(now).toISOString(),records:records.length,crosscast_present:cc.present,crosscast_chain_ok:cc.chain_ok,time_alignment:!cc.present?'journal_only':cc.times==='exact'&&cc.chain_ok?'exact':'unavailable',
    command_binding:!cc.present?'journal_only':trusted?'shared_id':'unavailable',
    ungated_writes:ungated,matched_write_commands:trusted?bindings.length-ungated:null,write_bindings:bindings,
    admitted_sessions_without_write:runs.filter(r=>!steps.some(s=>s.run===r.id&&s.d.class==='write')).length,
    captures_checked:!!ctx.home,captures_missing:ctx.home?missing:null,in_doubt:inDoubt,in_doubt_open:inDoubt.filter(r=>!r.closed).length,
+   fault_delays:records.filter(r=>r.type==='FAULT_RESULT').map(r=>{
+     const armed=records.findLast(a=>a.seq<r.seq&&a.type==='FAULT'&&a.run===r.run&&a.d.job===r.d.job&&a.d.role===r.d.role);
+     const row={job:r.d.job,kind:r.d.kind,role:r.d.role,fired:r.d.fired};
+     if(armed&&armed.d.mechanism!=='tool_switch'){row.listed_ms=armed.d.delay_ms;row.measured_ms=r.d.action_delay_ms??null;}
+     return row;
+   }),cutoff_without_press_flag:inDoubt.filter(r=>r.cutoff&&r.cutoff_press_flag===false).length,
+   cutoff_press_flag_unavailable:inDoubt.filter(r=>r.cutoff&&r.cutoff_press_flag===null).length,
    in_doubt_open_strict:inDoubt.filter(r=>!r.closed_strict).length,
    looks_owed:owesLook.map(({job,platform,step,about})=>({job,platform,step,about})),look_checks:lookChecks,looks_scope_unknown:eligible.filter(r=>!scope(r.d.job)).length,refusals_by_code:refusals,
    violations:records.filter(r=>r.type==='VIOLATION').length,crosscast_command_losses:cc.losses,crosscast_integrity:cc.integrity};

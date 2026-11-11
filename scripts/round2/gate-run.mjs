@@ -4,7 +4,7 @@ import {pathToFileURL} from 'node:url';
 import {spawn} from 'node:child_process';
 import {StringDecoder} from 'node:string_decoder';
 import {planRun} from '../operations-gate.mjs';
-import {context, put, readJournal, verifyJournal, newRunId, pseudonym, words} from './journal.mjs';
+import {context, operator, activeStops, put, readJournal, verifyJournal, newRunId, pseudonym, words} from './journal.mjs';
 import {ID, SLOTS, PLATFORMS, REFUSALS} from './schema.mjs';
 import {sha, utc, atomic, withLock, readJSON, parseFlags, allowed, alive} from './io.mjs';
 import {classify, guardRole, grant, grantScope, limits, outcome, roles} from './policy.mjs';
@@ -19,13 +19,6 @@ const reservationsFile=ctx=>path.join(ctx.home,'reservations.json');
 const reservations=ctx=>readJSON(reservationsFile(ctx),[]);
 const stop=ctx=>fs.existsSync(path.join(ctx.home,'STOP'));
 const gateJobs=list=>list.map(j=>({id:j.id,verdict:j.verdict,due_at:j.due_at,completed:j.completed,authorized:j.authorized}));
-function operator(ctx, records) {
-  const value=readJSON(path.join(ctx.home,'operator.json'),{operator:ctx.site}).operator;
-  const last=records.filter(r=>r.type==='HANDOFF').at(-1);
-  // A manually edited or incompletely handed-off operator is never trusted.
-  if(!SLOTS.includes(value)||value!==(last?.d.to??ctx.site)) throw new Error('operator_record_mismatch');
-  return value;
-}
 function jobs(ctx) {
   const list=jobList(ctx,readJournal(ctx.journal));
   if(!Array.isArray(list)) throw new Error('bad_job_list');
@@ -114,8 +107,7 @@ function prepare(ctx,flags,command,launch,supportCheck){
     const pinned=bindHome(ctx,records);
     if(run.child_pid) throw new Error('step_already_running');
     if(stop(ctx)) throw new Error('stop_flag');
-    const stopped=records.findLast(r=>r.type==='STOP_SET'),cleared=records.findLast(r=>r.type==='STOP_CLEARED');
-    if(stopped&&(!cleared||cleared.seq<stopped.seq||cleared.d.by!==ctx.site))throw new Error('stop_flag');
+    if(activeStops(records).length)throw new Error('stop_flag');
     const job=run.jobs.find(j=>j.id===flags.job);
     if(!job||!run.due.includes(job.id)) throw new Error('job_not_due');
     if(records.some(r=>r.type==='JOB_END'&&r.d.job===job.id)) throw new Error('job_closed');
@@ -155,14 +147,14 @@ function prepare(ctx,flags,command,launch,supportCheck){
     return {policy,reservation,run,capture:launch(reservation.id,pinned,fault)};
   });
 }
-function captureChild(ctx,command,reservationId,pinned,fault){
+function captureChild(ctx,command,reservationId,pinned,fault,controllerFactory=faultController){
   return new Promise(resolve=>{
     const file=path.join(ctx.home,'captures',newRunId()+'.jsonl');
     fs.mkdirSync(path.dirname(file),{recursive:true});
     const fd=fs.openSync(file,'wx',0o600), buffers={stdout:Buffer.alloc(0),stderr:Buffer.alloc(0)};
     const decoder=new StringDecoder('utf8');
     let stdout='', child, spawnError=false, captureError=false;
-    const started=performance.now(),controller=faultController(ctx,fault);
+    const started=performance.now(),controller=controllerFactory(ctx,fault);
     const row=(stream,bytes)=>{
       try{fs.writeSync(fd,JSON.stringify({at:utc(),stream,bytes:bytes.toString('base64')})+'\n');}
       catch{captureError=true;}
@@ -199,14 +191,14 @@ function captureChild(ctx,command,reservationId,pinned,fault){
       for(const stream of ['stdout','stderr']) if(buffers[stream].length) row(stream,buffers[stream]);
       try{fs.fsyncSync(fd);}catch{captureError=true;}finally{fs.closeSync(fd);}
       let faultFired=null;
-      try{if(controller){const result=await controller.finish(stdout);faultFired=result.fired;if(result.failed)captureError=true;}}catch{captureError=true;}
+      try{if(controller){const result=await controller.finish(stdout);faultFired=result.fired;}}catch{faultFired=null;}
       resolve({exit,stdout,ms:Math.round(performance.now()-started),capture_sha256:sha(fs.readFileSync(file)),spawnError,captureError,faultFired});
     }
   });
 }
-export async function step(ctx,flags,command,{supportCheck}={}){
+export async function step(ctx,flags,command,{supportCheck,controllerFactory}={}){
   let prepared;
-  try{prepared=prepare(ctx,flags,command,(id,pinned,fault)=>captureChild(ctx,command,id,pinned,fault),supportCheck);}
+  try{prepared=prepare(ctx,flags,command,(id,pinned,fault)=>captureChild(ctx,command,id,pinned,fault,controllerFactory),supportCheck);}
   catch(e){
     if(['broken_journal','lock_unavailable'].includes(e.message)) throw e;
     // Fixed words only. No command arguments, path or child error is echoed.
@@ -225,10 +217,12 @@ export async function step(ctx,flags,command,{supportCheck}={}){
   try {
   const child=await prepared.capture;
   if(child.captureError) throw new Error('capture_unwritable');
-  const result=outcome(child.exit,child.stdout), {policy,reservation}=prepared;
+  const {policy,reservation}=prepared;
+  const result=outcome(child.exit,child.stdout,{started:!child.spawnError,role:flags.role,platform:reservation.platforms[0]});
   withLock(guard(ctx),()=>{
     const record=put(ctx,'STEP',{job:flags.job,...policy,awl_run_id:reservation.id,role:flags.role,platforms:reservation.platforms,exit:child.exit,
       ms:child.ms,capture_sha256:child.capture_sha256,result:result.result,code:result.code,
+      answered:result.answered,started:!child.spawnError,confirmed_state:result.confirmed_state,
       refs:result.rawRefs.map(r=>pseudonym(r,ctx.home)),fault_fired:child.faultFired},ctx.run);
     const list=reservations(ctx), item=list.find(r=>r.id===reservation.id);
     item.step_seq=record.seq;item.started=!child.spawnError;writeReservations(ctx,list);

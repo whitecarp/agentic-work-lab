@@ -1,0 +1,157 @@
+{
+  "schema": "crosscast-audit/1",
+  "times": "exact",
+  "integrity": {
+    "first_seq": 1,
+    "last_seq": 25,
+    "head": "302152226c9f8aae310fd121d6a8d9840a1d692e018b249f7166ade749065165",
+    "chain_ok": true,
+    "first_bad_seq": null,
+    "events_outside_a_command": 0,
+    "dropped_events": 0,
+    "dropped_count_is_lower_bound": true,
+    "unplaced_dropped_events": 0,
+    "unreadable_loss_records": 0,
+    "loss_folder_unreadable": false,
+    "loss_records_complete": true
+  },
+  "runs": [
+    {
+      "run": "ec3b33db7c4b44bf997a8605e2533c7e",
+      "awl_run_id": "d3613c2256f2950241803b04e8bd3ba9",
+      "command": "publish",
+      "action": null,
+      "flags": {
+        "dry_run": false,
+        "verify_only": false,
+        "person_approved": true,
+        "confirm_given": true,
+        "no_cover": false,
+        "cover_given": false,
+        "person_checked": false,
+        "workers": 1
+      },
+      "build": 0,
+      "session": null,
+      "purpose": null,
+      "exit_code": 0,
+      "ok": true,
+      "seconds": 0.078,
+      "error_code": null,
+      "ended": true,
+      "t_start": "2026-11-11T16:43:27.225Z",
+      "t_end": "2026-11-11T16:43:27.310Z",
+      "platforms": {
+        "youtube": {
+          "ref": "01b776b54c3c2958",
+          "state": "SKIPPED_EXISTING",
+          "code": null,
+          "previous_state": "SUBMISSION_VERIFIED",
+          "final_presses": 1,
+          "final_submit_attempted": true,
+          "id_present": true
+        }
+      },
+      "stages": [],
+      "spans": [
+        [
+          "youtube",
+          0,
+          0.109,
+          0.109,
+          "SKIPPED_EXISTING"
+        ]
+      ],
+      "concurrency": {
+        "workers": 1,
+        "wall": 0.078,
+        "sum": 0.0,
+        "overlap": 0,
+        "idle_by_slot": [
+          0
+        ],
+        "all_verified": false
+      },
+      "dropped_events": 0,
+      "sequence_gap": false,
+      "chain_ok": true,
+      "loss_complete": false
+    }
+  ],
+  "events": [
+    {
+      "seq": 10,
+      "prev": "62d25a6cc40921605ec2088590e6d7160d3ed20208fb4bc97b68694e319f905e",
+      "at": "2026-11-11T16:43:27.225Z",
+      "day": "2026-11-11",
+      "type": "command_start",
+      "run": "ec3b33db7c4b44bf997a8605e2533c7e",
+      "dropped_before": 0,
+      "awl_run_id": "d3613c2256f2950241803b04e8bd3ba9",
+      "command": "publish",
+      "action": null,
+      "flags": {
+        "dry_run": false,
+        "verify_only": false,
+        "person_approved": true,
+        "confirm_given": true,
+        "no_cover": false,
+        "cover_given": false,
+        "person_checked": false,
+        "workers": 1
+      },
+      "code": {
+        "version": "0.16.0",
+        "source_digest": "92f604b9a2857870ff0ef51397d25f565aa2df42fb67f3b6f870bccf423b3e42",
+        "install": "unknown",
+        "commit": null,
+        "python": "3.12.14",
+        "os": "win32"
+      },
+      "before": null,
+      "fault_armed": null,
+      "session": null,
+      "purpose": null
+    },
+    {
+      "seq": 11,
+      "prev": "07ca73d4d2dda0518827133a81be5082bcfce192331dd02373c0d59a0c1e8e09",
+      "at": "2026-11-11T16:43:27.268Z",
+      "day": "2026-11-11",
+      "type": "span",
+      "run": "ec3b33db7c4b44bf997a8605e2533c7e",
+      "dropped_before": 0,
+      "platform": "youtube",
+      "slot": 0,
+      "t_start": 0.109,
+      "t_end": 0.109,
+      "state": "SKIPPED_EXISTING",
+      "code": null
+    },
+    {
+      "seq": 12,
+      "prev": "e1e7016ddbc2fe96e26e81b190706b75c24561ed9bd2f6676ba2c37c426239b0",
+      "at": "2026-11-11T16:43:27.310Z",
+      "day": "2026-11-11",
+      "type": "command_end",
+      "run": "ec3b33db7c4b44bf997a8605e2533c7e",
+      "dropped_before": 0,
+      "exit_code": 0,
+      "ok": true,
+      "seconds": 0.078,
+      "error_code": null,
+      "after": null,
+      "platforms": {
+        "youtube": {
+          "ref": "01b776b54c3c2958",
+          "state": "SKIPPED_EXISTING",
+          "code": null,
+          "previous_state": "SUBMISSION_VERIFIED",
+          "final_presses": 1,
+          "final_submit_attempted": true,
+          "id_present": true
+        }
+      }
+    }
+  ]
+}

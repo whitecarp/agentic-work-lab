@@ -108,7 +108,7 @@ export function generate(counts,site,seed,{dueFrom,firstShort,firstLong=1}={}){
   if(r.run_class==='refusal')j.listed_writes=approval.refusal_run_from_the_days_list;
   if(r.run_class==='real_slot')j.release_writes=1+3*P;
   return j;});
- return {plan:{schema:'round2-planned-runs/1',site,counts_sha256:sha(canonical(counts)),totals,runs:ordered},jobs};
+ return {plan:{schema:'round2-planned-runs/1',site,counts_sha256:sha(canonical(counts)),seed_sha256:sha(seed),totals,runs:ordered},jobs};
 }
 export function make(home,counts,site,options){return withLock(path.join(home,'plan.guard'),()=>{
  const planFile=path.join(home,'planned-runs.json'),jobsFile=path.join(home,'jobs.json'),seedFile=path.join(home,'plan-seed');
@@ -125,8 +125,21 @@ export function reveal(ctx){const records=readJournal(ctx.journal),last=records.
  if(!closing||(last&&(closing.seq<last.seq||Date.parse(closing.at)<Date.parse(last.at))))throw new Error('closing_sign_off_required');
  const file=path.join(ctx.home,'planned-runs.json'),bytes=fs.readFileSync(file),seal=records.findLast(r=>r.type==='PROTOCOL_SEAL'&&r.d.plan_sha256);
  if(!seal)throw new Error('sealed_plan_required');check(ctx.home,seal.d.plan_sha256);
- if(JSON.parse(bytes).site!==ctx.site)throw new Error('site_mismatch');
- const out=path.join(path.dirname(ctx.journal),'planned-runs.json');fs.writeFileSync(out,bytes,{flag:'wx'});return {sha256:sha(bytes)};
+ const plan=JSON.parse(bytes);
+ if(plan.site!==ctx.site)throw new Error('site_mismatch');
+ const source=path.join(ctx.home,'plan-seed');
+ if(!fs.lstatSync(source).isFile())throw new Error('invalid_seed');
+ const seed=fs.readFileSync(source);
+ if(seed.length!==32||sha(seed)!==plan.seed_sha256)throw new Error('seed_digest_mismatch');
+ const folder=path.dirname(ctx.journal),out=path.join(folder,'planned-runs.json'),seedOut=path.join(folder,'plan-seed');
+ return withLock(path.join(ctx.home,'plan.guard'),()=>{
+   if(fs.existsSync(seedOut))throw new Error('reveal_already_exists');
+   if(fs.existsSync(out)){
+     if(!fs.lstatSync(out).isFile()||!fs.readFileSync(out).equals(bytes))throw new Error('reveal_conflict');
+   }else fs.writeFileSync(out,bytes,{flag:'wx'});
+   fs.writeFileSync(seedOut,seed,{flag:'wx'});
+   return {sha256:sha(bytes),seed_sha256:sha(seed)};
+ });
 }
 export function main(argv=process.argv.slice(2)){
  const sub=argv.shift(),{flags:f,command}=parseFlags(argv);if(command.length)throw new Error('invalid_arguments');

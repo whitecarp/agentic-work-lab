@@ -88,7 +88,7 @@ test('one look covers only one platform and only after the operation last starte
  recorded(f,{platforms:['youtube','douyin']});look(f);
  assert.deepEqual(reconcile(f.ctx).looks_owed.map(x=>x.platform),['douyin']);
  look(f,{platform:'douyin'});assert.equal(reconcile(f.ctx).looks_owed.length,0);
- recorded(f,{class:'read',role:'delete_verify',exit:0,result:'ok'});
+ recorded(f,{class:'read',role:'delete_verify',exit:0,result:'ok',confirmed_state:'DELETED_VERIFIED'});
  assert.deepEqual(reconcile(f.ctx).looks_owed.map(x=>x.platform),[]);look(f);
  const r=reconcile(f.ctx);assert.equal(r.look_checks.length,2);assert.equal(r.looks_owed.length,0);
 });
@@ -112,21 +112,21 @@ test('negative sign-off needs private words; daily prints grants and looks befor
 test('matched, complete no-operation refusal permits read closure while strict count stays visible',t=>{
  const f=ready(t),id='c'.repeat(32),rid='d'.repeat(32);recorded(f);
  recorded(f,{awl_run_id:id,exit:2,result:'refused',code:'deletion_already_attempted'});
- recorded(f,{class:'read',role:'delete_verify',exit:0,result:'ok'});
+ recorded(f,{class:'read',role:'delete_verify',exit:0,result:'ok',confirmed_state:'DELETED_VERIFIED'});
  const file=path.join(f.root,'cc.json'),snap={final_presses:1,delete_attempted:true};
  const cc={schema:'crosscast-audit/1',times:'exact',integrity:{chain_ok:true,unreadable_loss_records:0,loss_records_complete:true,loss_folder_unreadable:false},runs:[{run:rid,awl_run_id:id,command:'delete',flags:{},exit_code:2,ended:true,dropped_events:0,sequence_gap:false,chain_ok:true}],events:[{run:rid,type:'command_start',before:snap},{run:rid,type:'command_end',after:snap}]};
  fs.writeFileSync(file,JSON.stringify(cc));let r=reconcile(f.ctx,file);assert.equal(r.in_doubt_open,0);assert.equal(r.in_doubt_open_strict,1);assert.equal(r.in_doubt[0].by,'read');
- assert.equal(reconcile(f.ctx).in_doubt_open,1);
- cc.events.push({run:rid,type:'call'});fs.writeFileSync(file,JSON.stringify(cc));assert.equal(reconcile(f.ctx,file).in_doubt_open,1);
- cc.events.pop();cc.runs[0].dropped_events=1;fs.writeFileSync(file,JSON.stringify(cc));assert.equal(reconcile(f.ctx,file).in_doubt_open,1);
+ assert.deepEqual(reconcile(f.ctx).in_doubt[0].ignored_no_press_steps,[]);
+ cc.events.push({run:rid,type:'call'});fs.writeFileSync(file,JSON.stringify(cc));assert.deepEqual(reconcile(f.ctx,file).in_doubt[0].ignored_no_press_steps,[]);
+ cc.events.pop();cc.runs[0].dropped_events=1;fs.writeFileSync(file,JSON.stringify(cc));assert.deepEqual(reconcile(f.ctx,file).in_doubt[0].ignored_no_press_steps,[]);
  cc.runs[0].dropped_events=0;cc.integrity.unreadable_loss_records=1;cc.integrity.loss_records_complete=false;
  fs.writeFileSync(file,JSON.stringify(cc));r=reconcile(f.ctx,file);
- assert.equal(r.crosscast_integrity.unreadable_loss_records,1);assert.equal(r.in_doubt_open,1);
+ assert.equal(r.crosscast_integrity.unreadable_loss_records,1);assert.equal(r.in_doubt_open,0);
  assert.deepEqual(r.in_doubt[0].ignored_refused_steps,[]);
  for(const integrity of [{chain_ok:true},{chain_ok:true,unreadable_loss_records:0},{chain_ok:true,loss_records_complete:true},
    {chain_ok:true,unreadable_loss_records:0,loss_records_complete:true},
    {chain_ok:true,unreadable_loss_records:0,loss_records_complete:false,loss_folder_unreadable:true}]){
   cc.integrity=integrity;fs.writeFileSync(file,JSON.stringify(cc));
-  assert.equal(reconcile(f.ctx,file).in_doubt_open,1);
+  assert.deepEqual(reconcile(f.ctx,file).in_doubt[0].ignored_no_press_steps,[]);
  }
 });

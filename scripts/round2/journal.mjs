@@ -86,6 +86,26 @@ export function context(flags, needHome=true) {
 export function put(ctx,type,d,run=null) {
   return appendRecord(ctx.journal,{site:ctx.site,slot:ctx.slot,type,run,d});
 }
+export function operator(ctx, records) {
+  const value=readJSON(path.join(ctx.home,'operator.json'),{operator:ctx.site}).operator;
+  const last=records.filter(r=>r.type==='HANDOFF').at(-1);
+  // A manually edited or incompletely handed-off operator is never trusted.
+  if(!SLOTS.includes(value)||value!==(last?.d.to??ctx.site)) throw new Error('operator_record_mismatch');
+  return value;
+}
+
+export function activeStops(records){
+  let active=[];
+  for(const r of records){
+    if(r.type==='STOP_SET')active.push(r.d.by);
+    if(r.type==='STOP_CLEARED'){
+      if(r.d.by===r.site&&r.d.words_sha256)active=[];
+      else if(r.d.by===r.slot&&!['owner','tester','scheduler'].includes(r.d.by))
+        active=active.filter(by=>by!==r.d.by);
+    }
+  }
+  return active;
+}
 export function words(home) {
   const bytes=fs.readFileSync(0);
   if(!bytes.toString('utf8').trim()) throw new Error('empty_words');
@@ -184,8 +204,17 @@ export function main(argv=process.argv.slice(2)){
       case 'handoff':
         type='HANDOFF';d={from:readJSON(path.join(ctx.home,'operator.json'),{operator:ctx.site}).operator,
           to:f.to,job:f.job??null,by:f.by??ctx.site,words_sha256:words(ctx.home)};break;
-      case 'stop':type='STOP_SET';d={by:f.by??ctx.slot};break;
-      case 'clear-stop':type='STOP_CLEARED';d={by:f.by??ctx.slot};break;
+      case 'stop':
+        if(f.by&&f.by!==ctx.slot&&f.by!==ctx.site)throw new Error('invalid_stop_setter');
+        type='STOP_SET';d={by:f.by??ctx.slot};break;
+      case 'clear-stop':{
+        const by=f.by??ctx.slot, active=activeStops(readJournal(ctx.journal));
+        if(by!==ctx.site&&(by!==ctx.slot||['scheduler','owner','tester'].includes(by)||
+            !active.length||active.some(setter=>setter!==by)))throw new Error('stop_clear_refused');
+        type='STOP_CLEARED';d={by};
+        if(by===ctx.site)d.words_sha256=words(ctx.home);
+        break;
+      }
       case 'real-release': {
         const records=readJournal(ctx.journal),by=f.by??ctx.site;
         if(by!==ctx.site||jobList(ctx,records).some(j=>j.id===f.job))throw new Error('invalid_real_release');

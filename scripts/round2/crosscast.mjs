@@ -4,8 +4,10 @@ const number=v=>Number.isSafeInteger(v)&&v>=0;
 const bool=v=>typeof v==='boolean';
 export function crosscast(file){
  if(!file)return {present:false,losses:[],integrity:null,runs:[],times:null,chain_ok:null};
- const value=JSON.parse(fs.readFileSync(file));
- if(value.schema!=='crosscast-audit/1'||!Array.isArray(value.runs)||!['relative','exact'].includes(value.times)||!bool(value.integrity?.chain_ok))throw new Error('invalid_crosscast_export');
+ const parsed=JSON.parse(fs.readFileSync(file));
+ const value=parsed.schema==='round2-export/1'&&parsed.privacy===true?parsed.crosscast:parsed;
+ if(!value)throw new Error('invalid_crosscast_export');
+ if(value.schema!=='crosscast-audit/1'||!Array.isArray(value.runs)||!['relative','exact','per_command_or_record'].includes(value.times)||!bool(value.integrity?.chain_ok))throw new Error('invalid_crosscast_export');
  const seen=new Set(),losses=[],integrity={};
  for(const field of ['dropped_events','unplaced_dropped_events','unreadable_loss_records']){
   if(value.integrity[field]!==undefined&&!number(value.integrity[field]))throw new Error('invalid_crosscast_loss');
