@@ -14,7 +14,7 @@ test('cross-midnight commands and receipts keep separate origins and no event-da
   events:[{type:'command_start',run:'a',at:times[0],day:'2026-11-10'},{type:'stage',run:'a',at:times[1],day:'2026-11-11'},{type:'command_start',run:'b',at:times[2],day:'2026-11-11'}],
   publications:[{t_started:times[0],t_updated:times[1],edits:[{t:times[1]}]}],deletions:[{t_created:times[1],t_updated:times[2]}]};
  const c=privateToolCopy(source,sha);assert.deepEqual(c.events.map(e=>e.at),[null,null,0]);assert.ok(c.events.every(e=>!('day' in e)));assert.equal(c.runs[0].stages[0][3],null);
- assert.equal(c.publications[0].edits[0].t,null);assert.equal(c.deletions[0].t_created,0);assert.equal(c.runs[1].t_start,0);
+ assert.equal(c.publications[0].edits[0].t,null);assert.equal(c.deletions[0].t_created,null);assert.equal(c.runs[1].t_start,0);
  assert.ok(!JSON.stringify(c).includes('T23:'));assert.ok(!JSON.stringify(c).includes('T00:'));assert.equal(source.events[1].day,'2026-11-11');
 });
 test('counted-phase missing digest refuses a listed fault; rehearsal may use the practice list',t=>{

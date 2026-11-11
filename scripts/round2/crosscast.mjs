@@ -7,7 +7,7 @@ export function crosscast(file){
  const parsed=JSON.parse(fs.readFileSync(file));
  const value=parsed.schema==='round2-export/1'&&parsed.privacy===true?parsed.crosscast:parsed;
  if(!value)throw new Error('invalid_crosscast_export');
- if(value.schema!=='crosscast-audit/1'||!Array.isArray(value.runs)||!['relative','exact','per_command_or_record'].includes(value.times)||!bool(value.integrity?.chain_ok))throw new Error('invalid_crosscast_export');
+ if(value.schema!=='crosscast-audit/1'||!Array.isArray(value.runs)||!['relative','exact','per_command','per_command_or_record'].includes(value.times)||!bool(value.integrity?.chain_ok))throw new Error('invalid_crosscast_export');
  const seen=new Set(),losses=[],integrity={};
  for(const field of ['dropped_events','unplaced_dropped_events','unreadable_loss_records']){
   if(value.integrity[field]!==undefined&&!number(value.integrity[field]))throw new Error('invalid_crosscast_loss');

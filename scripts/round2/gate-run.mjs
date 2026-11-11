@@ -11,6 +11,8 @@ import {classify, guardRole, grant, grantScope, limits, outcome, roles} from './
 import {bindHome,HOME_ERRORS} from './site.mjs';
 import {jobList} from './jobs.mjs';
 import {selectFault,armFault,faultVariable,faultController} from './planned-faults.mjs';
+import {countsLook} from './looks.mjs';
+import {confirmedAnswer} from './answers.mjs';
 
 const gateFile=new URL('../operations-gate.mjs',import.meta.url);
 const guard=ctx=>path.join(ctx.home,'operation.guard');
@@ -46,19 +48,17 @@ export function begin(ctx,flags) {
     if(existing){
       if(records.some(r=>r.type==='RUN_END'&&r.run===existing.run)){
         fs.unlinkSync(runFile(ctx));existing=null;
-      } else if(!alive(existing.child_pid??existing.owner_pid) && !alive(existing.wrapper_pid)){
-        // No live child is killed or resumed. Close the abandoned record only.
-        finish({...ctx,run:existing.run},'interrupted',records);existing=null;
-        records=readJournal(ctx.journal);
       }
     }
     // A crash after journaling admission but before writing run.lock must also
-    // leave an explicit terminal record on the next begin.
-    const unfinished=new Set(records.filter(r=>r.type==='GATE_DECISION').map(r=>r.run));
+    // continue refusing a second session until explicitly ended.
+    const unfinished=new Set(records.filter(r=>r.type==='GATE_DECISION'&&r.d.decision==='plan_only').map(r=>r.run));
     for(const record of records) if(record.type==='RUN_END') unfinished.delete(record.run);
     for(const abandoned of unfinished) {
       if(abandoned===existing?.run) continue;
-      put(ctx,'RUN_END',{state:'interrupted',steps:stepCount(records,abandoned)},abandoned);
+      // A missing lock after admission is still an open session, never an
+      // implicit permission to start another one when its shell has exited.
+      if(!existing)existing={run:abandoned};
     }
     if(unfinished.size) records=readJournal(ctx.journal);
     const run=newRunId(), now=flags.now??utc();
@@ -74,7 +74,7 @@ export function begin(ctx,flags) {
         const verdict=done?'completed':forbidden?'forbidden_by_policy':!authorized?'not_authorized':Date.parse(j.due_at)<=Date.parse(now)?'due':'not_due';
         return {...j,completed:done,authorized,verdict};
       });
-      input={executor:ctx.slot,owner,stop:stop(ctx),running:!!existing,now:new Date(now).toISOString(),jobs:prepared};
+      input={executor:ctx.slot,owner,stop:stop(ctx)||activeStops(records).length>0,running:!!existing,now:new Date(now).toISOString(),jobs:prepared};
       result=planRun(input);
     } catch(e) {
       const error=['invalid_time','bad_job_list'].includes(e.message)?e.message:'gate_threw';
@@ -86,8 +86,8 @@ export function begin(ctx,flags) {
     if(result.decision!=='plan_only'){
       put(ctx,'RUN_END',{state:'skipped',steps:0},run);return {exit:3,run,...result,home:ctx.home};
     }
-    // Kept between CLI invocations. Parent shell owns the session; an active
-    // step replaces the liveness witness with its own PID until it completes.
+    // Kept between CLI invocations until explicit end. Child/wrapper identities
+    // protect a step; shell liveness does not decide session lifetime.
     atomic(runFile(ctx),{run,slot:ctx.slot,site:ctx.site,journal:ctx.journal,due:result.due,
       owner_pid:process.ppid,child_pid:null,at:utc(),jobs:prepared,failed:false});
     return {exit:0,run,...result,home:ctx.home};
@@ -125,7 +125,7 @@ function prepare(ctx,flags,command,launch,supportCheck){
        r.d.job===job.id&&r.d.role==='publish'&&r.d.exit!==127&&platforms.every(p=>r.d.platforms.includes(p))&&
        list.some(x=>x.step_seq===r.seq&&x.run===r.run&&x.started===true)))throw new Error('repeat_without_publish');
     if(rule) throw new Error(rule);
-    const scope=grantScope(records,job.id,policy.class,list,flags.role);
+    const scope=grantScope(records,job.id,policy.class,list,flags.role,platforms);
     if(scope===null) throw new Error('go_ahead_exhausted');
     // A verified journal and fsynced private reservation precede every spawn.
     // Failed/uncertain spawns spend approval conservatively; never retry them.
@@ -170,11 +170,12 @@ function captureChild(ctx,command,reservationId,pinned,fault,controllerFactory=f
     };
     const env={...process.env,AWL_RUN_ID:reservationId,VPUB_BROWSER_IDLE_SECONDS:'0',VPUB_HOME:pinned.home};
     // Windows environment names are case-insensitive, including in mixed-case shells.
-    for(const key of Object.keys(env))if(['BILI_CLI_HOME','VPUB_FAULT'].includes(key.toUpperCase()))delete env[key];
+    for(const key of Object.keys(env))if(['BILI_CLI_HOME','VPUB_FAULT','VPUB_AUDIT_SESSION','VPUB_AUDIT_PURPOSE'].includes(key.toUpperCase()))delete env[key];
     if(pinned.biliHome)env.BILI_CLI_HOME=pinned.biliHome;
     if(fault)env.VPUB_FAULT=faultVariable(fault);
-    try{child=spawn(command[0],command.slice(1),{stdio:['ignore','pipe','pipe'],shell:false,windowsHide:true,env,detached:!!fault&&process.platform!=='win32'});controller?.attach(child);}
+    try{child=spawn(command[0],command.slice(1),{stdio:['ignore','pipe','pipe'],shell:false,windowsHide:true,env,detached:!!fault&&process.platform!=='win32'});}
     catch{spawnError=true;}
+    if(child)try{controller?.attach(child);}catch{captureError=true;}
     if(child){
       child.on('spawn',()=>{
         try{withLock(guard(ctx),()=>{
@@ -189,10 +190,12 @@ function captureChild(ctx,command,reservationId,pinned,fault,controllerFactory=f
     async function complete(exit){
       stdout+=decoder.end();
       for(const stream of ['stdout','stderr']) if(buffers[stream].length) row(stream,buffers[stream]);
-      try{fs.fsyncSync(fd);}catch{captureError=true;}finally{fs.closeSync(fd);}
+        try{fs.fsyncSync(fd);}catch{captureError=true;}
+        try{fs.closeSync(fd);}catch{captureError=true;}
       let faultFired=null;
       try{if(controller){const result=await controller.finish(stdout);faultFired=result.fired;}}catch{faultFired=null;}
-      resolve({exit,stdout,ms:Math.round(performance.now()-started),capture_sha256:sha(fs.readFileSync(file)),spawnError,captureError,faultFired});
+      let digest=null;try{digest=sha(fs.readFileSync(file));}catch{captureError=true;}
+      resolve({exit,stdout,ms:Math.round(performance.now()-started),capture_sha256:digest,spawnError,captureError,faultFired});
     }
   });
 }
@@ -216,19 +219,19 @@ export async function step(ctx,flags,command,{supportCheck,controllerFactory}={}
   }
   try {
   const child=await prepared.capture;
-  if(child.captureError) throw new Error('capture_unwritable');
   const {policy,reservation}=prepared;
-  const result=outcome(child.exit,child.stdout,{started:!child.spawnError,role:flags.role,platform:reservation.platforms[0]});
+  const result=outcome(child.exit,child.stdout,{started:!child.spawnError,role:flags.role,platforms:reservation.platforms});
   withLock(guard(ctx),()=>{
     const record=put(ctx,'STEP',{job:flags.job,...policy,awl_run_id:reservation.id,role:flags.role,platforms:reservation.platforms,exit:child.exit,
-      ms:child.ms,capture_sha256:child.capture_sha256,result:result.result,code:result.code,
+      ms:child.ms,capture_sha256:child.capture_sha256,result:child.captureError?'unknown':result.result,code:result.code,capture_failed:child.captureError,
       answered:result.answered,started:!child.spawnError,confirmed_state:result.confirmed_state,
-      refs:result.rawRefs.map(r=>pseudonym(r,ctx.home)),fault_fired:child.faultFired},ctx.run);
+      answers:result.answers.map(a=>({...a,refs:a.refs.map(r=>pseudonym(r,ctx.home))})),
+      refs:result.rawRefs.map(r=>pseudonym(r,ctx.home)),fault_fired:child.faultFired},ctx.run,30000);
     const list=reservations(ctx), item=list.find(r=>r.id===reservation.id);
     item.step_seq=record.seq;item.started=!child.spawnError;writeReservations(ctx,list);
     const run=readJSON(runFile(ctx));
     atomic(runFile(ctx),{...run,child_pid:null,wrapper_pid:null});
-  });
+  },30000);
   return child.exit;
   } catch(e) {
     // Only a wrapper recording failure marks the session failed. Preserve its
@@ -243,7 +246,7 @@ export async function step(ctx,flags,command,{supportCheck,controllerFactory}={}
 export function end(ctx){
   return withLock(guard(ctx),()=>{
     const records=readJournal(ctx.journal),run=admitted(ctx,records);
-    if(run.child_pid) throw new Error('step_already_running');
+  if(run.child_pid&&(alive(run.child_pid)||alive(run.wrapper_pid))) throw new Error('step_already_running');
     const record=finish(ctx,run.failed?'failed':'completed',records);
     return {exit:0,record};
   });
@@ -255,26 +258,30 @@ export function closeJob(ctx,flags){
     if(active?.child_pid) throw new Error('step_already_running');
     const job=jobs(ctx).find(j=>j.id===flags.job);
     if(!job) throw new Error('unknown_job');
+    if(job.run_class==='standing')throw new Error('standing_job_never_closed');
     if(records.some(r=>r.type==='JOB_END'&&r.d.job===job.id)) throw new Error('job_closed');
     const reason=flags.reason, by=flags.by??'operator';
     if(!['done','nothing_posted','removed_by_hand','abandoned'].includes(reason)||!['operator','owner','tester'].includes(by)) throw new Error('invalid_close');
     if(job.run_class!=='test_post'&&!['done','abandoned'].includes(reason)) throw new Error('invalid_close');
     const own=records.filter(r=>r.d.job===job.id);
     const pending=reservations(ctx).filter(r=>r.job===job.id&&r.class==='write'&&r.step_seq===null);
+    let settlements=[];
     if(job.run_class==='test_post'&&reason!=='abandoned'){
       const platformOf=r=>r.d.platform??(job.platforms?.length===1?job.platforms[0]:null);
-      const afterWrite=(r,p)=>r.seq>(own.filter(x=>x.type==='STEP'&&x.d.class==='write'&&x.d.platforms.includes(p)).at(-1)?.seq??0);
-      const absent=(job.platforms??[]).length>0&&!own.some(r=>r.type==='STEP'&&r.d.role==='delete')&&
-        pending.length===0&&job.platforms.every(p=>own.some(r=>r.type==='OBSERVATION'&&r.d.about==='post'&&
-          r.d.seen==='absent'&&platformOf(r)===p&&afterWrite(r,p)));
-      const verified=(job.platforms??[]).length>0&&pending.length===0&&job.platforms.every(p=>own.some(r=>
-        r.type==='STEP'&&r.d.role==='delete_verify'&&r.d.result==='ok'&&r.d.platforms.length===1&&r.d.platforms[0]===p&&afterWrite(r,p)));
-      const manual=(job.platforms??[]).length>0&&job.platforms.every(p=>own.some(r=>
-        r.type==='NOTE'&&r.d.code==='manual_step'&&platformOf(r)===p));
-      if(!({done:verified,nothing_posted:absent,removed_by_hand:manual}[reason])) throw new Error('job_close_evidence_missing');
+      settlements=(job.platforms??[]).map(platform=>{
+        const steps=own.filter(r=>r.type==='STEP'&&r.d.platforms.includes(platform)),writes=steps.filter(r=>r.d.class==='write');
+        const last=writes.at(-1),del=steps.filter(r=>r.d.role==='delete').at(-1),post=steps.filter(r=>['publish','repeat_same','changed_plan','resume'].includes(r.d.role)).at(-1);
+        const look=(about,step)=>own.find(r=>r.type==='OBSERVATION'&&r.seq>(last?.seq??0)&&r.d.about===about&&r.d.seen==='absent'&&platformOf(r)===platform&&countsLook(r,step));
+        const verified=steps.find(r=>r.seq>(last?.seq??0)&&r.d.role==='delete_verify'&&
+          (r.d.answers?confirmedAnswer(r.d.answers.find(a=>a.platform===platform)??{},'delete'):r.d.result==='ok'&&(!Object.hasOwn(r.d,'confirmed_state')||r.d.confirmed_state==='DELETED_VERIFIED')));
+        const manual=own.find(r=>r.type==='NOTE'&&r.d.code==='manual_step'&&platformOf(r)===platform&&r.seq>(last?.seq??0));
+        const how=verified?'delete_confirmed':manual?'removed_by_hand':!del&&look('post',post)?'nothing_posted':del&&['in_doubt','unknown'].includes(del.d.result)&&look('delete',del)?'gone_by_person':null;
+        return {platform,how};
+      });
+      if(!settlements.length||pending.length||settlements.some(s=>!s.how)||reason==='nothing_posted'&&settlements.some(s=>s.how!=='nothing_posted')||reason==='removed_by_hand'&&settlements.some(s=>s.how!=='removed_by_hand'))throw new Error('job_close_evidence_missing');
     }
     const digest=reason==='abandoned'?words(ctx.home):null;
-    const record=put(ctx,'JOB_END',{job:job.id,reason,by,words_sha256:digest});
+    const record=put(ctx,'JOB_END',{job:job.id,reason:job.run_class==='test_post'&&reason!=='abandoned'?'done':reason,by,words_sha256:digest,platform_settlements:settlements});
     return {exit:0,record};
   });
 }
@@ -290,5 +297,5 @@ export async function main(argv=process.argv.slice(2)){
   console.log(JSON.stringify(result));return result.exit;
 }
 if(process.argv[1]&&import.meta.url===pathToFileURL(path.resolve(process.argv[1])).href){
-  try{process.exitCode=await main();}catch{console.error('gate_recording_failed');process.exitCode=70;}
+  try{process.exitCode=await main();}catch(e){console.error(/^[a-z][a-z0-9_]+$/.test(e.message)?e.message:'gate_recording_failed');process.exitCode=70;}
 }

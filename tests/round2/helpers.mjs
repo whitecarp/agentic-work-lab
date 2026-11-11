@@ -2,7 +2,8 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import {spawnSync} from 'node:child_process';
-import {put, readJournal} from '../../scripts/round2/journal.mjs';
+import {put, readJournal,canonical} from '../../scripts/round2/journal.mjs';
+import {sha} from '../../scripts/round2/io.mjs';
 import {siteHome} from '../../scripts/round2/site.mjs';
 export function fixture(t) {
   const root=fs.mkdtempSync(path.join(os.tmpdir(),'round two offline '));
@@ -16,7 +17,7 @@ export function fixture(t) {
   return {...ctx,root,ctx,env};
 }
 export function approve(ctx,job='job-1',count=1,scope='one_write'){
-  return put(ctx,'GO_AHEAD',{job,scope,count,by:'owner',words_sha256:'a'.repeat(64)});
+  return put(ctx,'GO_AHEAD',{job,scope,count,by:'owner',words_sha256:'a'.repeat(64),...(scope==='one_delete'?{platform:'youtube'}:{})});
 }
 export function setup(ctx,jobs=[{id:'job-1',due_at:'2020-01-01T00:00:00.000Z',class:'write',run_class:'test_post',platforms:['youtube']}]) {
   if(!readJournal(ctx.journal).some(r=>r.type==='PROTOCOL_SEAL'))put(ctx,'PROTOCOL_SEAL',{
@@ -28,8 +29,17 @@ export function setup(ctx,jobs=[{id:'job-1',due_at:'2020-01-01T00:00:00.000Z',cl
   return jobs;
 }
 export function cli(f,script,args=[],input) {
+  if(!args.includes('--slot'))args=[...args,'--slot',f.ctx.slot];
   return spawnSync(process.execPath,[path.resolve('scripts/round2/'+script+'.mjs'),...args],
     {env:f.env,encoding:'utf8',input,timeout:15000,windowsHide:true});
 }
 export const flags=f=>['--site','owner','--slot','gemini','--journal',f.journal];
 export const last=(ctx,type)=>readJournal(ctx.journal).filter(r=>r.type===type).at(-1);
+
+// Advance only synthetic fixture chronology; never sleep or touch source evidence.
+export function ageJournal(ctx,minutes){
+ const rows=readJournal(ctx.journal);let prev='0'.repeat(64);
+ const lines=rows.map(r=>{r.at=new Date(Date.parse(r.at)-minutes*60000-10).toISOString();r.prev=prev;const line=canonical(r);prev=sha(line);return line;});
+ fs.writeFileSync(ctx.journal,lines.join('\n')+'\n');fs.writeFileSync(ctx.journal+'.head',JSON.stringify({records:rows.length,head_sha256:prev}));
+}
+export function putObserved(ctx,type,data,run){if(type==='OBSERVATION')ageJournal(ctx,data.minutes_after);return put(ctx,type,data,run);}

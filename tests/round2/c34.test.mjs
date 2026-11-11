@@ -9,8 +9,8 @@ import {reconcile} from '../../scripts/round2/reconcile.mjs';
 import {exportData} from '../../scripts/round2/export.mjs';
 import {seal} from '../../scripts/round2/seal.mjs';
 import {classify} from '../../scripts/round2/policy.mjs';
-import {assertFaultReady,recordSetup} from '../../scripts/round2/fault-setup.mjs';
-import {fixture,setup,approve,cli,flags} from './helpers.mjs';
+import {assertFaultReady,recordSetup,configureSetup} from '../../scripts/round2/fault-setup.mjs';
+import {fixture,setup,approve,cli,flags,ageJournal} from './helpers.mjs';
 
 const write=(f,name,value)=>fs.writeFileSync(path.join(f.home,name),JSON.stringify(value));
 function ready(t,platforms=['youtube']){
@@ -40,9 +40,9 @@ test('release verify at 10m, 1h and 24h never invalidates the 30m look',t=>{
  assert.deepEqual(r.look_checks[0].recorded_before_claimed_minute,[]);
 });
 test('post, edit and delete looks survive their later read-backs, but a resume moves the post point',t=>{
- const f=ready(t);recorded(f);look(f);recorded(f,{role:'verify',action:'verify',confirmed_state:'SUBMISSION_VERIFIED'});
- recorded(f,{role:'edit',action:'edit'});look(f,{about:'edit'});recorded(f,{role:'edit',action:'edit',class:'read'});
- recorded(f,{role:'delete',action:'delete'});look(f,{about:'delete',seen:'absent'});recorded(f,{role:'delete_verify',action:'delete',class:'read'});
+ const f=ready(t);recorded(f);ageJournal(f.ctx,30);look(f);recorded(f,{role:'verify',action:'verify',confirmed_state:'SUBMISSION_VERIFIED'});
+ recorded(f,{role:'edit',action:'edit'});ageJournal(f.ctx,30);look(f,{about:'edit'});recorded(f,{role:'edit',action:'edit',class:'read'});
+ recorded(f,{role:'delete',action:'delete'});ageJournal(f.ctx,30);look(f,{about:'delete',seen:'absent'});recorded(f,{role:'delete_verify',action:'delete',class:'read'});
  assert.equal(reconcile(f.ctx).looks_owed.length,0);
  recorded(f,{role:'resume',action:'resume'});assert.deepEqual(reconcile(f.ctx).looks_owed.map(r=>r.about),['post']);
 });
@@ -82,7 +82,7 @@ test('successful verify closes the matching platform only; unchanged strict coun
  assert.equal(r.in_doubt.find(x=>x.platform==='douyin').closed,false);
 });
 for(const role of ['resume','verify','edit','delete','delete_dry_run','delete_verify'])test(`keyed ${role} needs one declared platform before spawning`,async t=>{
- const f=ready(t,['youtube','douyin']),out=path.join(f.root,'spawned');
+ const f=ready(t,['youtube','douyin']),out=path.join(f.root,'spawned');if(role==='delete')approve(f.ctx,'job-1',2,'one_delete');
  const cmd=[process.execPath,'-e',"require('fs').writeFileSync(process.argv[1],'once')",out];
  if(role==='resume')assert.equal(await step(f.ctx,{job:'job-1',role:'publish'},[process.execPath,'-e','process.exit(0)']),0);
  assert.equal(await step(f.ctx,{job:'job-1',role},cmd),5);assert.ok(!fs.existsSync(out));
@@ -158,16 +158,17 @@ test('unarmed child strips all inherited fault variables without changing parent
   assert.deepEqual(JSON.parse(fs.readFileSync(out)),[]);assert.equal(process.env[name],'after_press');
  }finally{if(old===undefined)delete process.env[name];else process.env[name]=old;}
 });
-test('fault setup only observes config; arming requires a record and current matching registration',t=>{
- const f=ready(t),file=path.join(f.root,'vpub','config.json'),config={fault_injection:true,external_stop_file:path.join(f.home,'STOP')};
+test('record-only setup refuses; arming requires configured matching registration',t=>{
+ const f=ready(t);end(f.ctx);const file=path.join(f.root,'vpub','config.json'),config={unrelated:1};
  fs.writeFileSync(file,JSON.stringify(config));const original=fs.readFileSync(file);
  assert.throws(()=>assertFaultReady(f.ctx,'stop_during_upload'),/unconfirmed/);
- recordSetup(f.ctx,{enabled:true,by:'owner'},()=>commitWords(f.home,Buffer.from('Owner enabled planned faults')));
- assert.equal(assertFaultReady(f.ctx,'stop_during_upload').registered,true);assert.deepEqual(fs.readFileSync(file),original);
+ assert.throws(()=>recordSetup(f.ctx,{enabled:true,by:'owner'},()=>commitWords(f.home,Buffer.from('Owner enabled planned faults'))),/configure_required/);
+ configureSetup(f.ctx,{enabled:true,by:'owner'},()=>commitWords(f.home,Buffer.from('Owner configured planned faults')));
+ assert.equal(assertFaultReady(f.ctx,'stop_during_upload').registered,true);Object.assign(config,JSON.parse(fs.readFileSync(file)));
  config.external_stop_file=path.join(f.root,'wrong');fs.writeFileSync(file,JSON.stringify(config));
  assert.throws(()=>assertFaultReady(f.ctx,'stop_during_upload'),/unconfirmed/);
- config.fault_injection=false;delete config.external_stop_file;fs.writeFileSync(file,JSON.stringify(config));
- recordSetup(f.ctx,{enabled:false,by:'owner'},()=>commitWords(f.home,Buffer.from('Owner disabled faults')));
+ config.external_stop_file=path.join(f.home,'STOP');fs.writeFileSync(file,JSON.stringify(config));
+ configureSetup(f.ctx,{enabled:false,by:'owner'},()=>commitWords(f.home,Buffer.from('Owner disabled faults')));
  assert.throws(()=>assertFaultReady(f.ctx,'readback_timeout'),/unconfirmed/);
  assert.ok(!fs.readFileSync(f.journal,'utf8').includes(f.root));
 });

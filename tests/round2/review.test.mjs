@@ -1,3 +1,4 @@
+import {putObserved as put} from './helpers.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
@@ -7,7 +8,7 @@ import {exportData,exportFile} from '../../scripts/round2/export.mjs';
 import {daily} from '../../scripts/round2/daily.mjs';
 import {reconcile} from '../../scripts/round2/reconcile.mjs';
 import {crosscast} from '../../scripts/round2/crosscast.mjs';
-import {put,readJournal,verifyJournal,canonical} from '../../scripts/round2/journal.mjs';
+import {put as rawPut,readJournal,verifyJournal,canonical} from '../../scripts/round2/journal.mjs';
 import {sha,atomic} from '../../scripts/round2/io.mjs';
 import {begin,end} from '../../scripts/round2/gate-run.mjs';
 import {fixture,setup,approve,cli,flags} from './helpers.mjs';

@@ -6,6 +6,7 @@ import {validateRecord, SLOTS, PLATFORMS} from './schema.mjs';
 import {sha, utc, atomic, withLock, privateHome, readJSON, parseFlags, allowed, alive} from './io.mjs';
 import {bindHome,HOME_ERRORS} from './site.mjs';
 import {jobList} from './jobs.mjs';
+import {verifyPlan} from './plan-runs.mjs';
 export {validateRecord};
 export const ZERO='0'.repeat(64);
 export const newRunId=()=>randomBytes(16).toString('hex');
@@ -43,7 +44,7 @@ export function readJournal(file) {
   if(!result.ok) throw new Error('broken_journal');
   return result.items;
 }
-export function appendRecord(file,fields) {
+export function appendRecord(file,fields,timeoutMs=1000) {
   return withLock(file+'.lock',()=>{
     const current=scan(file,true);
     if(!current.ok) throw new Error('broken_journal');
@@ -56,7 +57,7 @@ export function appendRecord(file,fields) {
     try{fs.writeFileSync(fd,line+'\n');fs.fsyncSync(fd);}finally{fs.closeSync(fd);}
     atomic(file+'.head',{records:record.seq,head_sha256:sha(line)});
     return record;
-  });
+  },timeoutMs);
 }
 export function keyedDigest(value,home,{create=true}={}) {
   const file=path.join(home,'salt');
@@ -77,14 +78,23 @@ export function pseudonym(value,home) {
 export function context(flags, needHome=true) {
   const site=flags.site;
   if(!['owner','tester'].includes(site)) throw new Error('invalid_site');
-  const home=needHome?privateHome():null;
+  const home=needHome||process.env.ROUND2_HOME?privateHome():null;
   const journal=path.resolve(flags.journal??path.join('data','round2',site,'journal.jsonl'));
-  const slot=flags.slot??flags.by??site;
-  if(!SLOTS.includes(slot)) throw new Error('invalid_slot');
-  return {site,home,journal,slot};
+  const slot=flags.slot;
+  if(!SLOTS.includes(slot)||slot==='scheduler') throw new Error('invalid_slot');
+  const ctx={site,home,journal,slot};checkJournalPlace(ctx);return ctx;
 }
-export function put(ctx,type,d,run=null) {
-  return appendRecord(ctx.journal,{site:ctx.site,slot:ctx.slot,type,run,d});
+export function checkJournalPlace(ctx,sealing=false){
+  if(!ctx.home)return;
+  const file=path.join(ctx.home,'journal-place.json'),absolute=path.resolve(ctx.journal);
+  const equal=(a,b)=>process.platform==='win32'?a.toLowerCase()===b.toLowerCase():a===b;
+  const pinned=readJSON(file,null);
+  if(pinned&&!equal(pinned.journal,absolute))throw new Error('journal_place_mismatch');
+  if(sealing&&!pinned)atomic(file,{journal:absolute});
+}
+export function put(ctx,type,d,run=null,timeoutMs=1000) {
+  checkJournalPlace(ctx,type==='PROTOCOL_SEAL');
+  return appendRecord(ctx.journal,{site:ctx.site,slot:ctx.slot,type,run,d},timeoutMs);
 }
 export function operator(ctx, records) {
   const value=readJSON(path.join(ctx.home,'operator.json'),{operator:ctx.site}).operator;
@@ -140,7 +150,7 @@ export function clearGuard(ctx,by,statement){
       fs.unlinkSync(file);
     }
     try{
-      return put({...ctx,slot:by},'NOTE',{code:'guard_cleared',platform:null,job:null,agent:null,minutes_ago:null,words_sha256:digest});
+      return put(ctx,'NOTE',{code:'guard_cleared',platform:null,job:null,agent:null,minutes_ago:null,words_sha256:digest});
     }catch(e){
       // A recording failure must not silently reopen the gate. The preserved
       // stale owner can be reviewed again; no run or command is retried.
@@ -152,7 +162,7 @@ export function clearGuard(ctx,by,statement){
 export function main(argv=process.argv.slice(2)){
   const sub=argv.shift();
   if(sub==='verify') {
-    if(argv.length!==1) throw new Error('invalid_arguments');
+    if(argv.length!==3||argv[1]!=='--slot'||!SLOTS.includes(argv[2])||argv[2]==='scheduler') throw new Error('invalid_slot');
     const result=verifyJournal(argv[0]);console.log(JSON.stringify(result));return result.ok?0:70;
   }
   const closing=argv.includes('--closing');
@@ -160,11 +170,12 @@ export function main(argv=process.argv.slice(2)){
   const {flags:f,command}=parseFlags(argv.filter(a=>a!=='--closing'));
   if(command.length) throw new Error('invalid_arguments');
   const lists={
-    'go-ahead':['job','scope','count','by'],observe:['job','ref','about','by','client','seen','fields-match','minutes-after','shot-sha256','platform'],
+    'go-ahead':['job','scope','count','by','platform'],observe:['job','ref','about','by','client','seen','fields-match','minutes-after','shot-sha256','platform'],
     note:['code','platform','job','agent','minutes-ago'],violation:['rule','found-by','job'],
     'sign-off':['day','by','answer'],handoff:['to','job','by'],stop:['by'],'clear-stop':['by'],'clear-guard':['by'],
     'protocol-seal':['phase','protocol','lab-commit','crosscast-commit','crosscast-digest','plan','analysis','rules-card'],
     'real-release':['job','platform','due-at','by'],
+    'browser-faults':['platform','enabled','by'],
   };
   if(!lists[sub]) throw new Error('unknown_command');
   allowed(f,['site','slot','journal','run',...lists[sub]]);
@@ -176,8 +187,16 @@ export function main(argv=process.argv.slice(2)){
     if(!verifyJournal(ctx.journal).ok) throw new Error('broken_journal');
     let type,d;
     switch(sub){
-      case 'go-ahead':
-        type='GO_AHEAD';d={job:f.job,scope:f.scope,count:numeric(f.count),by:f.by??ctx.site,words_sha256:words(ctx.home)};break;
+      case 'browser-faults':
+        if(f.by!==ctx.site||f.enabled!=='false'||f.platform?.length!==1||!['youtube','douyin'].includes(f.platform[0]))throw new Error('invalid_browser_fault_policy');
+        type='FAULT_PLATFORM_POLICY';d={platform:f.platform[0],enabled:false,by:f.by,words_sha256:words(ctx.home)};break;
+      case 'go-ahead':{
+        const job=jobList(ctx,readJournal(ctx.journal)).find(j=>j.id===f.job);
+        if(f.scope==='one_delete'&&(!job||f.platform?.length!==1||!job.platforms?.includes(f.platform[0])||f.platform[0]==='bilibili'))throw new Error('delete_approval_platform_required');
+        if(f.scope!=='one_delete'&&f.platform)throw new Error('unexpected_platform');
+        type='GO_AHEAD';d={job:f.job,scope:f.scope,count:numeric(f.count),by:f.by??ctx.site,words_sha256:words(ctx.home)};
+        if(f.scope==='one_delete')d.platform=f.platform[0];break;
+      }
       case 'observe':{
         if(![undefined,'true','false','null'].includes(f['fields-match'])) throw new Error('invalid_boolean');
         const job=jobList(ctx,readJournal(ctx.journal)).find(j=>j.id===f.job), choices=job?.platforms??[];
@@ -210,7 +229,7 @@ export function main(argv=process.argv.slice(2)){
       case 'clear-stop':{
         const by=f.by??ctx.slot, active=activeStops(readJournal(ctx.journal));
         if(by!==ctx.site&&(by!==ctx.slot||['scheduler','owner','tester'].includes(by)||
-            !active.length||active.some(setter=>setter!==by)))throw new Error('stop_clear_refused');
+            !active.includes(by)))throw new Error('stop_clear_refused');
         type='STOP_CLEARED';d={by};
         if(by===ctx.site)d.words_sha256=words(ctx.home);
         break;
@@ -223,19 +242,27 @@ export function main(argv=process.argv.slice(2)){
         type='REAL_RELEASE';d={job:f.job,platforms,due_at:new Date(f['due-at']).toISOString(),run_class:'real_release',
           release_writes:1+3*platforms.length,by,words_sha256:words(ctx.home)};break;
       }
-      case 'protocol-seal':
+      case 'protocol-seal':{
+        const records=readJournal(ctx.journal),prior=records.filter(r=>r.type==='PROTOCOL_SEAL');
+        const rank={rehearsal:0,'2a':1,'2b':2};
+        if(!(f.phase in rank)||prior.some(r=>rank[r.d.phase]>rank[f.phase])||prior.some(r=>r.d.phase==='2b'))throw new Error('seal_phase_not_forward');
+        if(f.phase==='2b'){
+          if(!f.plan||path.resolve(f.plan)!==path.join(ctx.home,'planned-runs.json'))throw new Error('sealed_plan_required');
+          verifyPlan(ctx.home);
+        }
         type='PROTOCOL_SEAL';d={vpub_home_sha256:bindHome(ctx,readJournal(ctx.journal),{sealing:true}).digest,
           protocol_sha256:fileHash(f.protocol),lab_commit:f['lab-commit'],crosscast_commit:f['crosscast-commit'],
-          phase:f.phase,crosscast_digest:f['crosscast-digest']??null,plan_sha256:f.plan?fileHash(f.plan):null,
+          phase:f.phase,crosscast_digest:f['crosscast-digest']??null,plan_sha256:f.plan?sha(fs.readFileSync(f.plan)):null,
           analysis_sha256:f.analysis?fileHash(f.analysis):null,rules_card_sha256:f['rules-card']?fileHash(f['rules-card']):null};break;
+      }
     }
     const record=put(ctx,type,d,run);
     if(sub==='handoff') atomic(path.join(ctx.home,'operator.json'),{operator:f.to});
     if(sub==='stop') atomic(path.join(ctx.home,'STOP'),{at:record.at});
-    if(sub==='clear-stop' && fs.existsSync(path.join(ctx.home,'STOP'))) fs.unlinkSync(path.join(ctx.home,'STOP'));
+    if(sub==='clear-stop' && !activeStops(readJournal(ctx.journal)).length && fs.existsSync(path.join(ctx.home,'STOP'))) fs.unlinkSync(path.join(ctx.home,'STOP'));
     console.log(JSON.stringify(record));return 0;
   });
 }
 if(process.argv[1] && import.meta.url===pathToFileURL(path.resolve(process.argv[1])).href){
-  try{process.exitCode=main();}catch(e){console.error(HOME_ERRORS.includes(e.message)?e.message:'journal_refused');process.exitCode=70;}
+  try{process.exitCode=main();}catch(e){console.error(/^[a-z][a-z0-9_]+$/.test(e.message)?e.message:'journal_refused');process.exitCode=70;}
 }

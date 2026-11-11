@@ -1,5 +1,6 @@
 import path from 'node:path';
 import {PLATFORMS, schema} from './schema.mjs';
+import {readAnswers,CODES,pressRoles,uncertainState,nothingSent,confirmedAnswer} from './answers.mjs';
 const actions=new Set(schema.oneOf.find(s=>s.properties.type.const==='STEP').properties.d.properties.action.enum);
 // Plain verify can finish pending chapters/widgets, so it remains write-class.
 const readActions=new Set(['status','doctor','receipts','stats','works','capabilities','report']);
@@ -30,17 +31,21 @@ export function guardRole(role, policy, command){
     a==='edit'?['edit']:a==='resume'?['resume']:a==='verify'?['verify']:['publish','go'].includes(a)?['publish','repeat_same','changed_plan']:null;
   if(expected && !expected.includes(role)) throw new Error('role_mismatch');
 }
-export function grantScope(records,job,cls,reservations=[],role=null) {
-  const grants=records.filter(r=>r.type==='GO_AHEAD'&&r.d.job===job);
+export function grantScope(records,job,cls,reservations=[],role=null,platforms=[]) {
+  const grants=records.filter(r=>r.type==='GO_AHEAD'&&r.d.job===job&&
+    (r.d.scope!=='one_delete'||role===null||r.d.platform===platforms[0]));
   if(cls==='write') {
-    const left={listed_test_posts:0,one_write:0};
+    const left={listed_test_posts:0,one_write:0,one_delete:0};
     for(const r of grants) if(r.d.scope in left) left[r.d.scope]+=r.d.count;
     for(const r of reservations.filter(r=>r.job===job&&r.class==='write')) {
+      if(r.scope==='one_delete'&&role!==null&&r.platforms?.[0]!==platforms[0])continue;
       // Legacy reservations have no provable scope. Debit both pools rather
       // than turn a previously spent unit into new delete authorization.
       if(r.scope in left) left[r.scope]--; else for(const s in left) left[s]--;
     }
     const listed=['publish','repeat_same','resume','verify','edit','changed_plan'];
+    if(role==='delete')return left.one_delete>0?'one_delete':null;
+    if(role===null&&left.one_delete>0)return 'one_delete';
     if((role===null||listed.includes(role))&&left.listed_test_posts>0) return 'listed_test_posts';
     return left.one_write>0?'one_write':null;
   }
@@ -68,40 +73,32 @@ export function limits(records,job,role,platforms,now,reservations=[],jobs=[]) {
       const id=s.job??s; // Unlabelled legacy rows cannot prove a shared job.
       if(!first.has(id)||Date.parse(s.at)<Date.parse(first.get(id).at)) first.set(id,s);
     }
-    if([...first.values()].filter(s=>when-Date.parse(s.at)<86400000).length>=4) return 'test_post_daily_cap';
-    if(recent.some(s=>when-Date.parse(s.at)<1200000)) return 'publish_spacing';
-    if(records.some(r=>r.type==='NOTE'&&r.d.platform===p&&r.d.code==='outside_upload'&&
+    if(!first.has(job.id)&&[...first.values()].filter(s=>when-Date.parse(s.at)<86400000).length>=4) return 'test_post_daily_cap';
+    if(!first.has(job.id)&&[...first.values()].some(s=>when-Date.parse(s.at)<1200000)) return 'publish_spacing';
+    if(!first.has(job.id)&&records.some(r=>r.type==='NOTE'&&r.d.platform===p&&r.d.code==='outside_upload'&&
         when-(Date.parse(r.at)-r.d.minutes_ago*60000)<1200000)) return 'outside_upload_spacing';
     if(records.some(r=>r.type==='NOTE'&&r.d.platform===p&&['platform_warning','human_check','safety_stop'].includes(r.d.code)&&
         when-Date.parse(r.at)<172800000)) return 'platform_warning_hold';
   }
   return null;
 }
-export function outcome(exit,stdout,{started=true,role,platform}={}){
+export function outcome(exit,stdout,{started=true,role,platform,platforms=platform?[platform]:[]}={}){
   let value;
   const lines=stdout.trim().split(/\r?\n/);
   try{if(lines.length===1)value=JSON.parse(lines[0]);}catch{}
-  const supplied=value?.error?.code;
-  // Only codes with known operational meanings enter a public STEP.
-  const codes=new Set(['stopped','confirmation_required','deletion_already_attempted','already_submitted','inspect_existing_edit',
-    'fault_injection_refused','injected_fault','backend_timeout','readback_failed','schedule_unverified','identity_mismatch','busy',
-    'file_not_found','invalid_file','internal_error','interrupted','submission_unverified','preparation_incomplete',
-    'lock_marker_unreadable','browser_busy']);
-  const code=codes.has(supplied)?supplied:null;
   const data=value?.data??value;
-  const states=[data?.state,...Object.values(data?.results??{}).map(x=>x?.state)];
+  const answers=readAnswers(value,platforms),about=role==='edit'?'edit':['delete','delete_verify'].includes(role)?'delete':'post';
+  const code=answers.length===1?answers[0].code:CODES.includes(value?.error?.code)?value.error.code:null;
   let result=exit===0?'ok':'failed';
   if(exit===2) result='refused';
-  if(exit===4) result='in_doubt';
-  if(['UNKNOWN','DELETE_PENDING','SUBMITTED_UNVERIFIED','EDIT_SUBMITTED_UNVERIFIED'].some(s=>states.includes(s))) result='in_doubt';
-  if(states.includes('PREPARATION_INCOMPLETE')) result='needs_person';
-  if(['stopped','interrupted'].includes(code)) result='stopped';
+  if(answers.some(a=>uncertainState(a,about)))result='in_doubt';
+  else if(answers.length&&answers.every(a=>confirmedAnswer(a,about)))result='ok';
+  else if(answers.some(a=>nothingSent(a)))result=answers.some(a=>a.code==='stopped')?'stopped':answers.some(a=>['PREPARATION_INCOMPLETE','WAITING_FOR_USER','NEEDS_A_PERSON'].includes(a.state))?'needs_person':'refused';
+  else if(exit===3&&pressRoles.includes(role))result='unknown';
   if(!Number.isInteger(exit)) result='unknown';
   const answered=!!value && typeof value==='object' && !Array.isArray(value) &&
     (typeof value.ok==='boolean'||typeof data?.state==='string'||typeof value.error?.code==='string'||!!data?.results);
-  if(started&&!answered&&['publish','edit','delete'].includes(role)) result='unknown';
-  const state=data?.results?.[platform]?.state??data?.state;
-  const confirmed_state=answered&&exit===0&&value.ok!==false&&
-    ['SUBMISSION_VERIFIED','EDIT_VERIFIED','DELETED_VERIFIED'].includes(state)?state:null;
-  return {result,code,answered,confirmed_state,rawRefs:[data?.key,...Object.values(data?.results??{}).map(x=>x?.key)].filter(x=>typeof x==='string'&&/^[a-f0-9]{64}$/.test(x))};
+  if(started&&!answered&&pressRoles.includes(role)) result='unknown';
+  const confirmed_state=answers.length===1&&confirmedAnswer(answers[0],about)?answers[0].state:null;
+  return {result,code,answered,confirmed_state,answers,rawRefs:[data?.key,...Object.values(data?.results??{}).map(x=>x?.key)].filter(x=>typeof x==='string'&&/^[a-f0-9]{64}$/.test(x))};
 }

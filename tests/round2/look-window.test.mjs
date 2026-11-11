@@ -1,8 +1,9 @@
+import {putObserved as put} from './helpers.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
-import {put} from '../../scripts/round2/journal.mjs';
+import {put as rawPut,readJournal} from '../../scripts/round2/journal.mjs';
 import {reconcile} from '../../scripts/round2/reconcile.mjs';
 import {daily} from '../../scripts/round2/daily.mjs';
 import {fixture,setup} from './helpers.mjs';
@@ -23,9 +24,10 @@ for(const [minutes,status,owed] of [[0,'early',1],[9,'early',1],[10,'on_time',0]
  });
 }
 test('missing or only early/unclear/wrong-scope looks never become ground truth at 24 hours',t=>{
- const f=fixture(t);setup(f.ctx);const s=started(f),start=Date.parse(s.at);
+ const f=fixture(t);setup(f.ctx);const s=started(f);let start=Date.parse(s.at);
  assert.equal(reconcile(f.ctx,undefined,{now:start+1000}).look_checks[0].status,'pending');
  look(f,2);look(f,15,{seen:'unclear'});look(f,15,{job:'other'});look(f,15,{about:'delete'});
+ start=Date.parse(readJournal(f.journal).find(r=>r.seq===s.seq).at);
  assert.equal(reconcile(f.ctx,undefined,{now:start+86399999}).look_checks[0].status,'early');
  const r=reconcile(f.ctx,undefined,{now:start+86400000});assert.equal(r.look_checks[0].status,'no_ground_truth');
  assert.equal(r.look_checks[0].observation,null);assert.equal(r.looks_owed.length,1);

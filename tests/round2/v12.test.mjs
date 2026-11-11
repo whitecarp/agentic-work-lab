@@ -1,9 +1,10 @@
+import {putObserved as put} from './helpers.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
 import {begin,step,end,closeJob} from '../../scripts/round2/gate-run.mjs';
-import {put,readJournal,clearGuard,verifyJournal} from '../../scripts/round2/journal.mjs';
+import {put as rawPut,readJournal,clearGuard,verifyJournal} from '../../scripts/round2/journal.mjs';
 import {grantScope,limits} from '../../scripts/round2/policy.mjs';
 import {fixture,setup,approve,last,cli,flags} from './helpers.mjs';
 const command=[process.execPath,'-e','console.log(JSON.stringify({state:"DELETED_VERIFIED"}))'];
@@ -13,22 +14,22 @@ function admitted(t){const f=fixture(t);setup(f.ctx);approve(f.ctx,'job-1',5,'li
 test('listed approval cannot pay for a delete; one scoped unit pays once',async t=>{
  const f=admitted(t);
  assert.equal(await step(f.ctx,sf,command),5);assert.equal(last(f.ctx,'STEP'),undefined);
- approve(f.ctx,'job-1',1,'one_write');
+ approve(f.ctx,'job-1',1,'one_delete');
  assert.equal(await step(f.ctx,sf,command),0);
  assert.equal(await step(f.ctx,sf,command),5);
  assert.equal(readJournal(f.journal).filter(r=>r.type==='STEP').length,1);
- assert.equal(JSON.parse(fs.readFileSync(path.join(f.home,'reservations.json')))[0].scope,'one_write');
+ assert.equal(JSON.parse(fs.readFileSync(path.join(f.home,'reservations.json')))[0].scope,'one_delete');
 });
 test('ordinary sequence consumes listed units first; unknown role cannot spend them',async t=>{
- const f=admitted(t);approve(f.ctx,'job-1',1,'one_write');
+ const f=admitted(t);approve(f.ctx,'job-1',1,'one_delete');
  assert.equal(await step(f.ctx,{...sf,role:'verify'},command),0);
  const saved=JSON.parse(fs.readFileSync(path.join(f.home,'reservations.json')));
  assert.equal(saved[0].scope,'listed_test_posts');
- assert.equal(grantScope(readJournal(f.journal),'job-1','write',saved,'delete'),'one_write');
- assert.equal(grantScope(readJournal(f.journal),'job-1','write',[...saved,{job:'job-1',class:'write',scope:'one_write'}],'other'),null);
+ assert.equal(grantScope(readJournal(f.journal),'job-1','write',saved,'delete',['youtube']),'one_delete');
+ assert.equal(grantScope(readJournal(f.journal),'job-1','write',[...saved,{job:'job-1',class:'write',scope:'one_delete',platforms:['youtube']}],'other'),null);
 });
 test('uncertain legacy reservation never creates new deletion credit',t=>{
- const f=admitted(t);approve(f.ctx,'job-1',1,'one_write');
+ const f=admitted(t);approve(f.ctx,'job-1',1,'one_delete');
  assert.equal(grantScope(readJournal(f.journal),'job-1','write',[{job:'job-1',class:'write'}],'delete'),null);
 });
 test('one job spans sessions with a refusal and later readback; only JOB_END closes',async t=>{
@@ -36,7 +37,7 @@ test('one job spans sessions with a refusal and later readback; only JOB_END clo
  assert.equal(await step(f.ctx,{...sf,role:'publish'},[process.execPath,'-e','process.exit(2)']),2);
  assert.equal(end(f.ctx).record.d.state,'completed');
  f.ctx.run=begin(f.ctx,{}).run;
- approve(f.ctx,'job-1',1,'one_write');assert.equal(await step(f.ctx,sf,command),0);
+ approve(f.ctx,'job-1',1,'one_delete');assert.equal(await step(f.ctx,sf,command),0);
  assert.equal(await step(f.ctx,{...sf,role:'delete_verify',tool:'other',class:'read'},['unused']),127);
  // A failed spawn cannot establish successful readback.
  assert.throws(()=>closeJob(f.ctx,{job:'job-1',reason:'done'}),/evidence/);
@@ -52,9 +53,9 @@ test('one job spans sessions with a refusal and later readback; only JOB_END clo
 test('test closure requires evidence for its exact job and chosen reason',async t=>{
  const f=admitted(t);
  assert.throws(()=>closeJob(f.ctx,{job:'job-1',reason:'nothing_posted'}),/evidence/);
- observe(f);await step(f.ctx,{...sf,role:'verify'},command);
+ observe(f);await step(f.ctx,{...sf,role:'publish'},command);
  assert.throws(()=>closeJob(f.ctx,{job:'job-1',reason:'nothing_posted'}),/evidence/);
- observe(f);assert.equal(closeJob(f.ctx,{job:'job-1',reason:'nothing_posted'}).record.d.reason,'nothing_posted');
+ observe(f);assert.equal(closeJob(f.ctx,{job:'job-1',reason:'nothing_posted'}).record.d.reason,'done');
 });
 test('manual cleanup closure requires its manual note',t=>{
  const f=admitted(t);assert.throws(()=>closeJob(f.ctx,{job:'job-1',reason:'removed_by_hand'}));

@@ -46,11 +46,11 @@ test('cross-site records cannot enter another sites journal',t=>{
   const f=fixture(t);approve(f.ctx);
   assert.throws(()=>put({...f.ctx,site:'tester'},'RUN_END',{state:'skipped',steps:0}));
 });
-test('admission lost before run file persists closes as interrupted',t=>{
+test('missing session lock does not erase the admitted session',t=>{
   const f=ready(t),old=f.ctx.run;
   fs.unlinkSync(path.join(f.home,'run.lock'));
-  assert.equal(begin(f.ctx,{}).exit,0);
-  assert.equal(readJournal(f.journal).find(r=>r.run===old&&r.type==='RUN_END').d.state,'interrupted');
+  assert.equal(begin(f.ctx,{}).reason,'already_running');
+  assert.equal(readJournal(f.journal).some(r=>r.run===old&&r.type==='RUN_END'),false);
 });
 test('old gate implementation and old test bytes remain unchanged',()=>{
   assert.equal(sha(fs.readFileSync('scripts/operations-gate.mjs','utf8').replace(/\r\n/g,'\n')),'6c18061504739ee3080f276d5be40c714339af07a2304306f652f8f3afb0dccf');

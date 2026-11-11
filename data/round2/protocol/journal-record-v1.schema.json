@@ -485,7 +485,8 @@
               "enum": [
                 "one_write",
                 "listed_test_posts",
-                "read_only"
+                "read_only",
+                "one_delete"
               ]
             },
             "count": {
@@ -501,6 +502,14 @@
             "words_sha256": {
               "type": "string",
               "pattern": "^[a-f0-9]{64}$"
+            },
+            "platform": {
+              "enum": [
+                "youtube",
+                "douyin",
+                "instagram",
+                "x"
+              ]
             }
           },
           "required": [
@@ -661,8 +670,15 @@
               "minimum": 0
             },
             "capture_sha256": {
-              "type": "string",
-              "pattern": "^[a-f0-9]{64}$"
+              "anyOf": [
+                {
+                  "type": "string",
+                  "pattern": "^[a-f0-9]{64}$"
+                },
+                {
+                  "type": "null"
+                }
+              ]
             },
             "awl_run_id": {
               "type": "string",
@@ -720,6 +736,171 @@
                 "EDIT_VERIFIED",
                 "DELETED_VERIFIED"
               ]
+            },
+            "answers": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "platform": {
+                    "enum": [
+                      "bilibili",
+                      "youtube",
+                      "x",
+                      "douyin",
+                      "instagram"
+                    ]
+                  },
+                  "state": {
+                    "enum": [
+                      null,
+                      "PREPARING",
+                      "IN_PROGRESS",
+                      "UNKNOWN",
+                      "PREPARATION_INCOMPLETE",
+                      "PREVIEW_READY",
+                      "WAITING_FOR_USER",
+                      "NEEDS_A_PERSON",
+                      "SUBMITTED_UNVERIFIED",
+                      "SUBMISSION_VERIFIED",
+                      "EXISTING_VERIFIED",
+                      "AGENT_REPORTED_VERIFIED",
+                      "SKIPPED_EXISTING",
+                      "NOT_STARTED",
+                      "DELETE_READY",
+                      "DELETE_PENDING",
+                      "DELETED_VERIFIED",
+                      "DELETE_PREVIEW",
+                      "EDIT_PREPARING",
+                      "EDIT_SUBMITTING",
+                      "EDIT_SUBMITTED_UNVERIFIED",
+                      "EDIT_VERIFIED",
+                      "EDIT_MISMATCH",
+                      "EDIT_UNAVAILABLE",
+                      "EDIT_PREPARED",
+                      "PENDING_WORK_ID",
+                      "PENDING",
+                      "SUBMITTED",
+                      "VERIFIED",
+                      "FAILED",
+                      "NOT_SUPPORTED",
+                      "forgotten"
+                    ]
+                  },
+                  "previous_state": {
+                    "enum": [
+                      null,
+                      "PREPARING",
+                      "IN_PROGRESS",
+                      "UNKNOWN",
+                      "PREPARATION_INCOMPLETE",
+                      "PREVIEW_READY",
+                      "WAITING_FOR_USER",
+                      "NEEDS_A_PERSON",
+                      "SUBMITTED_UNVERIFIED",
+                      "SUBMISSION_VERIFIED",
+                      "EXISTING_VERIFIED",
+                      "AGENT_REPORTED_VERIFIED",
+                      "SKIPPED_EXISTING",
+                      "NOT_STARTED",
+                      "DELETE_READY",
+                      "DELETE_PENDING",
+                      "DELETED_VERIFIED",
+                      "DELETE_PREVIEW",
+                      "EDIT_PREPARING",
+                      "EDIT_SUBMITTING",
+                      "EDIT_SUBMITTED_UNVERIFIED",
+                      "EDIT_VERIFIED",
+                      "EDIT_MISMATCH",
+                      "EDIT_UNAVAILABLE",
+                      "EDIT_PREPARED",
+                      "PENDING_WORK_ID",
+                      "PENDING",
+                      "SUBMITTED",
+                      "VERIFIED",
+                      "FAILED",
+                      "NOT_SUPPORTED",
+                      "forgotten"
+                    ]
+                  },
+                  "code": {
+                    "enum": [
+                      null,
+                      "stopped",
+                      "interrupted",
+                      "confirmation_required",
+                      "deletion_already_attempted",
+                      "deletion_not_allowed",
+                      "deletion_target_unverified",
+                      "deletion_target_changed",
+                      "unsupported_delete",
+                      "attempt_exists",
+                      "already_submitted",
+                      "press_blocked",
+                      "cover_blocked",
+                      "wrong_account",
+                      "wrong_work",
+                      "owner_unverified",
+                      "needs_person",
+                      "human_verification_required",
+                      "injected_fault",
+                      "fault_injection_refused",
+                      "backend_timeout",
+                      "browser_timeout",
+                      "readback_failed",
+                      "schedule_unverified",
+                      "identity_mismatch",
+                      "busy",
+                      "browser_busy",
+                      "lock_marker_unreadable",
+                      "file_not_found",
+                      "invalid_file",
+                      "internal_error",
+                      "submission_unverified",
+                      "preparation_incomplete",
+                      "inspect_existing_edit",
+                      "receipt_missing",
+                      "stopped_before_press",
+                      "draft_only",
+                      "verified_not_saved"
+                    ]
+                  },
+                  "press_flag": {
+                    "enum": [
+                      null,
+                      true,
+                      false
+                    ]
+                  },
+                  "answered": {
+                    "type": "boolean"
+                  },
+                  "refs": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "pattern": "^[a-f0-9]{16}$"
+                    }
+                  },
+                  "not_saved": {
+                    "type": "boolean"
+                  }
+                },
+                "required": [
+                  "platform",
+                  "state",
+                  "previous_state",
+                  "code",
+                  "press_flag",
+                  "answered",
+                  "refs",
+                  "not_saved"
+                ],
+                "additionalProperties": false
+              }
+            },
+            "capture_failed": {
+              "type": "boolean"
             }
           },
           "required": [
@@ -1881,6 +2062,36 @@
                   "pattern": "^[a-f0-9]{64}$"
                 }
               ]
+            },
+            "platform_settlements": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "platform": {
+                    "enum": [
+                      "youtube",
+                      "douyin",
+                      "bilibili",
+                      "x",
+                      "instagram"
+                    ]
+                  },
+                  "how": {
+                    "enum": [
+                      "delete_confirmed",
+                      "nothing_posted",
+                      "removed_by_hand",
+                      "gone_by_person"
+                    ]
+                  }
+                },
+                "required": [
+                  "platform",
+                  "how"
+                ],
+                "additionalProperties": false
+              }
             }
           }
         }
@@ -2306,6 +2517,9 @@
             "words_sha256": {
               "type": "string",
               "pattern": "^[a-f0-9]{64}$"
+            },
+            "configured": {
+              "type": "boolean"
             }
           },
           "required": [
@@ -2488,6 +2702,32 @@
                   "type": "null"
                 }
               ]
+            },
+            "gone_delay_ms": {
+              "anyOf": [
+                {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "reason": {
+              "enum": [
+                null,
+                "command_finished_before_request",
+                "terminate_handle_failed",
+                "starter_not_observed_gone",
+                "tree_not_observed_gone",
+                "starter_missing",
+                "starter_identity_missing",
+                "process_identity_changed",
+                "process_snapshot_failed",
+                "owned_handle_controller_unavailable",
+                "process_controller_failed"
+              ]
             }
           },
           "required": [
@@ -2498,6 +2738,208 @@
             "fired",
             "failed",
             "processes"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "v",
+        "seq",
+        "prev",
+        "at",
+        "site",
+        "run",
+        "slot",
+        "type",
+        "d"
+      ],
+      "additionalProperties": false
+    },
+    {
+      "type": "object",
+      "properties": {
+        "v": {
+          "const": 1
+        },
+        "seq": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "prev": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        },
+        "at": {
+          "type": "string",
+          "pattern": "^\\d{4}-\\d\\d-\\d\\dT\\d\\d:\\d\\d:\\d\\d\\.\\d{3}Z$"
+        },
+        "site": {
+          "enum": [
+            "owner",
+            "tester"
+          ]
+        },
+        "run": {
+          "anyOf": [
+            {
+              "type": "string",
+              "pattern": "^[a-f0-9]{32}$"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "slot": {
+          "enum": [
+            "owner",
+            "tester",
+            "codex",
+            "gemini",
+            "claude",
+            "tester-assistant",
+            "scheduler"
+          ]
+        },
+        "type": {
+          "const": "FAULT_PLATFORM_POLICY"
+        },
+        "d": {
+          "type": "object",
+          "properties": {
+            "platform": {
+              "enum": [
+                "youtube",
+                "douyin"
+              ]
+            },
+            "enabled": {
+              "const": false
+            },
+            "by": {
+              "enum": [
+                "owner",
+                "tester"
+              ]
+            },
+            "words_sha256": {
+              "type": "string",
+              "pattern": "^[a-f0-9]{64}$"
+            }
+          },
+          "required": [
+            "platform",
+            "enabled",
+            "by",
+            "words_sha256"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "v",
+        "seq",
+        "prev",
+        "at",
+        "site",
+        "run",
+        "slot",
+        "type",
+        "d"
+      ],
+      "additionalProperties": false
+    },
+    {
+      "type": "object",
+      "properties": {
+        "v": {
+          "const": 1
+        },
+        "seq": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "prev": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        },
+        "at": {
+          "type": "string",
+          "pattern": "^\\d{4}-\\d\\d-\\d\\dT\\d\\d:\\d\\d:\\d\\d\\.\\d{3}Z$"
+        },
+        "site": {
+          "enum": [
+            "owner",
+            "tester"
+          ]
+        },
+        "run": {
+          "anyOf": [
+            {
+              "type": "string",
+              "pattern": "^[a-f0-9]{32}$"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "slot": {
+          "enum": [
+            "owner",
+            "tester",
+            "codex",
+            "gemini",
+            "claude",
+            "tester-assistant",
+            "scheduler"
+          ]
+        },
+        "type": {
+          "const": "FAULT_SKIPPED"
+        },
+        "d": {
+          "type": "object",
+          "properties": {
+            "job": {
+              "type": "string",
+              "pattern": "^[a-z0-9][a-z0-9._-]{0,63}$"
+            },
+            "role": {
+              "enum": [
+                "publish",
+                "delete",
+                "edit"
+              ]
+            },
+            "kind": {
+              "enum": [
+                "end_command_after_press",
+                "end_tree_after_press",
+                "readback_timeout",
+                "between_save_and_press",
+                "browser_lost_during_upload",
+                "stop_during_upload",
+                "delete_readback_lost",
+                "end_browser_after_edit_save"
+              ]
+            },
+            "platform": {
+              "enum": [
+                "youtube",
+                "douyin"
+              ]
+            },
+            "reason": {
+              "const": "browser_faults_disabled"
+            }
+          },
+          "required": [
+            "job",
+            "role",
+            "kind",
+            "platform",
+            "reason"
           ],
           "additionalProperties": false
         }

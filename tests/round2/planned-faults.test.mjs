@@ -16,7 +16,7 @@ function ready(t,kind='readback_timeout',script,delay=0){
  configureSetup(f.ctx,{enabled:true,by:'owner'},()=> 'a'.repeat(64));
  const rule=FAULTS[kind];f.fault={kind,mechanism:rule.mechanism,role:rule.role,trigger:rule.trigger,delay_ms:delay,armed_on:'youtube_private'};
  f.plan={runs:[{...job,site:'owner',faults:[f.fault]}]};f.save=()=>fs.writeFileSync(path.join(f.home,'planned-runs.json'),JSON.stringify(f.plan));f.save();
- approve(f.ctx,'job-1',20);f.ctx.run=begin(f.ctx,{}).run;
+ approve(f.ctx,'job-1',20);if(rule.role==='delete')approve(f.ctx,'job-1',1,'one_delete');f.ctx.run=begin(f.ctx,{}).run;
  const exe=path.join(f.root,process.platform==='win32'?'vpub.exe':'vpub');try{fs.linkSync(process.execPath,exe);}catch{fs.copyFileSync(process.execPath,exe);}
  const file=path.join(f.root,'standin.cjs');fs.writeFileSync(file,script??"console.log(JSON.stringify({error:{code:process.env.VPUB_FAULT==='after_press'?'injected_fault':'unexpected'}}));process.exitCode=4;");
  f.command=[exe,file];return f;
@@ -66,15 +66,15 @@ test('stop during upload is observed at next check; manual removal does not auth
  assert.equal(await step(f.ctx,{job:'job-1',role:'resume'},[process.execPath,'-e','process.exit(0)']),0);
 });
 for(const [kind,tree]of [['end_command_after_press',false],['end_tree_after_press',true]])test(`${kind} ends only its owned targets and records observations`,{timeout:45000},async t=>{
- const source="const {spawn}=require('child_process'),fs=require('fs'),path=require('path');const c=spawn(process.execPath,['-e','setTimeout(()=>{},30000)'],{stdio:'ignore',windowsHide:true,detached:true});c.unref();fs.writeFileSync(path.join(process.env.ROUND2_HOME,'grandchild.pid'),String(c.pid));console.error(JSON.stringify({event:'browser_progress',platform:'youtube',stage:'waiting for platform confirmation'}));setTimeout(()=>{},30000);";
+ const source="const {spawn}=require('child_process'),fs=require('fs'),path=require('path');const c=spawn(process.execPath,['-e','setTimeout(()=>{},4000)'],{stdio:'ignore',windowsHide:true,detached:true});c.unref();fs.writeFileSync(path.join(process.env.ROUND2_HOME,'grandchild.pid'),String(c.pid));console.error(JSON.stringify({event:'browser_progress',platform:'youtube',stage:'waiting for platform confirmation'}));setTimeout(()=>{},30000);";
  const f=ready(t,kind,source,500),prior=process.env.ROUND2_HOME;process.env.ROUND2_HOME=f.home;
  t.after(()=>{if(prior===undefined)delete process.env.ROUND2_HOME;else process.env.ROUND2_HOME=prior;});
  const start=performance.now();await step(f.ctx,{job:'job-1',role:'publish'},f.command,{supportCheck:()=>true});
  const result=last(f.ctx,'FAULT_RESULT').d;assert.equal(result.fired,true);assert.equal(result.failed,false);assert.ok(performance.now()-start>=500);
  assert.ok(result.processes.filter(p=>p.root||tree).every(p=>p.ended));assert.equal(last(f.ctx,'STEP').d.fault_fired,true);
  const grand=Number(fs.readFileSync(path.join(f.home,'grandchild.pid')));
- // This is solely the PID created by the synthetic child above.
- if(!tree){assert.equal(alive(grand),true);process.kill(grand);for(let n=0;n<30&&alive(grand);n++)await new Promise(r=>setTimeout(r,50));assert.equal(alive(grand),false);await new Promise(r=>setTimeout(r,150));assert.ok(result.processes.some(p=>p.pid===grand&&p.ended===false));}
+ // The command-only descendant expires by its own bounded timer; never reopen a PID for termination.
+ if(!tree){assert.equal(alive(grand),true);assert.equal(result.processes.length,1);await new Promise(r=>setTimeout(r,4500));assert.equal(alive(grand),false);}
  else {assert.equal(alive(grand),false);assert.ok(result.processes.some(p=>p.pid===grand));}
 });
 test('edit fault ignores pre-save readback and fires only after pressing', {timeout:45000},async t=>{

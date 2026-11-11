@@ -27,9 +27,9 @@ export function atomic(file, value) {
     if (fs.existsSync(temp)) fs.unlinkSync(temp);
   }
 }
-export function withLock(file, fn) {
+export function withLock(file, fn,timeoutMs=1000) {
   fs.mkdirSync(path.dirname(file),{recursive:true});
-  const deadline=Date.now()+1000;
+  const deadline=Date.now()+timeoutMs;
   let fd;
   while (fd === undefined) {
     if(fs.existsSync(file+'.recovery')) throw new Error('lock_unavailable');

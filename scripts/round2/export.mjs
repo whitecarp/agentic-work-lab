@@ -12,6 +12,16 @@ export function switches(argv,names){
  return {set,...parseFlags(rest)};
 }
 function strings(value){return typeof value==='string'?[value]:Array.isArray(value)?value.flatMap(strings):value&&typeof value==='object'?Object.values(value).flatMap(strings):[];}
+// Default deny: even a capture of one public line has a private timestamp.
+// Only these named, public source files retain their unkeyed digests.
+const publicDigests=new Set(['protocol_sha256','gate_sha256','rules_card_sha256','analysis_sha256','crosscast_digest']);
+export function protectDigests(value,commit,trail=[]){
+ if(typeof value==='string')return /^[a-f0-9]{64}$/i.test(value)&&
+   !(trail.length===4&&trail[0]==='records'&&trail[2]==='d'&&publicDigests.has(trail[3]))?commit(value):value;
+ if(Array.isArray(value))return value.map((v,i)=>protectDigests(v,commit,[...trail,i]));
+ if(value&&typeof value==='object')return Object.fromEntries(Object.entries(value).map(([k,v])=>[k,protectDigests(v,commit,[...trail,k])]));
+ return value;
+}
 function datesOnly(value){
  if(typeof value==='string'&&/^\d{4}-\d\d-\d\dT\d\d:\d\d/.test(value))return value.slice(0,10);
  if(Array.isArray(value))return value.map(datesOnly);
@@ -53,13 +63,18 @@ export function exportData(ctx,{privacy=false,deny,crosscast:ccfile}={}){
   const withheld=new Set(result.crosscast?.runs.filter(r=>r.t_start===null).map(r=>r.awl_run_id)??[]);
   for(const r of result.records){
    if(r.type==='STEP'&&r.d.awl_run_id&&withheld.has(r.d.awl_run_id))delete r.d.ms;
+   if(r.type==='STEP'){
+    const gate=records.findLast(g=>g.seq<r.seq&&g.run===r.run&&g.type==='GATE_DECISION');
+    const original=records.find(x=>x.seq===r.seq);
+    if(gate&&gate.at.slice(0,10)!==original.at.slice(0,10))delete r.d.ms;
+   }
    if(r.type==='FAULT_RESULT')for(const p of r.d.processes??[]){
     if(p.born){p.instance=key(p.pid+'/'+p.born);delete p.born;}
    }
   }
   if(strings(result).some(s=>forbidden.some(word=>s.includes(word))))throw new Error('private_string_refused');
   result.time_policy='dates_only_UTC; minute_fields_removed; compute_timing_on_site; tool_export_whole_UTC_days';
-  return datesOnly(result);
+  return datesOnly(protectDigests(result,key));
  }
  return result;
 }
@@ -71,7 +86,7 @@ export function exportFile(ctx,out,options={}){
  });
 }
 export function main(argv=process.argv.slice(2)){
- const {flags:f,command,set}=switches(argv,['--privacy']);allowed(f,['site','journal','out','deny','crosscast']);if(command.length||!f.out)throw new Error('invalid_arguments');
+ const {flags:f,command,set}=switches(argv,['--privacy']);allowed(f,['site','slot','journal','out','deny','crosscast']);if(command.length||!f.out)throw new Error('invalid_arguments');
  const ctx=context(f,false);if(process.env.ROUND2_HOME)ctx.home=fs.realpathSync(process.env.ROUND2_HOME);
  console.log(JSON.stringify(exportFile(ctx,f.out,{privacy:set.has('--privacy'),deny:f.deny,crosscast:f.crosscast})));return 0;
 }

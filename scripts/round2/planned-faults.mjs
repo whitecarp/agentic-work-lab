@@ -1,12 +1,10 @@
 import fs from 'node:fs';
 import path from 'node:path';
-import {execFile} from 'node:child_process';
-import {promisify} from 'node:util';
+import {processHandles} from './process-handles.mjs';
 import {put,readJournal} from './journal.mjs';
 import {readJSON,atomic,sha} from './io.mjs';
 import {assertFaultReady} from './fault-setup.mjs';
 
-const exec=promisify(execFile);
 export const FAULTS={
  end_command_after_press:{mechanism:'wrapper_kill',role:'publish',trigger:'waiting_for_platform_confirmation',tree:false},
  end_tree_after_press:{mechanism:'wrapper_kill',role:'publish',trigger:'waiting_for_platform_confirmation',tree:true},
@@ -48,6 +46,10 @@ export function selectFault(ctx,job,role,policy){
    ![0,500,2000].includes(fault.delay_ms)||row.run_class!=='test_post'||row.site!==ctx.site||
    row.platforms?.length!==1||job.platforms?.length!==1||row.platforms[0]!==job.platforms[0]||
    `${row.platforms[0]}_${row.visibility}`!==fault.armed_on||row.visibility!==job.visibility)throw new Error('fault_plan_invalid');
+ if(rule.tree&&records.some(r=>r.type==='FAULT_PLATFORM_POLICY'&&r.d.platform===row.platforms[0]&&r.d.enabled===false)){
+  if(!records.some(r=>r.type==='FAULT_SKIPPED'&&r.d.job===job.id&&r.d.role===role))put(ctx,'FAULT_SKIPPED',{job:job.id,role,kind:fault.kind,platform:row.platforms[0],reason:'browser_faults_disabled'},ctx.run);
+  return null;
+ }
  return {job:job.id,...fault};
 }
 export function armFault(ctx,fault,executable,supportCheck=verifyFaultSupport){
@@ -66,85 +68,78 @@ export function injectedReply(stdout,platform){
  }catch{return false;}
 }
 
-// Enumerate only identity/parent fields, never command lines or account files.
-async function processes(){
- if(process.platform==='win32'){
-  const {stdout}=await exec('powershell.exe',['-NoProfile','-NonInteractive','-Command',
-   'Get-CimInstance Win32_Process | Select-Object Name,ProcessId,ParentProcessId,@{n="born";e={$_.CreationDate.ToUniversalTime().Ticks.ToString()}} | ConvertTo-Json -Compress'],
-   {windowsHide:true,maxBuffer:4*1024*1024,timeout:15000});
-  const rows=JSON.parse(stdout);return (Array.isArray(rows)?rows:[rows]).map(r=>({pid:r.ProcessId,parent:r.ParentProcessId,born:r.born,image:r.Name}));
- }
- if(process.platform==='linux')return fs.readdirSync('/proc').filter(n=>/^\d+$/.test(n)).flatMap(n=>{
-  try{const s=fs.readFileSync(`/proc/${n}/stat`,'utf8').split(') ')[1].split(' ');return [{pid:+n,parent:+s[1],born:s[19],zombie:s[0]==='Z'}];}catch{return [];}
- });
- throw new Error('owned_tree_inspection_unavailable');
+// Birth-time checks exclude old orphans with a recycled parent number.
+export function family(rows,root){
+ const first=rows.find(r=>r.pid===root);if(!first)throw new Error('starter_missing');
+ const selected=new Map([[root,first]]);let changed=true;
+ while(changed){changed=false;for(const r of rows){const parent=selected.get(r.parent);
+  if(!parent||selected.has(r.pid)||BigInt(r.born)<BigInt(parent.born))continue;
+  selected.set(r.pid,r);changed=true;
+ }}return [...selected.values()];
 }
 const pause=ms=>new Promise(r=>setTimeout(r,ms));
-function family(rows,root){const selected=new Map([[root,rows.find(r=>r.pid===root)]]);let changed=true;while(changed){changed=false;for(const r of rows)if(selected.has(r.parent)&&!selected.has(r.pid)){
- // An orphan retaining a recycled parent PID is not owned by this invocation.
- if(BigInt(r.born)<BigInt(selected.get(r.parent).born))throw new Error('ambiguous_process_parent');
- selected.set(r.pid,r);changed=true;
- }}return [...selected.values()];}
-async function terminate(pid,tree,child){
- if(process.platform==='win32'){
-  try{await exec('taskkill.exe',['/PID',String(pid),...(tree?['/T']:[]),'/F'],{windowsHide:true,timeout:15000});return 0;}
-  catch(e){return Number.isInteger(e.code)?e.code:null;}
- }
- if(tree)process.kill(-pid,'SIGKILL');else child.kill('SIGKILL');
- return 0;
-}
-export function faultController(ctx,fault,{snapshot=processes,kill=terminate}={}){
+const category=r=>/^python(?:w)?(?:\.exe)?$/i.test(r.image)?'python':/^node(?:\.exe)?$/i.test(r.image)?'driver':/chrome|chromium/i.test(r.image)?'chromium':'other';
+export function faultController(ctx,fault,{snapshot,kill}={}){
  if(!fault)return null;
- const rule=FAULTS[fault.kind];let child,rootIdentity,rootReady=Promise.resolve(),press=false,triggered=false,fired=false,failed=false,pending=Promise.resolve(),ended=[],partial='';
- let measured=null,killExit=null;
+ const rule=FAULTS[fault.kind],created=Date.now();
+ let child,observer,rootReady=Promise.resolve(),rootIdentity,press=false,triggered=false,fired=false,failed=false,pending=Promise.resolve(),partial='',ended=[];
+ let requestMs=null,goneMs=null,killExit=null,reason=null,childEnded=false;
+ const running=()=>child&&!childEnded&&child.exitCode==null&&child.signalCode==null;
+ const rowsOf=rows=>rows.map(r=>({pid:r.pid,parent:r.parent,root:r.pid===child.pid,...(r.born?{born:r.born}:{}),kind:r.pid===child.pid?'launcher':category(r),ended:r.ended??null}));
  const api={
-  attach(c){child=c;if(rule.mechanism==='wrapper_kill')c.once('spawn',()=>{rootReady=snapshot().then(rows=>{rootIdentity=rows.find(r=>r.pid===c.pid);}).catch(()=>{failed=true;});});},
+  attach(c){
+   child=c;c.once('exit',()=>{childEnded=true;});
+   if(rule.tree){
+    if(!snapshot){if(process.platform!=='win32')throw new Error('owned_handle_controller_unavailable');observer=processHandles();}
+    c.once('spawn',()=>{rootReady=(snapshot?snapshot():observer.init(c.pid,created)).then(rows=>{rootIdentity=rows.find(r=>r.pid===c.pid);if(!rootIdentity)throw new Error('starter_missing');}).catch(e=>{reason=e.message;});});
+   }
+  },
   line(line){
-   // CrossCast progress.show emits JSON, not a bare word. Ignore unrelated
-   // stderr, another platform and arbitrary strings containing the trigger.
    let packet;try{packet=JSON.parse(line);}catch{return;}
    if(packet?.event!=='browser_progress'||packet.platform!==fault.armed_on.split('_')[0])return;
-   const stage=packet.stage;
-   if(stage==='pressing')press=true;
-   if(triggered||rule.mechanism==='tool_switch'||stage!==rule.trigger.replaceAll('_',' ')||(rule.afterPress&&!press))return;
-   triggered=true;
-   const start=performance.now();
+   if(packet.stage==='pressing')press=true;
+   if(triggered||rule.mechanism==='tool_switch'||packet.stage!==rule.trigger.replaceAll('_',' ')||(rule.afterPress&&!press))return;
+   triggered=true;const start=performance.now();
    pending=(async()=>{
+    await pause(fault.delay_ms);
+    if(!running()){reason='command_finished_before_request';return;}
     if(rule.mechanism==='stop_file'){
-     await pause(fault.delay_ms);
-     put(ctx,'STOP_SET',{by:'scheduler'},ctx.run);
-     measured=Math.round(performance.now()-start);
-     atomic(path.join(ctx.home,'STOP'),'planned fault\n');fired=true;return;
+     requestMs=Math.round(performance.now()-start);
+     put(ctx,'STOP_SET',{by:'scheduler'},ctx.run);atomic(path.join(ctx.home,'STOP'),'planned fault\n');fired=true;return;
     }
-    const [before]=await Promise.all([snapshot(),rootReady,pause(fault.delay_ms)]);
-    if(failed||!rootIdentity){failed=true;fired=null;return;}
-    if(child.exitCode!==null||child.signalCode!==null)return;
-    const root=before.find(r=>r.pid===child.pid&&r.born===rootIdentity.born);
-    if(!root)return;
-    const owned=family(before,child.pid);
-    const category=r=>r.pid===root.pid?'launcher':/^python(?:w)?(?:\.exe)?$/i.test(r.image)?'python':
-      /^node(?:\.exe)?$/i.test(r.image)?'driver':/chrome|chromium/i.test(r.image)?'chromium':'other';
-    ended=owned.map(r=>({pid:r.pid,parent:r.parent,root:r.pid===root.pid,born:r.born,kind:category(r),ended:null}));
-    measured=Math.round(performance.now()-start);
-    killExit=await kill(root.pid,rule.tree,child);
-    // Also observe descendants of the launcher for a command-only trial.
-    // A nonzero taskkill code can coincide with an already-ended member.
-    if(!rule.tree)await pause(2200);
-    for(let n=0;n<4;n++){
-     const after=await snapshot();
-     ended=ended.map(r=>({...r,ended:!after.some(a=>a.pid===r.pid&&a.born===r.born&&!a.zombie)}));
-     const targets=ended.filter(r=>rule.tree||r.root);
-     if(targets.every(r=>r.ended)){fired=true;return;}
-     if(n<3)await pause(200);
+    if(!rule.tree){
+     // Node retains the exact child handle: no PID walk or snapshot delay.
+     requestMs=Math.round(performance.now()-start);
+     const sent=kill?await kill(child.pid,false,child):child.kill('SIGKILL');
+     killExit=typeof sent==='number'?sent:sent?0:1;
+     if(sent===false){reason=running()?'terminate_handle_failed':'command_finished_before_request';failed=running();fired=failed?null:false;return;}
+     for(let i=0;i<100&&running();i++)await pause(10);
+     fired=!running();failed=!fired;reason=failed?'starter_not_observed_gone':null;
+     goneMs=fired?Math.round(performance.now()-start):null;
+     ended=[{pid:child.pid,root:true,kind:'launcher',ended:fired}];return;
     }
-    failed=true;
-    fired=ended.filter(r=>rule.tree||r.root).some(r=>r.ended)?null:false;
-   })().catch(()=>{failed=true;fired=null;});
+    await rootReady;
+    if(!running()){reason='command_finished_before_request';return;}
+    if(!rootIdentity)throw new Error(reason??'starter_identity_missing');
+    const before=snapshot?await snapshot():await observer.scan();
+    const root=before.find(r=>r.pid===child.pid&&r.born===rootIdentity.born&&!r.ended);
+    if(!root)throw new Error('starter_missing');
+    const owned=family(before,child.pid);ended=rowsOf(owned);
+    requestMs=Math.round(performance.now()-start);
+    if(kill){killExit=await kill(child.pid,true,child,owned);const after=await snapshot();ended=ended.map(r=>({...r,ended:!after.some(a=>a.pid===r.pid&&a.born===r.born&&!a.zombie)}));}
+    else{const after=await observer.end();killExit=0;ended=rowsOf(after);}
+    fired=ended.length>0&&ended.every(r=>r.ended);failed=!fired;
+    reason=failed?'tree_not_observed_gone':null;goneMs=fired?Math.round(performance.now()-start):null;
+   })().catch(e=>{failed=true;fired=null;reason=['starter_missing','starter_identity_missing','process_identity_changed','process_snapshot_failed','terminate_handle_failed','owned_handle_controller_unavailable'].includes(e.message)?e.message:'process_controller_failed';});
   },
   receive(bytes){partial+=bytes.toString('utf8');let i;while((i=partial.indexOf('\n'))!==-1){api.line(partial.slice(0,i));partial=partial.slice(i+1);}if(partial.length>8192)partial='';},
-  async finish(stdout){if(partial)api.line(partial);await rootReady;await pending;if(rule.mechanism==='tool_switch')fired=injectedReply(stdout,fault.armed_on.split('_')[0]);
-   put(ctx,'FAULT_RESULT',{job:fault.job,kind:fault.kind,role:fault.role,triggered,fired:failed&&!triggered?null:fired,failed,action_delay_ms:measured,kill_exit:killExit,processes:ended},ctx.run);
-   return {fired:failed&&!triggered?null:fired,failed};
+  async finish(stdout){
+   try{if(partial)api.line(partial);await rootReady;await pending;
+    if(rule.mechanism==='tool_switch')fired=injectedReply(stdout,fault.armed_on.split('_')[0]);
+    put(ctx,'FAULT_RESULT',{job:fault.job,kind:fault.kind,role:fault.role,triggered,fired,failed,reason,
+     action_delay_ms:requestMs,gone_delay_ms:goneMs,kill_exit:killExit,processes:ended},ctx.run,30000);
+    return {fired,failed,reason};
+   }finally{observer?.close();}
   }
  };return api;
 }

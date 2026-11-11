@@ -11,7 +11,8 @@ function random(seed){let counter=0;return max=>{if(!Number.isSafeInteger(max)||
  do{n=createHash('sha256').update(seed).update(String(counter++)).digest().readUInt32BE(0);}while(n>=limit);return n%max;};}
 function shuffled(rows,draw){const a=[...rows];for(let i=a.length-1;i>0;i--){const j=draw(i+1);[a[i],a[j]]=[a[j],a[i]];}return a;}
 const count=n=>{if(!Number.isSafeInteger(n)||n<0)throw new Error('invalid_counts');return n;};
-export function generate(counts,site,seed,{dueFrom,firstShort,firstLong=1}={}){
+export function generate(counts,site,seed,{dueFrom,firstShort,firstLong=1,countsRaw=canonical(counts)+'\n'}={}){
+ counts=JSON.parse(canonical(counts)); // Object key insertion order is not an input.
  if(!['owner','tester'].includes(site)||!Buffer.isBuffer(seed)||seed.length!==32||!Number.isFinite(Date.parse(dueFrom)))throw new Error('invalid_plan_input');
  const spec=counts.sites?.[site],draw=random(seed),runs=[];let serial=0;
  if(!spec)throw new Error('invalid_counts');
@@ -102,13 +103,17 @@ export function generate(counts,site,seed,{dueFrom,firstShort,firstLong=1}={}){
   const j={id:r.id,order:r.order,run_class:r.run_class,platforms:r.platforms,visibility:r.visibility,
    clip:r.clip,edit:r.edit,wrong_delete_code_first:r.wrong_delete_code_first,pair:r.pair,pair_mode:r.pair_mode};
   for(const field of ['clip_no','kind','uses','day'])if(Object.hasOwn(r,field))j[field]=r[field];
-  Object.assign(j,{class:r.run_class==='drill'?'local':'write',due_at:new Date(dueFrom).toISOString()});
+  Object.assign(j,{class:r.run_class==='drill'?'local':'write',due_at:r.kind==='not_due'?'2100-01-01T00:00:00.000Z':new Date(dueFrom).toISOString()});
+  if(r.run_class==='test_post')j.publish_fault=r.faults.some(f=>f.role==='publish');
   if(r.run_class==='test_post'){j.listed_writes=2+3*P+(site==='owner'&&r.edit?P:0);j.edit_writes=r.edit?P:0;j.delete_writes=(r.wrong_delete_code_first?approval.delete_with_another_posts_code_first:approval.delete)*P;
    j.approval_mode=site==='tester'?'each_post_edit_delete_separately':'daily_list_and_separate_delete';}
   if(r.run_class==='refusal')j.listed_writes=approval.refusal_run_from_the_days_list;
   if(r.run_class==='real_slot')j.release_writes=1+3*P;
   return j;});
- return {plan:{schema:'round2-planned-runs/1',site,counts_sha256:sha(canonical(counts)),seed_sha256:sha(seed),totals,runs:ordered},jobs};
+ jobs.push({id:`${site}-standing`,run_class:'standing',class:'read',platforms:[],due_at:new Date(dueFrom).toISOString()});
+ return {plan:{schema:'round2-planned-runs/1',site,counts_sha256:sha(canonical(counts)),counts_raw_sha256:sha(countsRaw),seed_sha256:sha(seed),
+  generator:{version:1,dueFrom:new Date(dueFrom).toISOString(),firstShort:firstShort??uploads.short[0],firstLong},
+  jobs_sha256:sha(canonical(jobs)+'\n'),totals,runs:ordered},jobs};
 }
 export function make(home,counts,site,options){return withLock(path.join(home,'plan.guard'),()=>{
  const planFile=path.join(home,'planned-runs.json'),jobsFile=path.join(home,'jobs.json'),seedFile=path.join(home,'plan-seed');
@@ -117,12 +122,21 @@ export function make(home,counts,site,options){return withLock(path.join(home,'p
  if(fs.lstatSync(seedFile).isSymbolicLink())throw new Error('invalid_seed');
  const {plan,jobs}=generate(counts,site,fs.readFileSync(seedFile),options),bytes=canonical(plan)+'\n';
  // Exclusive files: a partial failure is preserved and blocks a second make.
- for(const [file,value]of [[planFile,bytes],[jobsFile,canonical(jobs)+'\n']]){const fd=fs.openSync(file,'wx',0o600);try{fs.writeFileSync(fd,value);fs.fsyncSync(fd);}finally{fs.closeSync(fd);}}
+ for(const [file,value]of [[path.join(home,'counts-source.json'),options.countsRaw??canonical(counts)+'\n'],[planFile,bytes],[jobsFile,canonical(jobs)+'\n']]){const fd=fs.openSync(file,'wx',0o600);try{fs.writeFileSync(fd,value);fs.fsyncSync(fd);}finally{fs.closeSync(fd);}}
  return {sha256:sha(bytes),runs:plan.runs.length,totals:plan.totals};
 });}
 export function check(home,sealed){if(!/^[a-f0-9]{64}$/.test(sealed??'')||sha(fs.readFileSync(path.join(home,'planned-runs.json')))!==sealed)throw new Error('plan_digest_mismatch');return {matches:true,sha256:sealed};}
+export function verifyPlan(home,countsFile=path.join(home,'counts-source.json')){
+ const bytes=fs.readFileSync(path.join(home,'planned-runs.json')),plan=JSON.parse(bytes),raw=fs.readFileSync(countsFile),seed=fs.readFileSync(path.join(home,'plan-seed'));
+ if(!plan.generator||plan.generator.version!==1||sha(raw)!==plan.counts_raw_sha256)throw new Error('plan_provenance_missing');
+ const rebuilt=generate(JSON.parse(raw),plan.site,seed,{...plan.generator,countsRaw:raw});
+ if(!bytes.equals(Buffer.from(canonical(rebuilt.plan)+'\n'))||!fs.readFileSync(path.join(home,'jobs.json')).equals(Buffer.from(canonical(rebuilt.jobs)+'\n')))throw new Error('plan_reproduction_mismatch');
+ return {matches:true,sha256:sha(bytes),jobs_sha256:rebuilt.plan.jobs_sha256};
+}
 export function reveal(ctx){const records=readJournal(ctx.journal),last=records.findLast(r=>r.type==='STEP'),closing=records.findLast(r=>r.type==='SIGN_OFF'&&r.d.closing===true);
- if(!closing||(last&&(closing.seq<last.seq||Date.parse(closing.at)<Date.parse(last.at))))throw new Error('closing_sign_off_required');
+ if(!closing||closing.d.answer!=='yes'||closing.d.by!==ctx.site||(last&&(closing.seq<last.seq||Date.parse(closing.at)<Date.parse(last.at))))throw new Error('closing_sign_off_required');
+ if(records.some(r=>r.type==='GATE_DECISION'&&r.d.decision==='plan_only'&&!records.some(e=>e.type==='RUN_END'&&e.run===r.run))||fs.existsSync(path.join(ctx.home,'run.lock')))throw new Error('session_still_open');
+ verifyPlan(ctx.home);
  const file=path.join(ctx.home,'planned-runs.json'),bytes=fs.readFileSync(file),seal=records.findLast(r=>r.type==='PROTOCOL_SEAL'&&r.d.plan_sha256);
  if(!seal)throw new Error('sealed_plan_required');check(ctx.home,seal.d.plan_sha256);
  const plan=JSON.parse(bytes);
@@ -143,9 +157,9 @@ export function reveal(ctx){const records=readJournal(ctx.journal),last=records.
 }
 export function main(argv=process.argv.slice(2)){
  const sub=argv.shift(),{flags:f,command}=parseFlags(argv);if(command.length)throw new Error('invalid_arguments');
- const keys={make:['counts','site','due-from','first-short','first-long'],check:['sealed'],reveal:['site','journal']};
- if(!keys[sub])throw new Error('invalid_arguments');allowed(f,keys[sub]);const home=privateHome();
- const result=sub==='make'?make(home,JSON.parse(fs.readFileSync(f.counts)),f.site,{dueFrom:f['due-from'],firstShort:f['first-short']===undefined?undefined:Number(f['first-short']),firstLong:f['first-long']===undefined?undefined:Number(f['first-long'])}):sub==='check'?check(home,f.sealed):reveal(context(f));
+ const keys={make:['counts','site','due-from','first-short','first-long'],check:['sealed'],verify:['counts'],reveal:['site','journal']};
+ if(!keys[sub])throw new Error('invalid_arguments');allowed(f,['slot',...keys[sub]]);if(!['owner','tester','gemini','codex','claude','tester-assistant'].includes(f.slot))throw new Error('invalid_slot');const home=privateHome();
+ const result=sub==='make'?make(home,JSON.parse(fs.readFileSync(f.counts)),f.site,{countsRaw:fs.readFileSync(f.counts),dueFrom:f['due-from'],firstShort:f['first-short']===undefined?undefined:Number(f['first-short']),firstLong:f['first-long']===undefined?undefined:Number(f['first-long'])}):sub==='check'?check(home,f.sealed):sub==='verify'?verifyPlan(home,f.counts):reveal(context(f));
  console.log(JSON.stringify(result));return 0;
 }
 if(process.argv[1]&&import.meta.url===pathToFileURL(path.resolve(process.argv[1])).href){try{process.exitCode=main();}catch{console.error('planned_runs_refused');process.exitCode=70;}}

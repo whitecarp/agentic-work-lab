@@ -23,7 +23,7 @@ export function daily(ctx,{selectedDay=new Date().toISOString().slice(0,10),appl
  return {lines,checked,applied:apply,day:selectedDay,as_of:checked.as_of,scopes:{gates:'selected_UTC_day',steps:'selected_UTC_day',violations:'selected_UTC_day',go_aheads:'selected_UTC_day',observations:'selected_UTC_day',in_doubt:'all_records',looks:'all_records'}};
 }
 export function main(argv=process.argv.slice(2)){
- const {flags:f,command,set}=switches(argv,['--apply']);allowed(f,['site','journal','day','crosscast','as-of']);if(command.length)throw new Error('invalid_arguments');
+ const {flags:f,command,set}=switches(argv,['--apply']);allowed(f,['site','slot','journal','day','crosscast','as-of']);if(command.length)throw new Error('invalid_arguments');
  const result=daily(context(f),{selectedDay:f.day,apply:set.has('--apply'),crosscast:f.crosscast,now:f['as-of']});console.log(result.lines.join('\n'));return 0;
 }
 if(process.argv[1]&&import.meta.url===pathToFileURL(path.resolve(process.argv[1])).href){try{process.exitCode=main();}catch{console.error('daily_refused');process.exitCode=70;}}

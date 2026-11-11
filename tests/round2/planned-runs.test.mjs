@@ -10,7 +10,7 @@ const options={dueFrom:'2026-11-19T00:00:00Z'};
 for(const site of ['owner','tester'])test(`planned ${site} totals, variants, paired adjacency and determinism`,()=>{
  const a=generate(counts,site,Buffer.alloc(32,7),options),b=generate(counts,site,Buffer.alloc(32,7),options);
  assert.equal(canonical(a),canonical(b));assert.notEqual(canonical(a),canonical(generate(counts,site,Buffer.alloc(32,8),options)));
- assert.equal(a.plan.runs.length,site==='owner'?129:19);assert.doesNotMatch(JSON.stringify(a.jobs),/fault/);
+ assert.equal(a.plan.runs.length,site==='owner'?129:19);assert.ok(a.jobs.every(j=>!('faults' in j)));assert.equal(a.jobs.at(-1).run_class,'standing');
  for(const r of a.plan.runs){
   if(r.pair){const other=a.plan.runs.find(x=>x.pair===r.pair&&x.id!==r.id);assert.equal(Math.abs(other.order-r.order),1);assert.notEqual(r.pair_mode,other.pair_mode);}
   assert.equal(new Set(r.faults.map(f=>f.role)).size,r.faults.length);
@@ -38,7 +38,7 @@ for(const site of ['owner','tester'])test(`planned ${site} totals, variants, pai
 test('operator identifiers and cross-references describe only shuffled order',()=>{
  for(const site of ['owner','tester']){
   const {plan,jobs}=generate(counts,site,Buffer.alloc(32,7),options);
-  for(const [i,job] of jobs.entries()){
+  for(const [i,job] of jobs.filter(j=>j.run_class!=='standing').entries()){
    const id=`${site}-${String(i+1).padStart(3,'0')}`;
    assert.equal(job.id,id);assert.equal(plan.runs[i].id,id);
    assert.ok(!Object.hasOwn(job,'group'));assert.ok(!Object.hasOwn(job,'faults'));
@@ -60,7 +60,7 @@ test('insufficient clips and inconsistent counts leave no generated lists',t=>{
  const wrong=structuredClone(counts);wrong.totals_to_check.owner.test_posts++;assert.throws(()=>generate(wrong,'owner',Buffer.alloc(32),options),/total_mismatch/);
 });
 test('reveal requires explicit closing after last step and matching sealed bytes',t=>{
- const f=fixture(t),made=make(f.home,counts,'owner',options);setup(f.ctx);
+ const f=fixture(t);setup(f.ctx);fs.unlinkSync(path.join(f.home,'jobs.json'));const made=make(f.home,counts,'owner',options);
  put(f.ctx,'PROTOCOL_SEAL',{protocol_sha256:'a'.repeat(64),lab_commit:'b'.repeat(40),crosscast_commit:'c'.repeat(40),phase:'2b',crosscast_digest:null,plan_sha256:made.sha256,analysis_sha256:null,rules_card_sha256:null});
  const sign=closing=>{const h=verifyJournal(f.journal);return put(f.ctx,'SIGN_OFF',{day:new Date().toISOString().slice(0,10),by:'owner',answer:'yes',words_sha256:null,head_sha256:h.head_sha256,records:h.records,closing});};
  sign(false);assert.throws(()=>reveal(f.ctx),/closing/);sign(true);assert.equal(reveal(f.ctx).sha256,made.sha256);assert.deepEqual(fs.readFileSync(path.join(path.dirname(f.journal),'plan-seed')),fs.readFileSync(path.join(f.home,'plan-seed')));assert.throws(()=>reveal(f.ctx));

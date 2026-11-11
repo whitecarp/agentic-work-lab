@@ -9,7 +9,7 @@ a private folder outside every Git checkout, shared by the operator and checker.
 begin prints its resolved real path so the two apps can compare it. Use separate
 private homes and site journals for owner and tester.
 
-Public records are in data/round2/SITE/journal.jsonl. The companion .head file
+Records are in data/round2/SITE/journal.jsonl. The first protocol seal pins the resolved journal path in the private home; every later command must use that path, even from another checkout. The companion .head file
 retains the last count and digest and detects a removed final record. External
 seals/anchors remain necessary against an actor rewriting the journal and its
 head together. Modules 3 and 4 provide seals and export. Never publish private homes
@@ -71,13 +71,13 @@ Keep jobs.json under ROUND2_HOME, for example:
 The owner supplies their own words to standard input for handoff and go-ahead:
 
 ~~~text
-node scripts/round2/journal.mjs protocol-seal --site owner --phase rehearsal --protocol PROTOCOL_FILE --lab-commit LAB_COMMIT_40_HEX --crosscast-commit CROSSCAST_COMMIT_40_HEX
-node scripts/round2/journal.mjs handoff --site owner --to gemini --by owner
-node scripts/round2/journal.mjs go-ahead --site owner --job rehearsal-1 --scope one_write --count 1 --by owner
+node scripts/round2/journal.mjs protocol-seal --site owner --phase rehearsal --protocol PROTOCOL_FILE --lab-commit LAB_COMMIT_40_HEX --crosscast-commit CROSSCAST_COMMIT_40_HEX --slot gemini
+node scripts/round2/journal.mjs handoff --site owner --to gemini --by owner --slot gemini
+node scripts/round2/journal.mjs go-ahead --site owner --job rehearsal-1 --scope one_write --count 1 --by owner --slot gemini
 node scripts/round2/gate-run.mjs begin --site owner --slot gemini --launcher manual
 node scripts/round2/gate-run.mjs step --site owner --slot gemini --run RUN --job rehearsal-1 --role publish --platform youtube -- STAND_IN_COMMAND
 node scripts/round2/gate-run.mjs end --site owner --slot gemini --run RUN
-node scripts/round2/journal.mjs verify data/round2/owner/journal.jsonl
+node scripts/round2/journal.mjs verify data/round2/owner/journal.jsonl --slot gemini
 ~~~
 
 Use --journal PATH for an isolated rehearsal site. It must consistently name the
@@ -98,17 +98,17 @@ operator.json. Never edit that file to bypass a handoff.
   never automatically refunded or retried.
 - A fresh GATE_DECISION is appended before each child to prove that recording
   still works. A broken or unwritable journal means no child; exit 70.
-- run.lock is durable session state, owned by the invoking shell between steps.
-  During a step it also tracks wrapper/child PIDs. A later begin closes an
-  abandoned run as interrupted only when these liveness witnesses are gone.
-  It never kills or resumes a child. A live session must explicitly end.
+- run.lock is durable session state until an explicit end. A new shell does not
+  imply a finished session. During a step wrapper/child identities guard the work.
+  A second begin returns already_running even if the original shell has exited.
 - The short exclusive .lock / operation.guard files are fail-closed. A process
   dying inside a critical write can leave one behind: preserve the evidence and
   request review. No automatic lock deletion or receipt reset is provided.
 - Missing approval, a changed operator, an active step, STOP, an unadmitted job,
   or a standing policy limit refuses with exit 5 and a fixed reason word.
-- Test publishes are only on declared YouTube/Douyin jobs. Four starts per
-  platform per 24 hours, 20-minute spacing after a publish/outside upload, and a
+- Test publishes are only on declared YouTube/Douyin jobs. Four first test-post publishes per
+  platform per 24 hours, 20-minute spacing between those first publishes (and
+  after a recorded outside upload), and a
   48-hour warning hold apply. Bilibili deletes are refused. The wrapper binds
   step platform labels to job labels; those labels are operator-supplied metadata,
   not independent proof of the actual account or a private plan's visibility.
@@ -141,18 +141,21 @@ and any capture remain. A job closes only through `close-job`; there is no reope
 
 ~~~text
 node scripts/round2/gate-run.mjs close-job --site owner --slot gemini --job rehearsal-1 --reason done
-node scripts/round2/journal.mjs clear-guard --site owner --by owner
+node scripts/round2/journal.mjs clear-guard --site owner --by owner --slot gemini
 ~~~
 
-For a test post, done requires a successful delete_verify after the last write;
-nothing_posted requires an absent observation after the last write; removed_by_hand
-requires that job's manual_step note. Abandoned reads the person's words from stdin
+For a test post, each platform needs its own settlement after its last possible
+write: confirmed deletion, a counting absent-post look when nothing was posted,
+a manual_step note, or a counting absent-delete look after pending deletion.
+Mixed settlements close as done; standing read jobs never close. Abandoned reads the person's words from stdin
 and stores only their digest. Other job classes use done or abandoned. The operator
 is responsible for the required real-release observation windows before closing.
 
 listed_test_posts units cover publish, repeat_same, resume, verify, edit and
-changed_plan only. Other writes, especially delete, require one_write units of
-that exact job. Eligible writes consume listed units first. Old unscoped pending
+changed_plan only. Other writes require one_write units. A delete instead requires one_delete
+units for that exact job and platform (--platform is mandatory on its grant).
+Generic write units never authorize deletion and read-backs do not consume delete units.
+Eligible writes consume listed units first. Old unscoped pending
 reservations are conservatively deducted from both pools; no credit is invented.
 
 Use clear-guard **only after Codex has reviewed the evidence and on the owner's
@@ -166,12 +169,12 @@ separate review, not automatic clearing. PID reuse can conservatively refuse.
 ## Seal, export, daily check and reconcile (Modules 3 and 4)
 
 ~~~text
-node scripts/round2/daily.mjs --site owner
-node scripts/round2/seal.mjs --site owner --day 2026-11-12
-node scripts/round2/export.mjs --site owner --out PUBLIC_FILE --privacy --deny PRIVATE_DENY_FILE --crosscast CROSSCAST_AUDIT_FILE
-node scripts/round2/reconcile.mjs --site owner --crosscast CROSSCAST_AUDIT_FILE
-node scripts/round2/daily.mjs --site owner --apply
-node scripts/round2/journal.mjs sign-off --site owner --day 2026-11-12 --by owner --answer yes
+node scripts/round2/daily.mjs --site owner --slot gemini
+node scripts/round2/seal.mjs --site owner --day 2026-11-12 --slot gemini
+node scripts/round2/export.mjs --site owner --out PUBLIC_FILE --privacy --deny PRIVATE_DENY_FILE --crosscast CROSSCAST_AUDIT_FILE --slot gemini
+node scripts/round2/reconcile.mjs --site owner --crosscast CROSSCAST_AUDIT_FILE --slot gemini
+node scripts/round2/daily.mjs --site owner --apply --slot gemini
+node scripts/round2/journal.mjs sign-off --site owner --day 2026-11-12 --by owner --answer yes --slot gemini
 ~~~
 
 All accept --journal PATH for isolated rehearsals. --crosscast and --deny are
@@ -311,7 +314,7 @@ A real release outside the sealed list is recorded separately; it never edits
 jobs.json. Pipe the account owner's actual words into:
 
 ~~~text
-node scripts/round2/journal.mjs real-release --site owner --job release-EXAMPLE --platform youtube --due-at 2026-11-20T14:00:00Z --by owner
+node scripts/round2/journal.mjs real-release --site owner --job release-EXAMPLE --platform youtube --due-at 2026-11-20T14:00:00Z --by owner --slot gemini
 ~~~
 
 REAL_RELEASE records class real_release, platforms, due time, allowance and a
@@ -340,7 +343,7 @@ fault_injection in the selected config before the first planned shakedown fault.
 After that setup, pipe the owner's words into:
 
 ~~~text
-node scripts/round2/fault-setup.mjs --site owner --enabled true --by owner
+node scripts/round2/fault-setup.mjs --site owner --enabled true --by owner --slot gemini
 ~~~
 
 This reads only the named config and records FAULT_SETUP; it changes no CrossCast
@@ -380,6 +383,8 @@ A repeat_same, changed_plan or resume requires an actually started publish for
 that job/platform in the same planned run, including an earlier admitted session.
 A failed spawn cannot satisfy it (`repeat_without_publish`).
 The tester's copy says `dates_only_UTC`; compute timing results on site first.
+Use reconcile --privacy for the separate comparison copy; its cutoff is UTC day
+end and uncertain-case gaps are rounded up to whole minutes.
 The tester's operator requests CrossCast exports bounded by whole UTC days.
 
 
@@ -390,15 +395,16 @@ Gemini (owner site) or the tester's operator performs setup only after that
 account owner's specific approval, before a session starts. The configure
 command records the supplied owner's words, saves only the two old settings
 privately, registers ROUND2_HOME/STOP and enables fault_injection. Record-only
-mode remains available to audit settings the operator changed separately.
+mode refuses configure_required and cannot enable arming. A temporary job handoff
+holder cannot configure; the configured site operator must do it outside a session.
 
 ~~~text
-node scripts/round2/fault-setup.mjs configure --site owner --enabled true --by owner
-node scripts/round2/plan-runs.mjs make --counts COUNTS_JSON --site owner --due-from 2026-11-19T00:00:00Z --first-short 1 --first-long 1
-node scripts/round2/plan-runs.mjs check --sealed SHA256
-node scripts/round2/fault-setup.mjs configure --site owner --enabled false --by owner
-node scripts/round2/journal.mjs sign-off --site owner --day 2026-12-01 --answer yes --closing
-node scripts/round2/plan-runs.mjs reveal --site owner
+node scripts/round2/fault-setup.mjs configure --site owner --enabled true --by owner --slot gemini
+node scripts/round2/plan-runs.mjs make --counts COUNTS_JSON --site owner --due-from 2026-11-19T00:00:00Z --first-short 1 --first-long 1 --slot gemini
+node scripts/round2/plan-runs.mjs check --sealed SHA256 --slot gemini
+node scripts/round2/fault-setup.mjs configure --site owner --enabled false --by owner --slot gemini
+node scripts/round2/journal.mjs sign-off --site owner --day 2026-12-01 --answer yes --closing --slot gemini
+node scripts/round2/plan-runs.mjs reveal --site owner --slot gemini
 ~~~
 
 Setup/cleanup need the owner's words on stdin; do not paste these examples as
@@ -407,7 +413,7 @@ approval and starts no command. It requires an empty list destination; a partial
 write is preserved for inspection. The private 32-byte seed plus counts and
 explicit arguments determine the bytes. SHA-256 counter draws use rejection
 sampling; timing pairs stay adjacent. Variant selection and clip allocation
-are checked, both sites use separate pools, and jobs.json reveals no faults.
+are checked, both sites use separate pools, and jobs.json reveals only whether a publish fault is assigned, never its kind or timing. It includes a standing read job per site and future-dated not_due drills.
 The owner refusal pool may be reused only while those clips were never uploaded;
 retire any accidentally published refusal clip before another session. A tester
 refusal receives its own unused clip. Supplemental real releases still use the
@@ -430,8 +436,12 @@ a detached worker may survive. Tree termination inspects the owned descendants,
 ends the tree and checks each observed PID's creation identity afterward. It
 never selects by process name. FAULT_RESULT separately records trigger, firing,
 errors and per-PID end observations; no firing or all-ended claim is invented.
-Windows uses PID-targeted taskkill, Linux uses the detached process group;
-other OS tree inspection is explicitly unsupported. Child signals map to exit 3.
+Windows command-only faults use Node's retained child handle. Tree faults use a
+persistent PowerShell helper holding verified Windows process handles from child
+start; there is no taskkill /T or PID-only termination. Older orphan descendants
+are excluded by birth time. All owned handles are attempted even when a child
+exits during termination; final handle observations determine success. Other OS
+tree control is unsupported. Child signals map to exit 3.
 
 A stop during upload creates STOP and STOP_SET; CrossCast notices it at its next
 check. It can be pre-press stopped or post-press in doubt. Manually removing the
@@ -452,8 +462,7 @@ A later code revision must re-audit these files and update the manifest; a versi
 label or config flag alone does not establish switch support. The tests' synthetic
 executable uses a function-level probe stand-in, unavailable as a CLI option;
 separate tests exercise fingerprint mismatch and the production refusal path.
-Linux process-group code is implemented but this Windows validation does not
-claim Linux acceptance. No real installed executable or real settings were read.
+No Linux tree-control acceptance is claimed. No account settings are read by the offline tests.
 
 Fixed review cutoffs require an explicit UTC Z or offset; timezone-naive --as-of input is refused.
 
@@ -468,14 +477,16 @@ A cutoff publish, edit or delete opens an unknown case at that step. A confirmed
 read or a person's recorded look must follow the last possible press for the
 same job, platform and operation. The stricter count is retained.
 
-The Windows interruption record carries the measured delay and taskkill exit
-code, plus observed process identity, parent, category and ended status. Unknown
-controller results keep the original STEP. Tool-switch faults have no action
-delay. The Windows starter is the command-only target. Its children are observed.
+The interruption record carries requested-delay-to-action and observed-gone
+delays separately, fixed failure reason, and owned identities. Command-only
+records its starter only, without delaying the signal for a process scan; the
+worker may keep running and STEP may precede its completion. Unknown controller
+results keep the STEP. Tool-switch faults have neither measured delay.
 
 For the tester share, run the Lab export with both --privacy and --crosscast.
-Share the resulting derived file. Its crosscast section rebases times per command,
-publication and deletion. Keep the input tool export on site. Review results
+Share that derived file and the separately generated privacy comparison. Its crosscast section rebases times per command,
+only. All record-level publication/deletion/edit/observation offsets are null.
+Keep the input tool export on site. Review results
 requiring absolute times there. The counted-phase seal must contain the digest
 of the plan to arm from it. After the closing sign-off, reveal writes both the
 sealed list and its verified 32-byte seed. A legacy list without a seed commitment
@@ -485,3 +496,76 @@ Precise intervals on a command spanning UTC midnight can narrow its clock time
 when paired with the Lab STEP date. The tester copy withholds those intervals
 and the corresponding Lab STEP duration. Each person's on-site analysis retains
 the original durations. Process creation identities are keyed in the share.
+
+## C37 rules and exact offline drill recipe
+
+Every CLI requires `--slot` naming who typed it; `scheduler` is not a typed slot.
+`--by` records whose words were supplied and does not replace that slot. Every
+example above must also use the same absolute `--journal` when the pinned journal
+is not at the checkout default. On a new checkout, an implicit different journal
+refuses `journal_place_mismatch`. Begin respects recorded stops even if STOP was
+removed; an agent may clear its own stop while other setters' stops remain.
+
+STEP carries each platform's closed-vocabulary state, previous state, code and
+press marker. Exit 4 alone is not uncertainty; confirmed platforms do not borrow
+another platform's uncertainty. Errors after contact, exit 3 and cutoffs in all
+press-capable roles open cases unless complete evidence proves no press. Null
+delete counters unchanged on both sides are acceptable; missing final-press
+counters are not proof. Edit/delete cutoffs use their own markers, not an old
+upload flag. A settling read-back must match the reference when both sides have
+one and must have been saved. A person's look counts only after its claimed
+10–1440 minutes actually elapsed and never if unclear. All possible subsequent
+presses move the required look forward. Capture failure preserves a started STEP.
+
+Delete approval example (person's actual words on stdin, not this sample):
+
+~~~text
+node scripts/round2/journal.mjs go-ahead --site owner --slot gemini --job JOB --scope one_delete --platform youtube --count 2 --by owner
+node scripts/round2/journal.mjs browser-faults --site owner --slot gemini --platform youtube --enabled false --by owner
+node scripts/round2/plan-runs.mjs verify --slot gemini --counts COUNTS_JSON
+node scripts/round2/reconcile.mjs --site owner --slot gemini --crosscast LOCAL_TOOL_EXPORT --privacy
+~~~
+
+The browser-faults record disables tree/browser-ending kinds on that platform;
+each skipped assignment gets FAULT_SKIPPED. It grants no fault authority. Do not
+arm on any account before the independent C37 review and separate account gates.
+
+Phase seals move only rehearsal → 2a → 2b; a second 2b seal is refused. The 2b
+seal must name `--plan ROUND2_HOME/planned-runs.json`. Plan hashes cover raw bytes.
+Private counts-source.json, seed, generator arguments and jobs bytes must exactly
+reproduce the list; both 2b sealing and reveal perform that check. Reveal also
+requires a site-person closing **yes** after the last STEP and no open session.
+The post-close tester package contains the revealed planned-runs.json **and
+plan-seed**, public counts/generator version, the derived privacy export and the
+privacy comparison. Never send salt, raw captures, private homes or raw tool
+export. No copy leaves until the privacy review is accepted. Default-key every
+64-hex digest except explicitly allowlisted public source-file fields; sessions
+are null and exported event numbering starts at 1. STEP duration is withheld
+when its prior gate and STEP cross UTC midnight, even without tool events.
+
+C25's separate pre-test installation package must also carry the tester's own
+private plan-seed and counts-source.json alongside its generated list and jobs;
+they are needed for on-site verification before the seal and later reveal.
+This is a packaging requirement for C25 on November 18, not a package sent by C37.
+
+For the six drills use fresh offline homes, explicit empty VPUB_HOME and
+BILI_CLI_HOME bindings, an initial rehearsal seal and a whole-site handoff to
+Gemini. Have a separate approved standing read job due alongside the drill.
+Use `COMMON = --site owner --slot gemini --journal ABSOLUTE_JOURNAL` in every
+command below; replace COMMON with those flags (it is notation, not a CLI flag).
+Give a local drill one `read_only` go-ahead except for not_authorized. The
+generator dates not_due to 2100-01-01, not to the general due time.
+
+| Drill | Setup and commands | Pass condition and cleanup |
+|---|---|---|
+| not_owner | `gate-run.mjs begin COMMON`, substituting only `--slot codex` | `skip`, `not_owner`, no due jobs; no handoff |
+| already_running | `gate-run.mjs begin COMMON`, then repeat begin in another shell | second returns `already_running`; `end COMMON --run FIRST_RUN` |
+| stop_flag | `journal.mjs stop COMMON`; `gate-run.mjs begin COMMON` | `stop_flag`; `journal.mjs clear-stop COMMON` clears only that agent's stop |
+| already_done | operator runs `gate-run.mjs close-job COMMON --job DRILL --reason done`; then begin | DRILL absent from due; end any admitted session |
+| not_due | leave the generated far-future due date; begin | DRILL absent from due; end any admitted session |
+| not_authorized | do not grant this drill approval; begin | DRILL absent from due; end any admitted session |
+
+The last three may correctly admit the standing job or another approved due job.
+Judge the drill's own job in the due list, not a blanket no_work_due response.
+Close drills only as the named operator. Never close the standing read job; it
+is used for session-start checks and the day's export without granting writes.

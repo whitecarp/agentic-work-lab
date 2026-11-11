@@ -1,15 +1,19 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import {pathToFileURL} from 'node:url';
-import {readJournal,context} from './journal.mjs';
+import {readJournal,context,keyedDigest} from './journal.mjs';
+import {protectDigests} from './export.mjs';
 import {sha,parseFlags,allowed,readJSON} from './io.mjs';
 import {crosscast,commandClass} from './crosscast.mjs';
 import {jobList} from './jobs.mjs';
+import {operation,pressRoles,uncertainState,nothingSent,confirmedAnswer,confirmed} from './answers.mjs';
+import {countsLook} from './looks.mjs';
 
-export function reconcile(ctx,crosscastFile,{now=Date.now()}={}){
+export function reconcile(ctx,crosscastFile,{now=Date.now(),privacy=false}={}){
  if(typeof now==='string'&&!/^\d{4}-\d\d-\d\dT\d\d:\d\d(?::\d\d(?:\.\d+)?)?(?:Z|[+-]\d\d:\d\d)$/.test(now))throw new Error('invalid_as_of');
  now=typeof now==='string'?Date.parse(now):now;
  if(!Number.isFinite(now))throw new Error('invalid_as_of');
+ if(privacy)now=Date.parse(new Date(now).toISOString().slice(0,10)+'T23:59:59.999Z');
  const records=readJournal(ctx.journal),cc=crosscast(crosscastFile),steps=records.filter(r=>r.type==='STEP');
  const admissions=records.filter(r=>r.type==='GATE_DECISION'&&r.d.decision==='plan_only');
  const runs=[...new Set(admissions.map(r=>r.run))].map(id=>{
@@ -36,8 +40,6 @@ export function reconcile(ctx,crosscastFile,{now=Date.now()}={}){
   const eligible=steps.filter(r=>r.d.class==='write'&&['publish','repeat_same','changed_plan','resume','edit','delete'].includes(r.d.role));
  const scope=job=>jobs.find(j=>j.id===job)?.run_class;
  const started=s=>s.d.started??!(reservations.find(x=>x.run===s.run&&x.step_seq===s.seq)?.started===false||s.d.exit===127);
- const operation=s=>s.d.action==='delete'||['delete','delete_verify'].includes(s.d.role)?'delete':s.d.role==='edit'?'edit':
-   ['publish','repeat_same','changed_plan','resume','verify'].includes(s.d.role)?'post':null;
  const observationPlatform=r=>{
   if(r.d.platform)return r.d.platform;
   const platforms=jobs.find(j=>j.id===r.d.job)?.platforms??[...new Set(steps.filter(s=>s.d.job===r.d.job).flatMap(s=>s.d.platforms))];
@@ -49,7 +51,7 @@ export function reconcile(ctx,crosscastFile,{now=Date.now()}={}){
  const lookChecks=[...obligations.values()].map(({job,platform,about})=>{
     const s=eligible.filter(r=>r.d.job===job&&r.d.platforms.includes(platform)&&operation(r)===about&&started(r)).at(-1);
   const looks=records.filter(r=>r.seq>s.seq&&r.type==='OBSERVATION'&&r.d.job===job&&r.d.about===about&&observationPlatform(r)===platform&&r.d.seen!=='unclear');
-  const qualifying=looks.find(r=>r.d.minutes_after>=10&&r.d.minutes_after<=1440);
+  const qualifying=looks.find(r=>countsLook(r,s,now));
   const early=looks.filter(r=>r.d.minutes_after<10).map(r=>r.seq);
   // A late look is usable ground truth through 24 hours, but must remain
   // distinguishable from an on-time one. Never turn an early/unclear look
@@ -89,17 +91,17 @@ export function reconcile(ctx,crosscastFile,{now=Date.now()}={}){
    if(!intact||!cmd||cmd.dropped_events!==0||cmd.sequence_gap!==false)return null;
    return cc.events.filter(e=>e.run===cmd.run);
  }
- function provenNoPress(s){
+ function provenNoPress(s,platform){
    const cmd=matched(s), events=eventsFor(s);
    if(!events||cmd.exit_code!==s.d.exit||cmd.ended!==true)return false;
    const first=events[0],last=events.at(-1);
    if(first?.type!=='command_start'||last?.type!=='command_end')return false;
-   const middle=events.slice(1,-1);
+   const middle=events.slice(1,-1).filter(e=>!platform||!e.platform||e.platform===platform);
    if(middle.some(e=>!['call','span','stage','transition'].includes(e.type)))return false;
    if(events.some(e=>e.operation==='press'||e.platform_writes>0||e.stage==='pressing'))return false;
    const before=first.before,after=last.after;
-   const sameCounts=before&&after&&['final_presses','delete_attempted'].every(k=>
-     before[k]!=null&&before[k]===after[k]);
+   const sameCounts=before&&after&&before.final_presses!=null&&before.final_presses===after.final_presses&&
+     before.delete_attempted===after.delete_attempted;
    // A timing span accompanies even a skipped publish. A transition, stage
    // or platform call prevents the no-contact route to proof.
    if(middle.every(e=>e.type==='span') &&
@@ -110,30 +112,54 @@ export function reconcile(ctx,crosscastFile,{now=Date.now()}={}){
       (e.delete_attempted!=null&&e.delete_attempted!==before.delete_attempted)||
       (e.final_submit_attempted===true&&before.final_submit_attempted!==true)));
  }
- const cutoff=s=>s.d.result==='unknown'&&s.d.answered===false&&started(s)&&['publish','edit','delete'].includes(s.d.role);
+ const cutoff=s=>s.d.result==='unknown'&&s.d.answered===false&&started(s)&&pressRoles.includes(s.d.role);
  function pressEvidence(s,platform){
    const events=eventsFor(s);if(!events)return null;
+   const about=operation(s);
    const snapshots=events.filter(e=>!e.platform||e.platform===platform)
-     .flatMap(e=>e.type==='transition'?[e]:[e.before,e.after].filter(Boolean));
+     .flatMap(e=>e.type==='transition'?[e]:[e.after].filter(Boolean));
+   if(about==='edit'){
+     const own=snapshots.filter(e=>e.kind==='edit');
+     if(own.some(e=>e.final_submit_attempted===true||e.platform_writes>0||e.state==='EDIT_SUBMITTING'||e.state==='EDIT_SUBMITTED_UNVERIFIED'))return true;
+     return own.some(e=>e.final_submit_attempted===false)?false:null;
+   }
+   if(about==='delete'){
+     if(snapshots.some(e=>e.delete_attempted===true))return true;
+     return snapshots.some(e=>e.delete_attempted===false)?false:null;
+   }
    if(snapshots.some(e=>e.final_submit_attempted===true||e.final_presses>0||e.delete_attempted===true))return true;
    return snapshots.some(e=>e.final_submit_attempted===false||e.final_presses===0||e.delete_attempted===false)?false:null;
  }
  const cases=new Map();
- for(const s of steps.filter(r=>started(r)&&(r.d.result==='in_doubt'||r.d.exit===4||cutoff(r))&&operation(r))){
+ const answerFor=(s,p)=>s.d.answers?.find(a=>a.platform===p);
+ function opens(s,p){
+   const a=answerFor(s,p),about=operation(s);
+   if(a){
+     if(nothingSent(a)||confirmedAnswer(a,about))return false;
+     if(uncertainState(a,about))return true;
+   }else if(s.d.result==='in_doubt')return true; // Existing journals: no fabricated platform answer.
+   const events=eventsFor(s),contact=events?.some(e=>(!e.platform||e.platform===p)&&['call','stage','transition'].includes(e.type));
+   return (cutoff(s)||s.d.result==='unknown'||s.d.exit===3||s.d.exit===2&&contact)&&!provenNoPress(s,p);
+ }
+ for(const s of steps.filter(r=>started(r)&&pressRoles.includes(r.d.role)&&operation(r))){
    for(const platform of s.d.platforms){
+     if(!opens(s,platform))continue;
      const key=JSON.stringify([s.d.job,platform,operation(s)]);
      if(!cases.has(key))cases.set(key,{s,platform,members:[]});
      cases.get(key).members.push(s.seq);
    }
  }
- const confirmed={post:'SUBMISSION_VERIFIED',edit:'EDIT_VERIFIED',delete:'DELETED_VERIFIED'};
  const inDoubt=[...cases.values()].map(({s,platform,members})=>{
    const about=operation(s),later=records.filter(r=>r.seq>s.seq&&r.d.job===s.d.job);
    function settles(r){
-     if(r.type==='OBSERVATION')return r.d.about===about&&r.d.seen!=='unclear'&&observationPlatform(r)===platform;
-     if(r.type!=='STEP'||r.d.platforms.length!==1||r.d.platforms[0]!==platform||r.d.result!=='ok')return false;
+     if(r.type==='OBSERVATION')return r.d.about===about&&observationPlatform(r)===platform&&countsLook(r,records.find(x=>x.seq===firstEligible),now);
+     if(r.type!=='STEP'||r.d.platforms.length!==1||r.d.platforms[0]!==platform)return false;
+     const openingRefs=answerFor(s,platform)?.refs??s.d.refs??[],closingRefs=answerFor(r,platform)?.refs??r.d.refs??[];
+     if(openingRefs.length&&closingRefs.length&&!openingRefs.some(ref=>closingRefs.includes(ref)))return false;
      if(r.d.role!==({post:'verify',edit:'edit',delete:'delete_verify'})[about])return false;
      if(about==='edit'&&r.d.class!=='read')return false;
+     if(answerFor(r,platform))return confirmedAnswer(answerFor(r,platform),about);
+     if(r.d.result!=='ok')return false;
      if(Object.hasOwn(r.d,'confirmed_state'))return r.d.confirmed_state===confirmed[about];
      // Old journals lack this field. Require an affirmative state in the
      // paired command or its final snapshot before treating a read as verified.
@@ -144,7 +170,7 @@ export function reconcile(ctx,crosscastFile,{now=Date.now()}={}){
    }
    const writes=later.filter(r=>r.type==='STEP'&&r.d.class==='write'&&started(r)&&r.d.platforms.includes(platform));
    const relevant=writes.filter(r=>operation(r)===about&&['publish','repeat_same','changed_plan','resume','edit','delete'].includes(r.d.role));
-   const ignored=relevant.filter(provenNoPress),mayPress=relevant.filter(r=>!ignored.includes(r));
+   const ignored=relevant.filter(r=>provenNoPress(r,platform)),mayPress=relevant.filter(r=>!ignored.includes(r));
    const firstEligible=Math.max(s.seq,...mayPress.map(r=>r.seq));
    const closure=later.find(r=>r.seq>firstEligible&&settles(r));
    const strict=!!closure&&!writes.some(r=>r.seq<closure.seq);
@@ -155,7 +181,7 @@ export function reconcile(ctx,crosscastFile,{now=Date.now()}={}){
      by:closure?(closure.type==='OBSERVATION'?'person':'read'):null,
      seconds:closure?Math.max(0,(Date.parse(closure.at)-Date.parse(s.at))/1000):null,clock_reversed:!!closure&&Date.parse(closure.at)<Date.parse(s.at)};
  });
- return {schema:'round2-reconcile/1',as_of:new Date(now).toISOString(),records:records.length,crosscast_present:cc.present,crosscast_chain_ok:cc.chain_ok,time_alignment:!cc.present?'journal_only':cc.times==='exact'&&cc.chain_ok?'exact':'unavailable',
+ const result={schema:'round2-reconcile/1',as_of:new Date(now).toISOString(),records:records.length,crosscast_present:cc.present,crosscast_chain_ok:cc.chain_ok,time_alignment:!cc.present?'journal_only':cc.times==='exact'&&cc.chain_ok?'exact':'unavailable',
    command_binding:!cc.present?'journal_only':trusted?'shared_id':'unavailable',
    ungated_writes:ungated,matched_write_commands:trusted?bindings.length-ungated:null,write_bindings:bindings,
    admitted_sessions_without_write:runs.filter(r=>!steps.some(s=>s.run===r.id&&s.d.class==='write')).length,
@@ -163,16 +189,22 @@ export function reconcile(ctx,crosscastFile,{now=Date.now()}={}){
    fault_delays:records.filter(r=>r.type==='FAULT_RESULT').map(r=>{
      const armed=records.findLast(a=>a.seq<r.seq&&a.type==='FAULT'&&a.run===r.run&&a.d.job===r.d.job&&a.d.role===r.d.role);
      const row={job:r.d.job,kind:r.d.kind,role:r.d.role,fired:r.d.fired};
-     if(armed&&armed.d.mechanism!=='tool_switch'){row.listed_ms=armed.d.delay_ms;row.measured_ms=r.d.action_delay_ms??null;}
+     if(armed&&armed.d.mechanism!=='tool_switch'){row.listed_ms=armed.d.delay_ms;row.measured_ms=r.d.action_delay_ms??null;row.gone_ms=r.d.gone_delay_ms??null;row.reason=r.d.reason??null;}
      return row;
    }),cutoff_without_press_flag:inDoubt.filter(r=>r.cutoff&&r.cutoff_press_flag===false).length,
    cutoff_press_flag_unavailable:inDoubt.filter(r=>r.cutoff&&r.cutoff_press_flag===null).length,
    in_doubt_open_strict:inDoubt.filter(r=>!r.closed_strict).length,
    looks_owed:owesLook.map(({job,platform,step,about})=>({job,platform,step,about})),look_checks:lookChecks,looks_scope_unknown:eligible.filter(r=>!scope(r.d.job)).length,refusals_by_code:refusals,
    violations:records.filter(r=>r.type==='VIOLATION').length,crosscast_command_losses:cc.losses,crosscast_integrity:cc.integrity};
+ if(privacy){result.as_of=result.as_of.slice(0,10);result.time_policy='UTC_date_end; in_doubt_minutes_rounded_up';
+  for(const c of result.in_doubt){c.minutes=c.seconds===null?null:Math.ceil(c.seconds/60);delete c.seconds;}
+  if(!ctx.home)throw new Error('private_home_required');
+  return protectDigests(result,value=>keyedDigest('round2-private-comparison-v1\0'+value,ctx.home,{create:false}));}
+ return result;
 }
 export function main(argv=process.argv.slice(2)){
- const {flags:f,command}=parseFlags(argv);allowed(f,['site','journal','crosscast','as-of']);if(command.length)throw new Error('invalid_arguments');
- console.log(JSON.stringify(reconcile(context(f),f.crosscast,{now:f['as-of']})));return 0;
+ const privacy=argv.includes('--privacy');if(argv.filter(x=>x==='--privacy').length>1)throw new Error('duplicate_flag');
+ const {flags:f,command}=parseFlags(argv.filter(x=>x!=='--privacy'));allowed(f,['site','slot','journal','crosscast','as-of']);if(command.length)throw new Error('invalid_arguments');
+ console.log(JSON.stringify(reconcile(context(f),f.crosscast,{now:f['as-of'],privacy})));return 0;
 }
 if(process.argv[1]&&import.meta.url===pathToFileURL(path.resolve(process.argv[1])).href){try{process.exitCode=main();}catch{console.error('reconcile_refused');process.exitCode=70;}}

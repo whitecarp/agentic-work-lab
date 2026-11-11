@@ -49,13 +49,13 @@ test('post-action identity evidence controls firing even with taskkill exit 128'
  const f=admitted(t),root={pid:233,parent:7,born:'19'},child={pid:244,parent:233,born:'20'};
  const fault={job:'job-1',kind:'end_tree_after_press',role:'publish',armed_on:'youtube_private',delay_ms:0};
  let gone=false;const c=faultController(f.ctx,fault,{snapshot:async()=>gone?[]:[root,child],kill:async()=>{gone=true;return 128;}});
- c.attach({pid:233,exitCode:null,signalCode:null,once:(event,callback)=>callback()});c.line(JSON.stringify({event:'browser_progress',platform:'youtube',stage:'waiting for platform confirmation'}));
+ c.attach({pid:233,exitCode:null,signalCode:null,once:(event,callback)=>{if(event==='spawn')callback();}});c.line(JSON.stringify({event:'browser_progress',platform:'youtube',stage:'waiting for platform confirmation'}));
  assert.equal((await c.finish('')).fired,true);const r=last(f.ctx,'FAULT_RESULT').d;assert.equal(r.kill_exit,128);assert.equal(r.processes.length,2);assert.ok(r.processes.every(p=>p.ended));
 });
 test('an agent clears its own stop, another agent cannot; owner clearance commits words',t=>{
  const f=fixture(t);setup(f.ctx);const cmd=(sub,slot,extra=[],input='')=>cli(f,'journal',[sub,'--site','owner','--slot',slot,'--journal',f.journal,...extra],input).status;
  assert.equal(cmd('stop','codex'),0);assert.equal(cmd('clear-stop','gemini'),70);assert.equal(cmd('clear-stop','codex'),0);
- put(f.ctx,'STOP_SET',{by:'scheduler'});assert.equal(cmd('stop','gemini'),0);assert.equal(cmd('clear-stop','gemini'),70);
+ put(f.ctx,'STOP_SET',{by:'scheduler'});assert.equal(cmd('stop','gemini'),0);assert.equal(cmd('clear-stop','gemini'),0);assert.ok(fs.existsSync(path.join(f.home,'STOP')));
  assert.equal(cmd('clear-stop','gemini',['--by','owner']),70);assert.equal(cmd('clear-stop','gemini',['--by','owner'],'synthetic owner words'),0);
  const r=last(f.ctx,'STOP_CLEARED');assert.equal(r.d.by,'owner');assert.match(r.d.words_sha256,/^[0-9a-f]{64}$/);
 });

@@ -37,6 +37,8 @@ export function privateToolCopy(source,commit){
   }
   if(event.prev)event.prev=commit(event.prev);
  }
+ // A record can link several commands, including a command withheld at
+ // midnight. It therefore has no relative origin or interval in the share.
  for(const loss of copy.losses??[]){
   const origin=byRun.get(loss.run);
   for(const k of ['at','reported_at'])if(k in loss)loss[k]=elapsed(loss[k],origin);
@@ -44,16 +46,18 @@ export function privateToolCopy(source,commit){
  for(const [rows,fields] of [[copy.publications,['t_started','t_updated','t_verified']],[copy.deletions,['t_created','t_attempted','t_updated']]]){
   for(const row of rows??[]){
    const nested=[...(row.edits??[]),...(row.observations??[])];
-   const all=[...fields.map(k=>seconds(row[k])),...nested.map(e=>seconds(e.t))].filter(n=>n!=null);
-   const boundary=!absolute||crosses([...fields.map(k=>row[k]),...nested.map(e=>e.t)]);
-   const origin=all.length&&!boundary?Math.min(...all):null;
-   for(const key of fields)if(key in row)row[key]=elapsed(row[key],origin);
-   for(const e of nested)e.t=elapsed(e.t,origin);
+   for(const key of fields)if(key in row)row[key]=null;
+   for(const e of nested)if('t' in e)e.t=null;
   }
  }
  copy.window={since:source.window?.since?.slice(0,10)??null,until:source.window?.until?.slice(0,10)??null};
  if(copy.integrity?.head)copy.integrity.head=commit(copy.integrity.head);
- copy.times='per_command_or_record';copy.derived=true;
+ for(const row of [...copy.runs,...copy.events])if('session' in row)row.session=null;
+ const sequence=new Map(copy.events.map((e,i)=>[e.seq,i+1]));
+ copy.events.forEach((e,i)=>{e.seq=i+1;});
+ if(copy.integrity){copy.integrity.first_seq=copy.events.length?1:null;copy.integrity.last_seq=copy.events.length||null;
+  if('first_bad_seq' in copy.integrity)copy.integrity.first_bad_seq=sequence.get(copy.integrity.first_bad_seq)??null;}
+ copy.times='per_command';copy.derived=true;
  if(/\d{4}-\d\d-\d\dT\d\d:\d\d/.test(JSON.stringify(copy)))throw new Error('unhandled_clock_time');
  return copy;
 }

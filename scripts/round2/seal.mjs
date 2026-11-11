@@ -55,7 +55,7 @@ export function seal(ctx,selectedDay=new Date().toISOString().slice(0,10)){
  });
 }
 export function main(argv=process.argv.slice(2)){
- const {flags:f,command}=parseFlags(argv);allowed(f,['site','journal','day']);if(command.length)throw new Error('invalid_arguments');
+ const {flags:f,command}=parseFlags(argv);allowed(f,['site','slot','journal','day']);if(command.length)throw new Error('invalid_arguments');
  console.log(JSON.stringify(seal(context(f,false),f.day)));return 0;
 }
 if(process.argv[1]&&import.meta.url===pathToFileURL(path.resolve(process.argv[1])).href){try{process.exitCode=main();}catch{console.error('seal_refused');process.exitCode=70;}}

@@ -20,18 +20,12 @@ export function assertFaultReady(ctx,kind){
  const records=readJournal(ctx.journal),last=records.filter(r=>r.type==='FAULT_SETUP').at(-1),actual=inspect(ctx,records);
  if(!['end_command_after_press','end_tree_after_press','readback_timeout','between_save_and_press',
    'browser_lost_during_upload','stop_during_upload','delete_readback_lost','end_browser_after_edit_save'].includes(kind)||
-   !last||last.d.enabled!==true||!actual.enabled||last.d.stop_digest!==actual.stop_digest||
+   !last||last.d.configured!==true||last.d.enabled!==true||!actual.enabled||last.d.stop_digest!==actual.stop_digest||
    !last.d.stop_registered||!actual.registered)throw new Error('fault_setup_unconfirmed');
  return actual;
 }
 export function recordSetup(ctx,{enabled,by},statement){
- if(by!==ctx.site||typeof enabled!=='boolean')throw new Error('fault_setup_unconfirmed');
- return withLock(path.join(ctx.home,'operation.guard'),()=>{
-  const actual=inspect(ctx,readJournal(ctx.journal));
-  if(actual.enabled!==enabled||actual.registered!==enabled)throw new Error('fault_setup_unconfirmed');
-  return put(ctx,'FAULT_SETUP',{enabled,stop_registered:actual.registered,stop_digest:actual.stop_digest,by,
-    words_sha256:statement()});
- });
+ throw new Error('configure_required');
 }
 // Operator-only setup/cleanup. Tests call this only with empty synthetic homes.
 // Prior values stay private; only checked booleans and a keyed path digest travel.
@@ -40,6 +34,8 @@ export function configureSetup(ctx,{enabled,by},statement){
  return withLock(path.join(ctx.home,'operation.guard'),()=>{
   const records=readJournal(ctx.journal);
   if(ctx.slot!==operator(ctx,records))throw new Error('not_operator');
+  const handoff=records.findLast(r=>r.type==='HANDOFF');
+  if(handoff?.d.job)throw new Error('temporary_operator_cannot_configure');
   const pinned=bindHome(ctx,records),file=path.join(pinned.home,'config.json');
   if(readJSON(path.join(ctx.home,'run.lock'),null))throw new Error('fault_setup_during_session');
   const before=inspect(ctx,records),config=readJSON(file),backup=path.join(ctx.home,'fault-config-original.json');
@@ -56,7 +52,7 @@ export function configureSetup(ctx,{enabled,by},statement){
    const prior=readJSON(backup);for(const key of ['external_stop_file','fault_injection']){delete config[key];if(Object.hasOwn(prior,key))config[key]=prior[key];}
   }
   atomic(file,config);const actual=inspect(ctx,records);
-  const r=put(ctx,'FAULT_SETUP',{enabled:actual.enabled,stop_registered:actual.registered,stop_digest:actual.stop_digest,by,words_sha256:digest});
+  const r=put(ctx,'FAULT_SETUP',{enabled:actual.enabled,stop_registered:actual.registered,stop_digest:actual.stop_digest,by,words_sha256:digest,configured:true});
   // Preserve the original settings as evidence; a second setup requires review.
   return r;
  });

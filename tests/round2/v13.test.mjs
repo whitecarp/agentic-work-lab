@@ -1,9 +1,10 @@
+import {putObserved as put} from './helpers.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
 import {begin,step,closeJob} from '../../scripts/round2/gate-run.mjs';
-import {put,readJournal,verifyJournal} from '../../scripts/round2/journal.mjs';
+import {put as rawPut,readJournal,verifyJournal} from '../../scripts/round2/journal.mjs';
 import {REFUSALS} from '../../scripts/round2/schema.mjs';
 import {planRun} from '../../scripts/operations-gate.mjs';
 import {reconcile} from '../../scripts/round2/reconcile.mjs';
@@ -43,7 +44,7 @@ for(const reason of REFUSALS.filter(r=>!r.startsWith('fault_')))test(`wrapper re
   case 'bilibili_delete_forbidden':command=['bili','delete'];break;
   case 'test_platform_forbidden':job.platforms=['x'];args.role='publish';break;
   case 'test_post_daily_cap':args.role='publish';write(f,'reservations.json',Array.from({length:4},(_,i)=>({...reservation,job:'old-'+i,role:'publish',run_class:'test_post',at:new Date(Date.now()-3600000).toISOString()})));break;
-  case 'publish_spacing':args.role='publish';write(f,'reservations.json',[{...reservation,role:'publish'}]);break;
+  case 'publish_spacing':args.role='publish';write(f,'reservations.json',[{...reservation,job:'earlier',run_class:'test_post',role:'publish'}]);break;
   case 'outside_upload_spacing':args.role='publish';put(f.ctx,'NOTE',{code:'outside_upload',platform:'youtube',job:null,agent:'gemini',minutes_ago:0});break;
   case 'platform_warning_hold':args.role='publish';put(f.ctx,'NOTE',{code:'platform_warning',platform:'youtube',job:null,agent:null,minutes_ago:null});break;
   case 'go_ahead_exhausted':write(f,'reservations.json',[reservation]);break;

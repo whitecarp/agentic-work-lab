@@ -49,11 +49,11 @@ test('unrecorded operator changes fail closed',t=>{
   fs.writeFileSync(path.join(f.home,'operator.json'),'{"operator":"claude"}');
   assert.equal(begin({...f.ctx,slot:'claude'},{}).exit,4);
 });
-test('dead session is ended interrupted before new admission',t=>{
+test('session remains running when its starter shell is gone',t=>{
   const f=admitted(t),file=path.join(f.home,'run.lock');
   const old=JSON.parse(fs.readFileSync(file));old.owner_pid=2147483647;fs.writeFileSync(file,JSON.stringify(old));
-  const r=begin(f.ctx,{});assert.equal(r.exit,0);assert.notEqual(r.run,old.run);
-  assert.equal(readJournal(f.journal).find(r=>r.type==='RUN_END'&&r.run===old.run).d.state,'interrupted');
+  const r=begin(f.ctx,{});assert.equal(r.reason,'already_running');
+  assert.equal(readJournal(f.journal).some(r=>r.type==='RUN_END'&&r.run===old.run),false);end(f.ctx);assert.equal(begin(f.ctx,{}).exit,0);
 });
 test('step without an admitted run starts no child',async t=>{
   const f=fixture(t);setup(f.ctx);approve(f.ctx);f.ctx.run='c'.repeat(32);
@@ -130,7 +130,7 @@ test('classification does not accept false read labels or disguised delete role'
   assert.equal(classify(['unknown-command'],{}).class,'write');
 });
 test('outcome sanitizes unknown message/code and preserves uncertainty',()=>{
-  const x=outcome(4,JSON.stringify({error:{code:'secret-private-code',message:'CANARY'},data:{state:'UNKNOWN'}}));
+  const x=outcome(4,JSON.stringify({error:{code:'secret-private-code',message:'CANARY'},data:{state:'UNKNOWN'}}),{platform:'youtube'});
   assert.equal(x.code,null);assert.equal(x.result,'in_doubt');
 });
 
@@ -144,7 +144,7 @@ test('lock refusals retain their closed code without exposing messages',()=>{
 const now='2026-11-11T12:00:00.000Z',job={id:'job-1',run_class:'test_post'};
 for(const [reason,entries] of [
   ['test_post_daily_cap',Array.from({length:4},()=>({at:'2026-11-11T10:00:00.000Z',platforms:['youtube'],role:'publish',run_class:'test_post'}))],
-  ['publish_spacing',[{at:'2026-11-11T11:45:00.000Z',platforms:['youtube'],role:'publish',run_class:'real_slot'}]]
+  ['publish_spacing',[{at:'2026-11-11T11:45:00.000Z',platforms:['youtube'],role:'publish',run_class:'test_post',job:'earlier'}]]
 ]){
   test(reason+' refuses a publish',()=>assert.equal(limits([],job,'publish',['youtube'],now,entries),reason));
 }
