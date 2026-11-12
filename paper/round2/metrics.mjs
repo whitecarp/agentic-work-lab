@@ -7,8 +7,9 @@ import {commandClass} from '../../scripts/round2/crosscast.mjs';
 import {grantScope} from '../../scripts/round2/policy.mjs';
 import {normalizeSite,time,day} from './inputs.mjs';
 import {describe,upper95,tally,share} from './statistics.mjs';
+const ANNEX_VERSION='1.9';
 export const OUTCOMES={
- version:'Annex A 1.9',states:STATES,
+ version:'Annex A '+ANNEX_VERSION,states:STATES,
  priority:['confirmed','nothing_sent','in_doubt_state','proven_no_press','possible_case'],
  confirmed:{post:'SUBMISSION_VERIFIED',edit:'EDIT_VERIFIED',delete:'DELETED_VERIFIED'},
  skipped:'SKIPPED_EXISTING uses previous_state; verified_not_saved and not_saved never confirm',
@@ -649,7 +650,7 @@ export function analyze(inputs,{gateHash,gateHashes=[gateHash]}={}) {
 
  const completeInputSites=models.length===2&&models.some(m=>m.s.site==='owner')&&models.some(m=>m.s.site==='tester');
  const cells={all_recorded:checklist(models,definition,false),counted:checklist(models,definition,true)};
- return {schema:'round2-metrics/1',annex:'1.8',outcome_table:OUTCOMES,input_kind:inputs.synthetic===true?'synthetic_test_only':'exported_study_records',
+ return {schema:'round2-metrics/1',annex:ANNEX_VERSION,outcome_table:OUTCOMES,input_kind:inputs.synthetic===true?'synthetic_test_only':'exported_study_records',
   inputs:siteIntegrity,all_sites_present:completeInputSites,tables,checklist:cells,timing_pairs:pairs,pooled_fault_bounds:pooledBounds,
   timing_claim:pairs.filter(p=>p.complete&&p.phases[0]==='2b').length<6?'no_general_speed_claim':'descriptive_pairs_only',
   verdict:{status:violations.length?'observed_failures':gaps.length||!completeInputSites?'evidence_incomplete':'no_observed_must_be_zero_failures',
