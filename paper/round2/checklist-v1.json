@@ -1,0 +1,81 @@
+{
+  "schema": "round2-checklist/1",
+  "cells": [
+    {
+      "id": 1,
+      "platform": "bilibili"
+    },
+    {
+      "id": 1,
+      "platform": "youtube"
+    },
+    {
+      "id": 1,
+      "platform": "douyin"
+    },
+    {
+      "id": 1,
+      "platform": "x"
+    },
+    {
+      "id": 1,
+      "platform": "instagram"
+    },
+    {
+      "id": 2,
+      "platform": "youtube"
+    },
+    {
+      "id": 2,
+      "platform": "douyin"
+    },
+    {
+      "id": 3,
+      "platform": "youtube"
+    },
+    {
+      "id": 3,
+      "platform": "douyin"
+    },
+    {
+      "id": 4,
+      "platform": "youtube"
+    },
+    {
+      "id": 4,
+      "platform": "douyin"
+    },
+    {
+      "id": 6,
+      "platform": "youtube"
+    },
+    {
+      "id": 6,
+      "platform": "douyin"
+    },
+    {
+      "id": 7,
+      "platform": "youtube"
+    },
+    {
+      "id": 7,
+      "platform": "douyin"
+    },
+    {
+      "id": 5,
+      "platform": "youtube"
+    },
+    {
+      "id": 5,
+      "platform": "douyin"
+    },
+    {
+      "id": 5,
+      "platform": "gate"
+    },
+    {
+      "id": 8,
+      "platform": "bilibili"
+    }
+  ]
+}
