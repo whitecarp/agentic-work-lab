@@ -501,7 +501,13 @@ refuses `journal_place_mismatch`. Begin respects recorded stops even if STOP was
 removed; an agent may clear its own stop while other setters' stops remain.
 
 STEP carries the state, previous state, code word and press marker for each
-platform. An unfamiliar state is recorded as UNLISTED. For a publish that
+platform. Under Annex A 1.9 / C40, the code comes from the first string in
+the answer's code, its own error.code, then the envelope's error.code, using
+the existing compact-word filter. A build-stamp object is skipped. A delete
+uses its own delete_attempted flag, never the earlier upload's flag:
+DELETE_PENDING with false opens no case; true or absent still opens one.
+DELETED_VERIFIED with false is confirmed already gone without a delete press.
+An unfamiliar state is recorded as UNLISTED. For a publish that
 reports WAITING_FOR_USER or PREPARATION_INCOMPLETE, a true or missing marker
 opens a case unless the tool record proves no press. A false marker settles
 the no-press question for these two states. A mixture of settled and unsent

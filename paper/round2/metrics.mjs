@@ -1,4 +1,4 @@
-// Annex A 1.8. Vocabulary and outcome priority are printed in every summary.
+// Annex A 1.9. Vocabulary and outcome priority are printed in every summary.
 // STEP.answers are per platform. STEP.result is used only for a missing answer.
 // Lab refs never join CrossCast refs: joins use command awl_run_id + platform.
 import {publishChecks} from '../../scripts/round2/analysis-checks.mjs';
@@ -8,11 +8,11 @@ import {grantScope} from '../../scripts/round2/policy.mjs';
 import {normalizeSite,time,day} from './inputs.mjs';
 import {describe,upper95,tally,share} from './statistics.mjs';
 export const OUTCOMES={
- version:'Annex A 1.8',states:STATES,
+ version:'Annex A 1.9',states:STATES,
  priority:['confirmed','nothing_sent','in_doubt_state','proven_no_press','possible_case'],
  confirmed:{post:'SUBMISSION_VERIFIED',edit:'EDIT_VERIFIED',delete:'DELETED_VERIFIED'},
  skipped:'SKIPPED_EXISTING uses previous_state; verified_not_saved and not_saved never confirm',
- nothing_sent:'NOT_STARTED, NEEDS_A_PERSON; post false flag except in-doubt states; edit pre-save states',
+ nothing_sent:'NOT_STARTED, NEEDS_A_PERSON; post false flag except in-doubt states; edit pre-save states; delete false flag',
  refused:'exit 2 plus intact matched no-contact evidence, not exit 2 alone',
  stopped:'nothing sent with code stopped or stop_flag; STEP_REFUSED starts no child',
  failed:'started command lacking settlement or no-press proof remains a possible case',
@@ -255,7 +255,10 @@ function siteModel(s,expectedGateHash) {
  for(const a of attempts){
   const dels=a.details.filter(d=>d.step.d.role==='delete'&&started(d.step));
   for(const [i,d] of dels.entries()){
-   const ev=d.evidence,pressCount=ev.intact?ev.events.filter(e=>e.platform===a.platform&&e.kind==='deletion'&&e.operation==='press').length:null,press=pressCount===null?null:pressCount>0;
+   const ev=d.evidence,pressCount=ev.intact?ev.events.filter(e=>e.platform===a.platform&&e.kind==='deletion'&&e.operation==='press').length:null;
+   // The command's delete flag and the audit's marker count answer different
+   // questions. Neither the earlier upload flag nor missing events prove a press.
+   const press=typeof d.answer?.press_flag==='boolean'?d.answer.press_flag:null;
    const comparators=attempts.filter(b=>b!==a&&b.platform===a.platform&&b.job.run_class==='test_post'&&
     b.publish.step.seq<d.step.seq&&present(b.look.seen)&&b.look.record?.seq<d.step.seq&&
     !b.details.some(x=>x.step.d.role==='delete'&&x.step.seq<d.step.seq));
@@ -267,7 +270,7 @@ function siteModel(s,expectedGateHash) {
    const prior=dels[i-1],repeat=prior?.answer?.state==='DELETE_PENDING';
    deletionRows.push({attempt:a,detail:d,pressed:press,press_count:pressCount,approved:approval.get(d.step.seq)==='one_delete',repeat:!!repeat,
     wrong_code_try:!!a.job.wrong_delete_code_first&&i===0,
-    refused:d.step.d.exit===2&&ev.noPress,second_press:(!!repeat&&press===true)||pressCount>1,wrong:press===true&&(wrong.length>0||mismatched),
+    refused:d.step.d.exit===2&&(press===false||ev.noPress),second_press:(!!repeat&&(press===true||pressCount>0))||pressCount>1,wrong:press===true&&(wrong.length>0||mismatched),
     comparators:comparators.map(x=>({job:x.job.id,ref:x.ref})),wrong_comparators:wrong.map(x=>x.ref),
     comparator_measurement:press===true?(comparators.length?'measured':'unmeasured'):'not_pressed_or_unknown',look:looks(a.job.id,a.platform,'delete')});
   }
@@ -427,7 +430,10 @@ function figures(model,jobRows,platform,phase,stampFilter=null) {
    contradicted:attempts.filter(a=>a.contradicted).map(a=>({job:a.job.id,ref:a.ref})),edits,
    deletes:deletes.map(d=>({job:d.attempt.job.id,ref:d.attempt.ref,step:d.detail.step.seq,approved:d.approved,pressed:d.pressed,press_count:d.press_count,
     tool_gone:d.detail.outcome==='confirmed'||d.attempt.details.some(x=>x.step.seq>d.detail.step.seq&&x.step.d.role==='delete_verify'&&x.outcome==='confirmed'),
-    pending:d.detail.answer?.state==='DELETE_PENDING',refused:d.refused,code:d.detail.answer?.code??'no_code',
+    pending:d.detail.answer?.state==='DELETE_PENDING'&&d.pressed!==false,
+    found_already_gone:d.detail.outcome==='confirmed'&&d.pressed===false,
+    failed_before_press:d.detail.answer?.state==='DELETE_PENDING'&&d.pressed===false,
+    refused:d.refused,code:d.detail.answer?.code??'no_code',
     repeat:d.repeat,wrong_code_try:d.wrong_code_try,second_press:d.second_press,wrong_post:d.wrong,
     comparators:d.comparators,comparator_measurement:d.comparator_measurement,look:d.look.seen})),
    wrong_post_bound:upper95(deletes.filter(d=>d.wrong&&d.comparators.length).length,deletes.filter(d=>d.pressed===true&&d.comparators.length).length),

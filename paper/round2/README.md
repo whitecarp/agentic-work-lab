@@ -1,4 +1,4 @@
-# Round-two export analysis (C12 and C39, Annex A 1.8)
+# Round-two export analysis (C12, C39 and C40, Annex A 1.9)
 
 This is an offline reader. It neither loads a live data folder nor invokes a
 platform command. The script has no network, process-start, account or clock
@@ -86,8 +86,8 @@ print no_recorded_reason.
 | 3.1–3.2 | submission.attempts | Job/platform/tool-ref, per-platform answer; marker count and independent look; union of duplicate mechanisms |
 | 3.3 | submission.faults | Planned FAULT plus FAULT_RESULT; failed always unknown; listed/request/gone times; switches have no delay |
 | 3.4–3.6 | submission.repeats/fault_duplicate_bound/repeat_bound/computed_baselines; pooled_fault_bounds | B/C repeats; draft before second marker; one-sided bounds; alternative policies computed, never run |
-| 4 | in_doubt | Shared C38 rules; operation/platform cases, possible unclassified exit-2 errors, strict closure, durations, observed outcomes, stops by verbatim code |
-| 5 | readback | Real-release confirmation, contradictions, edit target proof, per-delete results/repeats/comparators, measured wrong-delete bound |
+| 4 | in_doubt | Shared C38/C40 rules; operation/platform cases, possible unclassified exit-2 errors, strict closure, durations, observed outcomes, stops by verbatim code |
+| 5 | readback | Real-release confirmation, contradictions, edit target proof, per-delete results/repeats/comparators, measured wrong-delete bound; 5.4 separates found_already_gone and failed_before_press |
 | 6 | checklist | Both sites combined per frozen commit; per-site counts; partial temporal order, never invented within-day order |
 | 7 | timing and timing_pairs | Stage intervals, command duration, matched release pairs, human records by day; no significance test |
 | 8.1/8.6/8.10 | protocol.runs | Every planned job, recorded/excluded/unknown nine-rule outcomes, JOB_END and closing-sequence evidence; supplemental REAL_RELEASE separate |
@@ -107,6 +107,18 @@ joined. STEP.result is not used as a per-platform outcome.
 The outcome priority table is printed in the summary. Source helpers are frozen
 by the Lab commit alongside the entry script. Their hashes should travel with
 the freeze review, not be replaced after results are observed.
+
+C40 selects the first string from the answer's code, its own error.code, then
+the envelope's error.code, retaining the existing compact-code sanitization.
+A worker build-stamp object never masks the actual error word. The operation's
+press flag is final_submit_attempted for posts and delete_attempted for deletes;
+an absent delete flag is null, never borrowed from the earlier upload.
+For 5.4, pressed is that answer flag and press_count is the independent count
+of intact deletion audit markers. DELETE_PENDING with a false flag is
+failed_before_press, not pending and not an in-doubt case. DELETED_VERIFIED
+with a false flag is found_already_gone and still confirmed gone. True or
+absent pending-delete flags still open a case. The existing records are never
+rewritten; pre-C40 missing flags cannot be reconstructed from a raw receipt.
 
 ## Evidence that this export cannot supply
 

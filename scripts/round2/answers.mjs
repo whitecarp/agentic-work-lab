@@ -5,19 +5,23 @@ export const pressRoles=['publish','repeat_same','changed_plan','resume','edit',
 export const confirmed={post:'SUBMISSION_VERIFIED',edit:'EDIT_VERIFIED',delete:'DELETED_VERIFIED'};
 export const operation=s=>s.d.action==='delete'||['delete','delete_verify'].includes(s.d.role)?'delete':s.d.role==='edit'?'edit':['publish','repeat_same','changed_plan','resume','verify'].includes(s.d.role)?'post':null;
 const stateWord=v=>typeof v==='string' && v.length ? (STATES.includes(v)?v:'UNLISTED') : null;
-export function readAnswers(value,platforms){
+export function readAnswers(value,platforms,about='post'){
  const data=value?.data??value,parts=data?.results;
  return platforms.map(platform=>{
   const part=parts?parts[platform]:data;
   const receipt=part?.receipt??part;
+  // A worker's `code` may be a build stamp; it is not an error word.
+  const code=[part?.code,part?.error?.code,value?.error?.code].find(v=>typeof v==='string');
+  const flag=about==='delete'?receipt?.delete_attempted:receipt?.final_submit_attempted;
   return {platform,state:stateWord(part?.state),previous_state:stateWord(part?.previous_state),
-   code:codeWord(part?.code??part?.error?.code??value?.error?.code),
-   press_flag:typeof receipt?.final_submit_attempted==='boolean'?receipt.final_submit_attempted:null,not_saved:!!part?.not_saved,
+   code:codeWord(code),
+   press_flag:typeof flag==='boolean'?flag:null,not_saved:!!part?.not_saved,
    answered:!!part&&typeof part==='object'&&(typeof part.state==='string'||typeof value?.ok==='boolean'||typeof value?.error?.code==='string'),
    refs:[part?.key].filter(x=>typeof x==='string'&&/^[a-f0-9]{64}$/.test(x))};
  });
 }
 export function uncertainState(a,about){
+ if(about==='delete'&&a.press_flag===false)return false;
  const state=a.state==='SKIPPED_EXISTING'?a.previous_state:a.state;
  return (about==='post'?['UNKNOWN','SUBMITTED_UNVERIFIED']:about==='edit'?['EDIT_SUBMITTING','EDIT_SUBMITTED_UNVERIFIED']:['DELETE_PENDING']).includes(state);
 }
@@ -28,6 +32,7 @@ export function settled(a,about){
 }
 export function nothingSent(a,about){
  if(['NOT_STARTED','NEEDS_A_PERSON'].includes(a.state))return true;
+ if(about==='delete')return a.press_flag===false;
  if(about==='edit')return ['EDIT_PREPARING','EDIT_PREPARED','EDIT_UNAVAILABLE','EDIT_MISMATCH'].includes(a.state);
  return about==='post' && STATES.includes(a.state) && !uncertainState(a,about) && a.press_flag===false;
 }

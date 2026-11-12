@@ -1,0 +1,14 @@
+{
+  "ok": false,
+  "error": {"code": "browser_timeout"},
+  "data": {
+    "results": {
+      "youtube": {
+        "state": "PREPARATION_INCOMPLETE",
+        "code": {"commit": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", "source_digest": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"},
+        "error": {"code": "layout_changed", "message": "SYNTHETIC_PRIVATE_MESSAGE"},
+        "final_submit_attempted": false
+      }
+    }
+  }
+}

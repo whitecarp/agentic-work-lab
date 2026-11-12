@@ -87,7 +87,8 @@ export function outcome(exit,stdout,{started=true,role,stepClass='write',platfor
   const lines=stdout.trim().split(/\r?\n/);
   try{if(lines.length===1)value=JSON.parse(lines[0]);}catch{}
   const data=value?.data??value;
-  const answers=readAnswers(value,platforms),about=role==='edit'?'edit':['delete','delete_verify'].includes(role)?'delete':'post';
+  const about=role==='edit'?'edit':['delete','delete_verify'].includes(role)?'delete':'post';
+  const answers=readAnswers(value,platforms,about);
   const mayPress=started && stepClass==='write' && pressRoles.includes(role);
   const code=answers.length===1?answers[0].code:codeWord(value?.error?.code);
   let result=exit===0?'ok':'failed';
