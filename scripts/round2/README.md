@@ -582,3 +582,34 @@ platform, four-in-24-hours and 20-minute-spacing violations). Exact times stay
 on site; these checks contain none and also travel with --privacy. The tester's
 copy preserves crosscast.builds[].source_digest as published code evidence;
 capture digests and unknown nested fields remain keyed.
+
+
+### Annex A 1.11 controls (C44)
+
+A counted `protocol-seal --phase 2b` may be followed by at most two further
+counted seals. Every further seal requires `--by owner` (or `tester` at that
+site) and that account owner's words on stdin. It must retain the first
+counted seal's exact list digest. Earlier phases cannot follow a counted seal.
+
+`gate-run.mjs end-failed-session --site owner --slot codex --run SESSION_ID
+--by owner --journal JOURNAL` records an interrupted session on the owner's
+piped words. The checking agent uses its own slot, not the operator's. An
+active child or unfinished live wrapper refuses recovery. This does not stop
+processes, hand over the role, close a job, clear STOP, or return spent credit.
+
+`observe` prints `look.status`, `look.counts` and whether the claimed minute
+was reached. A future claimed minute is refused before recording; use whole
+minutes rounded down from the operation's last started press-capable STEP
+record. Early, unclear and out-of-window observations can still record a fact
+but do not count as ground truth. The second-look window is 1,200–2,160 minutes
+when the first counting post look was absent while the record was in doubt.
+
+`violation --platform PLATFORM` optionally scopes the rule break. No platform
+means site-wide scope for analysis. An explicitly busy/browser_busy attempt
+with a known non-fired fault may arm again; its first result says
+`busy_not_reached`. Missing results and other errors do not authorize rearming.
+After a safety-stop note, a first test publish needs both 48 elapsed hours and
+an owner go-ahead for that job recorded after those hours, even with old credit.
+
+Checking-agent drill starts always carry `--slot-id DRILL_JOB_ID`, including
+the wrong-operator start and both refused starts in a handoff drill.

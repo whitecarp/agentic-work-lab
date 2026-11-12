@@ -39,6 +39,10 @@ export function validateRecord(record) {
        d.release_writes!==1+3*d.platforms.length||d.by!==record.site)problems.push('invalid real release');
   }
   if(record.type==='FAULT_SETUP'&&(record.d.by!==record.site||record.d.enabled!==record.d.stop_registered))problems.push('invalid fault setup');
+  if(['PROTOCOL_SEAL','RUN_END'].includes(record.type)&&Object.hasOwn(record.d,'by')){
+    if(record.d.by!==record.site||!record.d.words_sha256)problems.push('owner words required');
+    if(record.type==='RUN_END'&&(record.d.state!=='interrupted'||!record.d.operator))problems.push('invalid session recovery');
+  }
   if (record.type === 'GATE_DECISION' && (!Number.isFinite(Date.parse(record.d.now)) || new Date(record.d.now).toISOString() !== record.d.now)) problems.push('invalid gate time');
   if (record.type === 'SIGN_OFF' && (!Number.isFinite(Date.parse(record.d.day)) || new Date(record.d.day).toISOString().slice(0,10) !== record.d.day)) problems.push('invalid sign-off day');
   if (record.type === 'SIGN_OFF' && record.d.answer==='no' && Object.hasOwn(record.d,'words_sha256') && record.d.words_sha256===null) problems.push('negative sign-off requires words digest');

@@ -79,6 +79,10 @@ export function limits(records,job,role,platforms,now,reservations=[],jobs=[]) {
         when-(Date.parse(r.at)-r.d.minutes_ago*60000)<1200000)) return 'outside_upload_spacing';
     if(records.some(r=>r.type==='NOTE'&&r.d.platform===p&&['platform_warning','human_check','safety_stop'].includes(r.d.code)&&
         when-Date.parse(r.at)<172800000)) return 'platform_warning_hold';
+    const safety=records.findLast(r=>r.type==='NOTE'&&r.d.platform===p&&r.d.code==='safety_stop');
+    if(!first.has(job.id)&&safety&&!records.some(r=>r.type==='GO_AHEAD'&&r.d.job===job.id&&
+        r.d.by===r.site&&['listed_test_posts','one_write'].includes(r.d.scope)&&r.d.count>0&&
+        Date.parse(r.at)>=Date.parse(safety.at)+172800000&&Date.parse(r.at)<=when))return 'safety_stop_new_go_ahead_required';
   }
   return null;
 }

@@ -48,7 +48,7 @@ test('C37 A12 every CLI needs a real typed slot and A13 rejects a stray journal'
 test('C37 A14 two-phase seal forward only; A15 exact source regeneration catches edited list',t=>{
  const f=fixture(t);setup(f.ctx);fs.unlinkSync(path.join(f.home,'jobs.json'));make(f.home,counts,'owner',{dueFrom:'2020-01-01'});assert.equal(verifyPlan(f.home).matches,true);
  const protocol=path.join(f.root,'protocol.md');fs.writeFileSync(protocol,'synthetic protocol');const args=phase=>['protocol-seal',...flags(f),'--phase',phase,'--protocol',protocol,'--lab-commit','a'.repeat(40),'--crosscast-commit','b'.repeat(40),'--plan',path.join(f.home,'planned-runs.json')];
- assert.equal(cli(f,'journal',args('2b')).status,0);for(const phase of ['2b','2a','rehearsal'])assert.match(cli(f,'journal',args(phase)).stderr,/seal_phase_not_forward/);
+ assert.equal(cli(f,'journal',args('2b')).status,0);assert.match(cli(f,'journal',args('2b')).stderr,/refreeze_owner_words_required/);for(const phase of ['2a','rehearsal'])assert.match(cli(f,'journal',args(phase)).stderr,/seal_phase_not_forward/);
  fs.appendFileSync(path.join(f.home,'jobs.json'),' ');assert.throws(()=>verifyPlan(f.home),/plan_reproduction_mismatch/);
 });
 test('C37 A16 CLI runner shell exit does not end an admitted session',t=>{const f=fixture(t);setup(f.ctx);approve(f.ctx);const a=cli(f,'gate-run',['begin',...flags(f)]),b=cli(f,'gate-run',['begin',...flags(f)]);assert.equal(JSON.parse(a.stdout).decision,'plan_only');assert.equal(JSON.parse(b.stdout).reason,'already_running');});

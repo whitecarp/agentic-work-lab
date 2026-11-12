@@ -4,7 +4,7 @@ import {pathToFileURL} from 'node:url';
 import {spawn} from 'node:child_process';
 import {StringDecoder} from 'node:string_decoder';
 import {planRun} from '../operations-gate.mjs';
-import {context, operator, openSessions, activeStops, put, readJournal, verifyJournal, newRunId, pseudonym, words} from './journal.mjs';
+import {context, operator, openSessions, activeStops, put, readJournal, verifyJournal, newRunId, pseudonym, words,commitWords} from './journal.mjs';
 import {ID, SLOTS, PLATFORMS, REFUSALS} from './schema.mjs';
 import {refusalWord,sha, utc, atomic, withLock, readJSON, parseFlags, allowed, alive} from './io.mjs';
 import {classify, guardRole, grant, grantScope, limits, outcome, roles} from './policy.mjs';
@@ -252,6 +252,25 @@ export function end(ctx){
     return {exit:0,record};
   });
 }
+// Administrative journal recovery only: never signal a process, clear a stop,
+// release spent approvals, close a job, or change the appointed operator.
+export function endFailedSession(ctx,by,statement){
+  return withLock(guard(ctx),()=>{
+    const records=readJournal(ctx.journal),entry=openSessions(records,ctx.site).find(r=>r.run===ctx.run);
+    if(by!==ctx.site||!['codex','claude','gemini','tester-assistant'].includes(ctx.slot)||
+       ctx.slot===operator(ctx,records))throw new Error('checking_agent_required');
+    if(!entry)throw new Error('session_not_open');
+    const active=readJSON(runFile(ctx),null);
+    if(active&&active.run!==ctx.run)throw new Error('session_mismatch');
+    if(active?.child_pid&&(alive(active.child_pid)||alive(active.wrapper_pid))||
+       reservations(ctx).some(r=>r.run===ctx.run&&r.step_seq===null&&alive(r.wrapper_pid)))throw new Error('step_already_running');
+    if(!Buffer.from(statement).toString('utf8').trim())throw new Error('empty_words');
+    const record=put(ctx,'RUN_END',{state:'interrupted',steps:stepCount(records,ctx.run),
+      by,operator:entry.slot,words_sha256:commitWords(ctx.home,statement)},ctx.run);
+    if(active)fs.unlinkSync(runFile(ctx));
+    return {exit:0,record};
+  });
+}
 export function closeJob(ctx,flags){
   return withLock(guard(ctx),()=>{
     const records=readJournal(ctx.journal), active=readJSON(runFile(ctx),null);
@@ -288,13 +307,13 @@ export function closeJob(ctx,flags){
 }
 export async function main(argv=process.argv.slice(2)){
   const sub=argv.shift(),{flags,command}=parseFlags(argv);
-  const keys={begin:['launcher','slot-id'],step:['run','job','role','platform','tool','class'],end:['run'],'close-job':['job','reason','by']};
+  const keys={begin:['launcher','slot-id'],step:['run','job','role','platform','tool','class'],end:['run'],'end-failed-session':['run','by'],'close-job':['job','reason','by']};
   if(!keys[sub]) throw new Error('unknown_command');
   allowed(flags,['site','slot','journal',...keys[sub]]);
   if(sub!=='step'&&command.length) throw new Error('unexpected_command');
   const ctx={...context(flags),run:flags.run};
   if(sub==='step') return step(ctx,flags,command);
-  const result=sub==='begin'?begin(ctx,flags):sub==='close-job'?closeJob(ctx,flags):end(ctx);
+  const result=sub==='begin'?begin(ctx,flags):sub==='close-job'?closeJob(ctx,flags):sub==='end-failed-session'?endFailedSession(ctx,flags.by,fs.readFileSync(0)):end(ctx);
   console.log(JSON.stringify(result));return result.exit;
 }
 if(process.argv[1]&&import.meta.url===pathToFileURL(path.resolve(process.argv[1])).href){

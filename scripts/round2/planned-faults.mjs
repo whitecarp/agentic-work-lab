@@ -4,6 +4,7 @@ import {processHandles} from './process-handles.mjs';
 import {put,readJournal} from './journal.mjs';
 import {readJSON,atomic,sha} from './io.mjs';
 import {assertFaultReady} from './fault-setup.mjs';
+import {readAnswers} from './answers.mjs';
 
 export const FAULTS={
  end_command_after_press:{mechanism:'wrapper_kill',role:'publish',trigger:'waiting_for_platform_confirmation',tree:false},
@@ -39,7 +40,14 @@ export function selectFault(ctx,job,role,policy){
  const choices=(row.faults??[]).filter(f=>f.role===role);
  if(choices.length>1)throw new Error('fault_plan_invalid');
  const fault=choices[0];
- if(!fault||!permitted.has(fault.armed_on)||records.some(r=>r.type==='FAULT'&&r.d.job===job.id&&r.d.role===role))return null;
+ if(!fault||!permitted.has(fault.armed_on))return null;
+ const previous=records.findLast(r=>r.type==='FAULT'&&r.d.job===job.id&&r.d.role===role);
+ if(previous){
+  const attempted=records.find(r=>r.seq>previous.seq&&r.run===previous.run&&r.type==='STEP'&&r.d.job===job.id&&r.d.role===role);
+  const result=records.find(r=>r.seq>previous.seq&&r.run===previous.run&&r.type==='FAULT_RESULT'&&r.d.job===job.id&&r.d.role===role);
+  if(!attempted||!result||result.d.fired!==false||result.d.triggered||result.d.failed||
+    !attempted.d.answers?.length||!attempted.d.answers.every(a=>['busy','browser_busy'].includes(a.code)&&a.press_flag!==true))return null;
+ }
  if(seal?.phase==='2b'&&!sealed)throw new Error('fault_plan_invalid');
  const rule=FAULTS[fault.kind];
  if(!rule||rule.role!==role||rule.trigger!==fault.trigger||rule.mechanism!==fault.mechanism||
@@ -136,6 +144,9 @@ export function faultController(ctx,fault,{snapshot,kill}={}){
   async finish(stdout){
    try{if(partial)api.line(partial);await rootReady;await pending;
     if(rule.mechanism==='tool_switch')fired=injectedReply(stdout,fault.armed_on.split('_')[0]);
+    let reply;try{reply=JSON.parse(stdout.trim());}catch{}
+    const answers=readAnswers(reply,[fault.armed_on.split('_')[0]],fault.role==='delete'?'delete':fault.role==='edit'?'edit':'post');
+    if(!triggered&&fired===false&&answers.length&&answers.every(a=>['busy','browser_busy'].includes(a.code)&&a.press_flag!==true))reason='busy_not_reached';
     put(ctx,'FAULT_RESULT',{job:fault.job,kind:fault.kind,role:fault.role,triggered,fired,failed,reason,
      action_delay_ms:requestMs,gone_delay_ms:goneMs,kill_exit:killExit,processes:ended,...(observer?{unopened:observer.unopened,unopened_present:observer.unopenedPresent}:{})},ctx.run,30000);
     return {fired,failed,reason};

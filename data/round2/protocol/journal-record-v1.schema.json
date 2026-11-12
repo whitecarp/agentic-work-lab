@@ -119,6 +119,17 @@
             "vpub_home_sha256": {
               "type": "string",
               "pattern": "^[a-f0-9]{64}$"
+            },
+            "by": {
+              "type": "string",
+              "enum": [
+                "owner",
+                "tester"
+              ]
+            },
+            "words_sha256": {
+              "type": "string",
+              "pattern": "^[a-f0-9]{64}$"
             }
           },
           "required": [
@@ -969,6 +980,28 @@
             "steps": {
               "type": "integer",
               "minimum": 0
+            },
+            "by": {
+              "type": "string",
+              "enum": [
+                "owner",
+                "tester"
+              ]
+            },
+            "words_sha256": {
+              "type": "string",
+              "pattern": "^[a-f0-9]{64}$"
+            },
+            "operator": {
+              "type": "string",
+              "enum": [
+                "owner",
+                "tester",
+                "codex",
+                "gemini",
+                "claude",
+                "tester-assistant"
+              ]
             }
           },
           "required": [
@@ -1771,6 +1804,16 @@
                   "type": "null"
                 }
               ]
+            },
+            "platform": {
+              "type": "string",
+              "enum": [
+                "bilibili",
+                "youtube",
+                "x",
+                "douyin",
+                "instagram"
+              ]
             }
           },
           "required": [
@@ -2274,7 +2317,8 @@
                 "repeat_without_publish",
                 "fault_switch_unavailable",
                 "fault_setup_unconfirmed",
-                "fault_plan_invalid"
+                "fault_plan_invalid",
+                "safety_stop_new_go_ahead_required"
               ]
             }
           },
@@ -2698,7 +2742,8 @@
                 "process_identity_changed",
                 "process_snapshot_failed",
                 "owned_handle_controller_unavailable",
-                "process_controller_failed"
+                "process_controller_failed",
+                "busy_not_reached"
               ]
             },
             "unopened": {
