@@ -120,6 +120,28 @@ with a false flag is found_already_gone and still confirmed gone. True or
 absent pending-delete flags still open a case. The existing records are never
 rewritten; pre-C40 missing flags cannot be reconstructed from a raw receipt.
 
+## C41 figure corrections (Annex A 1.9)
+
+* **4.4 / 5.2:** every in-doubt case uses its counting look for the outcome,
+  regardless of whether a person or a tool read-back closed it. An absent look
+  after a confirming read-back contributes to both nothing-posted / false-alarm
+  counts and contradicted confirmations. Existing press-evidence denominators
+  and the C4 click adjustment remain unchanged.
+* **7.3:** `observation_checks` in the on-site comparison carries one row per
+  recorded look, with record number, job, platform, operation and classification.
+  Stated minutes below 10 are early, 10 through 60 on time, over 60 through
+  1,440 late, and over 1,440 outside the window. Unclear is a separate primary
+  status; `timing_status` also preserves its time category. Each look counts
+  once, including repeated, early, premature and no-obligation looks. These
+  workload rows never change the look chosen as ground truth. The comparison
+  exports categories, not minutes or clock times. The owner recomputes and
+  compares; a dates-only site uses the supplied per-record attestation, with
+  provenance. Missing, duplicate or inconsistent attestations remain unknown.
+* **8.10:** `protocol.real_release_24h` prints `not_applicable` for the tester
+  with no real releases. Exact-owner releases retain the existing 24-hour
+  closure check and expose per-platform results. An unexpected dates-only
+  real release stays unknown, not exempt or verified.
+
 ## Evidence that this export cannot supply
 
 These are explicit null/unknown/unmeasured outcomes, not zero failures.

@@ -1,8 +1,21 @@
-// Annex A 1.8: compute on exact local records, export results without clocks.
+// Annex A 1.9: compute on exact local records, export results without clocks.
 import {planRun} from '../operations-gate.mjs';
 import {canonical} from './journal.mjs';
 const exact=v=>typeof v==='string'&&/^\d{4}-\d\d-\d\dT\d\d:\d\d/.test(v)&&Number.isFinite(Date.parse(v));
 const started=r=>r.d.started!==false&&r.d.exit!==127;
+// Human work (7.3) includes every observation, not only the qualifying look
+// selected as ground truth. Keep unclear separate, without losing its timing.
+export function observationChecks(records,jobs=[]){
+ return records.filter(r=>r.type==='OBSERVATION').map(r=>{
+  const m=r.d.minutes_after;
+  const timing=typeof m!=='number'||!Number.isFinite(m)||m<0?'unknown':
+   m<10?'early':m<=60?'on_time':m<=1440?'late':'outside_window';
+  const platforms=jobs.find(j=>j.id===r.d.job)?.platforms??
+   [...new Set(records.filter(s=>s.type==='STEP'&&s.d.job===r.d.job).flatMap(s=>s.d.platforms))];
+  return {seq:r.seq,job:r.d.job,platform:r.d.platform??(platforms.length===1?platforms[0]:null),
+   about:r.d.about,status:r.d.seen==='unclear'?'unclear':timing,timing_status:timing};
+ });
+}
 export function gateChecks(records){
  const decisions=records.filter(r=>r.type==='GATE_DECISION').map(r=>{
   let replay='not_replayable',computed=null;

@@ -8,7 +8,7 @@ import {crosscast,commandClass} from './crosscast.mjs';
 import {jobList} from './jobs.mjs';
 import {operation,pressRoles,uncertainState,nothingSent,settled,confirmedAnswer,confirmed} from './answers.mjs';
 import {countsLook} from './looks.mjs';
-import {gateChecks,publishChecks} from './analysis-checks.mjs';
+import {gateChecks,publishChecks,observationChecks} from './analysis-checks.mjs';
 
 export function reconcile(ctx,crosscastFile,{now=Date.now(),privacy=false}={}){
  if(typeof now==='string'&&!/^\d{4}-\d\d-\d\dT\d\d:\d\d(?::\d\d(?:\.\d+)?)?(?:Z|[+-]\d\d:\d\d)$/.test(now))throw new Error('invalid_as_of');
@@ -196,6 +196,7 @@ export function reconcile(ctx,crosscastFile,{now=Date.now(),privacy=false}={}){
  });
  const result={schema:'round2-reconcile/1',as_of:new Date(now).toISOString(),records:records.length,crosscast_present:cc.present,crosscast_chain_ok:cc.chain_ok,time_alignment:!cc.present?'journal_only':cc.times==='exact'&&cc.chain_ok?'exact':'unavailable',
    error_steps_unclassified:errorStepsUnclassified,gate_checks:gateChecks(records),publish_checks:publishChecks(records,jobs),
+   observation_checks:observationChecks(records,jobs),
    command_binding:!cc.present?'journal_only':trusted?'shared_id':'unavailable',
    ungated_writes:ungated,matched_write_commands:trusted?bindings.length-ungated:null,write_bindings:bindings,
    admitted_sessions_without_write:runs.filter(r=>!steps.some(s=>s.run===r.id&&s.d.class==='write')).length,

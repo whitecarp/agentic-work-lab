@@ -1,7 +1,7 @@
 // Annex A 1.9. Vocabulary and outcome priority are printed in every summary.
 // STEP.answers are per platform. STEP.result is used only for a missing answer.
 // Lab refs never join CrossCast refs: joins use command awl_run_id + platform.
-import {publishChecks} from '../../scripts/round2/analysis-checks.mjs';
+import {publishChecks,observationChecks} from '../../scripts/round2/analysis-checks.mjs';
 import {settled,nothingSent,uncertainState,operation,pressRoles,STATES} from '../../scripts/round2/answers.mjs';
 import {commandClass} from '../../scripts/round2/crosscast.mjs';
 import {grantScope} from '../../scripts/round2/policy.mjs';
@@ -282,7 +282,19 @@ function siteModel(s,expectedGateHash) {
   return {...expected,daily:c?.daily??null,spacing:c?.spacing??null,
    reason:c?.reason??(c?null:'site_comparison_missing_or_ambiguous'),source:s.provenance.timing};
  });
- return {s,records,steps,details,jobs,attempts,deletionRows,issues,gates,looks,capRows};
+ const humanLookRows=observationChecks(records,s.jobs).map(expected=>{
+  // Only identity comes from the redacted journal. Its removed minutes must
+  // never be reconstructed from dates or a different observation's status.
+  const matches=Array.isArray(s.comparison.observation_checks)?s.comparison.observation_checks.filter(c=>c?.seq===expected.seq):[];
+  const c=matches.length===1?matches[0]:null,r=records.find(r=>r.seq===expected.seq);
+  const valid=c&&['job','platform','about'].every(k=>c[k]===expected[k])&&
+   ['early','on_time','late','outside_window','unknown'].includes(c.timing_status)&&
+   c.status===(r.d.seen==='unclear'?'unclear':c.timing_status);
+  return {seq:expected.seq,job:expected.job,platform:expected.platform,about:expected.about,
+   status:valid?c.status:'unknown',timing_status:valid?c.timing_status:'unknown',
+   source:s.provenance.timing,reason:!valid?'site_comparison_missing_or_ambiguous':c.timing_status==='unknown'?'stated_minutes_unavailable':null};
+ });
+ return {s,records,steps,details,jobs,attempts,deletionRows,issues,gates,looks,capRows,humanLookRows};
 }
 
 function figures(model,jobRows,platform,phase,stampFilter=null) {
@@ -295,6 +307,8 @@ function figures(model,jobRows,platform,phase,stampFilter=null) {
  const gates=model.gates.filter(g=>g.phase===phase),issues=model.issues.filter(i=>!i.job||ids.has(i.job));
  const cases=s.comparison.in_doubt.filter(c=>ids.has(c.job)&&(!platform||c.platform===platform));
  const looks=s.comparison.look_checks.filter(c=>ids.has(c.job)&&(!platform||c.platform===platform));
+ const observationSeqs=new Set(rec.filter(r=>r.type==='OBSERVATION').map(r=>r.seq));
+ const humanLooks=model.humanLookRows.filter(r=>observationSeqs.has(r.seq)&&(!platform||r.platform===platform));
  const stops=attempts.filter(a=>a.nothing_sent);
  const deletes=model.deletionRows.filter(d=>ids.has(d.attempt.job.id)&&(!platform||d.attempt.platform===platform));
  const repeats=attempts.flatMap(a=>['B','C'].includes(a.job.group)?a.details.filter(d=>['repeat_same','resume'].includes(d.step.d.role)).map(d=>{
@@ -385,10 +399,18 @@ function figures(model,jobRows,platform,phase,stampFilter=null) {
  const grants=rec.filter(r=>r.type==='GO_AHEAD'&&has(r));
  const days=uniq(rec.map(r=>day(r.at))).sort();
  const noPressCases=cases.filter(c=>c.cutoff_press_flag===false);
- const falseAlarms=cases.filter(c=>operation(model.steps.find(r=>r.seq===c.step))==='post').filter(c=>c.platform===platform||!platform).filter(c=>c.by==='person'&&model.looks(c.job,c.platform,operation(model.steps.find(r=>r.seq===c.step))).seen==='absent');
+ const falseAlarms=cases.filter(c=>operation(model.steps.find(r=>r.seq===c.step))==='post').filter(c=>c.platform===platform||!platform).filter(c=>model.looks(c.job,c.platform,operation(model.steps.find(r=>r.seq===c.step))).seen==='absent');
  const markerAttempts=attempts.filter(a=>!a.press_marker_not_recorded&&!a.tool_record_incomplete&&a.final_press_flag===true);
  const markerFalseAlarms=falseAlarms.filter(c=>markerAttempts.some(a=>a.job.id===c.job&&a.platform===c.platform));
  const real=attempts.filter(a=>['real_slot','real_release'].includes(a.job.run_class));
+ const release24h=jobRows.filter(j=>['real_slot','real_release'].includes(j.run_class)).flatMap(j=>
+  j.platforms.filter(p=>!platform||p===platform).map(p=>{
+   const pub=j.details.find(d=>d.platform===p&&d.step.d.role==='publish'&&started(d.step));
+   const verifies=j.details.filter(d=>d.platform===p&&d.step.d.role==='verify'&&started(d.step)&&d.step.seq<(j.end?.seq??Infinity));
+   const status=!pub?'not_run':s.privacy?'unknown':verifies.some(d=>time(d.step.at)-time(pub.step.at)>=86400000)?'passed':'missing';
+   return {job:j.id,platform:p,status,source:s.provenance.timing,
+    reason:status==='unknown'?'dates_only_real_release_interval_unavailable':null};
+  }));
  return {
   must_be_zero:safety,
   gate:{errors:rec.filter(r=>r.type==='GATE_ERROR').map(r=>({seq:r.seq,run:r.run,error:r.d.error,replay:'not_replayable_inputs_not_recorded'})),decisions:tally(gates,g=>key([g.decision,g.reason,g.launcher])),replay:tally(gates,g=>g.replay),
@@ -443,10 +465,14 @@ function figures(model,jobRows,platform,phase,stampFilter=null) {
    commands:uniq(details.map(d=>key([d.platform,d.step.d.action]))).map(k=>({key:JSON.parse(k),
     ...describe(details.filter(d=>key([d.platform,d.step.d.action])===k).map(d=>d.evidence.command?.seconds))})),
    source:'tool stage/command events; withheld durations excluded',
+   human_look_rows:humanLooks,
    human_by_day:days.map(d=>({day:d,go_aheads:grants.filter(r=>day(r.at)===d).length,
-    looks:tally(looks.filter(c=>day(model.records.find(r=>r.seq===c.observation)?.at)===d),c=>c.status),
+    looks_total:humanLooks.filter(c=>day(model.records.find(r=>r.seq===c.seq)?.at)===d).length,
+    looks:tally(humanLooks.filter(c=>day(model.records.find(r=>r.seq===c.seq)?.at)===d),c=>c.status),
     signoffs:rec.filter(r=>r.type==='SIGN_OFF'&&day(r.at)===d).length}))},
-  protocol:{runs:jobRows.map(j=>({job:j.id,executed:j.executed,planned:s.plan.runs.some(r=>r.id===j.id),class:j.run_class,
+  protocol:{real_release_24h:{status:release24h.length?'checked':'not_applicable',
+    reason:release24h.length?null:s.site==='tester'?'tester_no_real_releases':'no_real_releases_in_scope',checks:release24h},
+   runs:jobRows.map(j=>({job:j.id,executed:j.executed,planned:s.plan.runs.some(r=>r.id===j.id),class:j.run_class,
     reason:j.end?.d.reason??(j.executed?'not_finished':'no_recorded_reason'),counted:j.counted,row:j.row,rules:j.rules,
     outside_upload:j.outside_upload,tool_record_incomplete:j.tool_record_incomplete,
     closed:j.end?{reason:j.end.d.reason,platform_settlements:j.end.d.platform_settlements??[],problems:j.endProblems}:null})),
@@ -646,6 +672,8 @@ export function analyze(inputs,{gateHash,gateHashes=[gateHash]}={}) {
   for(const [name,value]of Object.entries(t.all_recorded.must_be_zero))if(value===null)gaps.push({site:t.site,phase:t.phase,code:'unmeasured_'+name});
   for(const d of t.all_recorded.gate.drills)if(d.passed===null)gaps.push({site:t.site,phase:t.phase,job:d.job,code:'drill_session_binding_missing'});
   if(t.all_recorded.protocol.runs.some(j=>j.outside_upload===null))gaps.push({site:t.site,phase:t.phase,code:'outside_upload_timing_unavailable'});
+  for(const r of t.all_recorded.timing.human_look_rows)if(r.timing_status==='unknown')gaps.push({site:t.site,phase:t.phase,seq:r.seq,code:'observation_timing_unavailable'});
+  for(const r of t.all_recorded.protocol.real_release_24h.checks)if(r.status==='unknown')gaps.push({site:t.site,phase:t.phase,job:r.job,platform:r.platform,code:'real_release_24h_unavailable'});
  }
 
  const completeInputSites=models.length===2&&models.some(m=>m.s.site==='owner')&&models.some(m=>m.s.site==='tester');
