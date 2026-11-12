@@ -63,7 +63,7 @@ export function normalizeSite(input) {
  let calculated=null;
  if(!privacy){
   calculated=reconcileData(records,cc,{jobs,now:time(asOf)});
-  for(const key of ['in_doubt','look_checks','write_bindings','error_steps_unclassified','ungated_writes'])
+  for(const key of ['in_doubt','look_checks','write_bindings','error_steps_unclassified','ungated_writes','gate_checks','publish_checks'])
    if(!equal(calculated[key],comparison[key]))errors.push({code:'reconcile_disagreement',field:key});
  }
  const result={...input,privacy,tool,cc,records,plan,jobs,seals,asOf,comparison:privacy?comparison:calculated,integrity,

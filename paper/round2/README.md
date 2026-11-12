@@ -1,4 +1,4 @@
-# Round-two export analysis (C12, Annex A 1.7)
+# Round-two export analysis (C12 and C39, Annex A 1.8)
 
 This is an offline reader. It neither loads a live data folder nor invokes a
 platform command. The script has no network, process-start, account or clock
@@ -78,8 +78,8 @@ print no_recorded_reason.
 
 | Annex | Output | Source and meaning |
 |---|---|---|
-| 1.1–1.4 | gate.decisions/replay/per_job_verdicts/scheduled_slots | GATE_DECISION inputs replayed through planRun; coarsened/legacy inputs not replayable; scheduled_slots is not_run |
-| 1.5 | gate.drills/drill_bound | A drill's explicit session or GATE_DECISION.slot_id, expected reason or own job verdict; ambiguous linkage is unmeasured |
+| 1.1–1.4 | gate.decisions/replay/replay_rows/per_job_verdicts/scheduled_slots | planRun replay: exact owner export recomputed and compared; tester uses on-site attestation; missing rows not replayable; scheduled_slots is not_run |
+| 1.5 | gate.drills/drill_bound | All decisions with GATE_DECISION.slot_id equal to the drill id, including starts after JOB_END; no named start is unmeasured |
 | 1.6 | inputs[].binding_statuses/outside_commands/outside_share; must_be_zero.writes_without_admission | Shared command awl_run_id only; unknown external commands remain site-level because their Lab phase is not known |
 | 1.7–1.9 | gate.handoffs/refused_other_slots/go_aheads/messages/wrapper_refusals | Rebuild operator succession; replay scope and consumption from prior grants and observed steps |
 | 2 | plan_binding | Changed-plan contact, stop refusal while stop active, fixed binomial bound |
@@ -93,7 +93,7 @@ print no_recorded_reason.
 | 8.1/8.6/8.10 | protocol.runs | Every planned job, recorded/excluded/unknown nine-rule outcomes, JOB_END and closing-sequence evidence; supplemental REAL_RELEASE separate |
 | 8.2/8.3/8.7 | protocol.violations/notes/model_period_runs/after_fault | Phase-reset model periods and recorded actions after the faulted STEP |
 | 8.4/8.9 | inputs[].journal/tool/losses; assumptions.A3 | Exact export chain and seal recomputation; tester commitments and tool integrity attested; dropped-event counts are lower bounds |
-| 8.5 | must_be_zero.test_posts_public/test_daily_cap/test_spacing; protocol.cap_observations | First publish per test job; no repeat counted as another upload |
+| 8.5 | must_be_zero.test_posts_public/test_daily_cap/test_spacing; protocol.cap_observations | First publish per test job/platform; no repeat consumes another upload; source shown on each on-site or recomputed check |
 | 8.8 | protocol.runs[].outside_upload; counted_without_outside_upload | Upload-phase window only; unknown timing omitted from the clean-window subset |
 | 9 | assumptions | A1 outside writes/extra copies, A2 recoverable marker evidence, A3 integrity limitation, A4 second-marker draft proof |
 
@@ -112,33 +112,36 @@ the freeze review, not be replaced after results are observed.
 
 These are explicit null/unknown/unmeasured outcomes, not zero failures.
 
-* The tester's code source_digest is keyed, while the freeze's crosscast_digest
-  remains plain. Its commit can be compared, but a full source-digest match
-  cannot be proved. If that digest is required by the seal, rule 2 is unknown
-  and those runs do not enter the counted safety table. The present site
-  reconcile has no attestation for that comparison.
-* Date-only records cannot replay exact due times, prove 20-minute spacing or
-  rolling 24-hour caps, or locate an outside upload after minutes_ago was removed.
-  Look status, case duration and command bindings use the supplied on-site
-  comparison. Other missing temporal facts are reported unavailable.
+* C39 keeps only crosscast.builds[].source_digest plain in the tester's tool
+  copy, in addition to the existing public source digests. Both sites compare
+  it with the freeze's crosscast_digest. Capture and unknown nested digests
+  remain keyed. Old copies with a keyed source digest fail the stamp match.
+* Date-only gate replay and first-publish spacing/cap figures use the supplied
+  comparison's gate_checks and publish_checks, computed before redaction.
+  Every result names its record number and provenance; the owner recomputes
+  and compares both fields. Missing/duplicate rows remain unknown, not zero.
+  Neither field exposes exact clock times. Outside-upload timing still cannot
+  be located after minutes_ago was removed and remains unknown where needed.
 * Across sites on the same UTC day, the tester's place in a total order is not
   known. The checklist examines every try that could be among the last three.
   It confirms that condition only when every such candidate was confirmed.
-* JOB_END ordinarily has no session id. A drill may be identified by the
-  already-supported begin --slot-id <drill-job-id>. Without an explicit recorded
+* JOB_END ordinarily has no session id. Every drill start must use
+  begin --slot-id <drill-job-id>, including the completed kind which closes
+  first. All matching decisions anywhere in its phase are judged. Without an explicit recorded
   association the analysis cannot distinguish an intended drill start from a
   normal start that happened to list that drill. It does not choose by guess.
 * An export can establish only observed approval consumption. A reservation
   whose process died before STEP may have consumed an additional unit on-site;
   that missing reservation is not reconstructed from an exported journal.
+  Any unspent-unit count derived from those steps is therefore an upper limit.
 * Missing edit before/after refs cannot prove "in place". A delete without another
   observed study post as comparator cannot establish no wrong-post deletion.
 * Records of a wrapper-ended command are incomplete regardless of reported zero
   loss. Missing marker evidence is never zero. Bilibili has no marker denominator.
 
-The report asks Claude to decide any added attestation needed before those
-figures can become measured. This script does not alter accepted C38 account
-tools, source readings, privacy policy or protocol rules to manufacture data.
+C39 implements the on-site checks and digest exception decided in Annex A 1.8.
+It does not change gate decisions, account actions, raw records or the protocol.
+Other missing figures stay explicit for Claude's independent reading.
 
 ## Validation
 

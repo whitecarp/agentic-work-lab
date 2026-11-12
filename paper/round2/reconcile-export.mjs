@@ -1,8 +1,9 @@
-// Pure snapshot of the accepted C38 calculation (0dc183a), for export-only analysis.
+// C38 reconciliation plus C39's pure on-site checks, for export-only analysis.
 // No filesystem access, account state, clock, or environmental input.
 import {commandClass} from '../../scripts/round2/crosscast.mjs';
 import {operation,pressRoles,uncertainState,nothingSent,settled,confirmedAnswer,confirmed} from '../../scripts/round2/answers.mjs';
 import {countsLook} from '../../scripts/round2/looks.mjs';
+import {gateChecks,publishChecks} from '../../scripts/round2/analysis-checks.mjs';
 export function reconcileData(records,cc,{jobs=[],reservations=[],now}={}){
  if(!Number.isFinite(now))throw new Error('invalid_as_of');
  const steps=records.filter(r=>r.type==='STEP');
@@ -170,7 +171,7 @@ export function reconcileData(records,cc,{jobs=[],reservations=[],now}={}){
      seconds:closure?Math.max(0,(Date.parse(closure.at)-Date.parse(s.at))/1000):null,clock_reversed:!!closure&&Date.parse(closure.at)<Date.parse(s.at)};
  });
  const result={schema:'round2-reconcile/1',as_of:new Date(now).toISOString(),records:records.length,crosscast_present:cc.present,crosscast_chain_ok:cc.chain_ok,time_alignment:!cc.present?'journal_only':cc.times==='exact'&&cc.chain_ok?'exact':'unavailable',
-   error_steps_unclassified:errorStepsUnclassified,
+   error_steps_unclassified:errorStepsUnclassified,gate_checks:gateChecks(records),publish_checks:publishChecks(records,jobs),
    command_binding:!cc.present?'journal_only':trusted?'shared_id':'unavailable',
    ungated_writes:ungated,matched_write_commands:trusted?bindings.length-ungated:null,write_bindings:bindings,
    admitted_sessions_without_write:runs.filter(r=>!steps.some(s=>s.run===r.id&&s.d.class==='write')).length,

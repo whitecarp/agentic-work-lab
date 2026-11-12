@@ -13,7 +13,7 @@ import {canonical} from '../scripts/round2/journal.mjs';
 import {generate} from '../scripts/round2/plan-runs.mjs';
 const run=x=>analyze(bundle(x),{gateHash});
 
-test('offline reconcile matches accepted C38 site calculation on isolated exported records',async t=>{
+test('offline reconcile matches site calculation on isolated exported records',async t=>{
  const {reconcile}=await import('../scripts/round2/reconcile.mjs');
  const {reconcileData}=await import('../paper/round2/reconcile-export.mjs');
  const {crosscast}=await import('../scripts/round2/crosscast.mjs');
@@ -29,8 +29,8 @@ test('offline reconcile matches accepted C38 site calculation on isolated export
  for(const obj of [actual,offline]){delete obj.captures_checked;delete obj.captures_missing;}
  assert.deepEqual(offline,actual);
 });
-test('date-only cap results are unknown, not zero',()=>{
- const x=privateSite(clean({site:'tester'}).finish()),r=run(x);
+test('date-only cap results without on-site checks are unknown, not zero',()=>{
+ const x=privateSite(clean({site:'tester'}).finish());delete x.reconcile.publish_checks;const r=run(x);
  assert.equal(all(r).must_be_zero.test_spacing,null);assert.equal(all(r).must_be_zero.test_daily_cap,null);
  assert.ok(r.verdict.gaps.some(g=>g.code==='unmeasured_test_spacing'));
 });
@@ -63,8 +63,9 @@ test('gate owner, digest and test receipt widget errors are visible',()=>{
  f.tool.publications[0].parts.widgets_state='PENDING';
  const z=all(run(f.finish())).must_be_zero;assert.equal(z.wrong_operator_decisions,1);assert.equal(z.gate_digest_mismatches,1);assert.equal(z.test_receipts_with_parts,1);
 });
-test('drill runs are tied only by an explicit recorded session or slot identifier',()=>{
+test('drill runs are tied by the explicit slot identifier',()=>{
  const f=fixture({jobs:[{id:'job-a',run_class:'drill',kind:'stop_flag',platforms:[],group:'I',faults:[]}]});
+ f.rows.find(r=>r.type==='GATE_DECISION').d.slot_id='job-a';
  f.rows.find(r=>r.type==='GATE_DECISION').d.reason='stop_flag';f.rows.find(r=>r.type==='GATE_DECISION').d.decision='skip';
  f.step({platforms:[]});f.put('JOB_END',{job:'job-a',reason:'done',by:'operator',words_sha256:null},5);
  const z=all(run(f.finish()));assert.equal(z.must_be_zero.steps_after_drill_refusal,1);
@@ -207,9 +208,10 @@ test('date-only results attest site reconciliation, retain plan binding, do not 
  const f=clean({site:'tester'});const x=privateSite(f.finish()),r=run(x);
  assert.equal(r.inputs[0].provenance.timing,'site_reconcile_attested_dates_only');
  assert.equal(r.inputs[0].journal.exceptions.length,0);
- assert.ok(all(r).gate.replay.not_replayable>0);
- assert.equal(all(r).protocol.cap_observations[0].spacing,null);
- assert.equal(r.inputs[0].unknowns.includes('2_frozen_commands'),true);
+ assert.equal(all(r).gate.replay.agree,1);
+ assert.equal(all(r).protocol.cap_observations[0].spacing,false);
+ assert.equal(r.inputs[0].unknowns.includes('2_frozen_commands'),false);
+ assert.equal(x.journal.crosscast.builds[0].source_digest,digest);
 });
 test('plan/seed mismatch, unwindowed export, closing cutoff mismatch refuse computation',()=>{
  for(const [name,mutate]of[

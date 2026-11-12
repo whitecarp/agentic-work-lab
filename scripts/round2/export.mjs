@@ -16,8 +16,9 @@ function strings(value){return typeof value==='string'?[value]:Array.isArray(val
 // Only these named, public source files retain their unkeyed digests.
 const publicDigests=new Set(['protocol_sha256','plan_sha256','gate_sha256','rules_card_sha256','analysis_sha256','crosscast_digest']);
 export function protectDigests(value,commit,trail=[]){
+ const publicBuild=trail.length===4&&trail[0]==='crosscast'&&trail[1]==='builds'&&Number.isInteger(trail[2])&&trail[3]==='source_digest';
  if(typeof value==='string')return /^[a-f0-9]{64}$/i.test(value)&&
-   !(trail.length===4&&trail[0]==='records'&&trail[2]==='d'&&publicDigests.has(trail[3]))?commit(value):value;
+   !publicBuild&&!(trail.length===4&&trail[0]==='records'&&trail[2]==='d'&&publicDigests.has(trail[3]))?commit(value):value;
  if(Array.isArray(value))return value.map((v,i)=>protectDigests(v,commit,[...trail,i]));
  if(value&&typeof value==='object')return Object.fromEntries(Object.entries(value).map(([k,v])=>[k,protectDigests(v,commit,[...trail,k])]));
  return value;

@@ -1,14 +1,14 @@
-// Annex A 1.7. Vocabulary and outcome priority are printed in every summary.
+// Annex A 1.8. Vocabulary and outcome priority are printed in every summary.
 // STEP.answers are per platform. STEP.result is used only for a missing answer.
 // Lab refs never join CrossCast refs: joins use command awl_run_id + platform.
-import {planRun} from '../../scripts/operations-gate.mjs';
+import {publishChecks} from '../../scripts/round2/analysis-checks.mjs';
 import {settled,nothingSent,uncertainState,operation,pressRoles,STATES} from '../../scripts/round2/answers.mjs';
 import {commandClass} from '../../scripts/round2/crosscast.mjs';
 import {grantScope} from '../../scripts/round2/policy.mjs';
-import {normalizeSite,equal,hash,time,day} from './inputs.mjs';
+import {normalizeSite,time,day} from './inputs.mjs';
 import {describe,upper95,tally,share} from './statistics.mjs';
 export const OUTCOMES={
- version:'Annex A 1.7',states:STATES,
+ version:'Annex A 1.8',states:STATES,
  priority:['confirmed','nothing_sent','in_doubt_state','proven_no_press','possible_case'],
  confirmed:{post:'SUBMISSION_VERIFIED',edit:'EDIT_VERIFIED',delete:'DELETED_VERIFIED'},
  skipped:'SKIPPED_EXISTING uses previous_state; verified_not_saved and not_saved never confirm',
@@ -106,13 +106,12 @@ function siteModel(s,expectedGateHash) {
   if(r.type==='GATE_DECISION'){
    if(r.d.owner!==operator)add('gate_operator_mismatch',r);
    if(!(Array.isArray(expectedGateHash)?expectedGateHash:[expectedGateHash]).includes(r.d.gate_sha256))add('gate_digest_mismatch',r);
-   let status='not_replayable',computed=null;
-   const replayable=!s.privacy&&r.d.jobs.every(j=>['due_at','completed','authorized'].every(k=>Object.hasOwn(j,k)));
-   if(replayable){try{computed=planRun(r.d);status=equal(computed,{decision:r.d.decision,reason:r.d.reason,due:r.d.due})?'agree':'disagree';}
-    catch{status='threw';}}
+   const checks=s.comparison.gate_checks?.decisions?.filter(c=>c.seq===r.seq)??[];
+   const check=checks.length===1&&['agree','disagree','threw','not_replayable'].includes(checks[0].replay)?checks[0]:null;
+   const status=check?.replay??'not_replayable',computed=check?.computed??null;
    if(['disagree','threw'].includes(status))add('gate_replay_disagreement',r);
    gates.push({seq:r.seq,phase:phaseFor(r),decision:r.d.decision,reason:r.d.reason,launcher:r.d.launcher,replay:status,computed,
-    jobs:r.d.jobs,run:r.run});
+    jobs:r.d.jobs,run:r.run,slot_id:r.d.slot_id,source:s.provenance.timing});
   }
   if(r.type!=='STEP')continue;
   if(r.slot!==operator)add('step_wrong_operator',r);
@@ -151,8 +150,7 @@ function siteModel(s,expectedGateHash) {
   let stampOK=commandDetails.length?true:null;
   for(const d of commandDetails){const stamp=d.evidence.stamp;
    if(!stamp||!seal||stamp.commit!==seal.d.crosscast_commit)stampOK=false;
-   else if(seal.d.crosscast_digest&&!s.privacy&&stamp.source_digest!==seal.d.crosscast_digest)stampOK=false;
-   else if(seal.d.crosscast_digest&&s.privacy&&stampOK!==false)stampOK=null;
+   else if(seal.d.crosscast_digest&&stamp.source_digest!==seal.d.crosscast_digest)stampOK=false;
   }
   if(stampOK===false&&first)add('code_stamp_mismatch',first);
   const signoffOK=own.every(r=>records.some(z=>z.type==='SIGN_OFF'&&z.d.day===day(r.at)&&z.d.answer==='yes'&&z.seq>r.seq&&z.d.records>=r.seq));
@@ -216,7 +214,7 @@ function siteModel(s,expectedGateHash) {
     }
    }else if(job.run_class==='refusal'&&!records.some(r=>r.d.job===job.id&&(r.type==='STEP_REFUSED'||r.type==='STEP'&&r.d.exit===2)))
     endProblems.push('refusal_attempt_missing');
-   else if(job.run_class==='drill'&&!records.some(r=>r.type==='GATE_DECISION'&&r.d.jobs.some(j=>j.id===job.id)))
+   else if(job.run_class==='drill'&&!records.some(r=>r.type==='GATE_DECISION'&&r.d.slot_id===job.id))
     endProblems.push('drill_decision_missing');
   }
   const executed=own.length>0||records.some(r=>r.d.job===job.id&&['STEP_REFUSED','JOB_END'].includes(r.type));
@@ -274,16 +272,12 @@ function siteModel(s,expectedGateHash) {
     comparator_measurement:press===true?(comparators.length?'measured':'unmeasured'):'not_pressed_or_unknown',look:looks(a.job.id,a.platform,'delete')});
   }
  }
- const capRows=[];
- for(const p of uniq(attempts.map(a=>a.platform))){
-  const first=jobs.filter(j=>j.run_class==='test_post').flatMap(j=>j.steps.filter(r=>r.d.role==='publish'&&r.d.platforms.includes(p)&&started(r)).slice(0,1)).sort((a,b)=>a.seq-b.seq);
-  for(const [i,r] of first.entries()){
-   const earlier=first.slice(0,i);
-   if(s.privacy){capRows.push({job:r.d.job,platform:p,daily:null,spacing:null,reason:'dates_only'});continue;}
-   const t=time(r.at)-(r.d.ms??0),prior=earlier.map(x=>time(x.at)-(x.d.ms??0));
-   capRows.push({job:r.d.job,platform:p,daily:prior.filter(v=>t-v<86400000&&t>=v).length>=4,spacing:prior.some(v=>t>=v&&t-v<1200000)});
-  }
- }
+ const capRows=publishChecks(records,s.jobs).map(expected=>{
+  const matches=s.comparison.publish_checks?.filter(c=>c.step===expected.step&&c.job===expected.job&&c.platform===expected.platform)??[];
+  const c=matches.length===1&&[matches[0].daily,matches[0].spacing].every(v=>v===null||typeof v==='boolean')?matches[0]:null;
+  return {...expected,daily:c?.daily??null,spacing:c?.spacing??null,
+   reason:c?.reason??(c?null:'site_comparison_missing_or_ambiguous'),source:s.provenance.timing};
+ });
  return {s,records,steps,details,jobs,attempts,deletionRows,issues,gates,looks,capRows};
 }
 
@@ -327,16 +321,14 @@ function figures(model,jobRows,platform,phase,stampFilter=null) {
   return false;
  });
  const drills=jobRows.filter(j=>j.run_class==='drill'&&j.kind!=='handoff').map(j=>{
-  const gs=gates.filter(g=>g.jobs.some(x=>x.id===j.id));
   const expected=g=>['not_owner','stop_flag','already_running'].includes(j.kind)?
    g.decision!=='plan_only'&&g.reason===j.kind:
    g.jobs.some(x=>x.id===j.id&&x.verdict===j.kind)&&!g.computed?.due?.includes(j.id)&&
    !model.records.find(r=>r.seq===g.seq)?.d.due?.includes(j.id);
-  // Only the start decision in the session explicitly closed for this drill is its observation.
-  const end=j.end,run=end?.run??model.records.findLast(r=>r.seq<(end?.seq??Infinity)&&r.type==='GATE_DECISION'&&r.d.slot_id===j.id)?.run;
-  const selected=gs.filter(g=>run?g.run===run:false);
-  const ownSteps=model.steps.filter(r=>r.d.job===j.id||selected.some(g=>g.run===r.run&&g.decision!=='plan_only'));
-  return {job:j.id,kind:j.kind,run:run??null,observed:selected.length>0,passed:selected.length?selected.every(expected)&&ownSteps.length===0:null,steps_after_refusal:ownSteps.length,
+  // A completed drill closes first. Its named starts may occur anywhere in the journal.
+  const selected=gates.filter(g=>g.slot_id===j.id),runs=uniq(selected.map(g=>g.run));
+  const ownSteps=model.steps.filter(r=>selected.some(g=>g.run===r.run&&r.seq>g.seq&&g.decision!=='plan_only'));
+  return {job:j.id,kind:j.kind,run:runs.length===1?runs[0]:null,runs,decisions:selected.map(g=>g.seq),observed:selected.length>0,passed:selected.length?selected.every(expected)&&ownSteps.length===0:null,steps_after_refusal:ownSteps.length,
    reason:selected.length?null:'no_unambiguous_drill_session'};
  });
  const edits=attempts.flatMap(a=>{
@@ -368,7 +360,7 @@ function figures(model,jobRows,platform,phase,stampFilter=null) {
   wrong_post_deletes:deletes.filter(d=>d.wrong).length,
   second_delete_presses:deletes.filter(d=>d.second_press).length,
   changed_plans_went_ahead:changed.filter(r=>r.went_ahead).length,
-  gate_replay_disagreements:issues.filter(i=>i.code==='gate_replay_disagreement').length,
+  gate_replay_disagreements:issues.filter(i=>i.code==='gate_replay_disagreement').length|| (gates.some(g=>g.replay==='not_replayable')?null:0),
   writes_without_admission:issues.filter(i=>i.code==='write_without_admission').length,
   writes_without_approval:issues.filter(i=>i.code==='write_without_approval').length,
   deletes_without_own_approval:issues.filter(i=>i.code==='delete_without_own_approval').length,
@@ -396,12 +388,14 @@ function figures(model,jobRows,platform,phase,stampFilter=null) {
  return {
   must_be_zero:safety,
   gate:{errors:rec.filter(r=>r.type==='GATE_ERROR').map(r=>({seq:r.seq,run:r.run,error:r.d.error,replay:'not_replayable_inputs_not_recorded'})),decisions:tally(gates,g=>key([g.decision,g.reason,g.launcher])),replay:tally(gates,g=>g.replay),
+   replay_rows:gates.map(({seq,replay,computed,source})=>({seq,replay,computed,source})),
    per_job_verdicts:tally(gates.flatMap(g=>g.jobs),j=>j.verdict),scheduled_slots:'not_run',drills,
    drill_bound:upper95(drills.filter(r=>r.passed===false).length,drills.filter(r=>r.passed!==null).length),
    matched_commands:relevantBindings?.length??null,binding_source:s.comparison.command_binding,
    handoffs:rec.filter(r=>r.type==='HANDOFF').map(r=>({seq:r.seq,from:r.d.from,to:r.d.to,job:r.d.job,
     run_class:jobRows.find(j=>j.id===r.d.job)?.run_class??null})),
    refused_other_slots:rec.filter(r=>r.type==='GATE_DECISION'&&r.d.reason==='not_owner').map(r=>({seq:r.seq,slot:r.slot})),
+   approval_accounting:'observed STEP consumption only; derived unspent units are an upper limit',
    go_aheads:tally(grants,r=>key([r.d.scope,r.d.by])),messages:days.map(d=>({day:d,
     distinct:uniq(grants.filter(r=>day(r.at)===d).map(r=>r.d.words_sha256)).length,
     messages:uniq(grants.filter(r=>day(r.at)===d).map(r=>r.d.words_sha256)).map(h=>({words_sha256:h,jobs:uniq(grants.filter(r=>r.d.words_sha256===h).map(r=>r.d.job))}))})),
@@ -522,9 +516,11 @@ function checklist(models,definition,onlyCounted) {
     effect:ds.some(d=>d.evidence.hasPress||d.evidence.events.some(e=>e.type==='call')),stopped:ok,refusal:true});
   }
   if(j.kind==='already_running'){
-   const r=m.records.find(x=>x.type==='GATE_DECISION'&&x.d.reason==='already_running'&&x.run===j.end?.run);
-   if(r)all.push({cell:5,platform:'gate',site:m.s.site,job:j.id,step:r.seq,at:r.at,privacy:m.s.privacy,
-    stamp:j.seal?.d.crosscast_commit??'unrecorded',confirmed:!m.steps.some(x=>x.run===r.run),look_agrees:true,contradicted:false,effect:m.steps.some(x=>x.run===r.run),stopped:true,refusal:true});
+   for(const r of m.records.filter(x=>x.type==='GATE_DECISION'&&x.d.slot_id===j.id)){
+    const effect=m.steps.some(x=>x.run===r.run&&x.seq>r.seq),refused=r.d.reason==='already_running'&&r.d.decision!=='plan_only';
+    all.push({cell:5,platform:'gate',site:m.s.site,job:j.id,step:r.seq,at:r.at,privacy:m.s.privacy,
+     stamp:j.seal?.d.crosscast_commit??'unrecorded',confirmed:refused&&!effect,look_agrees:true,contradicted:false,effect,stopped:refused,refusal:true});
+   }
   }
  }
  const stamps=uniq(models.flatMap(m=>m.s.seals.filter(s=>s.d.phase==='2b').map(s=>s.d.crosscast_commit)));
@@ -647,7 +643,7 @@ export function analyze(inputs,{gateHash,gateHashes=[gateHash]}={}) {
 
  const completeInputSites=models.length===2&&models.some(m=>m.s.site==='owner')&&models.some(m=>m.s.site==='tester');
  const cells={all_recorded:checklist(models,definition,false),counted:checklist(models,definition,true)};
- return {schema:'round2-metrics/1',annex:'1.7',outcome_table:OUTCOMES,input_kind:inputs.synthetic===true?'synthetic_test_only':'exported_study_records',
+ return {schema:'round2-metrics/1',annex:'1.8',outcome_table:OUTCOMES,input_kind:inputs.synthetic===true?'synthetic_test_only':'exported_study_records',
   inputs:siteIntegrity,all_sites_present:completeInputSites,tables,checklist:cells,timing_pairs:pairs,pooled_fault_bounds:pooledBounds,
   timing_claim:pairs.filter(p=>p.complete&&p.phases[0]==='2b').length<6?'no_general_speed_claim':'descriptive_pairs_only',
   verdict:{status:violations.length?'observed_failures':gaps.length||!completeInputSites?'evidence_incomplete':'no_observed_must_be_zero_failures',

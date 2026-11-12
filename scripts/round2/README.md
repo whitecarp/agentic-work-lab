@@ -556,14 +556,23 @@ generator dates not_due to 2100-01-01, not to the general due time.
 
 | Drill | Setup and commands | Pass condition and cleanup |
 |---|---|---|
-| not_owner | `gate-run.mjs begin COMMON`, substituting only `--slot codex` | `skip`, `not_owner`, no due jobs; no handoff |
-| already_running | `gate-run.mjs begin COMMON`, then repeat begin in another shell | second returns `already_running`; `end COMMON --run FIRST_RUN` |
-| stop_flag | `journal.mjs stop COMMON`; `gate-run.mjs begin COMMON` | `stop_flag`; `journal.mjs clear-stop COMMON` clears only that agent's stop |
-| already_done | operator runs `gate-run.mjs close-job COMMON --job DRILL --reason done`; then begin | DRILL absent from due; end any admitted session |
-| not_due | leave the generated far-future due date; begin | DRILL absent from due; end any admitted session |
-| not_authorized | do not grant this drill approval; begin | DRILL absent from due; end any admitted session |
+| not_owner | `gate-run.mjs begin COMMON --slot-id DRILL`, substituting only `--slot codex` | `skip`, `not_owner`, no due jobs; no handoff |
+| already_running | `gate-run.mjs begin COMMON` as setup, then `gate-run.mjs begin COMMON --slot-id DRILL` in another shell | second returns `already_running`; `end COMMON --run FIRST_RUN` |
+| stop_flag | `journal.mjs stop COMMON`; `gate-run.mjs begin COMMON --slot-id DRILL` | `stop_flag`; `journal.mjs clear-stop COMMON` clears only that agent's stop |
+| completed | operator runs `gate-run.mjs close-job COMMON --job DRILL --reason done`; then `gate-run.mjs begin COMMON --slot-id DRILL` | DRILL absent from due; end any admitted session |
+| not_due | leave the generated far-future due date; `gate-run.mjs begin COMMON --slot-id DRILL` | DRILL absent from due; end any admitted session |
+| not_authorized | do not grant this drill approval; `gate-run.mjs begin COMMON --slot-id DRILL` | DRILL absent from due; end any admitted session |
 
 The last three may correctly admit the standing job or another approved due job.
 Judge the drill's own job in the due list, not a blanket no_work_due response.
 Close drills only as the named operator. Never close the standing read job; it
 is used for session-start checks and the day's export without granting writes.
+
+C39 / Annex A 1.8: DRILL is the actual drill job id. All starts that test the
+drill carry it; the already-running setup start is not itself a drill attempt.
+The comparison now exports gate_checks (decision record numbers, unchanged-gate
+replay and agreement lists) and publish_checks (first test publish per job and
+platform, four-in-24-hours and 20-minute-spacing violations). Exact times stay
+on site; these checks contain none and also travel with --privacy. The tester's
+copy preserves crosscast.builds[].source_digest as published code evidence;
+capture digests and unknown nested fields remain keyed.
