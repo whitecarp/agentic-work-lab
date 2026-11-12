@@ -10,21 +10,21 @@ const core=JSON.parse(fs.readFileSync(new URL('./fixtures/planned-counts-v1.json
 const options={phase:'2a',dueFrom:'2026-11-14T15:00:00Z'};
 const build=(c=counts,seed=0)=>generate(c,'owner',Buffer.alloc(32,seed),options);
 
-test('C49 practice is exactly twenty private uploads, six refusals and seven drills',()=>{
+test('C49/C51 practice is exactly eighteen private uploads, six refusals and seven drills',()=>{
  const {plan,jobs}=build();
- assert.equal(plan.runs.length,33);assert.equal(jobs.length,34);
- assert.deepEqual(plan.totals,{test_post_runs:20,test_posts:20,faults_around_the_press:9,faults_before_the_press:4,
+ assert.equal(plan.runs.length,31);assert.equal(jobs.length,32);
+ assert.deepEqual(plan.totals,{test_post_runs:18,test_posts:18,faults_around_the_press:9,faults_before_the_press:4,
   refusal_runs:6,drills:7,repeats_after_a_delete_press:2,bilibili_real_release_slots:0,of_which_handoff_drills:1,gate_drills_of_the_six_kinds:6});
  assert.ok(plan.runs.every(r=>r.pair===null&&r.pair_mode===null));
  const posts=plan.runs.filter(r=>r.run_class==='test_post');
- for(const p of ['youtube','douyin'])assert.equal(posts.filter(r=>r.platforms.join()===p).length,10);
+ for(const p of ['youtube','douyin'])assert.equal(posts.filter(r=>r.platforms.join()===p).length,p==='youtube'?10:8);
  assert.ok(posts.every(r=>r.visibility==='private'&&r.clip==='short'));
- assert.deepEqual(posts.map(r=>r.clip_no).sort((a,b)=>a-b),Array.from({length:20},(_,i)=>i+1));
- assert.equal(new Set(posts.map(r=>r.title)).size,20);
+ assert.deepEqual(posts.map(r=>r.clip_no).sort((a,b)=>a-b),Array.from({length:18},(_,i)=>i+1));
+ assert.equal(new Set(posts.map(r=>r.title)).size,18);
  assert.equal(plan.runs.filter(r=>r.run_class==='real_slot').length,0,'no publication is invented for a Bilibili dry run');
  assert.equal(counts.additional_checks.bilibili_delete_dry_run.tries,1);
 });
-test('C49 every kind once per platform except YouTube C2 twice, early and late',()=>{
+test('C49/C51 lists each kind once per platform except YouTube C2 twice, early and late',()=>{
  for(let seed=0;seed<12;seed++){
   const {plan}=build(counts,seed);
   for(const platform of ['youtube','douyin']){
@@ -38,16 +38,16 @@ test('C49 every kind once per platform except YouTube C2 twice, early and late',
   }
  }
 });
-test('C49 clean edit, separate edit/delete fault, wrong-code try and two plain Douyin deletions survive shuffle',()=>{
+test('C49/C51 clean variants survive shuffle; no extra plain Douyin deletion posts',()=>{
  for(let seed=0;seed<12;seed++){
   const {plan}=build(counts,seed);
   for(const platform of ['youtube','douyin']){
    const clean=plan.runs.filter(r=>r.run_class==='test_post'&&r.platforms.join()===platform&&!r.faults.some(f=>f.role==='publish'));
-   assert.equal(clean.length,platform==='youtube'?3:4);
+   assert.equal(clean.length,platform==='youtube'?3:2);
    assert.equal(clean.filter(r=>r.edit&&r.faults.length===0).length,1);
    assert.equal(clean.filter(r=>r.edit&&r.faults.length===2&&r.faults.some(f=>f.role==='edit')&&r.faults.some(f=>f.role==='delete')).length,1);
    const plain=clean.filter(r=>!r.edit&&!r.wrong_delete_code_first&&r.faults.length===0);
-   assert.equal(plain.length,platform==='douyin'?2:0);
+   assert.equal(plain.length,0);
    const wrong=clean.filter(r=>r.wrong_delete_code_first);
    assert.equal(wrong.length,platform==='youtube'?1:0);assert.ok(wrong.every(r=>r.faults.length===0));
   }
@@ -62,24 +62,24 @@ test('C49 all refusal and gate kinds once; handoff attaches to a refusal within 
  assert.equal(next.id,handoff.uses);assert.equal(next.run_class,'refusal');assert.equal(next.day,handoff.day);
 });
 test('C49 practice IDs and clips do not collide with counted runs after practice retirement',()=>{
- const practice=build(),counted=generate(core,'owner',Buffer.alloc(32,3),{dueFrom:'2026-11-19',firstShort:21});
+ const practice=build(),counted=generate(core,'owner',Buffer.alloc(32,3),{dueFrom:'2026-11-19',firstShort:19});
  const ids=new Set(counted.jobs.map(j=>j.id));assert.ok(practice.jobs.every(j=>j.id.startsWith('owner-practice-')&&!ids.has(j.id)));
  const clips=new Set(practice.plan.runs.filter(r=>r.run_class==='test_post').map(r=>r.clip+':'+r.clip_no));
  assert.ok(counted.plan.runs.filter(r=>r.run_class==='test_post').every(r=>!clips.has(r.clip+':'+r.clip_no)));
- assert.equal(Math.max(...counted.plan.runs.filter(r=>r.run_class==='test_post'&&r.clip==='short').map(r=>r.clip_no)),52);
+ assert.equal(Math.max(...counted.plan.runs.filter(r=>r.run_class==='test_post'&&r.clip==='short').map(r=>r.clip_no)),50);
  assert.equal(counts.caps.test_uploads_per_platform_per_24h,4);assert.equal(counts.caps.minutes_between_test_uploads_on_one_platform,20);
 });
 test('C49 make and verify retain raw provenance and never replace an existing practice list',t=>{
  const f=fixture(t),raw=fs.readFileSync(file),before=raw.toString();
  const result=make(f.home,counts,'owner',{...options,countsRaw:raw});
- assert.equal(result.runs,33);assert.equal(verifyPlan(f.home).sha256,result.sha256);
+ assert.equal(result.runs,31);assert.equal(verifyPlan(f.home).sha256,result.sha256);
  assert.equal(fs.readFileSync(file,'utf8'),before);
  assert.throws(()=>make(f.home,counts,'owner',options),/plan_already_exists/);
 });
 test('C49 phase-2a CLI makes only an isolated synthetic list',t=>{
  const f=fixture(t),r=cli(f,'plan-runs',['make','--counts',path.resolve('templates/round2/practice-counts-phase2a-v1.json'),
   '--site','owner','--phase','2a','--due-from',options.dueFrom]);
- assert.equal(r.status,0,r.stderr);assert.equal(JSON.parse(r.stdout).runs,33);assert.equal(verifyPlan(f.home).matches,true);
+ assert.equal(r.status,0,r.stderr);assert.equal(JSON.parse(r.stdout).runs,31);assert.equal(verifyPlan(f.home).matches,true);
 });
 for(const bad of ['counted_phase','tester','version1','day_count','unknown_variant','edit_fault_without_edit','delete_and_wrong_code','public_variant','faulted_publish_variant']){
  test('C49 refuses '+bad,()=>{

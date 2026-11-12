@@ -102,10 +102,10 @@
   "schema": "round2-practice-counts/1",
   "phase": "2a",
   "practice_days": 5,
-  "status": "Draft for Claude protocol review before the 14 November seal; no account authority.",
-  "source": "Protocol sections 5, 9 C and H, 10, 13; C49, 12 November 2026.",
+  "status": "C51 draft for Claude protocol review before the 14 November seal; Annex A 1.14; no account authority.",
+  "source": "Protocol sections 5, 9 C and H, 10, 13; C49/C51, 12 November 2026; Annex A 1.14.",
   "rule": "Owner only. No timing pairs or synthetic public releases. Each short clip is unique and retired from later uploads. The actual practice list and throwaway seed are made at C9 after review; this file contains only counts.",
-  "douyin_delete_condition": "Every right-code delete, including the delete fault, requires its own owner go-ahead under section 9 H first-way shakedown. Under the second way no right-code delete runs; record manual removal and its look, and the delete fault as not attempted. Two ordinary no-edit/no-fault Douyin rows support the two first-way checks; outcomes are never assumed.",
+  "douyin_delete_condition": "Protocol 9 H now requires owner removal by hand at both sites from the start. Never issue a right-code delete for a Douyin test post. Its planned delete fault is retained for reporting only, never armed, and reported as not attempted. Record the manual step and the following owner look.",
   "additional_checks": {
     "bilibili_delete_dry_run": {
       "tries": 1,
@@ -243,16 +243,6 @@
             "edit_fault": true,
             "delete_fault": true
           }
-        },
-        {
-          "group": "B",
-          "platforms": [
-            "douyin"
-          ],
-          "visibility": "private",
-          "clip": "short",
-          "runs": 2,
-          "fault": null
         },
         {
           "group": "C",
@@ -413,9 +403,12 @@
   },
   "totals_to_check": {
     "owner": {
-      "test_post_runs": 20,
-      "test_posts": 20,
-      "test_posts_per_platform": 10,
+      "test_post_runs": 18,
+      "test_posts": 18,
+      "test_posts_per_platform": {
+        "youtube": 10,
+        "douyin": 8
+      },
       "faults_around_the_press": 9,
       "faults_before_the_press": 4,
       "refusal_runs": 6,

@@ -132,7 +132,11 @@ export function generate(counts,site,seed,{dueFrom,firstShort,firstLong=1,counts
   repeats_after_a_delete_press:faults.filter(f=>f.kind==='delete_readback_lost').length};
  if(site==='owner')Object.assign(totals,{bilibili_real_release_slots:ordered.filter(r=>r.run_class==='real_slot').length,of_which_handoff_drills:drills.length,gate_drills_of_the_six_kinds:totals.drills-drills.length});
  const expected=counts.totals_to_check[site];for(const [k,n]of Object.entries(totals))if(expected[k]!==n)throw new Error('plan_total_mismatch');
- for(const p of ['youtube','douyin'])if(tests.filter(r=>r.platforms.includes(p)).length!==expected.test_posts_per_platform)throw new Error('platform_total_mismatch');
+ const perPlatform=expected.test_posts_per_platform;
+ if(typeof perPlatform!=='number'&&(!practice||!perPlatform||Array.isArray(perPlatform)||
+  Object.keys(perPlatform).sort().join()!=='douyin,youtube'))throw new Error('invalid_counts');
+ for(const p of ['youtube','douyin'])if(tests.filter(r=>r.platforms.includes(p)).length!==
+  count(typeof perPlatform==='number'?perPlatform:perPlatform[p]))throw new Error('platform_total_mismatch');
  const approval=counts.write_steps_a_go_ahead_covers;
  if(approval.test_post_from_the_days_list!==5||approval.test_post_on_two_platforms_from_the_days_list!==8||approval.real_release!==4||approval.delete!==2)throw new Error('approval_counts_mismatch');
  const jobs=ordered.map(r=>{const P=r.platforms.length;

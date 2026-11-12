@@ -59,7 +59,8 @@
     },
     {
       "id": 7,
-      "platform": "douyin"
+      "platform": "douyin",
+      "reason": "Protocol 9 H: Douyin test posts are removed by the account owner by hand at both sites; no right-code delete is run."
     },
     {
       "id": 5,
