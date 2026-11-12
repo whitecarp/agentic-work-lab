@@ -40,6 +40,9 @@ export function generate(counts,site,seed,{dueFrom,firstShort,firstLong=1,counts
  if(!['owner','tester'].includes(site)||!Buffer.isBuffer(seed)||seed.length!==32||!Number.isFinite(Date.parse(dueFrom))||![1,2].includes(version)||!['2a','2b'].includes(phase))throw new Error('invalid_plan_input');
  const spec=counts.sites?.[site],draw=random(seed),runs=[];let serial=0;
  if(!spec)throw new Error('invalid_counts');
+ const practice=counts.phase==='2a';
+ if(counts.phase!==undefined&&(!practice||phase!=='2a'||site!=='owner'||version!==2||counts.practice_days!==5))throw new Error('invalid_practice_counts');
+ const prefix=practice?`${site}-practice`:site,days=practice?counts.practice_days:9;
  const add=d=>{const r={id:`${site}-${String(++serial).padStart(3,'0')}`,site,run_class:'test_post',group:d.group,
   platforms:[],visibility:'private',clip:'short',edit:false,wrong_delete_code_first:false,pair:null,pair_mode:null,faults:[],...d};runs.push(r);return r;};
  function fault(r,kind){const a=FAULTS[kind],b=counts.fault_kinds[kind];
@@ -49,8 +52,15 @@ export function generate(counts,site,seed,{dueFrom,firstShort,firstLong=1,counts
  }
  for(const group of spec.test_posts){
   if(!Array.isArray(group.platforms)||!group.platforms.length||group.platforms.some(p=>!['youtube','douyin'].includes(p))||new Set(group.platforms).size!==group.platforms.length)throw new Error('invalid_counts');
+  const v=group.practice;
+  if(v!==undefined&&(!practice||!v||typeof v!=='object'||Array.isArray(v)||group.fault||group.pairs||group.platforms.length!==1||group.visibility!=='private'||
+   Object.entries(v).some(([k,b])=>!['edit','edit_fault','delete_fault','wrong_delete_code_first'].includes(k)||typeof b!=='boolean')||
+   v.edit_fault&&!v.edit||v.delete_fault&&v.wrong_delete_code_first))throw new Error('invalid_practice_variants');
   const members=[];for(let i=0;i<count(group.runs);i++){
    const r=add({group:group.group,platforms:group.platforms,visibility:group.visibility,clip:group.clip});if(group.fault)r.faults.push(fault(r,group.fault));members.push(r);
+   if(v){r.edit=v.edit===true;r.wrong_delete_code_first=v.wrong_delete_code_first===true;
+    if(v.edit_fault)r.faults.push(fault(r,'end_browser_after_edit_save'));
+    if(v.delete_fault)r.faults.push(fault(r,'delete_readback_lost'));}
   }
   if(group.pairs){if(count(group.pairs)*2!==members.length)throw new Error('invalid_pairs');
    for(let i=0;i<members.length;i+=2){const pair=`pair-${members[i].id}`,modes=shuffled(['one_at_a_time','two_at_a_time'],draw);
@@ -58,7 +68,8 @@ export function generate(counts,site,seed,{dueFrom,firstShort,firstLong=1,counts
   }
  }
  const variant=spec.variants_per_platform;
- for(const platform of ['youtube','douyin']){
+ if(!variant&&!practice)throw new Error('invalid_counts');
+ if(variant)for(const platform of ['youtube','douyin']){
   function eligible(v){return shuffled(runs.filter(r=>r.platforms.length===1&&r.platforms[0]===platform&&r.group===v.drawn_from.group&&
    v.drawn_from.faults.includes(r.faults.find(f=>f.role==='publish')?.kind??null)),draw);}
   const pool=eligible(variant),edits=pool.slice(0,count(variant.edit));if(edits.length!==variant.edit)throw new Error('variant_pool_exhausted');
@@ -83,7 +94,7 @@ export function generate(counts,site,seed,{dueFrom,firstShort,firstLong=1,counts
   for(const day of days.slice(0,group.slots))add({run_class:'real_slot',group:group.group,platforms:[group.platform],visibility:'public',clip:null,day});}
  const units=[],seen=new Set();for(const r of runs){if(seen.has(r.id))continue;const unit=r.pair?shuffled(runs.filter(x=>x.pair===r.pair),draw):[r];units.push(unit);unit.forEach(x=>seen.add(x.id));}
  let ordered=shuffled(units,draw).flat();
- const refs=ordered.filter(r=>r.run_class==='refusal');refs.forEach((r,i)=>r.day=1+i%9);
+ const refs=ordered.filter(r=>r.run_class==='refusal');refs.forEach((r,i)=>r.day=1+i%days);
  // Put each handoff immediately before its next refusal on a distinct day.
  const drills=ordered.filter(r=>r.kind==='handoff');ordered=ordered.filter(r=>r.kind!=='handoff');
  const usedDays=new Set();for(const drill of drills){const ref=refs.find(r=>!usedDays.has(r.day));if(!ref)throw new Error('handoff_pool_exhausted');
@@ -102,7 +113,7 @@ export function generate(counts,site,seed,{dueFrom,firstShort,firstLong=1,counts
  // Source IDs follow the public counts file, where consecutive rows name a
  // specific fault. Give operators only the final shuffled order, including
  // in references to a paired run or the refusal used for a handoff.
- const jobIds=new Map(ordered.map((r,i)=>[r.id,`${site}-${String(i+1).padStart(3,'0')}`]));
+ const jobIds=new Map(ordered.map((r,i)=>[r.id,`${prefix}-${String(i+1).padStart(3,'0')}`]));
  const pairIds=new Map();
  for(const [i,r] of ordered.entries()){
   r.order=i+1;
@@ -135,7 +146,7 @@ export function generate(counts,site,seed,{dueFrom,firstShort,firstLong=1,counts
   if(r.run_class==='refusal')j.listed_writes=approval.refusal_run_from_the_days_list;
   if(r.run_class==='real_slot')j.release_writes=1+3*P;
   return j;});
- jobs.push({id:`${site}-standing`,run_class:'standing',class:'read',platforms:[],due_at:new Date(dueFrom).toISOString()});
+ jobs.push({id:`${prefix}-standing`,run_class:'standing',class:'read',platforms:[],due_at:new Date(dueFrom).toISOString()});
  return {plan:{schema:'round2-planned-runs/1',site,counts_sha256:sha(canonical(counts)),counts_raw_sha256:sha(countsRaw),seed_sha256:sha(seed),
   generator:{version,dueFrom:new Date(dueFrom).toISOString(),firstShort:firstShort??uploads.short[0],firstLong,...(version>=2?{phase}:{})},
   jobs_sha256:sha(canonical(jobs)+'\n'),totals,runs:ordered},jobs};

@@ -638,3 +638,47 @@ Each new test-post row and its operator job carry the same generated title, incl
 A publish fault can be armed again when its own platform explicitly answered NOT_STARTED with no previous state, at any exit code (including browser_busy at exit 4), or when the whole publish was refused with exit 2 and no state or NOT_STARTED on every platform. Edits and deletes retain rearming after busy/browser_busy. All paths require that platform's answer, no true press flag, and an explicit prior fault result of not triggered, not fired and not failed. The controller and selector use the same rule: busy_not_reached for those two lock answers, publish_refused_not_reached for other qualifying publish refusals. Missing results and ambiguous publish answers do not qualify. The upload-start helper's whole-command rule is unchanged. Rearming does not authorize a retry or grant another write: the existing wait, second-busy stop and owner go-ahead rules still apply.
 
 For protocol 9 H's manual Douyin removal, record NOTE manual_step with the exact job and platform, then the deletion look with elapsed minutes from that note, then JOB_END with removed_by_hand. A generic account cleanup note must omit the job. The account owner performs removal; the tools only record it.
+
+## C49 draft practice counts (phase 2a)
+
+`templates/round2/practice-counts-phase2a-v1.json` is the public draft for
+Claude's protocol review. It specifies 20 private short test uploads, ten on
+YouTube and ten on Douyin, six refusal runs, six gate drills and one handoff.
+There is no timing pair or public release slot. Each platform tries all eight
+fault kinds once, except YouTube C2 twice (one early, one late). An edit fault
+and a delete fault share one otherwise clean publish per platform, separate
+from the clean edit-and-delete post. Two additional plain Douyin posts are
+reserved for the ordinary private-delete checks; YouTube has a separate
+wrong-delete-code-first post. The Douyin delete fault and ordinary deletes
+remain conditional on protocol 9 H's first way and each delete's own approval.
+Under the second way, record the owner's manual removal and look; do not run
+a right-code delete or claim that its planned fault was tried.
+
+At C9, after review, use this counts file with `plan-runs.mjs make --site owner
+--phase 2a --counts PRACTICE_COUNTS_JSON --due-from APPROVED_START_UTC --slot
+codex` in the intended private practice home. Keep its fresh throwaway seed
+private and report only the plan digest and totals. This draft and its tests
+make no actual study list, seal, approval, timer or account action. Creation
+is exclusive; an existing list is never overwritten. The practice counts
+cannot generate a tester, version-1 or phase-2b list.
+
+Practice jobs use `owner-practice-NNN` (plus a standing job), distinct from
+counted jobs. Archive the practice files and seed immutably at C9/C21's phase
+transition; retain the actual used-clip inventory. Twenty planned practice
+shorts use numbers 1–20 if none was used earlier; a counted owner list then
+starts at short 21 and ends at 52, leaving eight of the 60 shorts unused.
+Use the actual retired inventory, including failed-refusal uploads, to choose
+the start, not this illustrative number. Refusal clips stay in their own
+61–70 pool; long clips are untouched by practice.
+
+Ten uploads per platform fit 14–18 November in principle, for example 4, 3,
+3 on the 14th, 15th and 16th, with each day's illustrative batch starting more
+than 24 hours after the previous day's last start, and at least 20 minutes
+between starts within a batch. This leaves the 17th and 18th for later looks
+and closings. This is a capacity check, not a schedule:
+the rolling four-in-24h cap, spacing after other known uploads, owner looks,
+48-hour safety holds and unfinished sequences still decide what can run.
+Never compress or repeat runs to fill the draft. One Bilibili delete dry run
+is recommended only on an existing owner-approved real-release receipt during
+its read-back session: no new public post and no confirmation code. With no
+eligible receipt/session, record not attempted.
