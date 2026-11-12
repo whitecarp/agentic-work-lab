@@ -36,7 +36,8 @@ test('C47 practice C2 has one early and one late; duplicate titles refuse',()=>{
   faults:[{kind:'end_tree_after_press',role:'publish',delay_ms:500}]}));
  assignC2Delays(runs,'owner',()=>0,{practice:true});assignTestTitles(runs,'owner');
  assert.deepEqual(runs.map(r=>r.faults[0].delay_ms).sort((a,b)=>a-b),[500,10000]);
- assert.throws(()=>assignC2Delays(runs.slice(0,1),'owner',()=>0,{practice:true}),/invalid_c2_counts/);
+ const amended=[{...runs[0],faults:[{kind:'end_tree_after_press',role:'publish',delay_ms:500}]}];
+ assignC2Delays(amended,'owner',()=>0,{practice:true});assert.equal(amended[0].faults[0].delay_ms,10000);
  assert.throws(()=>assignTestTitles([runs[0],{...runs[1],clip_no:1}],'owner'),/duplicate_test_title/);
  const lengths=[{...runs[0],clip:'short'},{...runs[0],clip:'long'}];assignTestTitles(lengths,'owner');
  assert.notEqual(lengths[0].title,lengths[1].title);

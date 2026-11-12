@@ -28,8 +28,11 @@ export function assignC2Delays(runs,site,draw,{practice=false}={}){
  if(!['owner','tester'].includes(site))throw new Error('invalid_site');
  const faults=runs.filter(r=>r.run_class==='test_post'&&r.platforms.length===1&&r.platforms[0]==='youtube')
   .flatMap(r=>(r.faults??[]).filter(f=>f.kind==='end_tree_after_press'&&f.role==='publish'));
- const total=practice?2:site==='owner'?3:2,late=practice?1:site==='owner'?2:1;
- if(faults.length!==total||faults.some(f=>![0,500,2000].includes(f.delay_ms)))throw new Error('invalid_c2_counts');
+ const total=practice?2:site==='owner'?3:2;
+ if(faults.length>total||faults.some(f=>![0,500,2000].includes(f.delay_ms)))throw new Error('invalid_c2_counts');
+ // A pre-freeze amendment may replace C2 with C1. With one C2 retain a late
+ // try; with two retain one early and one late. No C2 means no late firing.
+ const late=faults.length===0?0:Math.max(1,faults.length-1);
  for(const f of shuffled(faults,draw).slice(0,late))f.delay_ms=10000;
 }
 export function generate(counts,site,seed,{dueFrom,firstShort,firstLong=1,countsRaw=canonical(counts)+'\n',version=2,phase='2b'}={}){

@@ -18,6 +18,20 @@ export const FAULTS={
 };
 const permitted=new Set(['youtube_private','youtube_unlisted','douyin_private']);
 const supported=JSON.parse(fs.readFileSync(new URL('../../templates/round2/crosscast-fault-support.json',import.meta.url)));
+// Rearming is separate from upload-start accounting: preflight can return
+// NOT_STARTED for the fault's platform with exit 4, and locks also refuse edits/deletes.
+function notReachedReason(step,fault){
+ const platform=fault.armed_on.split('_')[0],d=step.d;
+ const answers=d.answers?.filter(a=>a.platform===platform)??[];
+ if(!d.platforms?.includes(platform)||answers.length!==1)return null;
+ const a=answers[0],busy=['busy','browser_busy'].includes(a.code);
+ if(a.answered===false||a.press_flag===true)return null;
+ if(fault.role==='publish'){
+  if(!(a.state==='NOT_STARTED'&&!a.previous_state)&&!wholePublishRefusal(step))return null;
+  return busy?'busy_not_reached':'publish_refused_not_reached';
+ }
+ return ['edit','delete'].includes(fault.role)&&busy?'busy_not_reached':null;
+}
 export function verifyFaultSupport(executable,expected=supported){
  // Only the audited venv layout is supported. Read code, never sign-in data.
  const folder=path.resolve(path.dirname(executable),'..','Lib','site-packages','video_publisher');
@@ -45,8 +59,8 @@ export function selectFault(ctx,job,role,policy){
  if(previous){
   const attempted=records.find(r=>r.seq>previous.seq&&r.run===previous.run&&r.type==='STEP'&&r.d.job===job.id&&r.d.role===role);
   const result=records.find(r=>r.seq>previous.seq&&r.run===previous.run&&r.type==='FAULT_RESULT'&&r.d.job===job.id&&r.d.role===role);
-  if(!attempted||!result||result.d.fired!==false||result.d.triggered||result.d.failed||
-    role!=='publish'||!wholePublishRefusal(attempted))return null;
+  if(!attempted||!result||result.d.fired!==false||result.d.triggered!==false||result.d.failed!==false||
+    !notReachedReason(attempted,fault))return null;
  }
  if(seal?.phase==='2b'&&!sealed)throw new Error('fault_plan_invalid');
  const rule=FAULTS[fault.kind];
@@ -146,8 +160,8 @@ export function faultController(ctx,fault,{snapshot,kill}={}){
     if(rule.mechanism==='tool_switch')fired=injectedReply(stdout,fault.armed_on.split('_')[0]);
     let reply;try{reply=JSON.parse(stdout.trim());}catch{}
     const answers=readAnswers(reply,[fault.armed_on.split('_')[0]],fault.role==='delete'?'delete':fault.role==='edit'?'edit':'post');
-    if(!triggered&&fired===false&&fault.role==='publish'&&wholePublishRefusal({d:{exit,answers,platforms:[fault.armed_on.split('_')[0]]}}))
-     reason=answers.every(a=>['busy','browser_busy'].includes(a.code))?'busy_not_reached':'publish_refused_not_reached';
+    if(!triggered&&fired===false&&!failed)
+     reason=notReachedReason({d:{exit,answers,platforms:[fault.armed_on.split('_')[0]]}},fault)??reason;
     put(ctx,'FAULT_RESULT',{job:fault.job,kind:fault.kind,role:fault.role,triggered,fired,failed,reason,
      action_delay_ms:requestMs,gone_delay_ms:goneMs,kill_exit:killExit,processes:ended,...(observer?{unopened:observer.unopened,unopened_present:observer.unopenedPresent}:{})},ctx.run,30000);
     return {fired,failed,reason};
