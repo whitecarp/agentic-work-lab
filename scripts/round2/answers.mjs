@@ -7,9 +7,17 @@ export const operation=s=>s.d.action==='delete'||['delete','delete_verify'].incl
 const stateWord=v=>typeof v==='string' && v.length ? (STATES.includes(v)?v:'UNLISTED') : null;
 // For timing/caps, a per-platform refusal has no upload start. An interrupted
 // command can have started even when its worker never returned an answer.
+export function wholePublishRefusal(step) {
+ const d=step.d;
+ return d.exit===2 && d.platforms?.length>0 && d.platforms.every(platform=>{
+  const a=d.answers?.find(a=>a.platform===platform);
+  return a && a.answered!==false && !a.previous_state && a.press_flag!==true &&
+   (a.state==null || a.state==='NOT_STARTED');
+ });
+}
 export function publishStartedOn(step, platform) {
  const answer = step.d.answers?.find(a => a.platform === platform);
- return step.d.started !== false && step.d.exit !== 127 && step.d.platforms.includes(platform) &&
+ return step.d.started !== false && step.d.exit !== 127 && !wholePublishRefusal(step) && step.d.platforms.includes(platform) &&
   answer?.state !== 'NOT_STARTED' && !['busy','browser_busy'].includes(answer?.code);
 }
 export function readAnswers(value,platforms,about='post'){

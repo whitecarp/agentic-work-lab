@@ -2,7 +2,7 @@
 // No filesystem access, account state, clock, or environmental input.
 import {commandClass} from '../../scripts/round2/crosscast.mjs';
 import {operation,pressRoles,uncertainState,nothingSent,settled,confirmedAnswer,confirmed} from '../../scripts/round2/answers.mjs';
-import {countsLook,lookTiming} from '../../scripts/round2/looks.mjs';
+import {countsLook,lookTiming,lookStep} from '../../scripts/round2/looks.mjs';
 import {pressEvidence as ownPressEvidence} from '../../scripts/round2/press-evidence.mjs';
 import {gateChecks,publishChecks,observationChecks,runChecks} from '../../scripts/round2/analysis-checks.mjs';
 export function reconcileData(records,cc,{jobs=[],reservations=[],now}={}){
@@ -26,8 +26,10 @@ export function reconcileData(records,cc,{jobs=[],reservations=[],now}={}){
  const obligations=new Map();
   for(const s of eligible.filter(r=>['test_post','real_slot','real_release'].includes(scope(r.d.job))&&started(r)))
   for(const platform of s.d.platforms)obligations.set(JSON.stringify([s.d.job,platform,operation(s)]),{job:s.d.job,platform,about:operation(s)});
+ for(const r of records.filter(r=>r.type==='NOTE'&&r.d.code==='manual_step'&&r.d.platform==='douyin'&&scope(r.d.job)==='test_post'))
+  obligations.set(JSON.stringify([r.d.job,'douyin','delete']),{job:r.d.job,platform:'douyin',about:'delete'});
  const lookChecks=[...obligations.values()].map(({job,platform,about})=>{
-    const s=eligible.filter(r=>r.d.job===job&&r.d.platforms.includes(platform)&&operation(r)===about&&started(r)).at(-1);
+    const s=lookStep(records.filter(r=>r.type!=='STEP'||started(r)),job,platform,about);
   const looks=records.filter(r=>r.seq>s.seq&&r.type==='OBSERVATION'&&r.d.job===job&&r.d.about===about&&observationPlatform(r)===platform&&r.d.seen!=='unclear');
   const qualifying=looks.findLast(r=>countsLook(r,s,now,records));
   const early=looks.filter(r=>r.d.minutes_after<10).map(r=>r.seq);

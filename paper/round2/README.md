@@ -1,4 +1,4 @@
-# Round-two export analysis (C12 / C45, Annex A 1.12)
+# Round-two export analysis (C12 / C47, Annex A 1.13)
 
 This is an offline reader. It neither loads a live data folder nor invokes a
 platform command. The script has no network, process-start, account or clock
@@ -251,3 +251,12 @@ from the last upload-phase step of the first release to the second publish
 start. Completion requires 20 through 60 minutes, inclusive.
 
 The C1 helper-confirmation figure awaits the first C43 record.
+
+
+## C47 and Annex A 1.13
+
+Whole publish refusals (exit 2, an explicit answer for every platform, no state or NOT_STARTED, no previous state and no true press flag) do not start upload spacing or caps. The first attempt also requires intact no-contact evidence before discarding a whole refusal. busy/browser_busy keep their previous treatment. attempt_busy/lock_marker_unreadable require exit 2 and the intact command's no-call, no-stage, no-transition evidence; a post-press or incomplete record remains measured.
+
+A Douyin NOTE/manual_step tied to a job and platform supplies the time reference for that job's subsequent deletion look. Under protocol 9 H this records owner removal. It does not create a delete command, deletion success or a cell-7 try. The closure still needs its removed_by_hand settlement. Untied lock/draft cleanup notes do not supply this evidence.
+
+C47 point 7 remains deferred until C43 supplies a real C1 record. The proposed source is the original command's own exported transitions after it ended. No helper-confirmation claim has been added from synthetic evidence alone.

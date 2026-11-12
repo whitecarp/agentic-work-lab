@@ -15,7 +15,7 @@ for(const site of ['owner','tester'])test(`planned ${site} totals, variants, pai
   if(r.pair){const other=a.plan.runs.find(x=>x.pair===r.pair&&x.id!==r.id);assert.equal(Math.abs(other.order-r.order),1);assert.notEqual(r.pair_mode,other.pair_mode);}
   assert.equal(new Set(r.faults.map(f=>f.role)).size,r.faults.length);
   if(r.wrong_delete_code_first)assert.ok(!r.faults.some(f=>f.role==='delete'));
-  for(const f of r.faults){assert.equal(r.run_class,'test_post');assert.match(f.armed_on,/^(youtube_(private|unlisted)|douyin_private)$/);assert.ok([0,500,2000].includes(f.delay_ms));}
+  for(const f of r.faults){assert.equal(r.run_class,'test_post');assert.match(f.armed_on,/^(youtube_(private|unlisted)|douyin_private)$/);assert.ok([0,500,2000,10000].includes(f.delay_ms));}
  }
  const tests=a.plan.runs.filter(r=>r.run_class==='test_post');
  assert.equal(new Set(tests.map(r=>r.clip+':'+r.clip_no)).size,tests.length);

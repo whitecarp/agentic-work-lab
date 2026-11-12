@@ -187,7 +187,7 @@ function captureChild(ctx,command,reservationId,pinned,fault,controllerFactory=f
         try{fs.fsyncSync(fd);}catch{captureError=true;}
         try{fs.closeSync(fd);}catch{captureError=true;}
       let faultFired=null;
-      try{if(controller){const result=await controller.finish(stdout);faultFired=result.fired;}}catch{faultFired=null;}
+      try{if(controller){const result=await controller.finish(stdout,exit);faultFired=result.fired;}}catch{faultFired=null;}
       let digest=null;try{digest=sha(fs.readFileSync(file));}catch{captureError=true;}
       resolve({exit,stdout,ms:Math.round(performance.now()-started),capture_sha256:digest,spawnError,captureError,faultFired});
     }

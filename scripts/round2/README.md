@@ -624,3 +624,16 @@ and to the analysis manifest as `practice_plan`. This option reads only the
 named list and never replaces jobs or a seal. C21's planned phase-2a seal has
 no `--plan`; it therefore records a null list digest. No archive or real-list
 replacement is performed by this analysis change.
+
+
+## C47 list and refusal updates
+
+New lists use generator version 2. Exactly two of the owner's three YouTube C2 arms and one of the tester's two use 10000 ms from the post-click confirmation-wait stage. Other delays stay 0/500/2000 ms. The controller accepts the long delay only for YouTube end_tree_after_press. It still records a natural finish before the request as not fired. Code inspection puts the stage inside submit, before Studio's minimum 12-second settling wait; the real page timing remains for shakedown evidence.
+
+For an unsealed practice list use generate/make with phase 2a (`--phase 2a` on make) and practice counts containing exactly two YouTube C2 arms. Its allocation is one early, one late. The exported assignC2Delays(runs, site, draw, {practice:true}) applies the same check to a separately constructed practice list before it is saved. This change generates no study list or fault on its own. Version-1 lists remain byte-reproducible using their saved generator metadata; never rewrite an existing sealed list.
+
+Each new test-post row and its operator job carry the same generated title, including site and clip number; long clips include long-. assignTestTitles refuses duplicates within the site's list. Use the listed title in the publish plan. Existing unused clip allocation and phase archive rules still apply.
+
+A publish fault can be armed again only when the preceding command explicitly refused the whole publish with exit 2 and no state or NOT_STARTED on every platform, no previous state and no true press flag, and the preceding fault result was explicitly not triggered, not fired and not failed. It is no longer restricted to two lock-code words. This does not authorize another upload or grant approval. The journal's new publish_refused_not_reached reason distinguishes these from busy_not_reached.
+
+For protocol 9 H's manual Douyin removal, record NOTE manual_step with the exact job and platform, then the deletion look with elapsed minutes from that note, then JOB_END with removed_by_hand. A generic account cleanup note must omit the job. The account owner performs removal; the tools only record it.

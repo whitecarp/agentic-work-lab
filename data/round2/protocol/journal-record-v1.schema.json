@@ -2743,7 +2743,8 @@
                 "process_snapshot_failed",
                 "owned_handle_controller_unavailable",
                 "process_controller_failed",
-                "busy_not_reached"
+                "busy_not_reached",
+                "publish_refused_not_reached"
               ]
             },
             "unopened": {

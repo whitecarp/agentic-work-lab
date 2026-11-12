@@ -11,9 +11,30 @@ function random(seed){let counter=0;return max=>{if(!Number.isSafeInteger(max)||
  do{n=createHash('sha256').update(seed).update(String(counter++)).digest().readUInt32BE(0);}while(n>=limit);return n%max;};}
 function shuffled(rows,draw){const a=[...rows];for(let i=a.length-1;i>0;i--){const j=draw(i+1);[a[i],a[j]]=[a[j],a[i]];}return a;}
 const count=n=>{if(!Number.isSafeInteger(n)||n<0)throw new Error('invalid_counts');return n;};
-export function generate(counts,site,seed,{dueFrom,firstShort,firstLong=1,countsRaw=canonical(counts)+'\n'}={}){
+export function testPostTitle(site,run){
+ if(!['owner','tester'].includes(site)||!['short','long'].includes(run.clip)||!Number.isSafeInteger(run.clip_no)||run.clip_no<1)throw new Error('invalid_test_title');
+ return `CrossCast round two ${site} ${run.clip==='long'?'long-':''}${String(run.clip_no).padStart(3,'0')}`;
+}
+export function assignTestTitles(runs,site){
+ const seen=new Set();
+ for(const r of runs.filter(r=>r.run_class==='test_post')){
+  const title=testPostTitle(site,r);
+  if(seen.has(title))throw new Error('duplicate_test_title');
+  seen.add(title);r.title=title;
+ }
+}
+// Also used on the unsealed practice list before its bytes are written.
+export function assignC2Delays(runs,site,draw,{practice=false}={}){
+ if(!['owner','tester'].includes(site))throw new Error('invalid_site');
+ const faults=runs.filter(r=>r.run_class==='test_post'&&r.platforms.length===1&&r.platforms[0]==='youtube')
+  .flatMap(r=>(r.faults??[]).filter(f=>f.kind==='end_tree_after_press'&&f.role==='publish'));
+ const total=practice?2:site==='owner'?3:2,late=practice?1:site==='owner'?2:1;
+ if(faults.length!==total||faults.some(f=>![0,500,2000].includes(f.delay_ms)))throw new Error('invalid_c2_counts');
+ for(const f of shuffled(faults,draw).slice(0,late))f.delay_ms=10000;
+}
+export function generate(counts,site,seed,{dueFrom,firstShort,firstLong=1,countsRaw=canonical(counts)+'\n',version=2,phase='2b'}={}){
  counts=JSON.parse(canonical(counts)); // Object key insertion order is not an input.
- if(!['owner','tester'].includes(site)||!Buffer.isBuffer(seed)||seed.length!==32||!Number.isFinite(Date.parse(dueFrom)))throw new Error('invalid_plan_input');
+ if(!['owner','tester'].includes(site)||!Buffer.isBuffer(seed)||seed.length!==32||!Number.isFinite(Date.parse(dueFrom))||![1,2].includes(version)||!['2a','2b'].includes(phase))throw new Error('invalid_plan_input');
  const spec=counts.sites?.[site],draw=random(seed),runs=[];let serial=0;
  if(!spec)throw new Error('invalid_counts');
  const add=d=>{const r={id:`${site}-${String(++serial).padStart(3,'0')}`,site,run_class:'test_post',group:d.group,
@@ -70,6 +91,7 @@ export function generate(counts,site,seed,{dueFrom,firstShort,firstLong=1,counts
  for(const r of ordered.filter(r=>r.run_class==='test_post')){
   const pool=uploads[r.clip],n=r.clip==='short'?short++:long++;if(!pool||n<pool[0]||n>pool[1])throw new Error('clip_pool_exhausted');r.clip_no=n;
  }
+ if(version>=2){assignTestTitles(ordered,site);assignC2Delays(ordered,site,draw,{practice:phase==='2a'});}
  let refusalIndex=0;for(const r of ordered.filter(r=>r.run_class==='refusal')){
   if(site==='owner'){const [lo,hi]=counts.clip_pools.refusal_runs.short;r.clip_no=lo+(refusalIndex++%(hi-lo+1));}
   else {if(short>uploads.short[1])throw new Error('clip_pool_exhausted');r.clip_no=short++;}
@@ -102,7 +124,7 @@ export function generate(counts,site,seed,{dueFrom,firstShort,firstLong=1,counts
  const jobs=ordered.map(r=>{const P=r.platforms.length;
   const j={id:r.id,order:r.order,run_class:r.run_class,platforms:r.platforms,visibility:r.visibility,
    clip:r.clip,edit:r.edit,wrong_delete_code_first:r.wrong_delete_code_first,pair:r.pair,pair_mode:r.pair_mode};
-  for(const field of ['clip_no','kind','uses','day'])if(Object.hasOwn(r,field))j[field]=r[field];
+  for(const field of ['clip_no','kind','uses','day','title'])if(Object.hasOwn(r,field))j[field]=r[field];
   Object.assign(j,{class:r.run_class==='drill'?'local':'write',due_at:r.kind==='not_due'?'2100-01-01T00:00:00.000Z':new Date(dueFrom).toISOString()});
   if(r.run_class==='test_post')j.publish_fault=r.faults.some(f=>f.role==='publish');
   if(r.run_class==='test_post'){j.listed_writes=2+3*P+(site==='owner'&&r.edit?P:0);j.edit_writes=r.edit?P:0;j.delete_writes=(r.wrong_delete_code_first?approval.delete_with_another_posts_code_first:approval.delete)*P;
@@ -112,7 +134,7 @@ export function generate(counts,site,seed,{dueFrom,firstShort,firstLong=1,counts
   return j;});
  jobs.push({id:`${site}-standing`,run_class:'standing',class:'read',platforms:[],due_at:new Date(dueFrom).toISOString()});
  return {plan:{schema:'round2-planned-runs/1',site,counts_sha256:sha(canonical(counts)),counts_raw_sha256:sha(countsRaw),seed_sha256:sha(seed),
-  generator:{version:1,dueFrom:new Date(dueFrom).toISOString(),firstShort:firstShort??uploads.short[0],firstLong},
+  generator:{version,dueFrom:new Date(dueFrom).toISOString(),firstShort:firstShort??uploads.short[0],firstLong,...(version>=2?{phase}:{})},
   jobs_sha256:sha(canonical(jobs)+'\n'),totals,runs:ordered},jobs};
 }
 export function make(home,counts,site,options){return withLock(path.join(home,'plan.guard'),()=>{
@@ -128,7 +150,7 @@ export function make(home,counts,site,options){return withLock(path.join(home,'p
 export function check(home,sealed){if(!/^[a-f0-9]{64}$/.test(sealed??'')||sha(fs.readFileSync(path.join(home,'planned-runs.json')))!==sealed)throw new Error('plan_digest_mismatch');return {matches:true,sha256:sealed};}
 export function verifyPlan(home,countsFile=path.join(home,'counts-source.json')){
  const bytes=fs.readFileSync(path.join(home,'planned-runs.json')),plan=JSON.parse(bytes),raw=fs.readFileSync(countsFile),seed=fs.readFileSync(path.join(home,'plan-seed'));
- if(!plan.generator||plan.generator.version!==1||sha(raw)!==plan.counts_raw_sha256)throw new Error('plan_provenance_missing');
+ if(!plan.generator||![1,2].includes(plan.generator.version)||sha(raw)!==plan.counts_raw_sha256)throw new Error('plan_provenance_missing');
  const rebuilt=generate(JSON.parse(raw),plan.site,seed,{...plan.generator,countsRaw:raw});
  if(!bytes.equals(Buffer.from(canonical(rebuilt.plan)+'\n'))||!fs.readFileSync(path.join(home,'jobs.json')).equals(Buffer.from(canonical(rebuilt.jobs)+'\n')))throw new Error('plan_reproduction_mismatch');
  return {matches:true,sha256:sha(bytes),jobs_sha256:rebuilt.plan.jobs_sha256};
@@ -157,9 +179,9 @@ export function reveal(ctx){const records=readJournal(ctx.journal),last=records.
 }
 export function main(argv=process.argv.slice(2)){
  const sub=argv.shift(),{flags:f,command}=parseFlags(argv);if(command.length)throw new Error('invalid_arguments');
- const keys={make:['counts','site','due-from','first-short','first-long'],check:['sealed'],verify:['counts'],reveal:['site','journal']};
+ const keys={make:['counts','site','due-from','first-short','first-long','phase'],check:['sealed'],verify:['counts'],reveal:['site','journal']};
  if(!keys[sub])throw new Error('invalid_arguments');allowed(f,['slot',...keys[sub]]);if(!['owner','tester','gemini','codex','claude','tester-assistant'].includes(f.slot))throw new Error('invalid_slot');const home=privateHome();
- const result=sub==='make'?make(home,JSON.parse(fs.readFileSync(f.counts)),f.site,{countsRaw:fs.readFileSync(f.counts),dueFrom:f['due-from'],firstShort:f['first-short']===undefined?undefined:Number(f['first-short']),firstLong:f['first-long']===undefined?undefined:Number(f['first-long'])}):sub==='check'?check(home,f.sealed):sub==='verify'?verifyPlan(home,f.counts):reveal(context(f));
+ const result=sub==='make'?make(home,JSON.parse(fs.readFileSync(f.counts)),f.site,{countsRaw:fs.readFileSync(f.counts),dueFrom:f['due-from'],firstShort:f['first-short']===undefined?undefined:Number(f['first-short']),firstLong:f['first-long']===undefined?undefined:Number(f['first-long']),phase:f.phase??'2b'}):sub==='check'?check(home,f.sealed):sub==='verify'?verifyPlan(home,f.counts):reveal(context(f));
  console.log(JSON.stringify(result));return 0;
 }
 if(process.argv[1]&&import.meta.url===pathToFileURL(path.resolve(process.argv[1])).href){try{process.exitCode=main();}catch(e){console.error(refusalWord(e,'planned_runs_refused'));process.exitCode=70;}}

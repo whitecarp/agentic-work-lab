@@ -83,7 +83,7 @@ for(const code of ['busy','browser_busy'])test('C44 fault is eligible again only
  fs.writeFileSync(path.join(f.home,'planned-runs.json'),JSON.stringify({runs:[{...job,faults:[fault]}]}));
  put(f.ctx,'FAULT',fault);
  put(f.ctx,'FAULT_RESULT',{job:job.id,kind,role:'publish',triggered:false,fired:false,failed:false,reason:'busy_not_reached',action_delay_ms:null,gone_delay_ms:null,kill_exit:null,processes:[]});
- const base=step(f).d;put(f.ctx,'STEP',{...base,answers:[{platform:'youtube',state:'NOT_STARTED',previous_state:null,code,press_flag:false,not_saved:false,answered:true,refs:[]}]});
+ const base={...step(f).d,exit:2};put(f.ctx,'STEP',{...base,answers:[{platform:'youtube',state:'NOT_STARTED',previous_state:null,code,press_flag:false,not_saved:false,answered:true,refs:[]}]});
  // First matching STEP must be the actual busy answer, not an unrelated attempt.
  const rows=readJournal(f.journal);assert.equal(selectFault(f.ctx,job,'publish',{tool:'vpub'}),null);
  put(f.ctx,'FAULT',fault);put(f.ctx,'FAULT_RESULT',{job:job.id,kind,role:'publish',triggered:false,fired:false,failed:false,reason:'busy_not_reached',action_delay_ms:null,gone_delay_ms:null,kill_exit:null,processes:[]});
@@ -93,6 +93,6 @@ for(const code of ['busy','browser_busy'])test('C44 fault is eligible again only
 });
 test('C44 controller records a busy arm as not reached',async t=>{
  const f=fixture(t);setup(f.ctx);const c=faultController(f.ctx,{job:'job-1',kind:'readback_timeout',role:'publish',delay_ms:0,armed_on:'youtube_private'});
- await c.finish(JSON.stringify({ok:false,state:'NOT_STARTED',error:{code:'busy'}}));
+ await c.finish(JSON.stringify({ok:false,state:'NOT_STARTED',error:{code:'busy'}}),2);
  assert.equal(last(f.ctx,'FAULT_RESULT').d.reason,'busy_not_reached');assert.equal(last(f.ctx,'FAULT_RESULT').d.fired,false);
 });
