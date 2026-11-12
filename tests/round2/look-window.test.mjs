@@ -39,9 +39,9 @@ test('early then late satisfies the look while preserving the early and late evi
  assert.equal(r.looks_owed.length,0);assert.equal(r.look_checks[0].status,'late');
  assert.equal(r.look_checks[0].observation,late.seq);assert.deepEqual(r.look_checks[0].early_observations,[early.seq]);
 });
-test('an on-time look remains on time after later observations',t=>{
- const f=fixture(t);setup(f.ctx);started(f);const first=look(f,60);look(f,61);
- const r=reconcile(f.ctx);assert.equal(r.look_checks[0].status,'on_time');assert.equal(r.look_checks[0].observation,first.seq);
+test('the last counting look decides after later observations',t=>{
+ const f=fixture(t);setup(f.ctx);started(f);look(f,60);const last=look(f,61);
+ const r=reconcile(f.ctx);assert.equal(r.look_checks[0].status,'late');assert.equal(r.look_checks[0].observation,last.seq);
 });
 test('read-only edit checks, drills, refusals and children never started owe no look',t=>{
  const f=fixture(t);setup(f.ctx,[{id:'job-1',run_class:'test_post'},{id:'drill',run_class:'drill'},{id:'refusal',run_class:'refusal'}]);

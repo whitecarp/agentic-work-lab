@@ -6,9 +6,9 @@ import {analyze} from '../paper/round2/metrics.mjs';
 import {fixture,privateSite,bundle,gateHash} from './fixtures/round2-analysis.mjs';
 const all=x=>analyze(bundle(x),{gateHash}).tables.find(t=>t.platform===null).all_recorded;
 const worker=JSON.parse(fs.readFileSync(new URL('./round2/fixtures/c40-worker-answer.json',import.meta.url),'utf8'));
-test('C40 summary and outcome table both declare Annex A 1.9',()=>{
+test('C40 summary and outcome table both declare current Annex A 1.11',()=>{
  const f=fixture();f.step();f.look();const r=analyze(bundle(f.finish()),{gateHash});
- assert.equal(r.annex,'1.9');assert.equal(r.outcome_table.version,'Annex A '+r.annex);
+ assert.equal(r.annex,'1.11');assert.equal(r.outcome_table.version,'Annex A '+r.annex);
 });
 test('C40 Annex 4.5 preserves the worker error through exported analysis',()=>{
  const f=fixture(),o=outcome(4,JSON.stringify(worker),{role:'publish',platforms:['youtube']});

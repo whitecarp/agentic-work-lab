@@ -9,7 +9,7 @@ import {REFUSALS} from '../../scripts/round2/schema.mjs';
 import {planRun} from '../../scripts/operations-gate.mjs';
 import {reconcile} from '../../scripts/round2/reconcile.mjs';
 import {daily} from '../../scripts/round2/daily.mjs';
-import {fixture,setup,approve,cli,flags} from './helpers.mjs';
+import {fixture,setup,approve,cli,flags,ageJournal} from './helpers.mjs';
 const write=(f,name,value)=>fs.writeFileSync(path.join(f.home,name),JSON.stringify(value));
 function ready(t){const f=fixture(t);setup(f.ctx);approve(f.ctx);f.ctx.run=begin(f.ctx,{}).run;return f;}
 function recorded(f,changes={}){return put(f.ctx,'STEP',{job:'job-1',class:'write',tool:'vpub',action:'delete',role:'delete',platforms:['youtube'],exit:4,ms:1,capture_sha256:'a'.repeat(64),result:'in_doubt',code:null,refs:[],fault_fired:null,...changes},f.ctx.run);}
@@ -47,6 +47,7 @@ for(const reason of REFUSALS.filter(r=>!r.startsWith('fault_')))test(`wrapper re
   case 'publish_spacing':args.role='publish';write(f,'reservations.json',[{...reservation,job:'earlier',run_class:'test_post',role:'publish'}]);break;
   case 'outside_upload_spacing':args.role='publish';put(f.ctx,'NOTE',{code:'outside_upload',platform:'youtube',job:null,agent:'gemini',minutes_ago:0});break;
   case 'platform_warning_hold':args.role='publish';put(f.ctx,'NOTE',{code:'platform_warning',platform:'youtube',job:null,agent:null,minutes_ago:null});break;
+  case 'safety_stop_new_go_ahead_required':args.role='publish';put(f.ctx,'NOTE',{code:'safety_stop',platform:'youtube',job:null,agent:null,minutes_ago:null});ageJournal(f.ctx,49*60);break;
   case 'go_ahead_exhausted':write(f,'reservations.json',[reservation]);break;
   case 'invalid_platforms':job.platforms=['PRIVATE_INVALID'];break;
   case 'missing_command':command=[];break;

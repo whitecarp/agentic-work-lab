@@ -72,7 +72,7 @@ for(const exit of [0,4])test(`complete no-press repeat exit ${exit} permits veri
   if(change==='gap')cc.runs[0].sequence_gap=true;
   if(change==='damage')cc.integrity.loss_folder_unreadable=true;
   if(change==='exit')cc.runs[0].exit_code=99;
-  assert.equal(check().in_doubt[0].last_may_press,repeat.seq,change);Object.assign(cc,before);
+  assert.equal(check().in_doubt[0].last_may_press,change==='missing'?first.seq:repeat.seq,change);Object.assign(cc,before);
  }
 });
 test('successful verify closes the matching platform only; unchanged strict count without repeat',t=>{

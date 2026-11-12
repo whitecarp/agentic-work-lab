@@ -36,7 +36,15 @@ export function normalizeSite(input) {
  }
  const seals=records.filter(r=>r.type==='PROTOCOL_SEAL');
  if(!seals.length)throw new Error('phase_seal_required');
- for(const s of seals.filter(s=>s.d.plan_sha256))if(s.d.plan_sha256!==hash(bytes))throw new Error('sealed_plan_digest_mismatch');
+ const practice=input.practicePlan,practiceText=input.practicePlanText??(practice?canonical(practice)+'\n':null);
+ if(practice&&(practice.schema!=='round2-planned-runs/1'||practice.site!==site||!Array.isArray(practice.runs)||practice.runs.some(j=>plan.runs.some(x=>x.id===j.id))))throw new Error('invalid_practice_plan');
+ for(const s of seals.filter(s=>s.d.plan_sha256)){
+  const text=s.d.phase==='2a'?practiceText:bytes;
+  // Legacy fixtures use their sole plan for phase 2a. A distinct missing
+  // practice list is listed as unmeasured, never checked against phase 2b.
+  if(s.d.phase==='2a'&&!text)continue;
+  if(s.d.plan_sha256!==hash(text))throw new Error('sealed_plan_digest_mismatch');
+ }
  if(seals.some(s=>s.d.phase==='2b'&&!s.d.plan_sha256))throw new Error('counted_plan_not_sealed');
  if(comparison.records!==records.length)throw new Error('comparison_record_count_mismatch');
  const errors=[],integrity={method:privacy?'attested_source_commitments':'recomputed_export_chain',exceptions:errors};
@@ -58,16 +66,16 @@ export function normalizeSite(input) {
  }
  if(privacy&&journal.source.seal_head_sha256!==sealPrev)errors.push({code:'seal_commitment_head'});
  if(journal.unsealed_records!==records.length-lastN)errors.push({code:'unsealed_count'});
- const jobs=[...plan.runs,...records.filter(r=>r.type==='REAL_RELEASE').map(r=>({id:r.d.job,...r.d}))];
+ const jobs=[...plan.runs.map(j=>({...j,list_phase:'2b'})),...(practice?.runs??[]).map(j=>({...j,list_phase:'2a'})),...records.filter(r=>r.type==='REAL_RELEASE').map(r=>({id:r.d.job,...r.d}))];
  const cc={...tool,present:true,chain_ok:tool.integrity?.chain_ok,losses:tool.runs.map(r=>({run:r.run,dropped_events:r.dropped_events??null,sequence_gap:r.sequence_gap??null,chain_ok:r.chain_ok??tool.integrity?.chain_ok,loss_complete:r.loss_complete??false}))};
  let calculated=null;
  if(!privacy){
   calculated=reconcileData(records,cc,{jobs,now:time(asOf)});
-  for(const key of ['in_doubt','look_checks','write_bindings','error_steps_unclassified','ungated_writes','gate_checks','publish_checks','observation_checks'])
+  for(const key of ['in_doubt','look_checks','write_bindings','error_steps_unclassified','ungated_writes','gate_checks','publish_checks','observation_checks','run_checks','count_changed_without_press'])
    if(!equal(calculated[key],comparison[key]))errors.push({code:'reconcile_disagreement',field:key});
  }
  const result={...input,privacy,tool,cc,records,plan,jobs,seals,asOf,comparison:privacy?comparison:calculated,integrity,
-  provenance:{plan_sha256:hash(bytes),seed_sha256:hash(seed),plan_reproduced:!!input.counts,
+  provenance:{plan_sha256:hash(bytes),seed_sha256:hash(seed),plan_reproduced:!!input.counts,practice_plan_sha256:practiceText?hash(practiceText):null,practice_plan_status:practice?'unsealed_list':'not_supplied',
    timing:privacy?'site_reconcile_attested_dates_only':'computed_from_exact_export_and_compared',
    tool_chain:'attested',source_chain:integrity.method}};
  result.phaseAt=r=>seals.findLast(s=>s.seq<=r.seq)?.d.phase??'unsealed';

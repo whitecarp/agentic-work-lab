@@ -2,8 +2,9 @@
 // No filesystem access, account state, clock, or environmental input.
 import {commandClass} from '../../scripts/round2/crosscast.mjs';
 import {operation,pressRoles,uncertainState,nothingSent,settled,confirmedAnswer,confirmed} from '../../scripts/round2/answers.mjs';
-import {countsLook} from '../../scripts/round2/looks.mjs';
-import {gateChecks,publishChecks,observationChecks} from '../../scripts/round2/analysis-checks.mjs';
+import {countsLook,lookTiming} from '../../scripts/round2/looks.mjs';
+import {pressEvidence as ownPressEvidence} from '../../scripts/round2/press-evidence.mjs';
+import {gateChecks,publishChecks,observationChecks,runChecks} from '../../scripts/round2/analysis-checks.mjs';
 export function reconcileData(records,cc,{jobs=[],reservations=[],now}={}){
  if(!Number.isFinite(now))throw new Error('invalid_as_of');
  const steps=records.filter(r=>r.type==='STEP');
@@ -28,18 +29,18 @@ export function reconcileData(records,cc,{jobs=[],reservations=[],now}={}){
  const lookChecks=[...obligations.values()].map(({job,platform,about})=>{
     const s=eligible.filter(r=>r.d.job===job&&r.d.platforms.includes(platform)&&operation(r)===about&&started(r)).at(-1);
   const looks=records.filter(r=>r.seq>s.seq&&r.type==='OBSERVATION'&&r.d.job===job&&r.d.about===about&&observationPlatform(r)===platform&&r.d.seen!=='unclear');
-  const qualifying=looks.find(r=>countsLook(r,s,now));
+  const qualifying=looks.findLast(r=>countsLook(r,s,now,records));
   const early=looks.filter(r=>r.d.minutes_after<10).map(r=>r.seq);
   // A late look is usable ground truth through 24 hours, but must remain
   // distinguishable from an on-time one. Never turn an early/unclear look
   // into ground truth merely because the review is run after the deadline.
-  const status=qualifying?(qualifying.d.minutes_after<=60?'on_time':'late'):
+  const status=qualifying?(lookTiming(qualifying,s,records,now).status):
     now-Date.parse(s.at)>=86400000?'no_ground_truth':early.length?'early':'pending';
     const premature=looks.filter(r=>Date.parse(r.at)-Date.parse(s.at)<r.d.minutes_after*60000).map(r=>r.seq);
-    return {job,platform,step:s.seq,about,status,observation:qualifying?.seq??null,early_observations:early,
+    return {job,platform,step:s.seq,about,status,observation:qualifying?.seq??null,early_observations:early,counting_observations:looks.filter(r=>countsLook(r,s,now,records)).map(r=>r.seq),
       recorded_before_claimed_minute:premature};
  });
- const owesLook=lookChecks.filter(r=>!['on_time','late'].includes(r.status));
+ const owesLook=lookChecks.filter(r=>!['on_time','late','second_look'].includes(r.status));
  // Time overlap is never a substitute for the id passed to a specific child.
  // Missing STEP (including a crash before its append) is an unproven binding.
  const trusted=cc.present&&cc.chain_ok&&cc.runs.every(r=>r.chain_ok!==false);
@@ -73,23 +74,8 @@ export function reconcileData(records,cc,{jobs=[],reservations=[],now}={}){
  function provenNoPress(s,platform){
    const cmd=matched(s), events=eventsFor(s);
    if(!events||cmd.exit_code!==s.d.exit||cmd.ended!==true)return false;
-   const first=events[0],last=events.at(-1);
-   if(first?.type!=='command_start'||last?.type!=='command_end')return false;
-   const middle=events.slice(1,-1).filter(e=>!platform||!e.platform||e.platform===platform);
-   if(middle.some(e=>!['call','span','stage','transition'].includes(e.type)))return false;
-   if(events.some(e=>e.operation==='press'||e.platform_writes>0||e.stage==='pressing'))return false;
-   const before=first.before,after=last.after;
-   const sameCounts=before&&after&&before.final_presses!=null&&before.final_presses===after.final_presses&&
-     before.delete_attempted===after.delete_attempted;
-   // A timing span accompanies even a skipped publish. A transition, stage
-   // or platform call prevents the no-contact route to proof.
-   if(middle.every(e=>e.type==='span') &&
-      ((before===null&&after===null)||(sameCounts&&before.state===after.state)))return true;
-   if(!sameCounts||after.final_submit_attempted===true&&before.final_submit_attempted!==true)return false;
-   return !middle.some(e=>e.type==='transition'&&
-     ((e.final_presses!=null&&e.final_presses!==before.final_presses)||
-      (e.delete_attempted!=null&&e.delete_attempted!==before.delete_attempted)||
-      (e.final_submit_attempted===true&&before.final_submit_attempted!==true)));
+   if(events[0]?.type!=='command_start'||events.at(-1)?.type!=='command_end')return false;
+   return ownPressEvidence(events,true,platform,operation(s)).noPress;
  }
  const cutoff=s=>s.d.result==='unknown'&&s.d.answered===false&&started(s)&&pressRoles.includes(s.d.role);
  function pressEvidence(s,platform){
@@ -141,7 +127,7 @@ export function reconcileData(records,cc,{jobs=[],reservations=[],now}={}){
  const inDoubt=[...cases.values()].map(({s,platform,members})=>{
    const about=operation(s),later=records.filter(r=>r.seq>s.seq&&r.d.job===s.d.job);
    function settles(r){
-     if(r.type==='OBSERVATION')return r.d.about===about&&observationPlatform(r)===platform&&countsLook(r,records.find(x=>x.seq===firstEligible),now);
+     if(r.type==='OBSERVATION')return r.d.about===about&&observationPlatform(r)===platform&&countsLook(r,records.find(x=>x.seq===firstEligible),now,records);
      if(r.type!=='STEP'||r.d.platforms.length!==1||r.d.platforms[0]!==platform)return false;
      const openingRefs=answerFor(s,platform)?.refs??s.d.refs??[],closingRefs=answerFor(r,platform)?.refs??r.d.refs??[];
      if(openingRefs.length&&closingRefs.length&&!openingRefs.some(ref=>closingRefs.includes(ref)))return false;
@@ -172,7 +158,8 @@ export function reconcileData(records,cc,{jobs=[],reservations=[],now}={}){
  });
  const result={schema:'round2-reconcile/1',as_of:new Date(now).toISOString(),records:records.length,crosscast_present:cc.present,crosscast_chain_ok:cc.chain_ok,time_alignment:!cc.present?'journal_only':cc.times==='exact'&&cc.chain_ok?'exact':'unavailable',
    error_steps_unclassified:errorStepsUnclassified,gate_checks:gateChecks(records),publish_checks:publishChecks(records,jobs),
-   observation_checks:observationChecks(records,jobs),
+   observation_checks:observationChecks(records,jobs),run_checks:runChecks(records,jobs,lookChecks),
+   count_changed_without_press:steps.flatMap(step=>step.d.platforms.filter(platform=>{const ev=usableEvents(step);return ev&&ownPressEvidence(ev,true,platform,operation(step)).countChangedWithoutPress;}).map(platform=>({step:step.seq,job:step.d.job,platform}))),
    command_binding:!cc.present?'journal_only':trusted?'shared_id':'unavailable',
    ungated_writes:ungated,matched_write_commands:trusted?bindings.length-ungated:null,write_bindings:bindings,
    admitted_sessions_without_write:runs.filter(r=>!steps.some(s=>s.run===r.id&&s.d.class==='write')).length,

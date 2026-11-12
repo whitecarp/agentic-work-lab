@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// C12 / Annex A 1.7. Only JSON exports/revealed lists explicitly named by the
+// C12 / C42 / Annex A 1.11. Only JSON exports/revealed lists explicitly named by the
 // input manifest are read. No vpub invocation, home lookup, network, or clock.
 // Mapping: a "run" is plan.runs[].id / STEP.d.job, a session is record.run;
 // state/press flag are STEP.d.answers[], and FAULT_RESULT holds firing evidence.
@@ -21,17 +21,18 @@ export function loadInputs(file,overrideCutoff) {
   const journal=json(row.journal),planText=read(get(row.plan)),countsText=row.counts?read(get(row.counts)):null;
   return {site:row.site,journal,tool:journal.privacy?null:json(row.crosscast),reconcile:json(row.reconcile),
    plan:JSON.parse(planText),planText,seed:fs.readFileSync(get(row.seed)),counts:countsText?JSON.parse(countsText):null,countsText,
-   asOf:overrideCutoff??row.as_of};
+   practicePlan:row.practice_plan?json(row.practice_plan):null,practicePlanText:row.practice_plan?read(get(row.practice_plan)):null,asOf:overrideCutoff??row.as_of};
  });
  return {schema:'round2-analysis-inputs/1',synthetic:manifest.synthetic===true,sites,checklist:json(manifest.checklist)};
 }
+const manifestLastDay=file=>JSON.parse(read(file)).last_day??'2026-11-29';
 export function main(argv=process.argv.slice(2),{stdout=console.log,stderr=console.error}={}) {
  try{
   const flags={},switches=new Set();
   for(let i=0;i<argv.length;i++){
    const a=argv[i];
    if(['--check','--write'].includes(a)){if(switches.has(a))throw new Error('duplicate_option');switches.add(a);continue;}
-   if(!['--inputs','--as-of','--summary'].includes(a)||Object.hasOwn(flags,a)||!argv[i+1]||argv[i+1].startsWith('--'))throw new Error('invalid_option');
+   if(!['--inputs','--as-of','--summary','--last-day'].includes(a)||Object.hasOwn(flags,a)||!argv[i+1]||argv[i+1].startsWith('--'))throw new Error('invalid_option');
    flags[a]=argv[++i];
   }
   if(switches.size>1)throw new Error('conflicting_modes');
@@ -42,7 +43,7 @@ export function main(argv=process.argv.slice(2),{stdout=console.log,stderr=conso
   // The unchanged gate source is frozen with this script in the Lab commit.
   const gateText=read(new URL('../scripts/operations-gate.mjs',import.meta.url));
   const gateHash=hash(gateText),gateHashes=[gateHash,hash(gateText.replaceAll('\n','\r\n'))];
-  const result=analyze(inputs,{gateHash,gateHashes}),text=JSON.stringify(result,null,2)+'\n';
+  const result=analyze(inputs,{gateHash,gateHashes,lastDay:flags['--last-day']??manifestLastDay(inputFile)}),text=JSON.stringify(result,null,2)+'\n';
   if(switches.has('--check')){
    if(read(output)!==text){stderr('round2_summary_differs');return 1;}
    stdout('round2_summary_matches');return 0;
@@ -50,7 +51,7 @@ export function main(argv=process.argv.slice(2),{stdout=console.log,stderr=conso
   if(switches.has('--write')){
    // Reject every explicit input path as a destination, including the raw seed.
    const manifest=JSON.parse(read(inputFile)),dir=path.dirname(path.resolve(inputFile));
-   const sources=[manifest.checklist,...manifest.sites.flatMap(r=>['journal','crosscast','reconcile','plan','seed','counts'].map(k=>r[k]))].filter(Boolean).map(p=>path.resolve(dir,p));
+   const sources=[manifest.checklist,...manifest.sites.flatMap(r=>['journal','crosscast','reconcile','plan','seed','counts','practice_plan'].map(k=>r[k]))].filter(Boolean).map(p=>path.resolve(dir,p));
    sources.push(path.resolve(inputFile));
    if(sources.some(p=>p.toLowerCase()===output.toLowerCase()))throw new Error('output_overwrites_input');
    if(fs.existsSync(output)){

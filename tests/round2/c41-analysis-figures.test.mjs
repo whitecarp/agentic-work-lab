@@ -45,8 +45,8 @@ for(const site of ['owner','tester'])test(`C41 7.3 ${site} counts every look, wi
  assert.deepEqual(days.map(d=>[d.day,d.looks_total,d.looks]),[
   ['2026-11-20',5,{early:2,late:1,on_time:2}],
   ['2026-11-21',3,{late:1,outside_window:1,unclear:1}]]);
- assert.equal(z.submission.attempts[0].look_status,'on_time');
- assert.equal(x.reconcile.look_checks[0].observation,x.journal.records.filter(r=>r.type==='OBSERVATION')[2].seq);
+ assert.equal(z.submission.attempts[0].look_status,'late');
+ assert.equal(x.reconcile.look_checks[0].observation,x.journal.records.filter(r=>r.type==='OBSERVATION')[5].seq);
  assert.ok(z.timing.human_look_rows.every(r=>r.source===(site==='tester'?'site_reconcile_attested_dates_only':'computed_from_exact_export_and_compared')));
 });
 test('C41 7.3 repeated, early, premature and no-obligation looks all count as human work',()=>{

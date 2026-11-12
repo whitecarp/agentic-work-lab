@@ -21,7 +21,8 @@ export function fixture({site='owner',platforms=['youtube'],phase='2b',jobs=null
  }
  put('PROTOCOL_SEAL',{phase,lab_commit:'d'.repeat(40),crosscast_commit:commit,crosscast_digest:digest,
   protocol_sha256:'e'.repeat(64),plan_sha256:hash(canonical(plan)+'\n'),analysis_sha256:null,rules_card_sha256:null},0);
- const auth=job=>put('GO_AHEAD',{job,scope:'listed_test_posts',count:20,by:site,words_sha256:'e'.repeat(64)},1);
+ const auth=job=>{const j=jobRows.find(j=>j.id===job),count=j.run_class==='test_post'?2+3*j.platforms.length+(site==='owner'&&j.edit?j.platforms.length:0):['real_slot','real_release'].includes(j.run_class)?1+3*j.platforms.length:1;
+  return put('GO_AHEAD',{job,scope:'listed_test_posts',count,by:site,words_sha256:'e'.repeat(64)},1);};
  jobRows.forEach(j=>auth(j.id));
  put('GATE_DECISION',{executor:site,owner:site,stop:false,running:false,now:at(2),launcher:'manual',slot_id:null,
   decision:'plan_only',reason:'checked',due:jobRows.map(j=>j.id),jobs:jobRows.map(j=>({id:j.id,verdict:'due',due_at:at(0),completed:false,authorized:true})),gate_sha256:gateHash},2);
@@ -52,7 +53,7 @@ export function fixture({site='owner',platforms=['youtube'],phase='2b',jobs=null
  }
  function finish({cutoff=2880,closing=true}={}) {
   // All exports are synthetic; leave no files in a live journal or home.
-  for(const d of [...new Set(rows.filter(r=>r.type==='STEP').map(r=>r.at.slice(0,10)))])
+  for(const d of [...new Set(rows.filter(r=>['STEP','GO_AHEAD','OBSERVATION','JOB_END'].includes(r.type)).map(r=>r.at.slice(0,10)))])
    if(!rows.some(r=>r.type==='SIGN_OFF'&&r.d.day===d))put('SIGN_OFF',{day:d,by:site,answer:'yes',records:rows.length,head_sha256:'0'.repeat(64),closing:false},Math.max(minutes,cutoff-1));
   const close=put('SIGN_OFF',{day:at(cutoff).slice(0,10),by:site,answer:'yes',records:rows.length,head_sha256:'0'.repeat(64),closing},cutoff);
   return rebuild({site,rows,tool,plan,seed,asOf:close.at});

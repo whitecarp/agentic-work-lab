@@ -1,10 +1,10 @@
-# Round-two export analysis (C12, C39 and C40, Annex A 1.9)
+# Round-two export analysis (C12 / C42, Annex A 1.11)
 
 This is an offline reader. It neither loads a live data folder nor invokes a
 platform command. The script has no network, process-start, account or clock
 dependency. It uses the unchanged gate decision function and the pure C38
 reconciliation calculation, copied without its filesystem adapter into
-reconcile-export.mjs. The accepted site CLI is unchanged. A parity test compares
+reconcile-export.mjs. Both paths share press-evidence and timing checks. A parity test compares
 its result with the offline calculation.
 
 ## Invocation
@@ -168,8 +168,11 @@ These are explicit null/unknown/unmeasured outcomes, not zero failures.
   whose process died before STEP may have consumed an additional unit on-site;
   that missing reservation is not reconstructed from an exported journal.
   Any unspent-unit count derived from those steps is therefore an upper limit.
-* Missing edit before/after refs cannot prove "in place". A delete without another
-  observed study post as comparator cannot establish no wrong-post deletion.
+* A shared attempt ref does not prove the platform post id stayed the same.
+  Confirmed edit read-back is the stated basis; the existing export has only
+  id_present, and the edit-start snapshot omits even that bit. The latest
+  preceding reading is labelled separately. No actual id or keyed id is compared.
+  A delete without a speaking study-post comparator is unmeasured.
 * Records of a wrapper-ended command are incomplete regardless of reported zero
   loss. Missing marker evidence is never zero. Bilibili has no marker denominator.
 
@@ -187,3 +190,49 @@ failure, test mixed platform answers, source/list/cutoff checks, privacy
 attestations, C4 draft handling, losses, phase separation, statistics and CLI
 read-only/determinism behavior. No fixture is a study result. No round-one data
 or manuscript output is rebuilt.
+
+
+## C42 / Annex A 1.11 (supersedes earlier counter and look rules)
+
+`--last-day YYYY-MM-DD` (or manifest `last_day`) is the inclusive UTC first-step
+cutoff, default 2026-11-29. It is printed in the result. An optional per-site
+manifest `practice_plan` supplies phase 2a only; its seal is checked against that
+list, never the phase-2b list. Pass the identical archived practice list to the
+site's `reconcile.mjs --practice-plan` command. With no practice list, unmatched
+jobs and every related record remain in `inputs[].unplanned_records`, unmeasured.
+The standing read job is deliberately not called unplanned.
+
+The maximum saved final_presses is read across the receipt, snapshots and every
+surviving transition. Incomplete commands keep their mark and remain measurable
+when a post-command saved counter is available. A positive second marker always
+counts, including in excluded or incomplete runs. A whole command without a
+press establishes no press; empty-before/nonempty-after is the expected ledger
+merge, while unequal numeric counters produce count_changed_without_press.
+
+Repeat rows are command/attempt pairs. Their alternative proof is the unchanged
+known saved counter. First markers are separate from repeated markers, unknown
+tries remain in the refusal checklist, and restarted uploading is a failure.
+Delete repeats use their own command's press records, not the original flag.
+Edit confirmation uses matching Lab record codes when both exist, not equality
+of a tool ref. Any public or duplicate look is retained as failure evidence.
+
+The last counting look decides; the absent/in-doubt second-look window is
+1,200–2,160 minutes. Missing edit/delete looks do not discard the upload run,
+but cannot confirm that operation. A phase-2b failure remains in all_recorded
+and beside each bound even if its run is excluded. run_checks travels with the
+on-site comparison: all related days' last sign-offs, exact interference window
+and the safety-stop/new-grant check, without exact clocks. Mixed registered
+frozen versions are excluded as made_on_two_versions, not stamp failures.
+
+New output includes gate.handoff_drills/excessive_go_aheads/safety_stop_restarts,
+submission.helper_confirmed_C1, in_doubt.state_changes (figure 4.6), explicit
+uncomputable policies, late sign-offs, premature nothing-posted closures and
+pooled_secondary_bounds for repeat, changed-plan and measured wrong-delete
+figures. No comparator is deliberately kept alive: the 12 November 02:08 CT
+correction deletes each post at its own run end. A missing comparator yields
+an unmeasured delete, never an assumed clean one.
+
+The full synthetic counts-file round covers both sites (tester dates-only),
+34 fault-bound attempts, 100 repeats, 24 changed plans and 60 control drills.
+A second variant plants a second marker after a killed command and must fail.
+These are offline regression fixtures, not recorded study results.

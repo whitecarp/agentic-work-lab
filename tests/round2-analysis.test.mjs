@@ -66,6 +66,7 @@ test('gate owner, digest and test receipt widget errors are visible',()=>{
 test('drill runs are tied by the explicit slot identifier',()=>{
  const f=fixture({jobs:[{id:'job-a',run_class:'drill',kind:'stop_flag',platforms:[],group:'I',faults:[]}]});
  f.rows.find(r=>r.type==='GATE_DECISION').d.slot_id='job-a';
+ f.rows.find(r=>r.type==='GATE_DECISION').d.stop=true;
  f.rows.find(r=>r.type==='GATE_DECISION').d.reason='stop_flag';f.rows.find(r=>r.type==='GATE_DECISION').d.decision='skip';
  f.step({platforms:[]});f.put('JOB_END',{job:'job-a',reason:'done',by:'operator',words_sha256:null},5);
  const z=all(run(f.finish()));assert.equal(z.must_be_zero.steps_after_drill_refusal,1);
@@ -81,7 +82,7 @@ test('every must-be-zero counter has a named planted-fault test',()=>{
  const covered=['duplicate_posts','second_press_without_draft','contradicted_confirmations','wrong_post_deletes','second_delete_presses',
   'changed_plans_went_ahead','gate_replay_disagreements','writes_without_admission','writes_without_approval','deletes_without_own_approval',
   'releases_without_own_approval','wrong_operator_steps','wrong_operator_decisions','steps_after_drill_refusal','broken_chain_or_seals',
-  'code_stamp_mismatches','gate_digest_mismatches','test_posts_public','test_daily_cap','test_spacing','steps_after_job_end','test_receipts_with_parts','missing_looks'];
+  'code_stamp_mismatches','gate_digest_mismatches','test_posts_public','test_daily_cap','test_spacing','steps_after_job_end','test_receipts_with_parts','missing_looks','repeats_restarted_upload','confirmed_without_platform_read','left_in_doubt_without_settlement','in_doubt_record_missing_at_close','go_aheads_above_list','safety_stop_old_approval','handoff_drill_failures'];
  assert.deepEqual(counters.sort(),covered.sort());
 });
 test('shakedown records are separate and a job spanning freeze phases is rejected',()=>{
@@ -94,7 +95,7 @@ test('a process fault attaches to the following STEP, then the readback closes i
  const f=fixture();f.plan.runs[0].faults=[{kind:'end_command_after_press',role:'publish',mechanism:'wrapper_kill',delay_ms:0}];
  f.rows[0].d.plan_sha256=hash(canonical(f.plan)+'\n');
  f.put('FAULT_RESULT',{job:'job-a',kind:'end_command_after_press',role:'publish',fired:true,failed:false,action_delay_ms:5,gone_delay_ms:6},3);
- f.step({state:'UNKNOWN',exit:3,m:4});f.step({role:'verify',contact:false,m:5});f.look({m:20,minutes_after:16});
+ const cut=f.step({state:'UNKNOWN',exit:3,m:4});cut.d.answered=false;f.step({role:'verify',contact:false,m:5});f.look({m:20,minutes_after:16});
  const z=all(run(f.finish()));assert.equal(z.protocol.after_fault[0].steps[0].role,'verify');
  assert.equal(z.submission.attempts[0].tool_record_incomplete,true);assert.equal(z.in_doubt.cases[0].closed,true);
 });
@@ -184,16 +185,17 @@ test('per-platform answer controls mixed post and in-doubt counts',()=>{
  assert.equal(r.tables.find(t=>t.platform==='youtube').all_recorded.in_doubt.cases.length,0);
  assert.equal(r.tables.find(t=>t.platform==='douyin').all_recorded.in_doubt.cases.length,1);
 });
-test('NOT_STARTED code is preserved and zero marker denominators are null',()=>{
+test('NOT_STARTED is not an attempt and zero marker denominators are null',()=>{
  const f=fixture();f.step({state:'NOT_STARTED',code:'page_not_ready',press:0,contact:false,exit:4});f.look({seen:'absent'});
- const r=all(run(f.finish()));assert.equal(r.in_doubt.stops_before_press[0].code,'page_not_ready');
+ const r=all(run(f.finish()));assert.equal(r.submission.attempts.length,0);assert.equal(r.in_doubt.stops_before_press.length,0);
  assert.equal(r.in_doubt.false_alarm_share.share,null);
 });
 test('C4 second marker is allowed only with earlier YouTube draft evidence',()=>{
  const f=fixture();f.step({press:1,state:'UNKNOWN',exit:4});
  const resume=f.step({role:'resume',m:4,press:2});
  const cmd=f.tool.runs.find(c=>c.awl_run_id===resume.d.awl_run_id);
- const e=f.tool.events.find(e=>e.run===cmd.run&&e.type==='command_start');e.still_a_draft=true;
+ const i=f.tool.events.findIndex(e=>e.run===cmd.run&&e.type==='transition');
+ f.tool.events.splice(i,0,{type:'transition',run:cmd.run,platform:'youtube',ref:'f'.repeat(16),phase:'reading_back',still_a_draft:true,final_presses:1});
  f.look({m:20,minutes_after:16});
  assert.equal(all(run(f.finish())).must_be_zero.second_press_without_draft,0);
 });
@@ -231,7 +233,7 @@ test('unbound publication stays outside attempts; losses mark tool evidence inco
  const x=clean().finish();x.tool.publications.push({ref:'0'.repeat(16),platform:'youtube'});
  x.tool.integrity.loss_records_complete=false;
  const r=run(x);assert.equal(all(r).submission.attempts.length,1);assert.equal(r.inputs[0].excluded_publications.length,1);
- assert.equal(all(r).submission.attempts[0].tool_record_incomplete,true);assert.equal(all(r).submission.attempts[0].press_markers,null);
+ assert.equal(all(r).submission.attempts[0].tool_record_incomplete,true);assert.equal(all(r).submission.attempts[0].press_markers,1);
 });
 test('events dropped before can exceed command count; files are not added to event counts',()=>{
  const x=clean().finish();x.tool.events[1].dropped_before=3;x.tool.integrity.unreadable_loss_records=2;

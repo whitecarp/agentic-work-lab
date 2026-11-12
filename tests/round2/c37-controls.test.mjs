@@ -8,10 +8,10 @@ function ready(t){const f=fixture(t);setup(f.ctx);approve(f.ctx,'job-1',20);f.ct
 const record=(f,d={})=>put(f.ctx,'STEP',{job:'job-1',class:'write',tool:'vpub',action:'publish',role:'publish',platforms:['youtube'],exit:4,ms:0,capture_sha256:'a'.repeat(64),result:'in_doubt',code:null,refs:[],fault_fired:null,started:true,...d},f.ctx.run);
 const look=f=>put(f.ctx,'OBSERVATION',{job:'job-1',platform:'youtube',ref:null,about:'post',by:'owner',client:'phone_app',seen:'present_private',fields_match:null,minutes_after:15,words_sha256:'a'.repeat(64),shot_sha256:null});
 test('C37 A3 premature claimed 15-minute look does not settle, elapsed one does',t=>{const f=ready(t);record(f);look(f);assert.equal(reconcile(f.ctx).in_doubt_open,1);ageJournal(f.ctx,15);look(f);assert.equal(reconcile(f.ctx).in_doubt_open,0);});
-test('C37 A4 unchanged null deletion counts prove no press, null final count does not',t=>{
+test('C37 A4 whole no-contact record proves no press with null counters too',t=>{
  const f=ready(t);record(f);const d=structuredClone(audit);record(f,{role:'repeat_same',result:'ok',exit:0,awl_run_id:d.runs[0].awl_run_id});record(f,{role:'verify',result:'ok',exit:0,confirmed_state:'SUBMISSION_VERIFIED'});
  const file=path.join(f.root,'audit.json'),before=d.events[0].before={state:'UNKNOWN',final_presses:1},after=d.events.at(-1).after={state:'UNKNOWN',final_presses:1};before.delete_attempted=after.delete_attempted=null;fs.writeFileSync(file,JSON.stringify(d));assert.equal(reconcile(f.ctx,file).in_doubt[0].ignored_no_press_steps.length,1);
- before.final_presses=after.final_presses=null;fs.writeFileSync(file,JSON.stringify(d));assert.equal(reconcile(f.ctx,file).in_doubt[0].ignored_no_press_steps.length,0);
+ before.final_presses=after.final_presses=null;fs.writeFileSync(file,JSON.stringify(d));assert.equal(reconcile(f.ctx,file).in_doubt[0].ignored_no_press_steps.length,1);
 });
 for(const role of ['edit','delete'])test('C37 A5 '+role+' ignores an old upload press marker',t=>{
  const f=ready(t),d=structuredClone(audit);record(f,{action:role,role,exit:3,result:'unknown',answered:false,awl_run_id:d.runs[0].awl_run_id});

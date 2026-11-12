@@ -534,7 +534,8 @@ The browser-faults record disables tree/browser-ending kinds on that platform;
 each skipped assignment gets FAULT_SKIPPED. It grants no fault authority. Do not
 arm on any account before the independent C37 review and separate account gates.
 
-Phase seals move only rehearsal → 2a → 2b; a second 2b seal is refused. The 2b
+Phase seals move only rehearsal → 2a → 2b, with the controlled further seals
+described below. The 2b
 seal must name `--plan ROUND2_HOME/planned-runs.json`. Plan hashes cover raw bytes.
 Private counts-source.json, seed, generator arguments and jobs bytes must exactly
 reproduce the list; both 2b sealing and reveal perform that check. Reveal also
@@ -613,3 +614,13 @@ an owner go-ahead for that job recorded after those hours, even with old credit.
 
 Checking-agent drill starts always carry `--slot-id DRILL_JOB_ID`, including
 the wrong-operator start and both refused starts in a handoff drill.
+
+
+C42: retain the unsealed practice list under an immutable, separate local
+`practice/phase-2a/` archive when preparing the real list. Practice ids must not
+collide with counted ids. After the close, pass that archived list to
+`reconcile.mjs --practice-plan ARCHIVED_PRACTICE_LIST` before the privacy copy
+and to the analysis manifest as `practice_plan`. This option reads only the
+named list and never replaces jobs or a seal. C21's planned phase-2a seal has
+no `--plan`; it therefore records a null list digest. No archive or real-list
+replacement is performed by this analysis change.

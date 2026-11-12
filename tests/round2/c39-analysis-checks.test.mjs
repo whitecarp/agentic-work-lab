@@ -31,13 +31,13 @@ test('C39 every named drill start is judged, including a later failing admission
  const {f,start}=drill();f.put('GATE_DECISION',{...start.d,now:at(5),decision:'plan_only',due:['drill-done']},5).run='3'.repeat(32);
  const row=all(run(f.finish())).gate.drills[0];assert.equal(row.passed,false);assert.equal(row.decisions.length,2);
 });
-test('C39 already-running checklist includes every named attempt, not only the refusal',()=>{
+test('C39 already-running drill excludes an unconfigured start',()=>{
  const f=fixture({jobs:[{id:'busy',run_class:'drill',kind:'already_running',platforms:[],group:'I',faults:[]}]});
  const first=f.rows.find(r=>r.type==='GATE_DECISION');first.d.slot_id='busy';
  const second=f.put('GATE_DECISION',{...first.d,now:at(3),running:true,decision:'skip',reason:'already_running',due:[]},3);second.run='2'.repeat(32);
  f.put('JOB_END',{job:'busy',reason:'done',by:'operator',words_sha256:null},4).run=null;
  const r=run(f.finish()),cell=r.checklist.all_recorded.find(c=>c.cell===5&&c.platform==='gate');
- assert.equal(cell.n,2);assert.equal(cell.confirmed,1);assert.equal(all(r).gate.drills[0].passed,false);
+ assert.equal(cell.n,1);assert.equal(cell.confirmed,1);assert.equal(all(r).gate.drills[0].passed,null);
 });
 test('C39 only the exact public build digest path is exempt from keying',()=>{
  const input={crosscast:{builds:[{source_digest:digest,nested:{source_digest:digest}}],source_digest:digest},
