@@ -1,4 +1,4 @@
-# Round-two export analysis (C12 / C42, Annex A 1.11)
+# Round-two export analysis (C12 / C45, Annex A 1.12)
 
 This is an offline reader. It neither loads a live data folder nor invokes a
 platform command. The script has no network, process-start, account or clock
@@ -236,3 +236,18 @@ The full synthetic counts-file round covers both sites (tester dates-only),
 34 fault-bound attempts, 100 repeats, 24 changed plans and 60 control drills.
 A second variant plants a second marker after a killed command and must fail.
 These are offline regression fixtures, not recorded study results.
+
+
+## C45 and Annex A 1.12
+
+Figure 4.6 lists refusals and unsettled responses. It counts a recorded failure
+or a reversal of the press flag before settlement. The first fault bound includes
+both counted and all-recorded denominators in each site and platform row.
+The historical flat fields in those rows describe all recorded runs.
+Phase 2b determines the verdict. Other phases' gaps appear in
+`verdict.shakedown_gaps`. Export-wide integrity exceptions still apply to
+the evidence they cover. Timing pairs report the observed gap in minutes
+from the last upload-phase step of the first release to the second publish
+start. Completion requires 20 through 60 minutes, inclusive.
+
+The C1 helper-confirmation figure awaits the first C43 record.

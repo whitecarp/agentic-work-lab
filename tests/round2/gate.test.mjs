@@ -156,5 +156,5 @@ test('outside upload spacing uses observed upload time',()=>{
 test('48-hour warning hold expires only outside window',()=>{
   const record={type:'NOTE',at:'2026-11-09T13:00:00.000Z',d:{code:'human_check',platform:'youtube'}};
   assert.equal(limits([record],job,'publish',['youtube'],now),'platform_warning_hold');
-  record.at='2026-11-09T11:59:00.000Z';assert.equal(limits([record],job,'publish',['youtube'],now),null);
+  record.at='2026-11-09T11:59:00.000Z';assert.equal(limits([record],job,'publish',['youtube'],now),'safety_stop_new_go_ahead_required');
 });

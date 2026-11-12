@@ -39,10 +39,8 @@ export function normalizeSite(input) {
  const practice=input.practicePlan,practiceText=input.practicePlanText??(practice?canonical(practice)+'\n':null);
  if(practice&&(practice.schema!=='round2-planned-runs/1'||practice.site!==site||!Array.isArray(practice.runs)||practice.runs.some(j=>plan.runs.some(x=>x.id===j.id))))throw new Error('invalid_practice_plan');
  for(const s of seals.filter(s=>s.d.plan_sha256)){
-  const text=s.d.phase==='2a'?practiceText:bytes;
-  // Legacy fixtures use their sole plan for phase 2a. A distinct missing
-  // practice list is listed as unmeasured, never checked against phase 2b.
-  if(s.d.phase==='2a'&&!text)continue;
+  const text=s.d.phase==='2b'?bytes:practiceText;
+  if(!text)continue;
   if(s.d.plan_sha256!==hash(text))throw new Error('sealed_plan_digest_mismatch');
  }
  if(seals.some(s=>s.d.phase==='2b'&&!s.d.plan_sha256))throw new Error('counted_plan_not_sealed');

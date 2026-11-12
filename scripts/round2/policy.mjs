@@ -1,6 +1,6 @@
 import path from 'node:path';
 import {PLATFORMS, schema} from './schema.mjs';
-import {readAnswers,codeWord,pressRoles,uncertainState,possiblePress,settled,nothingSent,confirmedAnswer} from './answers.mjs';
+import {publishStartedOn,readAnswers,codeWord,pressRoles,uncertainState,possiblePress,settled,nothingSent,confirmedAnswer} from './answers.mjs';
 const actions=new Set(schema.oneOf.find(s=>s.properties.type.const==='STEP').properties.d.properties.action.enum);
 // Plain verify can finish pending chapters/widgets, so it remains write-class.
 const readActions=new Set(['status','doctor','receipts','stats','works','capabilities','report']);
@@ -54,17 +54,32 @@ export function grantScope(records,job,cls,reservations=[],role=null,platforms=[
 export function grant(records,job,cls,reservations=[],role=null) {
   return grantScope(records,job,cls,reservations,role)!==null;
 }
+export function safetyStopOn(record, platform) {
+ return record.type === 'NOTE' && record.d.platform === platform &&
+  ['safety_stop','platform_warning','human_check'].includes(record.d.code);
+}
+export function validRestartGrant(record, jobId, threshold, start) {
+ const at = Date.parse(record.at);
+ return record.type === 'GO_AHEAD' && record.d.job === jobId && record.d.by === record.site &&
+  ['listed_test_posts','one_write'].includes(record.d.scope) && record.d.count > 0 && at >= threshold && at <= start;
+}
 export function limits(records,job,role,platforms,now,reservations=[],jobs=[]) {
   if(platforms.some(p=>!PLATFORMS.includes(p))||new Set(platforms).size!==platforms.length) return 'invalid_platforms';
   if(role==='delete' && (platforms.length===0||platforms.includes('bilibili'))) return 'bilibili_delete_forbidden';
   if(job.run_class!=='test_post'||role!=='publish') return null;
   if(!platforms.length || platforms.some(p=>!['youtube','douyin'].includes(p))) return 'test_platform_forbidden';
   const when=Date.parse(now);
-  const starts=reservations.filter(r=>r.started!==false && r.role==='publish');
+  const publishes=records.filter(r=>r.type==='STEP' && r.d.role==='publish');
+  const starts=reservations.filter(r=>r.started!==false && r.role==='publish').map(r=>{
+    const step=publishes.find(s=>s.run===r.run && s.seq===r.step_seq);
+    if(!step)return r;
+    const at=Number.isFinite(step.d.ms)?new Date(Date.parse(step.at)-step.d.ms).toISOString():r.at;
+    return {...r,at,platforms:r.platforms.filter(p=>publishStartedOn(step,p))};
+  });
   // Imported/completed STEP records use end time minus elapsed duration.
-  const fallback=records.filter(r=>r.type==='STEP'&&r.d.role==='publish'&&
+  const fallback=publishes.filter(r=>
     !reservations.some(x=>x.run===r.run&&x.step_seq===r.seq))
-    .map(r=>({at:new Date(Date.parse(r.at)-r.d.ms).toISOString(),platforms:r.d.platforms,job:r.d.job,
+    .map(r=>({at:new Date(Date.parse(r.at)-r.d.ms).toISOString(),platforms:r.d.platforms.filter(p=>publishStartedOn(r,p)),job:r.d.job,
       run_class:jobs.find(j=>j.id===r.d.job)?.run_class}));
   for(const p of platforms){
     const recent=[...starts,...fallback].filter(s=>s.platforms.includes(p));
@@ -77,12 +92,10 @@ export function limits(records,job,role,platforms,now,reservations=[],jobs=[]) {
     if(!first.has(job.id)&&[...first.values()].some(s=>when-Date.parse(s.at)<1200000)) return 'publish_spacing';
     if(!first.has(job.id)&&records.some(r=>r.type==='NOTE'&&r.d.platform===p&&r.d.code==='outside_upload'&&
         when-(Date.parse(r.at)-r.d.minutes_ago*60000)<1200000)) return 'outside_upload_spacing';
-    if(records.some(r=>r.type==='NOTE'&&r.d.platform===p&&['platform_warning','human_check','safety_stop'].includes(r.d.code)&&
+    if(records.some(r=>safetyStopOn(r,p)&&
         when-Date.parse(r.at)<172800000)) return 'platform_warning_hold';
-    const safety=records.findLast(r=>r.type==='NOTE'&&r.d.platform===p&&r.d.code==='safety_stop');
-    if(!first.has(job.id)&&safety&&!records.some(r=>r.type==='GO_AHEAD'&&r.d.job===job.id&&
-        r.d.by===r.site&&['listed_test_posts','one_write'].includes(r.d.scope)&&r.d.count>0&&
-        Date.parse(r.at)>=Date.parse(safety.at)+172800000&&Date.parse(r.at)<=when))return 'safety_stop_new_go_ahead_required';
+    const safety=records.findLast(r=>safetyStopOn(r,p));
+    if(!first.has(job.id)&&safety&&!records.some(r=>validRestartGrant(r,job.id,Date.parse(safety.at)+172800000,when)))return 'safety_stop_new_go_ahead_required';
   }
   return null;
 }

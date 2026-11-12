@@ -1,4 +1,6 @@
 // Annex A 1.11: compute on exact local records, export results without clocks.
+import {publishStartedOn} from './answers.mjs';
+import {safetyStopOn,validRestartGrant} from './policy.mjs';
 import {planRun} from '../operations-gate.mjs';
 import {canonical} from './journal.mjs';
 import {lookTiming,lookStep} from './looks.mjs';
@@ -38,7 +40,7 @@ export function publishChecks(records,jobs){
  for(const r of records.filter(r=>r.type==='STEP'&&r.d.role==='publish'&&started(r))){
   if(jobs.find(j=>j.id===r.d.job)?.run_class!=='test_post')continue;
   for(const platform of r.d.platforms){
-   if(r.d.answers?.some(a=>a.platform===platform&&(a.state==='NOT_STARTED'||['busy','browser_busy'].includes(a.code))))continue;
+   if(!publishStartedOn(r,platform))continue;
    const id=JSON.stringify([r.d.job,platform]);if(seen.has(id))continue;seen.add(id);
    rows.push({r,platform,start:exact(r.at)&&Number.isFinite(r.d.ms)&&r.d.ms>=0?Date.parse(r.at)-r.d.ms:null});
   }
@@ -74,12 +76,13 @@ export function runChecks(records,jobs,lookChecks){
    return records.filter(r=>r.type==='NOTE'&&['outage','platform_warning','human_check'].includes(r.d.code)&&r.d.platform===p&&Date.parse(r.at)>=lo&&Date.parse(r.at)<=hi).map(r=>r.seq);
   });
   const safety_restarts=(j.platforms??[]).flatMap(p=>{
-   const first=steps.find(r=>r.d.role==='publish'&&r.d.platforms.includes(p)&&!r.d.answers?.some(a=>a.platform===p&&(['busy','browser_busy'].includes(a.code)||a.state==='NOT_STARTED')));
+   const first=steps.find(r=>r.d.role==='publish'&&publishStartedOn(r,p));
    if(!first||j.run_class!=='test_post')return [];
-   const stop=records.findLast(r=>r.seq<first.seq&&r.type==='NOTE'&&r.d.code==='safety_stop'&&r.d.platform===p);
+   const stop=records.findLast(r=>r.seq<first.seq&&safetyStopOn(r,p));
    if(!stop)return [];
    const threshold=Date.parse(stop.at)+172800000;
-   const valid=Date.parse(first.at)-(first.d.ms??0)>=threshold&&records.some(r=>r.seq<first.seq&&r.type==='GO_AHEAD'&&r.d.job===j.id&&['listed_test_posts','one_write'].includes(r.d.scope)&&Date.parse(r.at)>=threshold);
+   const start=Date.parse(first.at)-(first.d.ms??0);
+   const valid=records.some(r=>r.seq<first.seq&&validRestartGrant(r,j.id,threshold,start));
    return [{platform:p,step:first.seq,stop:stop.seq,valid}];
   });
   return {job:j.id,signoffs,interference:[...new Set(interference)],safety_restarts};

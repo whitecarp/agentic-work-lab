@@ -175,7 +175,7 @@ function siteModel(s,expectedGateHash,lastDay) {
    const status=check?.replay??'not_replayable',computed=check?.computed??null;
    if(['disagree','threw'].includes(status))add('gate_replay_disagreement',r);
    gates.push({seq:r.seq,phase:phaseFor(r),decision:r.d.decision,reason:r.d.reason,launcher:r.d.launcher,replay:status,computed,
-    jobs:r.d.jobs,run:r.run,slot_id:r.d.slot_id,source:s.provenance.timing});
+    jobs:r.d.jobs??[],run:r.run,slot_id:r.d.slot_id,source:s.provenance.timing});
   }
   if(r.type!=='STEP')continue;
   if(r.slot!==operator)add('step_wrong_operator',r);
@@ -211,6 +211,7 @@ function siteModel(s,expectedGateHash,lastDay) {
   const obligations=s.comparison.look_checks?.filter(c=>c.job===job.id)??[];
   const closing=records.find(r=>r.type==='JOB_END'&&r.d.job===job.id);
   const violations=records.filter(r=>r.type==='VIOLATION'&&(r.d.job===job.id||first&&
+   !['write_without_gate','write_without_go_ahead','test_post_rule_broken'].includes(r.d.rule)&&
    (!r.d.platform||job.platforms.includes(r.d.platform))&&
    (own.some(x=>day(x.at)===day(r.at))||day(first.at)<=day(r.at)&&(!closing||day(closing.at)>=day(r.at)))));
   const commandDetails=own.filter(started).filter(r=>r.d.tool==='vpub').map(r=>details.find(d=>d.step===r)??{evidence:commandEvidence(s,r,null)});
@@ -357,13 +358,16 @@ function siteModel(s,expectedGateHash,lastDay) {
    });
    const mismatched=pressRecords.some(e=>e.kind==='deletion'&&e.ref&&a.ref&&e.ref!==a.ref);
    const prior=dels[i-1],repeat=prior?.answer?.state==='DELETE_PENDING';
-   deletionRows.push({attempt:a,detail:d,pressed:press,press_count:pressCount,approved:approval.get(d.step.seq)==='one_delete',repeat:!!repeat,
+   const toolGone=d.outcome==='confirmed'||a.details.some(x=>x.step.seq>d.step.seq&&x.step.d.role==='delete_verify'&&x.outcome==='confirmed');
+   const deleteLook=looks(a.job.id,a.platform,'delete');
+   deletionRows.push({attempt:a,detail:d,tool_gone:toolGone,
+    contradicted:toolGone&&(present(deleteLook.seen)||deleteLook.seen==='present_twice_or_more'),pressed:press,press_count:pressCount,approved:approval.get(d.step.seq)==='one_delete',repeat:!!repeat,
     repeat_after_press:!!repeat&&(prior.answer?.press_flag===true||prior.evidence.hasPress),
     wrong_code_try:!!a.job.wrong_delete_code_first&&i===0,
     refused:d.step.d.exit===2&&ev.noPress,second_press:!!repeat&&ev.hasPress||pressCount>1,
     wrong:press===true&&(speaking.some(x=>x.wrong)||mismatched),
     comparators:speaking,wrong_comparators:speaking.filter(x=>x.wrong).map(x=>x.ref),
-    comparator_measurement:press===true?(speaking.some(x=>x.measured)?'measured':'unmeasured'):'not_pressed_or_unknown',look:looks(a.job.id,a.platform,'delete')});
+    comparator_measurement:press===true?(speaking.some(x=>x.measured)?'measured':'unmeasured'):'not_pressed_or_unknown',look:deleteLook});
   }
  }
  const capRows=publishChecks(records,s.jobs).map(expected=>{
@@ -394,7 +398,7 @@ function figures(model,jobRows,platform,phase,stampFilter=null) {
   (!stampFilter||key(a.stamp)===stampFilter));
  const details=model.details.filter(d=>ids.has(d.step.d.job)&&onP(d)&&(!stampFilter||key(d.evidence.stamp)===stampFilter));
  const rec=model.records.filter(r=>s.phaseAt(r)===phase&&(!r.d.job||ids.has(r.d.job)));
- const gates=model.gates.filter(g=>g.phase===phase),issues=model.issues.filter(i=>!i.job||ids.has(i.job));
+ const gates=model.gates.filter(g=>g.phase===phase),issues=model.issues.filter(i=>i.job?ids.has(i.job):model.s.phaseAt(model.records.find(r=>r.seq===i.seq))===phase);
  const cases=s.comparison.in_doubt.filter(c=>ids.has(c.job)&&(!platform||c.platform===platform));
  const looks=s.comparison.look_checks.filter(c=>ids.has(c.job)&&(!platform||c.platform===platform));
  const observationSeqs=new Set(rec.filter(r=>r.type==='OBSERVATION').map(r=>r.seq));
@@ -404,12 +408,12 @@ function figures(model,jobRows,platform,phase,stampFilter=null) {
  const repeats=attempts.flatMap(repeatRows);
  const faults=jobRows.flatMap(j=>j.faults.filter(f=>!platform||j.platforms.includes(platform)).map(f=>{
   const a=attempts.find(a=>a.job.id===j.id),look=a?model.looks(j.id,a.platform,f.role==='delete'?'delete':f.role==='edit'?'edit':'post'):null;
-  const later=a?.details.find(d=>['resume','repeat_same'].includes(d.step.d.role)&&d.evidence.hasPress&&d.outcome==='confirmed');
+  const later=a?.details.find(d=>d.step.seq>a.publish.step.seq&&['publish','resume','repeat_same'].includes(d.step.d.role)&&d.evidence.hasPress);
   const helper=!!a&&f.kind==='end_command_after_press'&&!a.publish.step.d.answered&&
     a.details.some(d=>d.step.d.role==='repeat_same'&&d.outcome==='confirmed'&&!d.evidence.hasPress);
   const out=f.role==='delete'?(a?.details.some(d=>operation(d.step)==='delete'&&d.outcome==='confirmed')?'gone_confirmed':look?.seen==='absent'?'gone_unconfirmed':present(look?.seen)||look?.seen==='present_twice_or_more'?'still_there':'no_look'):
    f.role==='edit'?(a?.details.some(d=>d.step.d.role==='edit'&&d.outcome==='confirmed')?'edit_confirmed':'edit_unconfirmed'):
-   a?.duplicate?'duplicate':later?'finished_by_later_press':a?.confirmed?'confirmed_without_later_press':look?.seen==='absent'?'nothing_posted':a&&!a.confirmed?'held_in_doubt':'other';
+   a?.duplicate?'duplicate':later&&a.confirmed?'finished_by_later_press':a?.confirmed?'confirmed_without_later_press':look?.seen==='absent'?'nothing_posted':a&&!a.confirmed?'held_in_doubt':'other';
   return {...f,job:j.id,platforms:j.platforms,outcome:out,look:look?.seen??null,
    later_press_step:later?.step.seq??null,helper_confirmed:helper,
    confirmed_where:helper?'helper':a?.details.find(d=>d.outcome==='confirmed')?.step.d.role??null};
@@ -494,7 +498,7 @@ function figures(model,jobRows,platform,phase,stampFilter=null) {
  const safety={
   duplicate_posts:attempts.filter(a=>a.duplicate).length,
   second_press_without_draft:attempts.filter(a=>a.duplicate_marker).length,
-  contradicted_confirmations:attempts.filter(a=>a.contradicted).length+edits.filter(e=>e.confirmed_by&&e.look_agrees===false).length+deletes.filter(d=>d.detail.outcome==='confirmed'&&d.look.seen!==null&&d.look.seen!=='absent').length,
+  contradicted_confirmations:attempts.filter(a=>a.contradicted).length+edits.filter(e=>e.confirmed_by&&e.look_agrees===false).length+new Set(deletes.filter(d=>d.contradicted).map(d=>d.attempt)).size,
   wrong_post_deletes:deletes.filter(d=>d.wrong).length,
   second_delete_presses:deletes.filter(d=>d.second_press).length,
   changed_plans_went_ahead:changed.filter(r=>r.went_ahead).length,
@@ -580,7 +584,7 @@ function figures(model,jobRows,platform,phase,stampFilter=null) {
     supplementary:a.job.run_class==='real_release'})),
    contradicted:attempts.filter(a=>a.contradicted).map(a=>({job:a.job.id,ref:a.ref})),edits,
    deletes:deletes.map(d=>({job:d.attempt.job.id,ref:d.attempt.ref,step:d.detail.step.seq,approved:d.approved,pressed:d.pressed,press_count:d.press_count,
-    tool_gone:d.detail.outcome==='confirmed'||d.attempt.details.some(x=>x.step.seq>d.detail.step.seq&&x.step.d.role==='delete_verify'&&x.outcome==='confirmed'),
+    tool_gone:d.tool_gone,
     pending:d.detail.answer?.state==='DELETE_PENDING'&&d.pressed!==false,
     found_already_gone:d.detail.outcome==='confirmed'&&d.pressed===false,
     failed_before_press:d.detail.answer?.state==='DELETE_PENDING'&&d.pressed===false,
@@ -658,8 +662,7 @@ function checklist(models,definition,onlyCounted) {
   }
   const dels=m.deletionRows.filter(d=>d.attempt===a);
   for(const d of dels){
-   if(d===dels.find(x=>!x.wrong_code_try))add(7,d.detail.outcome==='confirmed'||a.details.some(e=>e.step.seq>d.detail.step.seq&&e.step.d.role==='delete_verify'&&e.outcome==='confirmed'),d.look.seen==='absent',d.detail,
-    {contradicted:d.detail.outcome==='confirmed'&&present(d.look.seen)});
+   if(d===dels.find(x=>!x.wrong_code_try))add(7,d.tool_gone,d.look.seen==='absent',d.detail,{contradicted:d.contradicted});
    if(d.repeat_after_press)add(5,d.refused&&d.detail.evidence.noPress,d.look.seen==='absent',d.detail,{refusal:true,effect:d.second_press});
   }
   if(['B','C'].includes(a.job.group)&&!a.job.faults.some(f=>f.kind==='between_save_and_press')&&
@@ -728,8 +731,16 @@ function timingPairs(m) {
    else {const lo=Math.min(...upload.map(r=>time(r.at)-(r.d.ms??0))),hi=Math.max(...upload.map(r=>time(r.at)));
     outside=notes.some(r=>r.d.minutes_ago==null||time(r.at)-r.d.minutes_ago*60000>=lo&&time(r.at)-r.d.minutes_ago*60000<=hi);}
   }
+  const uploads=jobs.map(j=>j.steps.filter(r=>started(r)&&['publish','repeat_same','resume'].includes(r.d.role)));
+  uploads.sort((a,b)=>(a[0]?.seq??Infinity)-(b[0]?.seq??Infinity));
+  const last=uploads[0]?.at(-1),next=uploads[1]?.find(r=>r.d.role==='publish');
+  let gapMinutes=null;
+  if(uploads.length===2 && last && next && !m.s.privacy && Number.isFinite(next.d.ms) && next.d.ms>=0){
+   const gap=(time(next.at)-next.d.ms-time(last.at))/60000;
+   if(Number.isFinite(gap))gapMinutes=gap;
+  }
   const one=releases.find(r=>r.mode==='one_at_a_time'),two=releases.find(r=>r.mode==='two_at_a_time');
-  return {pair:id,site:m.s.site,phases,complete:phases.length===1&&releases.length===2&&releases.every(r=>r.complete)&&outside===false,
+  return {pair:id,site:m.s.site,phases,gap_minutes:gapMinutes,complete:phases.length===1&&!!one&&!!two&&gapMinutes!==null&&gapMinutes>=20&&gapMinutes<=60&&releases.length===2&&releases.every(r=>r.complete)&&outside===false,
    outside_upload:outside,releases:releases.map(({cmd,...r})=>r),difference_seconds:one?.wall!=null&&two?.wall!=null?two.wall-one.wall:null};
  });
 }
@@ -793,9 +804,15 @@ export function analyze(inputs,{gateHash,gateHashes=[gateHash],lastDay='2026-11-
   return stamps.map(stamp=>{
    const all=models.flatMap(m=>m.attempts).filter(a=>a.phase===phase&&(a.stamp?.commit??'unrecorded')===stamp&&a.job.faults.some(f=>around.includes(f.kind)&&f.state==='fired'));
    const bound=rows=>{const eligible=rows.filter(a=>a.duplicate||countedLook(a.look)&&a.press_markers!==null&&!a.press_marker_not_recorded);return {...upper95(eligible.filter(a=>a.duplicate).length,eligible.length),unmeasured:rows.length-eligible.length};};
+   function strata(field) {
+    return uniq(all.map(a=>a[field])).map(label=>{
+     const rows=all.filter(a=>a[field]===label),allRecorded=bound(rows);
+     // Retain the original all-recorded fields for readers of earlier summaries.
+     return {[field]:label,...allRecorded,all_recorded:allRecorded,counted:bound(rows.filter(a=>a.job.counted))};
+    });
+   }
    return {phase,code_stamp:stamp,failures_in_recorded_phase:all.filter(a=>a.duplicate).map(a=>({site:a.site,job:a.job.id,platform:a.platform,counting_status:a.job.row})),all_recorded:bound(all),counted:bound(all.filter(a=>a.job.counted)),
-    by_platform:uniq(all.map(a=>a.platform)).map(platform=>({platform,...bound(all.filter(a=>a.platform===platform))})),
-    by_site:uniq(all.map(a=>a.site)).map(site=>({site,...bound(all.filter(a=>a.site===site))}))};
+    by_platform:strata('platform'),by_site:strata('site')};
   });
  });
  for(const t of tables){
@@ -810,15 +827,21 @@ export function analyze(inputs,{gateHash,gateHashes=[gateHash],lastDay='2026-11-
   }
  }
  const violations=tables.filter(t=>t.platform===null&&t.phase==='2b').flatMap(t=>Object.entries(t.all_recorded.must_be_zero).filter(([,n])=>n>0).map(([name,n])=>({phase:t.phase,site:t.site,name,n})));
- const gaps=siteIntegrity.flatMap(s=>[...s.journal.exceptions,...s.unknowns.map(code=>({code}))].map(v=>({site:s.site,...v})));
+ // Journal-wide integrity exceptions also affect the counted export. Phase-local
+ // missing evidence stays with the job/table that generated it.
+ const allGaps=siteIntegrity.flatMap(s=>s.journal.exceptions.map(v=>({site:s.site,...v})));
+ for(const m of models)for(const j of m.jobs)for(const code of j.unknown)
+  allGaps.push({site:m.s.site,phase:j.phase,job:j.id,code});
  for(const t of tables.filter(t=>t.platform===null)){
-  for(const [name,value]of Object.entries(t.all_recorded.must_be_zero))if(value===null)gaps.push({site:t.site,phase:t.phase,code:'unmeasured_'+name});
-  for(const d of t.all_recorded.gate.drills)if(d.passed===null)gaps.push({site:t.site,phase:t.phase,job:d.job,code:'drill_session_binding_missing'});
-  if(t.all_recorded.protocol.runs.some(j=>j.outside_upload===null))gaps.push({site:t.site,phase:t.phase,code:'outside_upload_timing_unavailable'});
-  for(const r of t.all_recorded.timing.human_look_rows)if(r.timing_status==='unknown')gaps.push({site:t.site,phase:t.phase,seq:r.seq,code:'observation_timing_unavailable'});
-  for(const r of t.all_recorded.protocol.real_release_24h.checks)if(r.status==='unknown')gaps.push({site:t.site,phase:t.phase,job:r.job,platform:r.platform,code:'real_release_24h_unavailable'});
+  for(const [name,value]of Object.entries(t.all_recorded.must_be_zero))if(value===null)allGaps.push({site:t.site,phase:t.phase,code:'unmeasured_'+name});
+  for(const d of t.all_recorded.gate.drills)if(d.passed===null)allGaps.push({site:t.site,phase:t.phase,job:d.job,code:'drill_session_binding_missing'});
+  if(t.all_recorded.protocol.runs.some(j=>j.outside_upload===null))allGaps.push({site:t.site,phase:t.phase,code:'outside_upload_timing_unavailable'});
+  for(const r of t.all_recorded.timing.human_look_rows)if(r.timing_status==='unknown')allGaps.push({site:t.site,phase:t.phase,seq:r.seq,code:'observation_timing_unavailable'});
+  for(const r of t.all_recorded.protocol.real_release_24h.checks)if(r.status==='unknown')allGaps.push({site:t.site,phase:t.phase,job:r.job,platform:r.platform,code:'real_release_24h_unavailable'});
  }
 
+ const gaps=allGaps.filter(g=>!g.phase||g.phase==='2b');
+ const shakedownGaps=allGaps.filter(g=>g.phase&&g.phase!=='2b');
  const completeInputSites=models.length===2&&models.some(m=>m.s.site==='owner')&&models.some(m=>m.s.site==='tester');
  const cells={all_recorded:checklist(models,definition,false),counted:checklist(models,definition,true)};
  const pooledSecondary=uniq(tables.filter(t=>t.platform!==null).map(t=>key([t.phase,t.code_stamp?.commit??'unrecorded']))).map(k=>{
@@ -835,6 +858,6 @@ export function analyze(inputs,{gateHash,gateHashes=[gateHash],lastDay='2026-11-
   inputs:siteIntegrity,all_sites_present:completeInputSites,tables,checklist:cells,timing_pairs:pairs,pooled_fault_bounds:pooledBounds,pooled_secondary_bounds:pooledSecondary,
   timing_claim:pairs.filter(p=>p.complete&&p.phases[0]==='2b').length<6?'no_general_speed_claim':'descriptive_pairs_only',
   verdict:{status:violations.length?'observed_failures':gaps.length||!completeInputSites?'evidence_incomplete':'no_observed_must_be_zero_failures',
-   violations,gaps,fully_working:completeInputSites&&!gaps.length&&!violations.length&&cells.counted.every(c=>c.status==='confirmed'),
+   violations,gaps,shakedown_gaps:shakedownGaps,fully_working:completeInputSites&&!gaps.length&&!violations.length&&cells.counted.every(c=>c.status==='confirmed'),
    scope:'offline analysis of exported evidence; no account action or live acceptance implied'}};
 }

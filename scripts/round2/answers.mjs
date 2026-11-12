@@ -5,6 +5,13 @@ export const pressRoles=['publish','repeat_same','changed_plan','resume','edit',
 export const confirmed={post:'SUBMISSION_VERIFIED',edit:'EDIT_VERIFIED',delete:'DELETED_VERIFIED'};
 export const operation=s=>s.d.action==='delete'||['delete','delete_verify'].includes(s.d.role)?'delete':s.d.role==='edit'?'edit':['publish','repeat_same','changed_plan','resume','verify'].includes(s.d.role)?'post':null;
 const stateWord=v=>typeof v==='string' && v.length ? (STATES.includes(v)?v:'UNLISTED') : null;
+// For timing/caps, a per-platform refusal has no upload start. An interrupted
+// command can have started even when its worker never returned an answer.
+export function publishStartedOn(step, platform) {
+ const answer = step.d.answers?.find(a => a.platform === platform);
+ return step.d.started !== false && step.d.exit !== 127 && step.d.platforms.includes(platform) &&
+  answer?.state !== 'NOT_STARTED' && !['busy','browser_busy'].includes(answer?.code);
+}
 export function readAnswers(value,platforms,about='post'){
  const data=value?.data??value,parts=data?.results;
  return platforms.map(platform=>{
