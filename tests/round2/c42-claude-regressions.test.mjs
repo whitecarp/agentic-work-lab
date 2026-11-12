@@ -197,6 +197,7 @@ test('11. a clean C1 run as the real tool records it: the ledger copy is empty w
   readsOnly(f, f.step({role: 'verify', state: 'SUBMISSION_VERIFIED', exit: 0, press: 1, contact: false, m: 22, before: snap(1, 'UNKNOWN'), after: snap(1, 'SUBMISSION_VERIFIED')}));
   f.look({seen: 'present_private', m: 40, minutes_after: 20});
   const z = run(f), s = whole(z).submission, c = whole(z).in_doubt.cases[0];
+  assert.equal(whole(z).must_be_zero.left_in_doubt_without_settlement, 0);
   say({case: 'C1 run with the snapshots as the real tool writes them; resume prints no pressing stage and saves no start of a submission',
     expect: 'resume is shown to have pressed nothing (its own record is whole and holds no press)',
     got: {repeat_rows: s.repeats.map(r => ({step: r.step, role: r.step === again.seq ? 'the same publish again' : 'resume', delta: r.delta, unknown: r.unknown, no_press: r.no_press})),

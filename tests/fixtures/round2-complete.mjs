@@ -30,7 +30,7 @@ export function completeSite(site,{plantSecond=false}={}){
  const step=({role='publish',ps=job.platforms,m,state='SUBMISSION_VERIFIED',n=1,press=false,read=false,cut=false,code=null,exit=0,cls='write',empty=false,draft=false,deleteFlag=null,previous=null,upload=false}={})=>{
   const ref=hash(job.id).slice(0,16),kind=role==='edit'?'edit':['delete','delete_verify','delete_dry_run'].includes(role)?'deletion':'browser';
   const s=f.step({job:job.id,role,platforms:ps,state,press:n,m,ref,contact:false,exit,code,cls,kind});s.run=session;s.slot=current;s.d.refs=[ref];
-  s.d.answers=ps.map(p=>({platform:p,state,previous_state:previous,code,press_flag:kind==='deletion'?deleteFlag:p==='bilibili'?null:n>0,answered:true,refs:[ref],not_saved:false}));
+  s.d.answers=ps.map(p=>({platform:p,state,previous_state:previous,code,press_flag:kind==='deletion'?deleteFlag:p==='bilibili'||n===null?null:n>0,answered:true,refs:[ref],not_saved:false}));
   const id=s.d.awl_run_id,cmd=f.tool.runs.find(c=>c.run===id);
   const snap=(p,flag=n)=>({platform:p,ref,state,final_presses:p==='bilibili'?null:flag,final_submit_attempted:p==='bilibili'||flag===null?null:flag>0,delete_attempted:deleteFlag,id_present:n>0});
   const ev=[{type:'command_start',run:id,at:at(m-.02),before:role==='publish'||role==='repeat_same'?null:snap(ps[0],empty?null:press?Math.max(0,n-1):n),code:f.tool.builds[0],awl_run_id:id}];
@@ -44,7 +44,7 @@ export function completeSite(site,{plantSecond=false}={}){
    if(read)ev.push({type:'transition',run:id,at:at(m-.013),platform:p,kind,ref,state,phase:'reading_back',...snap(p)});
   }
   if(cut){Object.assign(s.d,{answered:false,result:'unknown',exit:1,code:null});s.d.answers.forEach(a=>Object.assign(a,{answered:false,state:null,press_flag:null,refs:[]}));Object.assign(cmd,{ended:false,exit_code:null,t_end:null});}
-  else ev.push({type:'command_end',run:id,at:at(m),exit_code:exit,after:role==='publish'?null:snap(ps[0]),platforms:Object.fromEntries(ps.map(p=>[p,snap(p)]))});
+  else ev.push({type:'command_end',run:id,at:at(m),exit_code:exit,after:role==='publish'||n===null?null:snap(ps[0]),platforms:Object.fromEntries(ps.map(p=>[p,snap(p)]))});
   f.tool.events=f.tool.events.filter(e=>e.run!==id).concat(ev.map(e=>({...e,seq:0,dropped_before:0})));
   return s;
  };
@@ -93,7 +93,7 @@ export function completeSite(site,{plantSecond=false}={}){
   if(fault)arm(fault,begin+.2);
   const initial=before?0:1;step({m:begin+1,n:initial,press:!before,read:!fault,upload:true,
    state:!fault?'SUBMISSION_VERIFIED':fault.kind==='stop_during_upload'?'PREPARATION_INCOMPLETE':before?'IN_PROGRESS':'UNKNOWN',cut:killed.includes(fault?.kind),exit:fault?4:0,code:fault?'injected_fault':null});
-  step({role:'repeat_same',m:begin+2,n:killed.includes(fault?.kind)?null:initial,state:'SKIPPED_EXISTING',previous:!fault?'SUBMISSION_VERIFIED':before?'IN_PROGRESS':'UNKNOWN',exit:fault?4:0});
+  step({role:'repeat_same',m:begin+2,n:killed.includes(fault?.kind)?null:initial,state:'SKIPPED_EXISTING',previous:!fault?'SUBMISSION_VERIFIED':before||killed.includes(fault.kind)?'IN_PROGRESS':'UNKNOWN',exit:fault?4:0});
   let lastPost=begin+3,settlements=[];
   for(const [i,p]of j.platforms.entries()){
    let n=c4&&!c4dy?2:before?1:initial;

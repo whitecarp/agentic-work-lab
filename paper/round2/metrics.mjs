@@ -1,4 +1,4 @@
-// Annex A 1.11. Vocabulary and outcome priority are printed in every summary.
+// Annex A 1.12. Vocabulary and outcome priority are printed in every summary.
 // STEP.answers are per platform. STEP.result is used only for a missing answer.
 // Lab refs never join CrossCast refs: joins use command awl_run_id + platform.
 import {pressEvidence,commandSnapshots,finiteCount} from '../../scripts/round2/press-evidence.mjs';
@@ -9,7 +9,7 @@ import {grantScope} from '../../scripts/round2/policy.mjs';
 import {secondLookDue,lookStep} from '../../scripts/round2/looks.mjs';
 import {normalizeSite,time,day} from './inputs.mjs';
 import {describe,upper95,tally,share} from './statistics.mjs';
-const ANNEX_VERSION='1.11';
+const ANNEX_VERSION='1.12';
 export const OUTCOMES={
  version:'Annex A '+ANNEX_VERSION,states:STATES,
  priority:['confirmed','nothing_sent','in_doubt_state','proven_no_press','possible_case'],
@@ -62,6 +62,49 @@ function answerOutcome(a,step,e) {
  if(e.noPress)return step.d.exit===2?'refused':'nothing_sent';
  if(step.d.exit===2&&!e.intact)return 'possible_case';
  return 'in_doubt';
+}
+// Figure 4.6 reads the platform record in order. A command result alone says
+// nothing about whether a previously recorded submission was reversed.
+function postStateChanges(attempt, open) {
+ const {job,platform,ref} = attempt;
+ const steps = job.details.filter(d => d.platform === platform && operation(d.step) === 'post' &&
+  (!ref || !d.evidence.refs.length || d.evidence.refs.includes(ref)));
+ const helper = job.faults.some(f => f.kind === 'end_command_after_press' && f.state === 'fired');
+ const rows = [];
+ let sawDoubt = false, sawPress = false, sawConfirmation = false;
+ for (const d of steps) {
+  const later = sawDoubt;
+  let turnedBack = false;
+  function observe(record) {
+   if (!record || (record.ref && ref && record.ref !== ref) ||
+       ['edit','deletion'].includes(record.kind)) return;
+   const state = record.state === 'SKIPPED_EXISTING' ? record.previous_state : record.state;
+   if (['NOT_STARTED','NEEDS_A_PERSON'].includes(record.state)) return;
+   const flag = record.press_flag ?? record.final_submit_attempted;
+   if (['FAILED','forgotten'].includes(state) || (sawPress && flag === false)) turnedBack = true;
+   if (flag === true || record.final_presses >= 1) sawPress = true;
+   if (uncertainState(record,'post')) sawDoubt = true;
+  }
+  for (const event of d.evidence.events) {
+   for (const snap of commandSnapshots([event],platform)) observe(snap);
+  }
+  observe(d.answer);
+  // A pressing stage alone is evidence for later commands.
+  if (d.evidence.events.some(e => e.platform === platform && e.stage === 'pressing')) sawPress = true;
+  const firstConfirmation = d.outcome === 'confirmed' && !sawConfirmation;
+  if (d.outcome === 'confirmed') sawConfirmation = true;
+  if (!later || (!turnedBack && uncertainState(d.answer ?? {},'post'))) continue;
+  const read = d.step.d.role === 'verify' || d.evidence.events.some(e => e.platform === platform &&
+   ['reading back','reading the page','waiting for platform confirmation'].includes(e.stage));
+  rows.push({job:job.id,platform,step:d.step.seq,role:d.step.d.role,outcome:d.outcome,
+   state:d.answer?.state ?? null,previous_state:d.answer?.previous_state ?? null,
+   confirmed_without_read:firstConfirmation && !read && !helper,
+   left_unsettled:turnedBack && (!open.closed || d.step.seq < open.settled_at_seq),
+   helper_confirmation:helper && d.outcome === 'confirmed' && !read});
+ }
+ if (!open.closed && !attempt.receipt)
+  rows.push({job:job.id,platform,step:open.step,record_missing_at_close:true});
+ return rows;
 }
 function markers(detail) {
  if(detail.platform==='bilibili')return null;
@@ -438,17 +481,7 @@ function figures(model,jobRows,platform,phase,stampFilter=null) {
  const stageKeys=uniq(timingRows.map(r=>key([r.platform,r.action,r.stage])));
  const stateChanges=attempts.flatMap(a=>{
   const open=cases.find(c=>c.job===a.job.id&&c.platform===a.platform&&operation(model.steps.find(x=>x.seq===c.step))==='post');
-  if(!open)return [];
-  const leftHelper=a.job.faults.some(f=>f.kind==='end_command_after_press'&&f.state==='fired');
-  const doubt=a.details.find(d=>operation(d.step)==='post'&&(uncertainState(d.answer??{},'post')||d.evidence.snapshot.some(e=>uncertainState(e,'post'))));
-  const rows=a.details.filter(d=>doubt&&d.step.seq>doubt.step.seq&&operation(d.step)==='post'&&!busy(d)&&!uncertainState(d.answer??{},'post')).map(d=>{
-   const read=d.step.d.role==='verify'||d.evidence.events.some(e=>e.platform===a.platform&&['reading back','reading the page','waiting for platform confirmation'].includes(e.stage));
-   return {job:a.job.id,platform:a.platform,step:d.step.seq,role:d.step.d.role,outcome:d.outcome,
-    confirmed_without_read:d.outcome==='confirmed'&&!read&&!leftHelper&&!a.details.some(x=>x.step.seq<d.step.seq&&x.outcome==='confirmed'),
-    left_unsettled:d.outcome!=='confirmed'&&(!open.closed||d.step.seq<open.settled_at_seq),helper_confirmation:leftHelper&&d.outcome==='confirmed'&&!read};
-  });
-  if(!open.closed&&!a.receipt)rows.push({job:a.job.id,platform:a.platform,step:open.step,record_missing_at_close:true});
-  return rows;
+  return open ? postStateChanges(a,open) : [];
  });
  const excessiveGrants=rec.filter(r=>r.type==='GO_AHEAD'&&has(r)).flatMap(r=>{
   const j=jobRows.find(j=>j.id===r.d.job);let limit=null;
