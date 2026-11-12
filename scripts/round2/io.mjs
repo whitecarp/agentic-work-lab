@@ -81,3 +81,7 @@ export function alive(pid) {
   if(!Number.isSafeInteger(pid)||pid<=0) return false;
   try{process.kill(pid,0);return true;}catch(e){return e.code==='EPERM';}
 }
+
+export function refusalWord(error,fallback) {
+  return typeof error?.message==='string' && /^[a-z][a-z0-9_]+$/.test(error.message) ? error.message : fallback;
+}

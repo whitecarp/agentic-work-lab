@@ -1,6 +1,6 @@
 import path from 'node:path';
 import {PLATFORMS, schema} from './schema.mjs';
-import {readAnswers,CODES,pressRoles,uncertainState,nothingSent,confirmedAnswer} from './answers.mjs';
+import {readAnswers,codeWord,pressRoles,uncertainState,possiblePress,settled,nothingSent,confirmedAnswer} from './answers.mjs';
 const actions=new Set(schema.oneOf.find(s=>s.properties.type.const==='STEP').properties.d.properties.action.enum);
 // Plain verify can finish pending chapters/widgets, so it remains write-class.
 const readActions=new Set(['status','doctor','receipts','stats','works','capabilities','report']);
@@ -82,18 +82,21 @@ export function limits(records,job,role,platforms,now,reservations=[],jobs=[]) {
   }
   return null;
 }
-export function outcome(exit,stdout,{started=true,role,platform,platforms=platform?[platform]:[]}={}){
+export function outcome(exit,stdout,{started=true,role,stepClass='write',platform,platforms=platform?[platform]:[]}={}){
   let value;
   const lines=stdout.trim().split(/\r?\n/);
   try{if(lines.length===1)value=JSON.parse(lines[0]);}catch{}
   const data=value?.data??value;
   const answers=readAnswers(value,platforms),about=role==='edit'?'edit':['delete','delete_verify'].includes(role)?'delete':'post';
-  const code=answers.length===1?answers[0].code:CODES.includes(value?.error?.code)?value.error.code:null;
+  const mayPress=started && stepClass==='write' && pressRoles.includes(role);
+  const code=answers.length===1?answers[0].code:codeWord(value?.error?.code);
   let result=exit===0?'ok':'failed';
   if(exit===2) result='refused';
-  if(answers.some(a=>uncertainState(a,about)))result='in_doubt';
-  else if(answers.length&&answers.every(a=>confirmedAnswer(a,about)))result='ok';
-  else if(answers.some(a=>nothingSent(a)))result=answers.some(a=>a.code==='stopped')?'stopped':answers.some(a=>['PREPARATION_INCOMPLETE','WAITING_FOR_USER','NEEDS_A_PERSON'].includes(a.state))?'needs_person':'refused';
+  if(answers.some(a=>uncertainState(a,about) || (mayPress && possiblePress(a,about))))result='in_doubt';
+  else if(answers.length&&answers.every(a=>settled(a,about)))result='ok';
+  else if(exit===3 && mayPress && answers.some(a=>!a.state))result='unknown';
+  else if(answers.some(a=>settled(a,about)) && answers.some(a=>nothingSent(a,about)))result='partial';
+  else if(answers.some(a=>nothingSent(a,about)))result=answers.some(a=>a.code==='stopped')?'stopped':answers.some(a=>['PREPARATION_INCOMPLETE','WAITING_FOR_USER','NEEDS_A_PERSON'].includes(a.state))?'needs_person':'refused';
   else if(exit===3&&pressRoles.includes(role))result='unknown';
   if(!Number.isInteger(exit)) result='unknown';
   const answered=!!value && typeof value==='object' && !Array.isArray(value) &&

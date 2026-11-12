@@ -128,7 +128,7 @@ export function faultController(ctx,fault,{snapshot,kill}={}){
     requestMs=Math.round(performance.now()-start);
     if(kill){killExit=await kill(child.pid,true,child,owned);const after=await snapshot();ended=ended.map(r=>({...r,ended:!after.some(a=>a.pid===r.pid&&a.born===r.born&&!a.zombie)}));}
     else{const after=await observer.end();killExit=0;ended=rowsOf(after);}
-    fired=ended.length>0&&ended.every(r=>r.ended);failed=!fired;
+    fired=ended.length>0 && ended.every(r=>r.ended) && !(observer?.unopenedPresent>0);failed=!fired;
     reason=failed?'tree_not_observed_gone':null;goneMs=fired?Math.round(performance.now()-start):null;
    })().catch(e=>{failed=true;fired=null;reason=['starter_missing','starter_identity_missing','process_identity_changed','process_snapshot_failed','terminate_handle_failed','owned_handle_controller_unavailable'].includes(e.message)?e.message:'process_controller_failed';});
   },
@@ -137,7 +137,7 @@ export function faultController(ctx,fault,{snapshot,kill}={}){
    try{if(partial)api.line(partial);await rootReady;await pending;
     if(rule.mechanism==='tool_switch')fired=injectedReply(stdout,fault.armed_on.split('_')[0]);
     put(ctx,'FAULT_RESULT',{job:fault.job,kind:fault.kind,role:fault.role,triggered,fired,failed,reason,
-     action_delay_ms:requestMs,gone_delay_ms:goneMs,kill_exit:killExit,processes:ended},ctx.run,30000);
+     action_delay_ms:requestMs,gone_delay_ms:goneMs,kill_exit:killExit,processes:ended,...(observer?{unopened:observer.unopened,unopened_present:observer.unopenedPresent}:{})},ctx.run,30000);
     return {fired,failed,reason};
    }finally{observer?.close();}
   }

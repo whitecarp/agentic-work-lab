@@ -4,7 +4,7 @@ import {readJournal,context} from './journal.mjs';
 import {seal,verifySeals,day} from './seal.mjs';
 import {reconcile} from './reconcile.mjs';
 import {switches} from './export.mjs';
-import {allowed} from './io.mjs';
+import {refusalWord,allowed} from './io.mjs';
 
 export function daily(ctx,{selectedDay=new Date().toISOString().slice(0,10),apply=false,crosscast,now=Date.now()}={}){
  day(selectedDay);const records=readJournal(ctx.journal);verifySeals(ctx,records);
@@ -26,4 +26,4 @@ export function main(argv=process.argv.slice(2)){
  const {flags:f,command,set}=switches(argv,['--apply']);allowed(f,['site','slot','journal','day','crosscast','as-of']);if(command.length)throw new Error('invalid_arguments');
  const result=daily(context(f),{selectedDay:f.day,apply:set.has('--apply'),crosscast:f.crosscast,now:f['as-of']});console.log(result.lines.join('\n'));return 0;
 }
-if(process.argv[1]&&import.meta.url===pathToFileURL(path.resolve(process.argv[1])).href){try{process.exitCode=main();}catch{console.error('daily_refused');process.exitCode=70;}}
+if(process.argv[1]&&import.meta.url===pathToFileURL(path.resolve(process.argv[1])).href){try{process.exitCode=main();}catch(e){console.error(refusalWord(e,'daily_refused'));process.exitCode=70;}}

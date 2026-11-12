@@ -2,9 +2,10 @@ import fs from 'node:fs';
 import path from 'node:path';
 import {pathToFileURL} from 'node:url';
 import {readJournal,verifyJournal,canonical,ZERO,context} from './journal.mjs';
-import {sha,atomic,withLock,parseFlags,allowed} from './io.mjs';
+import {refusalWord,sha,atomic,withLock,parseFlags,allowed} from './io.mjs';
 
-export const TYPES=['PROTOCOL_SEAL','GATE_DECISION','GATE_ERROR','GO_AHEAD','STEP','STEP_REFUSED','RUN_END','JOB_END','OBSERVATION','FAULT','FAULT_RESULT','FAULT_SETUP','REAL_RELEASE','STOP_SET','STOP_CLEARED','HANDOFF','SIGN_OFF','VIOLATION','NOTE'];
+import {schema} from './schema.mjs';
+export const TYPES=schema.oneOf.map(definition=>definition.properties.type.const);
 export function day(value){
  if(typeof value!=='string'||!/^\d{4}-\d{2}-\d{2}$/.test(value)||!Number.isFinite(Date.parse(value))||new Date(value).toISOString().slice(0,10)!==value)throw new Error('invalid_day');
  return value;
@@ -44,6 +45,7 @@ export function seal(ctx,selectedDay=new Date().toISOString().slice(0,10)){
   const found=existing.seals.find(s=>s.day===selectedDay);
   const previous=found?found.previous_sha256:existing.head_sha256;
   const value={day:selectedDay,records:records.length,head_sha256:verifyJournal(ctx.journal).head_sha256,counts:counts(records),previous_sha256:previous,tools:{journal:'1',node:process.versions.node}};
+  shape(value);
   if(found){if(canonical(found)!==canonical(value))throw new Error('seal_would_change');return found;}
   if(existing.seals.at(-1)?.day>=selectedDay)throw new Error('seal_out_of_order');
   const directory=dir(ctx);fs.mkdirSync(directory,{recursive:true});
@@ -58,4 +60,4 @@ export function main(argv=process.argv.slice(2)){
  const {flags:f,command}=parseFlags(argv);allowed(f,['site','slot','journal','day']);if(command.length)throw new Error('invalid_arguments');
  console.log(JSON.stringify(seal(context(f,false),f.day)));return 0;
 }
-if(process.argv[1]&&import.meta.url===pathToFileURL(path.resolve(process.argv[1])).href){try{process.exitCode=main();}catch{console.error('seal_refused');process.exitCode=70;}}
+if(process.argv[1]&&import.meta.url===pathToFileURL(path.resolve(process.argv[1])).href){try{process.exitCode=main();}catch(e){console.error(refusalWord(e,'seal_refused'));process.exitCode=70;}}

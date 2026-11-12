@@ -3,7 +3,7 @@ import path from 'node:path';
 import {pathToFileURL} from 'node:url';
 import {createHmac, randomBytes} from 'node:crypto';
 import {validateRecord, SLOTS, PLATFORMS} from './schema.mjs';
-import {sha, utc, atomic, withLock, privateHome, readJSON, parseFlags, allowed, alive} from './io.mjs';
+import {refusalWord,sha, utc, atomic, withLock, privateHome, readJSON, parseFlags, allowed, alive} from './io.mjs';
 import {bindHome,HOME_ERRORS} from './site.mjs';
 import {jobList} from './jobs.mjs';
 import {verifyPlan} from './plan-runs.mjs';
@@ -104,6 +104,12 @@ export function operator(ctx, records) {
   return value;
 }
 
+export function openSessions(records,site){
+  const ended=new Set(records.filter(r=>r.site===site && r.type==='RUN_END').map(r=>r.run));
+  return records.filter(r=>r.site===site && r.type==='GATE_DECISION' &&
+    r.d.decision==='plan_only' && !ended.has(r.run));
+}
+
 export function activeStops(records){
   let active=[];
   for(const r of records){
@@ -122,6 +128,7 @@ export function words(home) {
   return commitWords(home,bytes);
 }
 export function commitWords(home,bytes) {
+  if(/^[?\s]+$/.test(Buffer.from(bytes).toString('utf8').trim()))throw new Error('words_unreadable');
   const nonce=randomBytes(32),digest=sha(Buffer.concat([nonce,Buffer.from(bytes)]));
   // The opening stays beside the private words; neither is in a public record.
   atomic(path.join(home,'captures',digest+'.words.nonce'),nonce);
@@ -221,6 +228,7 @@ export function main(argv=process.argv.slice(2)){
         type='SIGN_OFF';d={day:f.day,by:f.by??ctx.site,answer:f.answer,words_sha256:digest,head_sha256:head.head_sha256,records:head.records,closing};break;
       }
       case 'handoff':
+        if(openSessions(readJournal(ctx.journal),ctx.site).length)throw new Error('session_open');
         type='HANDOFF';d={from:readJSON(path.join(ctx.home,'operator.json'),{operator:ctx.site}).operator,
           to:f.to,job:f.job??null,by:f.by??ctx.site,words_sha256:words(ctx.home)};break;
       case 'stop':
@@ -264,5 +272,5 @@ export function main(argv=process.argv.slice(2)){
   });
 }
 if(process.argv[1] && import.meta.url===pathToFileURL(path.resolve(process.argv[1])).href){
-  try{process.exitCode=main();}catch(e){console.error(/^[a-z][a-z0-9_]+$/.test(e.message)?e.message:'journal_refused');process.exitCode=70;}
+  try{process.exitCode=main();}catch(e){console.error(refusalWord(e,'journal_refused'));process.exitCode=70;}
 }

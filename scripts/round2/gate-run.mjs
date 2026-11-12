@@ -4,9 +4,9 @@ import {pathToFileURL} from 'node:url';
 import {spawn} from 'node:child_process';
 import {StringDecoder} from 'node:string_decoder';
 import {planRun} from '../operations-gate.mjs';
-import {context, operator, activeStops, put, readJournal, verifyJournal, newRunId, pseudonym, words} from './journal.mjs';
+import {context, operator, openSessions, activeStops, put, readJournal, verifyJournal, newRunId, pseudonym, words} from './journal.mjs';
 import {ID, SLOTS, PLATFORMS, REFUSALS} from './schema.mjs';
-import {sha, utc, atomic, withLock, readJSON, parseFlags, allowed, alive} from './io.mjs';
+import {refusalWord,sha, utc, atomic, withLock, readJSON, parseFlags, allowed, alive} from './io.mjs';
 import {classify, guardRole, grant, grantScope, limits, outcome, roles} from './policy.mjs';
 import {bindHome,HOME_ERRORS} from './site.mjs';
 import {jobList} from './jobs.mjs';
@@ -52,15 +52,8 @@ export function begin(ctx,flags) {
     }
     // A crash after journaling admission but before writing run.lock must also
     // continue refusing a second session until explicitly ended.
-    const unfinished=new Set(records.filter(r=>r.type==='GATE_DECISION'&&r.d.decision==='plan_only').map(r=>r.run));
-    for(const record of records) if(record.type==='RUN_END') unfinished.delete(record.run);
-    for(const abandoned of unfinished) {
-      if(abandoned===existing?.run) continue;
-      // A missing lock after admission is still an open session, never an
-      // implicit permission to start another one when its shell has exited.
-      if(!existing)existing={run:abandoned};
-    }
-    if(unfinished.size) records=readJournal(ctx.journal);
+    const open=openSessions(records,ctx.site)[0];
+    if(!existing && open)existing={run:open.run};
     const run=newRunId(), now=flags.now??utc();
     let owner, input, result, prepared;
     try {
@@ -84,7 +77,7 @@ export function begin(ctx,flags) {
       launcher:flags.launcher??'manual',slot_id:flags['slot-id']??null,...result,
       jobs:gateJobs(prepared),gate_sha256:sha(fs.readFileSync(gateFile))},run);
     if(result.decision!=='plan_only'){
-      put(ctx,'RUN_END',{state:'skipped',steps:0},run);return {exit:3,run,...result,home:ctx.home};
+      put(ctx,'RUN_END',{state:'skipped',steps:0},run);return {exit:3,run,...result,...(result.reason==='already_running'?{open_run:existing.run}:{}),home:ctx.home};
     }
     // Kept between CLI invocations until explicit end. Child/wrapper identities
     // protect a step; shell liveness does not decide session lifetime.
@@ -137,7 +130,7 @@ function prepare(ctx,flags,command,launch,supportCheck){
     const checked=planRun(checkedInput);
     put(ctx,'GATE_DECISION',{...admission.d,...checked,now:checkedInput.now,jobs:gateJobs(run.jobs),stop:false,running:false,
       gate_sha256:sha(fs.readFileSync(gateFile))},ctx.run);
-    const reservation={id:newRunId(),run:ctx.run,job:job.id,class:policy.class,role:flags.role,
+    const reservation={id:newRunId(),wrapper_pid:process.pid,run:ctx.run,job:job.id,class:policy.class,role:flags.role,
       platforms,scope,run_class:job.run_class??null,at:utc(),step_seq:null,started:null};
     const fault=selectFault(ctx,job,flags.role,policy);
     armFault(ctx,fault,command[0],supportCheck);
@@ -153,7 +146,7 @@ function captureChild(ctx,command,reservationId,pinned,fault,controllerFactory=f
     fs.mkdirSync(path.dirname(file),{recursive:true});
     const fd=fs.openSync(file,'wx',0o600), buffers={stdout:Buffer.alloc(0),stderr:Buffer.alloc(0)};
     const decoder=new StringDecoder('utf8');
-    let stdout='', child, spawnError=false, captureError=false;
+    let stdout='', child, spawned=false, spawnError=false, captureError=false;
     const started=performance.now(),controller=controllerFactory(ctx,fault);
     const row=(stream,bytes)=>{
       try{fs.writeSync(fd,JSON.stringify({at:utc(),stream,bytes:bytes.toString('base64')})+'\n');}
@@ -175,16 +168,17 @@ function captureChild(ctx,command,reservationId,pinned,fault,controllerFactory=f
     if(fault)env.VPUB_FAULT=faultVariable(fault);
     try{child=spawn(command[0],command.slice(1),{stdio:['ignore','pipe','pipe'],shell:false,windowsHide:true,env,detached:!!fault&&process.platform!=='win32'});}
     catch{spawnError=true;}
-    if(child)try{controller?.attach(child);}catch{captureError=true;}
     if(child){
       child.on('spawn',()=>{
+        spawned=true;
         try{withLock(guard(ctx),()=>{
           const run=readJSON(runFile(ctx));
           atomic(runFile(ctx),{...run,child_pid:child.pid,wrapper_pid:process.pid});
         });}catch{captureError=true;}
       });
       child.stdout.on('data',b=>receive('stdout',b));child.stderr.on('data',b=>receive('stderr',b));
-      child.on('error',()=>{spawnError=true;});
+      child.on('error',()=>{if(!spawned)spawnError=true;});
+      try{controller?.attach(child);}catch{captureError=true;}
       child.on('close',(code)=>complete(spawnError?127:Number.isInteger(code)?code:3));
     }else complete(127);
     async function complete(exit){
@@ -220,7 +214,7 @@ export async function step(ctx,flags,command,{supportCheck,controllerFactory}={}
   try {
   const child=await prepared.capture;
   const {policy,reservation}=prepared;
-  const result=outcome(child.exit,child.stdout,{started:!child.spawnError,role:flags.role,platforms:reservation.platforms});
+  const result=outcome(child.exit,child.stdout,{started:!child.spawnError,role:flags.role,stepClass:policy.class,platforms:reservation.platforms});
   withLock(guard(ctx),()=>{
     const record=put(ctx,'STEP',{job:flags.job,...policy,awl_run_id:reservation.id,role:flags.role,platforms:reservation.platforms,exit:child.exit,
       ms:child.ms,capture_sha256:child.capture_sha256,result:child.captureError?'unknown':result.result,code:result.code,capture_failed:child.captureError,
@@ -245,8 +239,15 @@ export async function step(ctx,flags,command,{supportCheck,controllerFactory}={}
 }
 export function end(ctx){
   return withLock(guard(ctx),()=>{
-    const records=readJournal(ctx.journal),run=admitted(ctx,records);
-  if(run.child_pid&&(alive(run.child_pid)||alive(run.wrapper_pid))) throw new Error('step_already_running');
+    const records=readJournal(ctx.journal);
+    if(!fs.existsSync(runFile(ctx))){
+      const entry=openSessions(records,ctx.site).find(r=>r.run===ctx.run && r.slot===ctx.slot);
+      if(!entry || operator(ctx,records)!==ctx.slot)throw new Error('run_not_admitted');
+      if(reservations(ctx).some(r=>r.run===ctx.run && r.step_seq===null && alive(r.wrapper_pid)))throw new Error('step_already_running');
+      return {exit:0,record:finish(ctx,'interrupted',records)};
+    }
+    const run=admitted(ctx,records);
+    if(run.child_pid&&(alive(run.child_pid)||alive(run.wrapper_pid))) throw new Error('step_already_running');
     const record=finish(ctx,run.failed?'failed':'completed',records);
     return {exit:0,record};
   });
@@ -297,5 +298,5 @@ export async function main(argv=process.argv.slice(2)){
   console.log(JSON.stringify(result));return result.exit;
 }
 if(process.argv[1]&&import.meta.url===pathToFileURL(path.resolve(process.argv[1])).href){
-  try{process.exitCode=await main();}catch(e){console.error(/^[a-z][a-z0-9_]+$/.test(e.message)?e.message:'gate_recording_failed');process.exitCode=70;}
+  try{process.exitCode=await main();}catch(e){console.error(refusalWord(e,'gate_recording_failed'));process.exitCode=70;}
 }

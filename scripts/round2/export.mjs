@@ -5,7 +5,7 @@ import {readJournal,verifyJournal,canonical,context,keyedDigest} from './journal
 import {verifySeals,counts} from './seal.mjs';
 import {privateToolCopy} from './private-tool-copy.mjs';
 import {crosscast} from './crosscast.mjs';
-import {atomic,parseFlags,allowed,withLock,sha} from './io.mjs';
+import {refusalWord,atomic,parseFlags,allowed,withLock,sha} from './io.mjs';
 
 export function switches(argv,names){
  const set=new Set();const rest=argv.filter(a=>{if(!names.includes(a))return true;if(set.has(a))throw new Error('duplicate_flag');set.add(a);return false;});
@@ -14,7 +14,7 @@ export function switches(argv,names){
 function strings(value){return typeof value==='string'?[value]:Array.isArray(value)?value.flatMap(strings):value&&typeof value==='object'?Object.values(value).flatMap(strings):[];}
 // Default deny: even a capture of one public line has a private timestamp.
 // Only these named, public source files retain their unkeyed digests.
-const publicDigests=new Set(['protocol_sha256','gate_sha256','rules_card_sha256','analysis_sha256','crosscast_digest']);
+const publicDigests=new Set(['protocol_sha256','plan_sha256','gate_sha256','rules_card_sha256','analysis_sha256','crosscast_digest']);
 export function protectDigests(value,commit,trail=[]){
  if(typeof value==='string')return /^[a-f0-9]{64}$/i.test(value)&&
    !(trail.length===4&&trail[0]==='records'&&trail[2]==='d'&&publicDigests.has(trail[3]))?commit(value):value;
@@ -90,4 +90,4 @@ export function main(argv=process.argv.slice(2)){
  const ctx=context(f,false);if(process.env.ROUND2_HOME)ctx.home=fs.realpathSync(process.env.ROUND2_HOME);
  console.log(JSON.stringify(exportFile(ctx,f.out,{privacy:set.has('--privacy'),deny:f.deny,crosscast:f.crosscast})));return 0;
 }
-if(process.argv[1]&&import.meta.url===pathToFileURL(path.resolve(process.argv[1])).href){try{process.exitCode=main();}catch{console.error('export_refused');process.exitCode=70;}}
+if(process.argv[1]&&import.meta.url===pathToFileURL(path.resolve(process.argv[1])).href){try{process.exitCode=main();}catch(e){console.error(refusalWord(e,'export_refused'));process.exitCode=70;}}

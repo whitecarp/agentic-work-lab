@@ -68,7 +68,7 @@ Keep jobs.json under ROUND2_HOME, for example:
 [{"id":"rehearsal-1","class":"write","due_at":"2026-11-11T12:00:00.000Z","run_class":"test_post","platforms":["youtube"]}]
 ~~~
 
-The owner supplies their own words to standard input for handoff and go-ahead:
+The owner supplies the handoff and publish approval in their own words on standard input. Each delete needs its own one_delete approval for the named post and platform.
 
 ~~~text
 node scripts/round2/journal.mjs protocol-seal --site owner --phase rehearsal --protocol PROTOCOL_FILE --lab-commit LAB_COMMIT_40_HEX --crosscast-commit CROSSCAST_COMMIT_40_HEX --slot gemini
@@ -100,7 +100,9 @@ operator.json. Never edit that file to bypass a handoff.
   still works. A broken or unwritable journal means no child; exit 70.
 - run.lock is durable session state until an explicit end. A new shell does not
   imply a finished session. During a step wrapper/child identities guard the work.
-  A second begin returns already_running even if the original shell has exited.
+  A second begin returns already_running and open_run. End that session before
+  handoff. If run.lock is lost, its admitted operator can end the run by ID
+  from the journal. Recovery records RUN_END as interrupted.
 - The short exclusive .lock / operation.guard files are fail-closed. A process
   dying inside a critical write can leave one behind: preserve the evidence and
   request review. No automatic lock deletion or receipt reset is provided.
@@ -298,10 +300,8 @@ Every child gets VPUB_BROWSER_IDLE_SECONDS=0 regardless of the parent setting.
 On a multi-platform job, keyed resume/verify/edit/delete steps (including delete
 dry run and read-backs) require exactly one --platform from the job. Publish
 steps retain the entire platform set. This is an operator declaration; the
-wrapper does not decode an opaque receipt key to prove its identity. A test job
-can close as done only with successful delete read-backs for every platform.
-Nothing_posted requires post-absence observations for every platform and no
-preceding delete step; post-delete absence is not evidence of never posting.
+wrapper does not decode an opaque receipt key to prove its identity. A test job closes as done when every platform has a recorded settlement.
+Section "C37 rules and exact offline drill recipe" describes the four settlements.
 
 The gate admits a write job in a new session only while an unspent write unit
 exists. Later read/local steps must therefore run in an admitted session, or
@@ -336,22 +336,16 @@ Codex reads the resulting artifact and never runs CrossCast in the signed-in
 home. A dedicated approved local/read job can admit these export steps without
 inventing a write allowance for an exhausted release job.
 
-C15 integrates the setup guard into planned-fault arming:
-Gemini/the tester's operator, on that account owner's explicit word, registers
-ROUND2_HOME/STOP using CrossCast setup --external-stop-file and enables
-fault_injection in the selected config before the first planned shakedown fault.
-After that setup, pipe the owner's words into:
+For a planned fault the site operator runs the setup between sessions with the
+owner's words on standard input. The command checks the current configuration,
+backs up the previous settings, registers the study stop and records FAULT_SETUP.
 
 ~~~text
-node scripts/round2/fault-setup.mjs --site owner --enabled true --by owner --slot gemini
+node scripts/round2/fault-setup.mjs configure --site owner --enabled true --by owner --slot gemini
 ~~~
 
-This reads only the named config and records FAULT_SETUP; it changes no CrossCast
-configuration. It requires both enabled fault configuration and exact study
-stop registration. C15 must call assertFaultReady(ctx, kind) immediately before
-arming: the saved record and current config must agree, and a stop-file fault
-requires current registration. It must never record a fired fault from setup
-alone. Every currently unarmed child strips all inherited VPUB_FAULT variants;
+Omitting `configure` returns `configure_required`. Arming checks the recorded
+setup and the current settings. Every currently unarmed child strips all inherited VPUB_FAULT variants;
 C15 may add the selected variable only after its per-step checks.
 
 At close the authorized operator turns the setting off and removes/restores
@@ -506,9 +500,13 @@ is not at the checkout default. On a new checkout, an implicit different journal
 refuses `journal_place_mismatch`. Begin respects recorded stops even if STOP was
 removed; an agent may clear its own stop while other setters' stops remain.
 
-STEP carries each platform's closed-vocabulary state, previous state, code and
-press marker. Exit 4 alone is not uncertainty; confirmed platforms do not borrow
-another platform's uncertainty. Errors after contact, exit 3 and cutoffs in all
+STEP carries the state, previous state, code word and press marker for each
+platform. An unfamiliar state is recorded as UNLISTED. For a publish that
+reports WAITING_FOR_USER or PREPARATION_INCOMPLETE, a true or missing marker
+opens a case unless the tool record proves no press. A false marker settles
+the no-press question for these two states. A mixture of settled and unsent
+platforms has the daily summary partial. An exit-2 write with an unusable
+matched record is listed under error_steps_unclassified in the reconcile. Errors after contact, exit 3 and cutoffs in all
 press-capable roles open cases unless complete evidence proves no press. Null
 delete counters unchanged on both sides are acceptable; missing final-press
 counters are not proof. Edit/delete cutoffs use their own markers, not an old
@@ -535,10 +533,10 @@ seal must name `--plan ROUND2_HOME/planned-runs.json`. Plan hashes cover raw byt
 Private counts-source.json, seed, generator arguments and jobs bytes must exactly
 reproduce the list; both 2b sealing and reveal perform that check. Reveal also
 requires a site-person closing **yes** after the last STEP and no open session.
-The post-close tester package contains the revealed planned-runs.json **and
-plan-seed**, public counts/generator version, the derived privacy export and the
-privacy comparison. Never send salt, raw captures, private homes or raw tool
-export. No copy leaves until the privacy review is accepted. Default-key every
+The tester sends two files after closing, the derived privacy export and its
+privacy comparison. The owner publishes the tester list and seed from the
+owner's site. The protocol seal retains the public plan_sha256 so the recipient
+can compare the list digest. Default-key every
 64-hex digest except explicitly allowlisted public source-file fields; sessions
 are null and exported event numbering starts at 1. STEP duration is withheld
 when its prior gate and STEP cross UTC midnight, even without tool events.

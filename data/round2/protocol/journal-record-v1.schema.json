@@ -692,7 +692,8 @@
                 "needs_person",
                 "in_doubt",
                 "failed",
-                "unknown"
+                "unknown",
+                "partial"
               ]
             },
             "code": {
@@ -784,7 +785,8 @@
                       "VERIFIED",
                       "FAILED",
                       "NOT_SUPPORTED",
-                      "forgotten"
+                      "forgotten",
+                      "UNLISTED"
                     ]
                   },
                   "previous_state": {
@@ -820,49 +822,19 @@
                       "VERIFIED",
                       "FAILED",
                       "NOT_SUPPORTED",
-                      "forgotten"
+                      "forgotten",
+                      "UNLISTED"
                     ]
                   },
                   "code": {
-                    "enum": [
-                      null,
-                      "stopped",
-                      "interrupted",
-                      "confirmation_required",
-                      "deletion_already_attempted",
-                      "deletion_not_allowed",
-                      "deletion_target_unverified",
-                      "deletion_target_changed",
-                      "unsupported_delete",
-                      "attempt_exists",
-                      "already_submitted",
-                      "press_blocked",
-                      "cover_blocked",
-                      "wrong_account",
-                      "wrong_work",
-                      "owner_unverified",
-                      "needs_person",
-                      "human_verification_required",
-                      "injected_fault",
-                      "fault_injection_refused",
-                      "backend_timeout",
-                      "browser_timeout",
-                      "readback_failed",
-                      "schedule_unverified",
-                      "identity_mismatch",
-                      "busy",
-                      "browser_busy",
-                      "lock_marker_unreadable",
-                      "file_not_found",
-                      "invalid_file",
-                      "internal_error",
-                      "submission_unverified",
-                      "preparation_incomplete",
-                      "inspect_existing_edit",
-                      "receipt_missing",
-                      "stopped_before_press",
-                      "draft_only",
-                      "verified_not_saved"
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "pattern": "^[a-z][a-z0-9_]{0,47}$"
+                      },
+                      {
+                        "type": "null"
+                      }
                     ]
                   },
                   "press_flag": {
@@ -2728,6 +2700,14 @@
                 "owned_handle_controller_unavailable",
                 "process_controller_failed"
               ]
+            },
+            "unopened": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "unopened_present": {
+              "type": "integer",
+              "minimum": 0
             }
           },
           "required": [

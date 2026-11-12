@@ -3,7 +3,7 @@ import path from 'node:path';
 import {pathToFileURL} from 'node:url';
 import {context,operator,readJournal,put,keyedDigest,words} from './journal.mjs';
 import {bindHome} from './site.mjs';
-import {withLock,parseFlags,allowed,readJSON,atomic} from './io.mjs';
+import {refusalWord,withLock,parseFlags,allowed,readJSON,atomic} from './io.mjs';
 
 const normalized=p=>process.platform==='win32'?p.toLowerCase():p;
 function inspect(ctx,records){
@@ -65,5 +65,5 @@ export function main(argv=process.argv.slice(2)){
  console.log(JSON.stringify((configure?configureSetup:recordSetup)(ctx,{enabled:f.enabled==='true',by:f.by??ctx.site},()=>words(ctx.home))));return 0;
 }
 if(process.argv[1]&&import.meta.url===pathToFileURL(path.resolve(process.argv[1])).href){
- try{process.exitCode=main();}catch(e){console.error(['not_operator','external_stop_already_registered'].includes(e.message)?e.message:'fault_setup_unconfirmed');process.exitCode=70;}
+ try{process.exitCode=main();}catch(e){console.error(refusalWord(e,'fault_setup_unconfirmed'));process.exitCode=70;}
 }

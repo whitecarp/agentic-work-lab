@@ -3,7 +3,7 @@ import path from 'node:path';
 import {createHash,randomBytes} from 'node:crypto';
 import {pathToFileURL} from 'node:url';
 import {canonical,context,readJournal} from './journal.mjs';
-import {sha,privateHome,parseFlags,allowed,withLock} from './io.mjs';
+import {refusalWord,sha,privateHome,parseFlags,allowed,withLock} from './io.mjs';
 import {FAULTS} from './planned-faults.mjs';
 
 function random(seed){let counter=0;return max=>{if(!Number.isSafeInteger(max)||max<1)throw new Error('bad_draw');
@@ -162,4 +162,4 @@ export function main(argv=process.argv.slice(2)){
  const result=sub==='make'?make(home,JSON.parse(fs.readFileSync(f.counts)),f.site,{countsRaw:fs.readFileSync(f.counts),dueFrom:f['due-from'],firstShort:f['first-short']===undefined?undefined:Number(f['first-short']),firstLong:f['first-long']===undefined?undefined:Number(f['first-long'])}):sub==='check'?check(home,f.sealed):sub==='verify'?verifyPlan(home,f.counts):reveal(context(f));
  console.log(JSON.stringify(result));return 0;
 }
-if(process.argv[1]&&import.meta.url===pathToFileURL(path.resolve(process.argv[1])).href){try{process.exitCode=main();}catch{console.error('planned_runs_refused');process.exitCode=70;}}
+if(process.argv[1]&&import.meta.url===pathToFileURL(path.resolve(process.argv[1])).href){try{process.exitCode=main();}catch(e){console.error(refusalWord(e,'planned_runs_refused'));process.exitCode=70;}}

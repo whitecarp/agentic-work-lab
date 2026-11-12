@@ -3,10 +3,10 @@ import path from 'node:path';
 import {pathToFileURL} from 'node:url';
 import {readJournal,context,keyedDigest} from './journal.mjs';
 import {protectDigests} from './export.mjs';
-import {sha,parseFlags,allowed,readJSON} from './io.mjs';
+import {refusalWord,sha,parseFlags,allowed,readJSON} from './io.mjs';
 import {crosscast,commandClass} from './crosscast.mjs';
 import {jobList} from './jobs.mjs';
-import {operation,pressRoles,uncertainState,nothingSent,confirmedAnswer,confirmed} from './answers.mjs';
+import {operation,pressRoles,uncertainState,nothingSent,settled,confirmedAnswer,confirmed} from './answers.mjs';
 import {countsLook} from './looks.mjs';
 
 export function reconcile(ctx,crosscastFile,{now=Date.now(),privacy=false}={}){
@@ -20,7 +20,7 @@ export function reconcile(ctx,crosscastFile,{now=Date.now(),privacy=false}={}){
   const first=admissions.find(r=>r.run===id),end=records.find(r=>r.run===id&&r.type==='RUN_END');
   return {id,start:Date.parse(first.at),end:end?Date.parse(end.at):null};
  });
- const refusals={};for(const s of steps.filter(r=>r.d.result==='refused'))refusals[s.d.code??'other']=(refusals[s.d.code??'other']??0)+1;
+ const refusals=Object.create(null);for(const s of steps.filter(r=>r.d.result==='refused'))refusals[s.d.code??'other']=(refusals[s.d.code??'other']??0)+1;
  for(const r of records.filter(r=>r.type==='STEP_REFUSED'))refusals[r.d.reason]=(refusals[r.d.reason]??0)+1;
  let missing=0;
  const captureHashes=new Set();
@@ -88,6 +88,8 @@ export function reconcile(ctx,crosscastFile,{now=Date.now(),privacy=false}={}){
  }
  function eventsFor(s){
    const cmd=matched(s);
+   // The exporter sets loss_complete=false on every run. Known gaps and loss
+   // records determine whether its observed events can support this comparison.
    if(!intact||!cmd||cmd.dropped_events!==0||cmd.sequence_gap!==false)return null;
    return cc.events.filter(e=>e.run===cmd.run);
  }
@@ -130,19 +132,29 @@ export function reconcile(ctx,crosscastFile,{now=Date.now(),privacy=false}={}){
    if(snapshots.some(e=>e.final_submit_attempted===true||e.final_presses>0||e.delete_attempted===true))return true;
    return snapshots.some(e=>e.final_submit_attempted===false||e.final_presses===0||e.delete_attempted===false)?false:null;
  }
- const cases=new Map();
+ function usableEvents(s){
+   const cmd=matched(s),events=eventsFor(s);
+   if(!cmd || !events || cmd.ended!==true || cmd.exit_code!==s.d.exit ||
+      events[0]?.type!=='command_start' || events.at(-1)?.type!=='command_end')return null;
+   return events;
+ }
+ const cases=new Map(),errorStepsUnclassified=[];
  const answerFor=(s,p)=>s.d.answers?.find(a=>a.platform===p);
  function opens(s,p){
    const a=answerFor(s,p),about=operation(s);
    if(a){
-     if(nothingSent(a)||confirmedAnswer(a,about))return false;
+     if(nothingSent(a,about)||settled(a,about))return false;
      if(uncertainState(a,about))return true;
+     if(a.state)return !provenNoPress(s,p);
    }else if(s.d.result==='in_doubt')return true; // Existing journals: no fabricated platform answer.
-   const events=eventsFor(s),contact=events?.some(e=>(!e.platform||e.platform===p)&&['call','stage','transition'].includes(e.type));
+   const events=usableEvents(s),contact=events?.some(e=>(!e.platform||e.platform===p)&&['call','stage','transition'].includes(e.type));
    return (cutoff(s)||s.d.result==='unknown'||s.d.exit===3||s.d.exit===2&&contact)&&!provenNoPress(s,p);
  }
- for(const s of steps.filter(r=>started(r)&&pressRoles.includes(r.d.role)&&operation(r))){
+ for(const s of steps.filter(r=>started(r)&&r.d.class==='write'&&pressRoles.includes(r.d.role)&&operation(r))){
    for(const platform of s.d.platforms){
+     if(s.d.exit===2 && !usableEvents(s)){
+       errorStepsUnclassified.push({step:s.seq,platform,exit:2,code:answerFor(s,platform)?.code??s.d.code??null});
+     }
      if(!opens(s,platform))continue;
      const key=JSON.stringify([s.d.job,platform,operation(s)]);
      if(!cases.has(key))cases.set(key,{s,platform,members:[]});
@@ -182,19 +194,20 @@ export function reconcile(ctx,crosscastFile,{now=Date.now(),privacy=false}={}){
      seconds:closure?Math.max(0,(Date.parse(closure.at)-Date.parse(s.at))/1000):null,clock_reversed:!!closure&&Date.parse(closure.at)<Date.parse(s.at)};
  });
  const result={schema:'round2-reconcile/1',as_of:new Date(now).toISOString(),records:records.length,crosscast_present:cc.present,crosscast_chain_ok:cc.chain_ok,time_alignment:!cc.present?'journal_only':cc.times==='exact'&&cc.chain_ok?'exact':'unavailable',
+   error_steps_unclassified:errorStepsUnclassified,
    command_binding:!cc.present?'journal_only':trusted?'shared_id':'unavailable',
    ungated_writes:ungated,matched_write_commands:trusted?bindings.length-ungated:null,write_bindings:bindings,
    admitted_sessions_without_write:runs.filter(r=>!steps.some(s=>s.run===r.id&&s.d.class==='write')).length,
    captures_checked:!!ctx.home,captures_missing:ctx.home?missing:null,in_doubt:inDoubt,in_doubt_open:inDoubt.filter(r=>!r.closed).length,
    fault_delays:records.filter(r=>r.type==='FAULT_RESULT').map(r=>{
      const armed=records.findLast(a=>a.seq<r.seq&&a.type==='FAULT'&&a.run===r.run&&a.d.job===r.d.job&&a.d.role===r.d.role);
-     const row={job:r.d.job,kind:r.d.kind,role:r.d.role,fired:r.d.fired};
+     const row={job:r.d.job,kind:r.d.kind,role:r.d.role,fired:r.d.fired,failed:r.d.failed};
      if(armed&&armed.d.mechanism!=='tool_switch'){row.listed_ms=armed.d.delay_ms;row.measured_ms=r.d.action_delay_ms??null;row.gone_ms=r.d.gone_delay_ms??null;row.reason=r.d.reason??null;}
      return row;
    }),cutoff_without_press_flag:inDoubt.filter(r=>r.cutoff&&r.cutoff_press_flag===false).length,
    cutoff_press_flag_unavailable:inDoubt.filter(r=>r.cutoff&&r.cutoff_press_flag===null).length,
    in_doubt_open_strict:inDoubt.filter(r=>!r.closed_strict).length,
-   looks_owed:owesLook.map(({job,platform,step,about})=>({job,platform,step,about})),look_checks:lookChecks,looks_scope_unknown:eligible.filter(r=>!scope(r.d.job)).length,refusals_by_code:refusals,
+   looks_owed:owesLook.map(({job,platform,step,about})=>({job,platform,step,about})),look_checks:lookChecks,looks_scope_unknown:eligible.filter(r=>!scope(r.d.job)).length,refusals_by_code:{...refusals},
    violations:records.filter(r=>r.type==='VIOLATION').length,crosscast_command_losses:cc.losses,crosscast_integrity:cc.integrity};
  if(privacy){result.as_of=result.as_of.slice(0,10);result.time_policy='UTC_date_end; in_doubt_minutes_rounded_up';
   for(const c of result.in_doubt){c.minutes=c.seconds===null?null:Math.ceil(c.seconds/60);delete c.seconds;}
@@ -207,4 +220,4 @@ export function main(argv=process.argv.slice(2)){
  const {flags:f,command}=parseFlags(argv.filter(x=>x!=='--privacy'));allowed(f,['site','slot','journal','crosscast','as-of']);if(command.length)throw new Error('invalid_arguments');
  console.log(JSON.stringify(reconcile(context(f),f.crosscast,{now:f['as-of'],privacy})));return 0;
 }
-if(process.argv[1]&&import.meta.url===pathToFileURL(path.resolve(process.argv[1])).href){try{process.exitCode=main();}catch{console.error('reconcile_refused');process.exitCode=70;}}
+if(process.argv[1]&&import.meta.url===pathToFileURL(path.resolve(process.argv[1])).href){try{process.exitCode=main();}catch(e){console.error(refusalWord(e,'reconcile_refused'));process.exitCode=70;}}
