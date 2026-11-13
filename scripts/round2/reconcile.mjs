@@ -214,6 +214,17 @@ export function reconcile(ctx,crosscastFile,{now=Date.now(),privacy=false,practi
    looks_owed:owesLook.map(({job,platform,step,about})=>({job,platform,step,about})),look_checks:lookChecks,looks_scope_unknown:eligible.filter(r=>!scope(r.d.job)).length,refusals_by_code:{...refusals},
    violations:records.filter(r=>r.type==='VIOLATION').length,crosscast_command_losses:cc.losses,crosscast_integrity:cc.integrity};
  if(privacy){result.as_of=result.as_of.slice(0,10);result.time_policy='UTC_date_end; same_day_in_doubt_minutes_rounded_up; cross_date_durations_withheld';
+  const jobDays=new Map();
+  for(const r of records.filter(r=>r.d.job)){
+   if(!jobDays.has(r.d.job))jobDays.set(r.d.job,new Set());
+   jobDays.get(r.d.job).add(r.at.slice(0,10));
+  }
+  // The standalone reconciliation copy must honor the export's timing policy.
+  // Planned delays are public design inputs; observed delays are private data.
+  for(const row of result.fault_delays)if(jobDays.get(row.job)?.size>1){
+   for(const field of ['measured_ms','gone_ms'])if(Object.hasOwn(row,field))row[field]=null;
+   row.duration_withheld=true;
+  }
   for(const c of result.in_doubt){
    const first=records.find(r=>r.seq===c.step),last=records.find(r=>r.seq===c.settled_at_seq);
    const crossDate=last&&first.at.slice(0,10)!==last.at.slice(0,10);

@@ -29,6 +29,10 @@ test('C52 B1 positive merged counter needs a same-ref earlier baseline',()=>{
  assert.equal(priorPressCount([{...old,ref:'other'},...ev],ev,'youtube'),null);
  assert.equal(priorPressCount([{...old,platform:'douyin'},...ev],ev,'youtube'),null);
  assert.equal(pressEvidence(ev,false,'youtube','post',prior).noPress,false);
+ const changed=[{seq:3,type:'command_start',platforms:{youtube:{ref:'r'}}},{seq:4,type:'command_end',platforms:{youtube:{ref:'new',final_presses:1}}}];
+ const changedPrior=priorPressCount([old,...changed],changed,'youtube');
+ assert.equal(changedPrior,null);
+ assert.equal(pressEvidence(changed,true,'youtube','post',changedPrior).noPress,false);
 });
 
 test('C52 G1 publish, edit and real-release resume approvals cannot substitute',t=>{
@@ -145,4 +149,22 @@ test('C52 B3 cross-date case and its linked STEP cannot reveal duration',t=>{
  assert.equal(local.in_doubt[0].duration_withheld,true);assert.equal(local.in_doubt[0].minutes,null);
  const copy=exportData(f.ctx,{privacy:true});assert.equal(copy.records.find(r=>r.type==='STEP').d.ms,undefined);
  assert.equal(readJournal(f.journal).find(r=>r.type==='STEP').d.ms,0);
+});
+
+for(const crossDate of [false,true])test('C52 B3 reconcile fault delays respect cross-date withholding '+crossDate,t=>{
+ const f=ready(t),kind='end_command_after_press';
+ put(f.ctx,'FAULT',{job:'job-1',kind,role:'publish',mechanism:'wrapper_kill',trigger:'pressing',delay_ms:500,armed_on:'youtube_private'},f.ctx.run);
+ record(f);
+ put(f.ctx,'FAULT_RESULT',{job:'job-1',kind,role:'publish',triggered:true,fired:true,failed:false,processes:[],action_delay_ms:523,gone_delay_ms:612},f.ctx.run);
+ put(f.ctx,'OBSERVATION',{job:'job-1',platform:'youtube',ref:null,about:'post',by:'owner',client:'phone_app',seen:'present_private',fields_match:null,minutes_after:15,words_sha256:'a'.repeat(64),shot_sha256:null});
+ const rows=readJournal(f.journal);let previous='0'.repeat(64);
+ rows.forEach(r=>{r.at=r.type==='OBSERVATION'?(crossDate?'2026-11-21T00:05:00.000Z':'2026-11-20T23:55:00.000Z'):'2026-11-20T23:40:00.000Z';if(r.type==='GATE_DECISION')r.d.now=r.at;r.prev=previous;previous=sha(canonical(r));});
+ fs.writeFileSync(f.journal,rows.map(canonical).join('\n')+'\n');fs.writeFileSync(f.journal+'.head',JSON.stringify({records:rows.length,head_sha256:previous}));
+ const options={now:Date.parse('2026-11-21T00:10:00Z')},source=fs.readFileSync(f.journal,'utf8');
+ const local=reconcile(f.ctx,undefined,options).fault_delays[0];
+ const shared=reconcile(f.ctx,undefined,{...options,privacy:true}).fault_delays[0];
+ assert.equal(local.measured_ms,523);assert.equal(local.gone_ms,612);
+ assert.equal(shared.measured_ms,crossDate?null:523);assert.equal(shared.gone_ms,crossDate?null:612);
+ assert.equal(shared.listed_ms,500);assert.equal(shared.fired,true);
+ assert.equal(fs.readFileSync(f.journal,'utf8'),source);
 });

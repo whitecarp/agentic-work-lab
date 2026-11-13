@@ -31,7 +31,8 @@ export function priorPressCount(all,events,platform){
  const first=events.find(e=>e.type==='command_start');
  if(!Number.isSafeInteger(first?.seq))return null;
  const refs=new Set(commandSnapshots(events,platform).map(s=>s.ref).filter(v=>typeof v==='string'));
- if(!refs.size)return null;
+ // A counter for one receipt cannot establish a baseline for a different one.
+ if(refs.size!==1)return null;
  const counts=commandSnapshots(all.filter(e=>e.seq<first.seq),platform)
   .filter(s=>refs.has(s.ref)&&!['edit','deletion'].includes(s.kind)&&finiteCount(s.final_presses)).map(s=>s.final_presses);
  return counts.length?Math.max(...counts):null;
