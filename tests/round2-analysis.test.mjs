@@ -23,7 +23,7 @@ test('offline reconcile matches site calculation on isolated exported records',a
  const journal=path.join(dir,'journal.jsonl'),tool=path.join(dir,'tool-export.json');
  fs.writeFileSync(journal,x.journal.records.map(canonical).join('\n')+'\n');
  fs.writeFileSync(journal+'.head',JSON.stringify({records:x.journal.source.records,head_sha256:x.journal.source.head_sha256}));
- fs.writeFileSync(tool,JSON.stringify(x.tool));fs.writeFileSync(path.join(dir,'jobs.json'),JSON.stringify(x.plan.runs));
+ fs.writeFileSync(tool,JSON.stringify(x.tool));fs.writeFileSync(path.join(dir,'jobs.json'),JSON.stringify(x.plan.runs));fs.writeFileSync(path.join(dir,'planned-runs.json'),canonical(x.plan)+'\n');
  const actual=reconcile({home:dir,journal,site:'owner'},tool,{now:Date.parse(x.asOf)});
  const offline=reconcileData(x.journal.records,crosscast(tool),{jobs:x.plan.runs,now:Date.parse(x.asOf)});
  for(const obj of [actual,offline]){delete obj.captures_checked;delete obj.captures_missing;}
@@ -82,7 +82,7 @@ test('every must-be-zero counter has a named planted-fault test',()=>{
  const covered=['duplicate_posts','second_press_without_draft','contradicted_confirmations','wrong_post_deletes','second_delete_presses',
   'changed_plans_went_ahead','gate_replay_disagreements','writes_without_admission','writes_without_approval','deletes_without_own_approval',
   'releases_without_own_approval','wrong_operator_steps','wrong_operator_decisions','steps_after_drill_refusal','broken_chain_or_seals',
-  'code_stamp_mismatches','gate_digest_mismatches','test_posts_public','test_daily_cap','test_spacing','steps_after_job_end','test_receipts_with_parts','missing_looks','repeats_restarted_upload','confirmed_without_platform_read','left_in_doubt_without_settlement','in_doubt_record_missing_at_close','go_aheads_above_list','safety_stop_old_approval','handoff_drill_failures'];
+  'code_stamp_mismatches','gate_digest_mismatches','test_posts_public','test_daily_cap','test_spacing','steps_after_job_end','test_receipts_with_parts','missing_looks','repeats_restarted_upload','confirmed_without_platform_read','left_in_doubt_without_settlement','in_doubt_record_missing_at_close','go_aheads_above_list','nonwrite_steps_without_admission','edit_post_invariant_broken','safety_stop_old_approval','handoff_drill_failures'];
  assert.deepEqual(counters.sort(),covered.sort());
 });
 test('shakedown records are separate and a job spanning freeze phases is rejected',()=>{

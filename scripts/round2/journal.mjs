@@ -95,6 +95,13 @@ export function checkJournalPlace(ctx,sealing=false){
 }
 export function put(ctx,type,d,run=null,timeoutMs=1000) {
   checkJournalPlace(ctx,type==='PROTOCOL_SEAL');
+  if(type==='GO_AHEAD'&&ctx.home){
+    const file=path.join(ctx.home,'reservations.json');
+    if(!fs.existsSync(file)){
+      if(readJournal(ctx.journal).some(r=>['GO_AHEAD','STEP'].includes(r.type)))throw new Error('reservations_missing');
+      atomic(file,[]);
+    }
+  }
   return appendRecord(ctx.journal,{site:ctx.site,slot:ctx.slot,type,run,d},timeoutMs);
 }
 export function operator(ctx, records) {
@@ -123,12 +130,21 @@ export function activeStops(records){
   }
   return active;
 }
-export function words(home) {
+export function words(home,messageId=null) {
   const bytes=fs.readFileSync(0);
   if(!bytes.toString('utf8').trim()) throw new Error('empty_words');
-  return commitWords(home,bytes);
+  return commitWords(home,bytes,messageId);
 }
-export function commitWords(home,bytes) {
+export function commitWords(home,bytes,messageId=null) {
+  if(messageId!==null){
+    if(!/^[a-zA-Z0-9._-]{1,80}$/.test(messageId))throw new Error('invalid_message_id');
+    const file=path.join(home,'message-commitments',keyedDigest('message:'+messageId,home)+'.json');
+    return withLock(file+'.lock',()=>{
+      const existing=readJSON(file,null),content=keyedDigest(bytes,home);
+      if(existing){if(existing.content!==content)throw new Error('message_id_words_changed');return existing.digest;}
+      const digest=commitWords(home,bytes);atomic(file,{content,digest});return digest;
+    });
+  }
   if(/^[?\s]+$/.test(Buffer.from(bytes).toString('utf8').trim()))throw new Error('words_unreadable');
   const nonce=randomBytes(32),digest=sha(Buffer.concat([nonce,Buffer.from(bytes)]));
   // The opening stays beside the private words; neither is in a public record.
@@ -139,7 +155,7 @@ export function commitWords(home,bytes) {
 const numeric=(s)=>{if(!/^\d+$/.test(s??''))throw new Error('invalid_integer');return Number(s);};
 function fileHash(file){return sha(fs.readFileSync(file,'utf8').replace(/\r\n/g,'\n'));}
 export function clearGuard(ctx,by,statement){
-  if(!['owner','tester'].includes(by)) throw new Error('invalid_person');
+  if(by!==ctx.site) throw new Error('invalid_person');
   if(!statement.toString('utf8').trim()) throw new Error('empty_words');
   const guard=path.join(ctx.home,'operation.guard');
   return withLock(guard+'.recovery',()=>{
@@ -178,7 +194,7 @@ export function main(argv=process.argv.slice(2)){
   const {flags:f,command}=parseFlags(argv.filter(a=>a!=='--closing'));
   if(command.length) throw new Error('invalid_arguments');
   const lists={
-    'go-ahead':['job','scope','count','by','platform'],observe:['job','ref','about','by','client','seen','fields-match','minutes-after','shot-sha256','platform'],
+    'go-ahead':['job','scope','count','by','platform','purpose','message-id'],observe:['job','ref','about','by','client','seen','fields-match','minutes-after','shot-sha256','platform'],
     note:['code','platform','job','agent','minutes-ago'],violation:['rule','found-by','job','platform'],
     'sign-off':['day','by','answer'],handoff:['to','job','by'],stop:['by'],'clear-stop':['by'],'clear-guard':['by'],
     'protocol-seal':['phase','protocol','lab-commit','crosscast-commit','crosscast-digest','plan','analysis','rules-card','by'],
@@ -189,6 +205,7 @@ export function main(argv=process.argv.slice(2)){
   allowed(f,['site','slot','journal','run',...lists[sub]]);
   if(sub==='note' && f.platform?.length>1) throw new Error('one_platform_required');
   const ctx=context(f), run=f.run??null;
+  if(['go-ahead','observe','sign-off','handoff','protocol-seal','real-release','clear-guard'].includes(sub)&&f.by!==undefined&&f.by!==ctx.site)throw new Error('invalid_person');
   if(sub==='clear-guard') {console.log(JSON.stringify(clearGuard(ctx,f.by,fs.readFileSync(0))));return 0;}
   return withLock(path.join(ctx.home,'operation.guard'),()=>{
     // Verify before reading private statements or changing any control file.
@@ -202,7 +219,12 @@ export function main(argv=process.argv.slice(2)){
         const job=jobList(ctx,readJournal(ctx.journal)).find(j=>j.id===f.job);
         if(f.scope==='one_delete'&&(!job||f.platform?.length!==1||!job.platforms?.includes(f.platform[0])||f.platform[0]==='bilibili'))throw new Error('delete_approval_platform_required');
         if(f.scope!=='one_delete'&&f.platform)throw new Error('unexpected_platform');
-        type='GO_AHEAD';d={job:f.job,scope:f.scope,count:numeric(f.count),by:f.by??ctx.site,words_sha256:words(ctx.home)};
+        if(f.purpose&&f.scope!=='one_write')throw new Error('unexpected_approval_purpose');
+        const purpose=f.scope==='one_write'?(f.purpose??'publish'):null;
+        if(purpose&&!['publish','edit','resume'].includes(purpose))throw new Error('invalid_approval_purpose');
+        const digest=words(ctx.home,f['message-id']??null);
+        if(f['message-id']&&readJournal(ctx.journal).some(r=>r.type==='GO_AHEAD'&&r.d.job===f.job&&r.d.words_sha256===digest))throw new Error('approval_message_replayed');
+        type='GO_AHEAD';d={job:f.job,scope:f.scope,count:numeric(f.count),by:f.by??ctx.site,words_sha256:digest,...(purpose?{purpose}:{})};
         if(f.scope==='one_delete')d.platform=f.platform[0];break;
       }
       case 'observe':{
@@ -263,6 +285,8 @@ export function main(argv=process.argv.slice(2)){
         if(!(f.phase in rank)||prior.some(r=>rank[r.d.phase]>rank[f.phase]))throw new Error('seal_phase_not_forward');
         if(frozen.length>=3)throw new Error('refreeze_limit');
         if(frozen.length&&f.by!==ctx.site)throw new Error('refreeze_owner_words_required');
+        if(['2a','2b'].includes(f.phase)&&!f['rules-card'])throw new Error('rules_card_required');
+        if(f.phase==='2b'&&(!f['crosscast-digest']||!f.analysis))throw new Error('freeze_digests_required');
         if(f.phase==='2b'){
           if(!f.plan||path.resolve(f.plan)!==path.join(ctx.home,'planned-runs.json'))throw new Error('sealed_plan_required');
           verifyPlan(ctx.home);

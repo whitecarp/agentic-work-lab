@@ -691,3 +691,33 @@ decide what can run. Never compress or repeat runs to fill the draft. One
 Bilibili delete dry run remains recommended only on an existing owner-approved
 real-release receipt during its read-back session: no new public post and no
 confirmation code. With no eligible receipt/session, record not attempted.
+
+### C52 pre-seal changes
+
+`journal go-ahead --scope one_write` now accepts `--purpose publish|edit|resume`.
+The default is `publish`; that balance cannot pay for a separate edit or a
+real-release resume. Record one explicit edit or real-release-resume unit only
+when the site owner authorizes that action. Existing records remain immutable;
+do not relabel an older publish grant. Person actions must name `--by` equal
+to `--site`. The owner site's listed-test-post allowance is unchanged.
+
+For a single owner message that approves several named jobs, pass the same
+`--message-id` (1–80 letters, digits, dots, underscores or hyphens) and the
+identical message text on each job's go-ahead command. The private store keeps
+one salted commitment. Reusing that message on the same job, or changing its
+text, is refused. A different message needs a different identifier. Omitting
+the flag retains the one-call/one-message behavior. The message identifier and
+text are not exported. Figure 1.8 counts distinct commitments.
+
+Both `2a` and `2b` protocol seals require `--rules-card FILE`. Phase `2b` also
+requires `--crosscast-digest SHA256` and `--analysis FILE`, alongside its
+verified `--plan`. Missing or changed sealed plans and lost reservation files
+refuse new operations; recorded writes conservatively consume authorization
+even if absent from the reservation cache. Never reset those files to retry.
+
+Dates-only exports suppress cross-date case durations and linked command,
+STEP, stage and span offsets. Closure and outside-upload checks are calculated
+locally first and exported as booleans/record references. Unconfirmed reached
+attempts remain in the capability checklist even when excluded from a primary
+bound. An answered command is not a fired process-ending fault. These tools
+do not authorize any account action or change the manual Douyin cleanup rule.

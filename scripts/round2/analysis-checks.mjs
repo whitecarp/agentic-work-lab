@@ -3,7 +3,7 @@ import {publishStartedOn} from './answers.mjs';
 import {safetyStopOn,validRestartGrant} from './policy.mjs';
 import {planRun} from '../operations-gate.mjs';
 import {canonical} from './journal.mjs';
-import {lookTiming,lookStep} from './looks.mjs';
+import {lookTiming,lookStep,secondLookDue} from './looks.mjs';
 const exact=v=>typeof v==='string'&&/^\d{4}-\d\d-\d\dT\d\d:\d\d/.test(v)&&Number.isFinite(Date.parse(v));
 const started=r=>r.d.started!==false&&r.d.exit!==127;
 // Human work (7.3) includes every observation, not only the qualifying look
@@ -38,7 +38,7 @@ export function gateChecks(records){
 export function publishChecks(records,jobs){
  const rows=[],seen=new Set();
  for(const r of records.filter(r=>r.type==='STEP'&&r.d.role==='publish'&&started(r))){
-  if(jobs.find(j=>j.id===r.d.job)?.run_class!=='test_post')continue;
+  if(!['test_post','real_release','real_slot'].includes(jobs.find(j=>j.id===r.d.job)?.run_class))continue;
   for(const platform of r.d.platforms){
    if(!publishStartedOn(r,platform))continue;
    const id=JSON.stringify([r.d.job,platform]);if(seen.has(id))continue;seen.add(id);
@@ -49,9 +49,11 @@ export function publishChecks(records,jobs){
   const earlier=rows.slice(0,i).filter(x=>x.platform===platform);
   const unknown=start===null||earlier.some(x=>x.start===null||x.start>start);
   const prior=earlier.filter(x=>x.start!==null).map(x=>x.start);
+  const test=jobs.find(j=>j.id===r.d.job)?.run_class==='test_post';
+  const priorTests=earlier.filter(x=>jobs.find(j=>j.id===x.r.d.job)?.run_class==='test_post');
   return {step:r.seq,job:r.d.job,platform,
-   daily:unknown?null:prior.filter(t=>start-t<86400000).length>=4,
-   spacing:unknown?null:prior.some(t=>start-t<1200000),
+   daily:unknown?null:test&&priorTests.filter(x=>start-x.start<86400000).length>=4,
+   spacing:unknown?null:test&&prior.some(t=>start-t<1200000),
    reason:unknown?'start_time_missing_or_reversed':null};
  });
 }
@@ -85,6 +87,17 @@ export function runChecks(records,jobs,lookChecks){
    const valid=records.some(r=>r.seq<first.seq&&validRestartGrant(r,j.id,threshold,start));
    return [{platform:p,step:first.seq,stop:stop.seq,valid}];
   });
-  return {job:j.id,signoffs,interference:[...new Set(interference)],safety_restarts};
+  const end=records.find(r=>r.type==='JOB_END'&&r.d.job===j.id),beforeEnd=end?records.filter(r=>r.seq<end.seq):[];
+  const nothing_posted_before_second_look=(j.platforms??[]).filter(platform=>{
+   if(!end?.d.platform_settlements?.some(x=>x.platform===platform&&x.how==='nothing_posted'))return false;
+   const step=lookStep(beforeEnd,j.id,platform,'post');
+   const due=secondLookDue({seq:end.seq,d:{job:j.id,platform,about:'post'}},step,beforeEnd);
+   return due&&!beforeEnd.some(r=>r.type==='OBSERVATION'&&r.d.job===j.id&&(r.d.platform??platform)===platform&&r.d.about==='post'&&lookTiming(r,step,beforeEnd).status==='second_look'&&lookTiming(r,step,beforeEnd).counts);
+  });
+  const outside=records.filter(r=>r.type==='NOTE'&&r.d.code==='outside_upload'&&j.platforms?.includes(r.d.platform));
+  const lo=upload.length?Date.parse(upload[0].at)-(upload[0].d.ms??0)-1800000:null;
+  const hi=upload.length?Date.parse(upload.at(-1).at)+1800000:null;
+  const outside_upload=outside.some(r=>r.d.minutes_ago==null)?null:upload.length&&outside.some(r=>{const t=Date.parse(r.at)-r.d.minutes_ago*60000;return t>=lo&&t<=hi;});
+  return {job:j.id,signoffs,interference:[...new Set(interference)],safety_restarts,nothing_posted_before_second_look,outside_upload};
  });
 }

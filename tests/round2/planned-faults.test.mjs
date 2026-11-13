@@ -16,7 +16,7 @@ function ready(t,kind='readback_timeout',script,delay=0){
  configureSetup(f.ctx,{enabled:true,by:'owner'},()=> 'a'.repeat(64));
  const rule=FAULTS[kind];f.fault={kind,mechanism:rule.mechanism,role:rule.role,trigger:rule.trigger,delay_ms:delay,armed_on:'youtube_private'};
  f.plan={runs:[{...job,site:'owner',faults:[f.fault]}]};f.save=()=>fs.writeFileSync(path.join(f.home,'planned-runs.json'),JSON.stringify(f.plan));f.save();
- approve(f.ctx,'job-1',20);if(rule.role==='delete')approve(f.ctx,'job-1',1,'one_delete');f.ctx.run=begin(f.ctx,{}).run;
+ approve(f.ctx,'job-1',20);if(rule.role==='edit')approve(f.ctx,'job-1',1,'one_write','edit');if(rule.role==='delete')approve(f.ctx,'job-1',1,'one_delete');f.ctx.run=begin(f.ctx,{}).run;
  const exe=path.join(f.root,process.platform==='win32'?'vpub.exe':'vpub');try{fs.linkSync(process.execPath,exe);}catch{fs.copyFileSync(process.execPath,exe);}
  const file=path.join(f.root,'standin.cjs');fs.writeFileSync(file,script??"console.log(JSON.stringify({error:{code:process.env.VPUB_FAULT==='after_press'?'injected_fault':'unexpected'}}));process.exitCode=4;");
  f.command=[exe,file];return f;
@@ -57,7 +57,7 @@ test('fault never triggered remains false and is not eligible again',async t=>{
  assert.equal(selectFault(f.ctx,job,'publish',{tool:'vpub'}),null);
 });
 test('stop during upload is observed at next check; manual removal does not authorize resume',async t=>{
- const source="const fs=require('fs'),path=require('path');console.error(JSON.stringify({event:'browser_progress',platform:'youtube',stage:'uploading'}));const t=setInterval(()=>{if(fs.existsSync(path.join(process.env.ROUND2_HOME,'STOP'))){clearInterval(t);console.log(JSON.stringify({error:{code:'stopped'}}));process.exitCode=2;}},40);setTimeout(()=>process.exit(99),10000).unref();";
+ const source="const fs=require('fs'),path=require('path');console.error(JSON.stringify({event:'browser_progress',platform:'youtube',stage:'uploading'}));const t=setInterval(()=>{if(fs.existsSync(path.join(process.env.ROUND2_HOME,'STOP'))){clearInterval(t);console.log(JSON.stringify({state:'PREPARATION_INCOMPLETE',final_submit_attempted:false,error:{code:'stopped'}}));process.exitCode=2;}},40);setTimeout(()=>process.exit(99),10000).unref();";
  const f=ready(t,'stop_during_upload',source);const prior=process.env.ROUND2_HOME;process.env.ROUND2_HOME=f.home;t.after(()=>{if(prior===undefined)delete process.env.ROUND2_HOME;else process.env.ROUND2_HOME=prior;});
  assert.equal(await step(f.ctx,{job:'job-1',role:'publish'},f.command,{supportCheck:()=>true}),2);assert.equal(last(f.ctx,'STEP').d.fault_fired,true);
  assert.equal(last(f.ctx,'STOP_SET').d.by,'scheduler');fs.unlinkSync(path.join(f.home,'STOP'));

@@ -9,16 +9,25 @@ import {ID, SLOTS, PLATFORMS, REFUSALS} from './schema.mjs';
 import {refusalWord,sha, utc, atomic, withLock, readJSON, parseFlags, allowed, alive} from './io.mjs';
 import {classify, guardRole, grant, grantScope, limits, outcome, roles} from './policy.mjs';
 import {bindHome,HOME_ERRORS} from './site.mjs';
-import {jobList} from './jobs.mjs';
+import {jobList,sealedPlan} from './jobs.mjs';
 import {selectFault,armFault,faultVariable,faultController} from './planned-faults.mjs';
 import {countsLook} from './looks.mjs';
-import {confirmedAnswer} from './answers.mjs';
+import {publishStartedOn,confirmedAnswer} from './answers.mjs';
 
 const gateFile=new URL('../operations-gate.mjs',import.meta.url);
 const guard=ctx=>path.join(ctx.home,'operation.guard');
 const runFile=ctx=>path.join(ctx.home,'run.lock');
 const reservationsFile=ctx=>path.join(ctx.home,'reservations.json');
-const reservations=ctx=>readJSON(reservationsFile(ctx),[]);
+const reservations=ctx=>{
+ const file=reservationsFile(ctx),records=readJournal(ctx.journal);
+ if(!fs.existsSync(file)&&records.some(r=>['GO_AHEAD','STEP'].includes(r.type)))throw new Error('reservations_missing');
+ const rows=readJSON(file,[]);
+ if(!Array.isArray(rows))throw new Error('reservations_invalid');
+ for(const step of records.filter(r=>r.type==='STEP'&&r.d.class==='write')){
+  if(!rows.some(r=>r.run===step.run&&r.step_seq===step.seq||r.id&&r.id===step.d.awl_run_id))rows.push({run:step.run,step_seq:step.seq,job:step.d.job,class:'write',role:step.d.role,platforms:step.d.platforms,scope:null,started:step.d.started!==false,at:step.at});
+ }
+ return rows;
+};
 const stop=ctx=>fs.existsSync(path.join(ctx.home,'STOP'));
 const gateJobs=list=>list.map(j=>({id:j.id,verdict:j.verdict,due_at:j.due_at,completed:j.completed,authorized:j.authorized}));
 function jobs(ctx) {
@@ -98,6 +107,7 @@ function prepare(ctx,flags,command,launch,supportCheck){
   return withLock(guard(ctx),()=>{
     const records=readJournal(ctx.journal), run=admitted(ctx,records);
     const pinned=bindHome(ctx,records);
+    sealedPlan(ctx,records);
     if(run.child_pid) throw new Error('step_already_running');
     if(stop(ctx)) throw new Error('stop_flag');
     if(activeStops(records).length)throw new Error('stop_flag');
@@ -115,10 +125,10 @@ function prepare(ctx,flags,command,launch,supportCheck){
        (!keyed&&platforms.length!==job.platforms.length)))throw new Error('platform_mismatch');
     const list=reservations(ctx), rule=limits(records,job,flags.role,platforms,utc(),list,run.jobs);
     if(['repeat_same','changed_plan','resume'].includes(flags.role)&&!records.some(r=>r.type==='STEP'&&
-       r.d.job===job.id&&r.d.role==='publish'&&r.d.exit!==127&&platforms.every(p=>r.d.platforms.includes(p))&&
+       r.d.job===job.id&&r.d.role==='publish'&&platforms.every(p=>publishStartedOn(r,p))&&
        list.some(x=>x.step_seq===r.seq&&x.run===r.run&&x.started===true)))throw new Error('repeat_without_publish');
     if(rule) throw new Error(rule);
-    const scope=grantScope(records,job.id,policy.class,list,flags.role,platforms);
+    const scope=grantScope(records,job.id,policy.class,list,flags.role,platforms,job.run_class);
     if(scope===null) throw new Error('go_ahead_exhausted');
     // A verified journal and fsynced private reservation precede every spawn.
     // Failed/uncertain spawns spend approval conservatively; never retry them.
@@ -131,7 +141,7 @@ function prepare(ctx,flags,command,launch,supportCheck){
     put(ctx,'GATE_DECISION',{...admission.d,...checked,now:checkedInput.now,jobs:gateJobs(run.jobs),stop:false,running:false,
       gate_sha256:sha(fs.readFileSync(gateFile))},ctx.run);
     const reservation={id:newRunId(),wrapper_pid:process.pid,run:ctx.run,job:job.id,class:policy.class,role:flags.role,
-      platforms,scope,run_class:job.run_class??null,at:utc(),step_seq:null,started:null};
+      platforms,scope,purpose:flags.role==='edit'?'edit':flags.role==='resume'&&job.run_class==='real_release'?'resume':'publish',run_class:job.run_class??null,at:utc(),step_seq:null,started:null};
     const fault=selectFault(ctx,job,flags.role,policy);
     armFault(ctx,fault,command[0],supportCheck);
     list.push(reservation);writeReservations(ctx,list);
@@ -155,7 +165,7 @@ function captureChild(ctx,command,reservationId,pinned,fault,controllerFactory=f
     const receive=(stream,bytes)=>{
       // Relay the original bytes, not decoded/re-encoded text.
       process[stream].write(bytes);
-      if(stream==='stdout') stdout+=decoder.write(bytes);
+      if(stream==='stdout'){stdout+=decoder.write(bytes);controller?.answer?.(stdout);}
       if(stream==='stderr')controller?.receive(bytes);
       let pending=Buffer.concat([buffers[stream],bytes]), n;
       while((n=pending.indexOf(10))!==-1){row(stream,pending.subarray(0,n+1));pending=pending.subarray(n+1);}

@@ -521,6 +521,13 @@
                 "instagram",
                 "x"
               ]
+            },
+            "purpose": {
+              "enum": [
+                "publish",
+                "edit",
+                "resume"
+              ]
             }
           },
           "required": [
@@ -2318,7 +2325,11 @@
                 "fault_switch_unavailable",
                 "fault_setup_unconfirmed",
                 "fault_plan_invalid",
-                "safety_stop_new_go_ahead_required"
+                "safety_stop_new_go_ahead_required",
+                "reservations_missing",
+                "reservations_invalid",
+                "sealed_plan_missing",
+                "sealed_plan_digest_mismatch"
               ]
             }
           },
@@ -2744,7 +2755,8 @@
                 "owned_handle_controller_unavailable",
                 "process_controller_failed",
                 "busy_not_reached",
-                "publish_refused_not_reached"
+                "publish_refused_not_reached",
+                "completed_before_kill"
               ]
             },
             "unopened": {

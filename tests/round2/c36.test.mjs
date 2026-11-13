@@ -13,9 +13,9 @@ const audit=JSON.parse(fs.readFileSync(captured));
 function admitted(t){const f=fixture(t);setup(f.ctx);approve(f.ctx,'job-1',20);f.ctx.run=begin(f.ctx,{}).run;return f;}
 function record(f,options){return put(f.ctx,'STEP',{job:'job-1',class:'write',tool:'vpub',action:'publish',role:'publish',platforms:['youtube'],exit:4,ms:0,capture_sha256:'a'.repeat(64),result:'in_doubt',code:null,refs:[],fault_fired:null,...options},f.ctx.run);}
 const verify={role:'verify',action:'verify',exit:0,result:'ok',confirmed_state:'SUBMISSION_VERIFIED'};
-test('captured CLI SKIPPED_EXISTING span permits closure, a later resume moves the point',t=>{
+test('captured span without before counter remains unproven; later reads can settle',t=>{
  const f=admitted(t);record(f,{});const repeat=record(f,{role:'repeat_same',exit:0,result:'ok',awl_run_id:audit.runs[0].awl_run_id});
- const early=record(f,verify);let c=reconcile(f.ctx,captured).in_doubt[0];assert.equal(c.settled_at_seq,early.seq);assert.deepEqual(c.ignored_no_press_steps,[repeat.seq]);
+ const early=record(f,verify);let c=reconcile(f.ctx,captured).in_doubt[0];assert.equal(c.settled_at_seq,early.seq);assert.deepEqual(c.ignored_no_press_steps,[]);
  assert.equal(c.closed_strict,false);
  const res=record(f,{role:'resume',action:'resume',exit:0,result:'ok'});
  c=reconcile(f.ctx,captured).in_doubt[0];assert.equal(c.closed,false);assert.equal(c.last_may_press,res.seq);

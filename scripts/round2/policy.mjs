@@ -31,26 +31,27 @@ export function guardRole(role, policy, command){
     a==='edit'?['edit']:a==='resume'?['resume']:a==='verify'?['verify']:['publish','go'].includes(a)?['publish','repeat_same','changed_plan']:null;
   if(expected && !expected.includes(role)) throw new Error('role_mismatch');
 }
-export function grantScope(records,job,cls,reservations=[],role=null,platforms=[]) {
-  const grants=records.filter(r=>r.type==='GO_AHEAD'&&r.d.job===job&&
+export function grantScope(records,job,cls,reservations=[],role=null,platforms=[],runClass=null) {
+  const grants=records.filter(r=>r.type==='GO_AHEAD'&&r.d.job===job&&r.d.by===r.site&&
     (r.d.scope!=='one_delete'||role===null||r.d.platform===platforms[0]));
-  if(cls==='write') {
-    const left={listed_test_posts:0,one_write:0,one_delete:0};
-    for(const r of grants) if(r.d.scope in left) left[r.d.scope]+=r.d.count;
-    for(const r of reservations.filter(r=>r.job===job&&r.class==='write')) {
-      if(r.scope==='one_delete'&&role!==null&&r.platforms?.[0]!==platforms[0])continue;
-      // Legacy reservations have no provable scope. Debit both pools rather
-      // than turn a previously spent unit into new delete authorization.
-      if(r.scope in left) left[r.scope]--; else for(const s in left) left[s]--;
-    }
-    const listed=['publish','repeat_same','resume','verify','edit','changed_plan'];
-    if(role==='delete')return left.one_delete>0?'one_delete':null;
-    if(role===null&&left.one_delete>0)return 'one_delete';
-    if((role===null||listed.includes(role))&&left.listed_test_posts>0) return 'listed_test_posts';
-    return left.one_write>0?'one_write':null;
+  if(cls!=='write')return grants.length?'read_only':null;
+  const purpose=role==='edit'?'edit':role==='resume'&&runClass==='real_release'?'resume':'publish';
+  const kinds=['listed_test_posts','one_delete','publish','edit','resume'];
+  const left=Object.fromEntries(kinds.map(k=>[k,0]));
+  for(const r of grants){const k=r.d.scope==='one_write'?(r.d.purpose??'publish'):r.d.scope;if(k in left)left[k]+=r.d.count;}
+  for(const r of reservations.filter(r=>r.job===job&&r.class==='write')){
+    if(r.scope==='one_delete'&&role!==null&&r.platforms?.[0]!==platforms[0])continue;
+    const k=r.scope==='one_write'?(r.purpose??'publish'):r.scope;
+    if(k in left)left[k]--;else for(const key in left)left[key]--;
   }
-  return grants.length?'read_only':null;
+  if(role==='delete')return left.one_delete>0?'one_delete':null;
+  if(role===null&&left.one_delete>0)return 'one_delete';
+  const listed=['publish','repeat_same','resume','verify','edit','changed_plan'];
+  const separate=purpose==='resume'||role==='edit'&&grants.some(r=>r.site==='tester');
+  if(!separate&&(role===null||listed.includes(role))&&left.listed_test_posts>0)return 'listed_test_posts';
+  return (role===null?['publish','edit','resume'].some(k=>left[k]>0):left[purpose]>0)?'one_write':null;
 }
+
 export function grant(records,job,cls,reservations=[],role=null) {
   return grantScope(records,job,cls,reservations,role)!==null;
 }
@@ -89,10 +90,10 @@ export function limits(records,job,role,platforms,now,reservations=[],jobs=[]) {
       if(!first.has(id)||Date.parse(s.at)<Date.parse(first.get(id).at)) first.set(id,s);
     }
     if(!first.has(job.id)&&[...first.values()].filter(s=>when-Date.parse(s.at)<86400000).length>=4) return 'test_post_daily_cap';
-    if(!first.has(job.id)&&[...first.values()].some(s=>when-Date.parse(s.at)<1200000)) return 'publish_spacing';
+    if(!first.has(job.id)&&recent.some(s=>s.job!==job.id&&when-Date.parse(s.at)<1200000)) return 'publish_spacing';
     if(!first.has(job.id)&&records.some(r=>r.type==='NOTE'&&r.d.platform===p&&r.d.code==='outside_upload'&&
         when-(Date.parse(r.at)-r.d.minutes_ago*60000)<1200000)) return 'outside_upload_spacing';
-    if(records.some(r=>safetyStopOn(r,p)&&
+    if(!first.has(job.id)&&records.some(r=>safetyStopOn(r,p)&&
         when-Date.parse(r.at)<172800000)) return 'platform_warning_hold';
     const safety=records.findLast(r=>safetyStopOn(r,p));
     if(!first.has(job.id)&&safety&&!records.some(r=>validRestartGrant(r,job.id,Date.parse(safety.at)+172800000,when)))return 'safety_stop_new_go_ahead_required';

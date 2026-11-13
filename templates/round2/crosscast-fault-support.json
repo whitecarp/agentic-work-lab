@@ -1,8 +1,8 @@
 {
-  "commit": "f2eb52003419f5e570615b30595e6524e22ffca2",
+  "commit": "eb9fe344d1956bcd89f3d44dfbf4e7ea25bc5972",
   "files": {
     "faults.py": "29cb7d65fcbd35bd43919cdb2f665aaee72fb48929b371f705362ab4ff05cc91",
-    "cli.py": "88ea1c7e499b55d249fa909090b721b8cb94ad26b63e17c0d61f92c4c11f2840",
+    "cli.py": "6c9121db462c30e508107efbe5104990eea99c5ea2f4c7012b2bfa37938cd65e",
     "browser_backends.py": "c89ad6c073f33d26feed0150afc9c59dec81030643cda8d2e8acd7f307dd6934",
     "edits.py": "3fd01dbd80100c9c2958bf26e42c937d49c58593dd3752396a20eb609ffcfad1",
     "work_delete.py": "e62db0573661152c9f2013ea678916d08fb86e788341812a57c515907165059b",

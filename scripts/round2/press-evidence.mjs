@@ -7,7 +7,7 @@ export function commandSnapshots(events,platform){
   e.platforms?.[platform]
  ].filter(x=>x&&(!x.platform||x.platform===platform)));
 }
-export function pressEvidence(events,intact,platform,about='post'){
+export function pressEvidence(events,intact,platform,about='post',priorCount=null){
  const middle=events.filter(e=>(!e.platform||e.platform===platform)&&!['command_start','command_end'].includes(e.type));
  const snapshots=commandSnapshots(events,platform);
  const first=events.find(e=>e.type==='command_start'),end=events.findLast(e=>e.type==='command_end');
@@ -17,8 +17,22 @@ export function pressEvidence(events,intact,platform,about='post'){
    about==='edit'?e.state==='EDIT_SUBMITTING':e.kind==='deletion'&&e.operation==='press'));
  const countChangedWithoutPress=!hasPress&&((finiteCount(before?.final_presses)&&finiteCount(after?.final_presses)&&before.final_presses!==after.final_presses)||
    !!before&&after?.delete_attempted===true&&before.delete_attempted!==true);
- const noContact=!!intact&&middle.every(e=>e.type==='span');
- const noPress=!!intact&&!hasPress&&!countChangedWithoutPress&&
+ const missingBeforePositive=about==='post'&&!finiteCount(before?.final_presses)&&
+  snapshots.some(x=>finiteCount(x.final_presses)&&x.final_presses>0)&&
+  !(finiteCount(priorCount)&&snapshots.filter(x=>finiteCount(x.final_presses)).every(x=>x.final_presses===priorCount));
+ const noContact=!!intact&&!missingBeforePositive&&middle.every(e=>e.type==='span');
+ const noPress=!!intact&&!hasPress&&!countChangedWithoutPress&&!missingBeforePositive&&
   middle.every(e=>['call','span','stage','transition'].includes(e.type))&&(platform!=='bilibili'||noContact);
- return {snapshot:snapshots,hasPress,noContact:noContact&&!countChangedWithoutPress,noPress,countChangedWithoutPress};
+ return {snapshot:snapshots,hasPress,noContact:noContact&&!countChangedWithoutPress,noPress,countChangedWithoutPress,missingBeforePositive};
+}
+
+// A positive counter in a different, earlier record can establish the baseline.
+export function priorPressCount(all,events,platform){
+ const first=events.find(e=>e.type==='command_start');
+ if(!Number.isSafeInteger(first?.seq))return null;
+ const refs=new Set(commandSnapshots(events,platform).map(s=>s.ref).filter(v=>typeof v==='string'));
+ if(!refs.size)return null;
+ const counts=commandSnapshots(all.filter(e=>e.seq<first.seq),platform)
+  .filter(s=>refs.has(s.ref)&&!['edit','deletion'].includes(s.kind)&&finiteCount(s.final_presses)).map(s=>s.final_presses);
+ return counts.length?Math.max(...counts):null;
 }

@@ -72,7 +72,7 @@ for(const exit of [0,4])test(`complete no-press repeat exit ${exit} permits veri
   if(change==='gap')cc.runs[0].sequence_gap=true;
   if(change==='damage')cc.integrity.loss_folder_unreadable=true;
   if(change==='exit')cc.runs[0].exit_code=99;
-  assert.equal(check().in_doubt[0].last_may_press,change==='missing'?first.seq:repeat.seq,change);Object.assign(cc,before);
+  assert.equal(check().in_doubt[0].last_may_press,repeat.seq,change);Object.assign(cc,before);
  }
 });
 test('successful verify closes the matching platform only; unchanged strict count without repeat',t=>{
@@ -82,7 +82,7 @@ test('successful verify closes the matching platform only; unchanged strict coun
  assert.equal(r.in_doubt.find(x=>x.platform==='douyin').closed,false);
 });
 for(const role of ['resume','verify','edit','delete','delete_dry_run','delete_verify'])test(`keyed ${role} needs one declared platform before spawning`,async t=>{
- const f=ready(t,['youtube','douyin']),out=path.join(f.root,'spawned');if(role==='delete')approve(f.ctx,'job-1',2,'one_delete');
+ const f=ready(t,['youtube','douyin']),out=path.join(f.root,'spawned');if(role==='edit')approve(f.ctx,'job-1',1,'one_write','edit');if(role==='delete')approve(f.ctx,'job-1',2,'one_delete');
  const cmd=[process.execPath,'-e',"require('fs').writeFileSync(process.argv[1],'once')",out];
  if(role==='resume')assert.equal(await step(f.ctx,{job:'job-1',role:'publish'},[process.execPath,'-e','process.exit(0)']),0);
  assert.equal(await step(f.ctx,{job:'job-1',role},cmd),5);assert.ok(!fs.existsSync(out));

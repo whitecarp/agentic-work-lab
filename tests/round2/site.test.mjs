@@ -23,7 +23,7 @@ test('same resolved folder has a different keyed binding at each site',t=>{
 });
 function sealArgs(f){
   const file=path.join(f.root,'protocol.txt');fs.writeFileSync(file,'offline protocol');
-  return ['protocol-seal',...flags(f),'--phase','rehearsal','--protocol',file,
+  return ['protocol-seal',...flags(f),'--phase','rehearsal','--protocol',file,'--rules-card',file,'--analysis',file,'--crosscast-digest','c'.repeat(64),
     '--lab-commit','a'.repeat(40),'--crosscast-commit','b'.repeat(40)];
 }
 test('protocol seal contains resolved folder digest but no private path',t=>{
@@ -74,7 +74,7 @@ test('changed setup refuses step, next begin and a new protocol seal',async t=>{
   assert.equal(await step(f.ctx,{job:'job-1',role:'other'},
     [process.execPath,'-e',`require('fs').writeFileSync(${JSON.stringify(marker)},'bad')`]),5);
   assert.equal(last(f.ctx,'STEP_REFUSED').d.reason,'vpub_home_mismatch');
-  assert.equal(fs.existsSync(marker),false);assert.equal(fs.existsSync(path.join(f.home,'reservations.json')),false);
+  assert.equal(fs.existsSync(marker),false);assert.deepEqual(JSON.parse(fs.readFileSync(path.join(f.home,'reservations.json'))),[]);
   assert.equal(begin(f.ctx,{}).error,'vpub_home_mismatch');
   assert.equal(cli(f,'journal',args).status,70);
   assert.equal(readJournal(f.journal).filter(r=>r.type==='PROTOCOL_SEAL').length,1);

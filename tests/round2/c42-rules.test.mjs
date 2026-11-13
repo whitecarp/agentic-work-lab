@@ -18,9 +18,9 @@ test('C42 saved maximum survives loss; missing last reading stays unknown but a 
  const z=all(run(f.finish()));assert.equal(z.submission.attempts[0].press_markers,null);assert.equal(z.submission.attempts[0].markers_observed,2);assert.equal(z.must_be_zero.second_press_without_draft,1);
 });
 test('C42 whole command with changed numeric count is not press-free; empty ledger is permitted',()=>{
- for(const [before,ok]of [[null,true],[{final_presses:null},true],[{final_presses:0},false]]){
+ for(const [before,ok]of [[null,false],[{final_presses:null},false],[{final_presses:0},false]]){
   const r=pressEvidence([{type:'command_start',before},{type:'stage',stage:'reading back',platform:'youtube'},{type:'command_end',after:{final_presses:1}}],true,'youtube');
-  assert.equal(r.noPress,ok);assert.equal(r.countChangedWithoutPress,!ok);
+  assert.equal(r.noPress,ok);assert.equal(r.countChangedWithoutPress,before?.final_presses===0);
  }
  assert.equal(pressEvidence([{type:'command_start'},{type:'transition',platform:'youtube',phase:'submitting',final_submit_attempted:true,final_presses:1},{type:'command_end'}],true,'youtube').hasPress,true);
 });

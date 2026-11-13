@@ -6,6 +6,7 @@ import path from 'node:path';
 import {begin,step,closeJob} from '../../scripts/round2/gate-run.mjs';
 import {put as rawPut,readJournal,verifyJournal} from '../../scripts/round2/journal.mjs';
 import {REFUSALS} from '../../scripts/round2/schema.mjs';
+import {sha} from '../../scripts/round2/io.mjs';
 import {planRun} from '../../scripts/operations-gate.mjs';
 import {reconcile} from '../../scripts/round2/reconcile.mjs';
 import {daily} from '../../scripts/round2/daily.mjs';
@@ -21,6 +22,9 @@ for(const reason of REFUSALS.filter(r=>!r.startsWith('fault_')))test(`wrapper re
  let command=[process.execPath,'-e',`require('fs').writeFileSync(${JSON.stringify(marker)},'started')`];
  const reservation={job:'job-1',class:'write',role:'other',scope:'one_write',at:new Date().toISOString(),platforms:['youtube'],started:true};
  switch(reason){
+  case 'reservations_missing':fs.unlinkSync(path.join(f.home,'reservations.json'));break;
+  case 'reservations_invalid':write(f,'reservations.json',{});break;
+  case 'sealed_plan_missing':case 'sealed_plan_digest_mismatch':{const bytes='{}';rawPut(f.ctx,'PROTOCOL_SEAL',{...readJournal(f.journal)[0].d,plan_sha256:sha(bytes)});if(reason==='sealed_plan_digest_mismatch')fs.writeFileSync(path.join(f.home,'planned-runs.json'),'[]');break;}
   case 'vpub_home_missing':fs.unlinkSync(path.join(f.home,'site.json'));break;
   case 'vpub_home_invalid':write(f,'site.json',{site:'owner',vpub_home:'relative'});break;
   case 'vpub_home_unsealed':{
@@ -63,6 +67,7 @@ for(const reason of REFUSALS.filter(r=>!r.startsWith('fault_')))test(`wrapper re
  assert.equal(rows.length,1);assert.equal(rows[0].d.reason,reason);assert.equal(rows[0].run,f.ctx.run);
  assert.equal(fs.existsSync(marker),false);assert.equal(readJournal(f.journal).filter(r=>r.type==='STEP').length,0);
  assert.ok(!fs.readFileSync(f.journal,'utf8').includes('PRIVATE_INVALID'));assert.equal(verifyJournal(f.journal).ok,true);
+ if(reason.startsWith('sealed_plan_'))fs.writeFileSync(path.join(f.home,'planned-runs.json'),'{}');
  assert.equal(reconcile(f.ctx).refusals_by_code[reason],1);
 });
 test('stop-set refusal run closes with its refusal evidence retained',async t=>{

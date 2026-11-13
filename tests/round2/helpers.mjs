@@ -16,8 +16,8 @@ export function fixture(t) {
   const env={...process.env,ROUND2_HOME:home,VPUB_HOME:path.join(root,'vpub'),BILI_CLI_HOME:path.join(root,'bili')};
   return {...ctx,root,ctx,env};
 }
-export function approve(ctx,job='job-1',count=1,scope='one_write'){
-  return put(ctx,'GO_AHEAD',{job,scope,count,by:'owner',words_sha256:'a'.repeat(64),...(scope==='one_delete'?{platform:'youtube'}:{})});
+export function approve(ctx,job='job-1',count=1,scope='one_write',purpose=null){
+  return put(ctx,'GO_AHEAD',{job,scope,count,...(purpose?{purpose}:{}),by:'owner',words_sha256:'a'.repeat(64),...(scope==='one_delete'?{platform:'youtube'}:{})});
 }
 export function setup(ctx,jobs=[{id:'job-1',due_at:'2020-01-01T00:00:00.000Z',class:'write',run_class:'test_post',platforms:['youtube']}]) {
   if(!readJournal(ctx.journal).some(r=>r.type==='PROTOCOL_SEAL'))put(ctx,'PROTOCOL_SEAL',{

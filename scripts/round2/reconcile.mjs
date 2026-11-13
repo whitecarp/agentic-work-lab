@@ -7,8 +7,8 @@ import {refusalWord,sha,parseFlags,allowed,readJSON} from './io.mjs';
 import {crosscast,commandClass} from './crosscast.mjs';
 import {jobList} from './jobs.mjs';
 import {operation,pressRoles,uncertainState,nothingSent,settled,confirmedAnswer,confirmed} from './answers.mjs';
-import {countsLook,lookTiming,lookStep} from './looks.mjs';
-import {pressEvidence as ownPressEvidence} from './press-evidence.mjs';
+import {countsLook,lookTiming,lookStep,secondLookDue} from './looks.mjs';
+import {pressEvidence as ownPressEvidence,priorPressCount} from './press-evidence.mjs';
 import {gateChecks,publishChecks,observationChecks,runChecks} from './analysis-checks.mjs';
 
 export function reconcile(ctx,crosscastFile,{now=Date.now(),privacy=false,practicePlan=null}={}){
@@ -65,13 +65,15 @@ export function reconcile(ctx,crosscastFile,{now=Date.now(),privacy=false,practi
   // A late look is usable ground truth through 24 hours, but must remain
   // distinguishable from an on-time one. Never turn an early/unclear look
   // into ground truth merely because the review is run after the deadline.
+  const secondOwed=secondLookDue({seq:Infinity,d:{job,platform,about}},s,records);
+  const secondDone=looks.some(r=>lookTiming(r,s,records,now).status==='second_look'&&countsLook(r,s,now,records));
   const status=qualifying?(lookTiming(qualifying,s,records,now).status):
     now-Date.parse(s.at)>=86400000?'no_ground_truth':early.length?'early':'pending';
     const premature=looks.filter(r=>Date.parse(r.at)-Date.parse(s.at)<r.d.minutes_after*60000).map(r=>r.seq);
-    return {job,platform,step:s.seq,about,status,observation:qualifying?.seq??null,early_observations:early,counting_observations:looks.filter(r=>countsLook(r,s,now,records)).map(r=>r.seq),
+    return {job,platform,step:s.seq,about,status,second_look_owed:secondOwed,second_look_done:secondDone,observation:qualifying?.seq??null,early_observations:early,counting_observations:looks.filter(r=>countsLook(r,s,now,records)).map(r=>r.seq),
       recorded_before_claimed_minute:premature};
  });
- const owesLook=lookChecks.filter(r=>!['on_time','late','second_look'].includes(r.status));
+ const owesLook=lookChecks.filter(r=>!['on_time','late','second_look'].includes(r.status)||r.second_look_owed&&!r.second_look_done);
  // Time overlap is never a substitute for the id passed to a specific child.
  // Missing STEP (including a crash before its append) is an unproven binding.
  const trusted=cc.present&&cc.chain_ok&&cc.runs.every(r=>r.chain_ok!==false);
@@ -106,7 +108,7 @@ export function reconcile(ctx,crosscastFile,{now=Date.now(),privacy=false,practi
    const cmd=matched(s), events=eventsFor(s);
    if(!events||cmd.exit_code!==s.d.exit||cmd.ended!==true)return false;
    if(events[0]?.type!=='command_start'||events.at(-1)?.type!=='command_end')return false;
-   return ownPressEvidence(events,true,platform,operation(s)).noPress;
+   return ownPressEvidence(events,true,platform,operation(s),priorPressCount(cc.events,events,platform)).noPress;
  }
  const cutoff=s=>s.d.result==='unknown'&&s.d.answered===false&&started(s)&&pressRoles.includes(s.d.role);
  function pressEvidence(s,platform){
@@ -158,7 +160,13 @@ export function reconcile(ctx,crosscastFile,{now=Date.now(),privacy=false,practi
  const inDoubt=[...cases.values()].map(({s,platform,members})=>{
    const about=operation(s),later=records.filter(r=>r.seq>s.seq&&r.d.job===s.d.job);
    function settles(r){
-     if(r.type==='OBSERVATION')return r.d.about===about&&observationPlatform(r)===platform&&countsLook(r,records.find(x=>x.seq===firstEligible),now,records);
+     if(r.type==='OBSERVATION'){
+       const anchor=records.find(x=>x.seq===firstEligible);
+       if(r.d.about!==about||observationPlatform(r)!==platform||!countsLook(r,anchor,now,records))return false;
+       if(about==='post'&&r.d.seen==='absent'&&secondLookDue({seq:r.seq+0.5,d:{job:s.d.job,platform,about}},anchor,records))
+        return lookTiming(r,anchor,records,now).status==='second_look';
+       return true;
+     }
      if(r.type!=='STEP'||r.d.platforms.length!==1||r.d.platforms[0]!==platform)return false;
      const openingRefs=answerFor(s,platform)?.refs??s.d.refs??[],closingRefs=answerFor(r,platform)?.refs??r.d.refs??[];
      if(openingRefs.length&&closingRefs.length&&!openingRefs.some(ref=>closingRefs.includes(ref)))return false;
@@ -205,8 +213,12 @@ export function reconcile(ctx,crosscastFile,{now=Date.now(),privacy=false,practi
    in_doubt_open_strict:inDoubt.filter(r=>!r.closed_strict).length,
    looks_owed:owesLook.map(({job,platform,step,about})=>({job,platform,step,about})),look_checks:lookChecks,looks_scope_unknown:eligible.filter(r=>!scope(r.d.job)).length,refusals_by_code:{...refusals},
    violations:records.filter(r=>r.type==='VIOLATION').length,crosscast_command_losses:cc.losses,crosscast_integrity:cc.integrity};
- if(privacy){result.as_of=result.as_of.slice(0,10);result.time_policy='UTC_date_end; in_doubt_minutes_rounded_up';
-  for(const c of result.in_doubt){c.minutes=c.seconds===null?null:Math.ceil(c.seconds/60);delete c.seconds;}
+ if(privacy){result.as_of=result.as_of.slice(0,10);result.time_policy='UTC_date_end; same_day_in_doubt_minutes_rounded_up; cross_date_durations_withheld';
+  for(const c of result.in_doubt){
+   const first=records.find(r=>r.seq===c.step),last=records.find(r=>r.seq===c.settled_at_seq);
+   const crossDate=last&&first.at.slice(0,10)!==last.at.slice(0,10);
+   c.minutes=c.seconds===null||crossDate?null:Math.ceil(c.seconds/60);c.duration_withheld=!!crossDate;delete c.seconds;
+  }
   if(!ctx.home)throw new Error('private_home_required');
   return protectDigests(result,value=>keyedDigest('round2-private-comparison-v1\0'+value,ctx.home,{create:false}));}
  return result;

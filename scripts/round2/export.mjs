@@ -60,15 +60,29 @@ export function exportData(ctx,{privacy=false,deny,crosscast:ccfile}={}){
   }
   result.seals=result.seals.map(s=>({...s,source_sha256:key(sha(canonical(s)+'\n')),
     head_sha256:key(s.head_sha256),previous_sha256:key(s.previous_sha256)}));
-  if(ccfile)result.crosscast=privateToolCopy(JSON.parse(fs.readFileSync(ccfile)),key);
-  const withheld=new Set(result.crosscast?.runs.filter(r=>r.t_start===null).map(r=>r.awl_run_id)??[]);
+  const linkedWithheld=new Set(),jobDays=new Map();
+  for(const r of records.filter(r=>r.d.job)){
+   if(!jobDays.has(r.d.job))jobDays.set(r.d.job,new Set());
+   jobDays.get(r.d.job).add(r.at.slice(0,10));
+  }
+  const toolSource=ccfile?JSON.parse(fs.readFileSync(ccfile)):null;
+  for(const r of records.filter(r=>r.type==='STEP')){
+   const gate=records.findLast(g=>g.seq<r.seq&&g.run===r.run&&g.type==='GATE_DECISION');
+   const command=toolSource?.runs?.find(c=>c.awl_run_id===r.d.awl_run_id);
+   const start=toolSource?.events?.find(e=>e.run===command?.run&&e.type==='command_start');
+   if(jobDays.get(r.d.job)?.size>1||gate&&gate.at.slice(0,10)!==r.at.slice(0,10)||
+      start?.day&&start.day!==r.at.slice(0,10))linkedWithheld.add(r.d.awl_run_id);
+  }
+  if(toolSource)result.crosscast=privateToolCopy(toolSource,key,linkedWithheld);
+  const withheld=new Set([...linkedWithheld,...(result.crosscast?.runs.filter(r=>r.t_start===null).map(r=>r.awl_run_id)??[])]);
   for(const r of result.records){
-   if(r.type==='STEP'&&r.d.awl_run_id&&withheld.has(r.d.awl_run_id))delete r.d.ms;
+   if(r.type==='STEP'&&(jobDays.get(r.d.job)?.size>1||r.d.awl_run_id&&withheld.has(r.d.awl_run_id)))delete r.d.ms;
    if(r.type==='STEP'){
     const gate=records.findLast(g=>g.seq<r.seq&&g.run===r.run&&g.type==='GATE_DECISION');
     const original=records.find(x=>x.seq===r.seq);
     if(gate&&gate.at.slice(0,10)!==original.at.slice(0,10))delete r.d.ms;
    }
+   if(r.type==='FAULT_RESULT'&&jobDays.get(r.d.job)?.size>1){r.d.action_delay_ms=null;r.d.gone_delay_ms=null;}
    if(r.type==='FAULT_RESULT')for(const p of r.d.processes??[]){
     if(p.born){p.instance=key(p.pid+'/'+p.born);delete p.born;}
    }

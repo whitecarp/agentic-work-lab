@@ -32,6 +32,8 @@ export function validateRecord(record) {
   const problems = check(record,definition,'record');
   if (problems.length) return problems;
   if (!Number.isFinite(Date.parse(record.at)) || new Date(record.at).toISOString() !== record.at) problems.push('invalid UTC time');
+  if(['GO_AHEAD','OBSERVATION','SIGN_OFF','HANDOFF','FAULT_PLATFORM_POLICY'].includes(record.type)&&record.d.by!==record.site)problems.push('site person required');
+  if(record.type==='GO_AHEAD'&&record.d.purpose&&record.d.scope!=='one_write')problems.push('unexpected approval purpose');
   if(record.type==='REAL_RELEASE'){
     const d=record.d;
     if(!Number.isFinite(Date.parse(d.due_at))||new Date(d.due_at).toISOString()!==d.due_at||

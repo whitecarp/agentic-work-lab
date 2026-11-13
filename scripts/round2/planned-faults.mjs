@@ -3,6 +3,8 @@ import path from 'node:path';
 import {processHandles} from './process-handles.mjs';
 import {put,readJournal} from './journal.mjs';
 import {readJSON,atomic,sha} from './io.mjs';
+import {schema} from './schema.mjs';
+import {sealedPlan} from './jobs.mjs';
 import {assertFaultReady} from './fault-setup.mjs';
 import {readAnswers,wholePublishRefusal} from './answers.mjs';
 
@@ -42,9 +44,10 @@ export function verifyFaultSupport(executable,expected=supported){
 export function selectFault(ctx,job,role,policy){
  if(policy.tool!=='vpub'||job.run_class!=='test_post')return null;
  const file=path.join(ctx.home,'planned-runs.json');
- if(!fs.existsSync(file))return null;
+ const records=readJournal(ctx.journal),plan=sealedPlan(ctx,records);
+ if(!plan)return null;
  if(fs.lstatSync(file).isSymbolicLink())throw new Error('fault_plan_invalid');
- const bytes=fs.readFileSync(file),plan=JSON.parse(bytes),records=readJournal(ctx.journal);
+ const bytes=fs.readFileSync(file);
  const seal=records.findLast(r=>r.type==='PROTOCOL_SEAL')?.d;
  const sealed=seal?.plan_sha256;
  if(sealed&&sha(bytes)!==sealed)throw new Error('fault_plan_invalid');
@@ -105,7 +108,7 @@ export function faultController(ctx,fault,{snapshot,kill}={}){
  if(!fault)return null;
  const rule=FAULTS[fault.kind],created=Date.now();
  let child,observer,rootReady=Promise.resolve(),rootIdentity,press=false,triggered=false,fired=false,failed=false,pending=Promise.resolve(),partial='',ended=[];
- let requestMs=null,goneMs=null,killExit=null,reason=null,childEnded=false;
+ let requestMs=null,goneMs=null,killExit=null,reason=null,childEnded=false,answerSeen=false;
  const running=()=>child&&!childEnded&&child.exitCode==null&&child.signalCode==null;
  const rowsOf=rows=>rows.map(r=>({pid:r.pid,parent:r.parent,root:r.pid===child.pid,...(r.born?{born:r.born}:{}),kind:r.pid===child.pid?'launcher':category(r),ended:r.ended??null}));
  const api={
@@ -116,6 +119,13 @@ export function faultController(ctx,fault,{snapshot,kill}={}){
     c.once('spawn',()=>{rootReady=(snapshot?snapshot():observer.init(c.pid,created)).then(rows=>{rootIdentity=rows.find(r=>r.pid===c.pid);if(!rootIdentity)throw new Error('starter_missing');}).catch(e=>{reason=e.message;});});
    }
   },
+  answer(stdout){
+   if(answerSeen)return;
+   try{const value=JSON.parse(stdout.trim()),data=value?.data??value;
+    answerSeen=!!value&&typeof value==='object'&&!Array.isArray(value)&&
+     (typeof value.ok==='boolean'||typeof data?.state==='string'||typeof value.error?.code==='string'||!!data?.results);
+   }catch{}
+  },
   line(line){
    let packet;try{packet=JSON.parse(line);}catch{return;}
    if(packet?.event!=='browser_progress'||packet.platform!==fault.armed_on.split('_')[0])return;
@@ -124,6 +134,7 @@ export function faultController(ctx,fault,{snapshot,kill}={}){
    triggered=true;const start=performance.now();
    pending=(async()=>{
     await pause(fault.delay_ms);
+    if(answerSeen){reason='completed_before_kill';return;}
     if(!running()){reason='command_finished_before_request';return;}
     if(rule.mechanism==='stop_file'){
      requestMs=Math.round(performance.now()-start);
@@ -136,32 +147,38 @@ export function faultController(ctx,fault,{snapshot,kill}={}){
      killExit=typeof sent==='number'?sent:sent?0:1;
      if(sent===false){reason=running()?'terminate_handle_failed':'command_finished_before_request';failed=running();fired=failed?null:false;return;}
      for(let i=0;i<100&&running();i++)await pause(10);
-     fired=!running();failed=!fired;reason=failed?'starter_not_observed_gone':null;
+     fired=!running()&&!answerSeen;failed=running();reason=answerSeen?'completed_before_kill':failed?'starter_not_observed_gone':null;
      goneMs=fired?Math.round(performance.now()-start):null;
      ended=[{pid:child.pid,root:true,kind:'launcher',ended:fired}];return;
     }
     await rootReady;
+    if(answerSeen){reason='completed_before_kill';return;}
     if(!running()){reason='command_finished_before_request';return;}
     if(!rootIdentity)throw new Error(reason??'starter_identity_missing');
     const before=snapshot?await snapshot():await observer.scan();
     const root=before.find(r=>r.pid===child.pid&&r.born===rootIdentity.born&&!r.ended);
     if(!root)throw new Error('starter_missing');
     const owned=family(before,child.pid);ended=rowsOf(owned);
+    if(answerSeen){reason='completed_before_kill';return;}
     requestMs=Math.round(performance.now()-start);
     if(kill){killExit=await kill(child.pid,true,child,owned);const after=await snapshot();ended=ended.map(r=>({...r,ended:!after.some(a=>a.pid===r.pid&&a.born===r.born&&!a.zombie)}));}
     else{const after=await observer.end();killExit=0;ended=rowsOf(after);}
     fired=ended.length>0 && ended.every(r=>r.ended) && !(observer?.unopenedPresent>0);failed=!fired;
+    if(answerSeen){fired=false;failed=false;reason='completed_before_kill';return;}
     reason=failed?'tree_not_observed_gone':null;goneMs=fired?Math.round(performance.now()-start):null;
    })().catch(e=>{failed=true;fired=null;reason=['starter_missing','starter_identity_missing','process_identity_changed','process_snapshot_failed','terminate_handle_failed','owned_handle_controller_unavailable'].includes(e.message)?e.message:'process_controller_failed';});
   },
   receive(bytes){partial+=bytes.toString('utf8');let i;while((i=partial.indexOf('\n'))!==-1){api.line(partial.slice(0,i));partial=partial.slice(i+1);}if(partial.length>8192)partial='';},
   async finish(stdout,exit){
-   try{if(partial)api.line(partial);await rootReady;await pending;
+   try{api.answer(stdout);if(partial)api.line(partial);await rootReady;await pending;
+    if(rule.mechanism==='wrapper_kill'&&answerSeen&&triggered){fired=false;failed=false;reason='completed_before_kill';}
     if(rule.mechanism==='tool_switch')fired=injectedReply(stdout,fault.armed_on.split('_')[0]);
     let reply;try{reply=JSON.parse(stdout.trim());}catch{}
     const answers=readAnswers(reply,[fault.armed_on.split('_')[0]],fault.role==='delete'?'delete':fault.role==='edit'?'edit':'post');
     if(!triggered&&fired===false&&!failed)
      reason=notReachedReason({d:{exit,answers,platforms:[fault.armed_on.split('_')[0]]}},fault)??reason;
+    const reasonWords=schema.oneOf.find(s=>s.properties.type.const==='FAULT_RESULT').properties.d.properties.reason.enum;
+    if(reason!==null&&reasonWords&&!reasonWords.includes(reason))reason='process_controller_failed';
     put(ctx,'FAULT_RESULT',{job:fault.job,kind:fault.kind,role:fault.role,triggered,fired,failed,reason,
      action_delay_ms:requestMs,gone_delay_ms:goneMs,kill_exit:killExit,processes:ended,...(observer?{unopened:observer.unopened,unopened_present:observer.unopenedPresent}:{})},ctx.run,30000);
     return {fired,failed,reason};

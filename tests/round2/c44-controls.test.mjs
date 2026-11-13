@@ -14,10 +14,10 @@ const step=f=>put(f.ctx,'STEP',{job:'job-1',class:'write',tool:'vpub',action:'pu
 test('C44 re-freeze twice with unchanged plan and private owner words; forward only',t=>{
  const f=fixture(t);setup(f.ctx);fs.unlinkSync(path.join(f.home,'jobs.json'));make(f.home,counts,'owner',{dueFrom:'2020-01-01'});
  const file=path.join(f.root,'protocol');fs.writeFileSync(file,'synthetic');
- const args=['protocol-seal',...flags(f),'--phase','2b','--protocol',file,'--lab-commit','a'.repeat(40),'--crosscast-commit','b'.repeat(40),'--plan',path.join(f.home,'planned-runs.json')];
+ const args=['protocol-seal',...flags(f),'--phase','2b','--protocol',file,'--rules-card',file,'--analysis',file,'--crosscast-digest','c'.repeat(64),'--lab-commit','a'.repeat(40),'--crosscast-commit','b'.repeat(40),'--plan',path.join(f.home,'planned-runs.json')];
  assert.equal(cli(f,'journal',args).status,0);
  assert.match(cli(f,'journal',args).stderr,/refreeze_owner_words_required/);
- assert.match(cli(f,'journal',[...args,'--by','tester'],'words').stderr,/refreeze_owner_words_required/);
+ assert.match(cli(f,'journal',[...args,'--by','tester'],'words').stderr,/invalid_person/);
  assert.match(cli(f,'journal',[...args,'--by','owner'],'').stderr,/empty_words/);
  for(let i=0;i<2;i++)assert.equal(cli(f,'journal',[...args,'--by','owner'],'private owner recovery words').status,0);
  assert.match(cli(f,'journal',[...args,'--by','owner'],'words').stderr,/refreeze_limit/);

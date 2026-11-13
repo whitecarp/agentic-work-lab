@@ -16,7 +16,7 @@ export function completeSite(site,{plantSecond=false}={}){
  f.tool.window.until='2026-12-01T00:00:00.000Z';
  let job,session,clock=5,current=site,ordinal=0,planted=false;
  const put=(type,d,m=clock,slot=current)=>{const r=f.put(type,d,m,slot);r.run=['GO_AHEAD','JOB_END','SIGN_OFF','HANDOFF'].includes(type)?null:session;return r;};
- const grant=(scope,count,m=clock,platform)=>put('GO_AHEAD',{job:job.id,scope,count,by:site,words_sha256:'3'.repeat(64),...(platform?{platform}:{})},m);
+ const grant=(scope,count,m=clock,platform,purpose)=>put('GO_AHEAD',{job:job.id,scope,count,...(purpose?{purpose}:{}),by:site,words_sha256:'3'.repeat(64),...(platform?{platform}:{})},m);
  const gate=(m,overrides={})=>{
   const d={executor:current,owner:current,stop:false,running:false,now:at(m),launcher:'manual',slot_id:job.id,
    jobs:[{id:job.id,due_at:at(0),completed:false,authorized:true,verdict:'due'}],gate_sha256:gateHash,...overrides};
@@ -104,7 +104,7 @@ export function completeSite(site,{plantSecond=false}={}){
    look(p,'post',c4dy?'absent':'present_private',begin+22,lastPost);
    if(c4dy){look(p,'post','absent',begin+1230,lastPost);settlements.push({platform:p,how:'nothing_posted'});continue;}
    if(j.edit){
-    if(site==='tester')grant('one_write',1,begin+23,p);
+    if(site==='tester')grant('one_write',1,begin+23,p,'edit');
     const ef=j.faults.find(f=>f.role==='edit');if(ef)arm(ef,begin+23.2);
     step({role:'edit',ps:[p],m:begin+24,n,press:true,read:!ef,cut:!!ef,state:ef?'EDIT_SUBMITTED_UNVERIFIED':'EDIT_VERIFIED',exit:ef?4:0});
     step({role:'edit',ps:[p],m:begin+26,n,read:true,cls:'read',state:'EDIT_VERIFIED'});

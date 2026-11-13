@@ -108,7 +108,7 @@ test('C41 actual reconcile retains every observation classification in dates-onl
  const x=timingFixture('owner'),journal=path.join(root,'journal.jsonl'),tool=path.join(root,'tool.json');
  fs.writeFileSync(journal,x.journal.records.map(canonical).join('\n')+'\n');
  fs.writeFileSync(journal+'.head',JSON.stringify({records:x.journal.source.records,head_sha256:x.journal.source.head_sha256}));
- fs.writeFileSync(tool,JSON.stringify(x.tool));fs.writeFileSync(path.join(root,'jobs.json'),JSON.stringify(x.plan.runs));
+ fs.writeFileSync(tool,JSON.stringify(x.tool));fs.writeFileSync(path.join(root,'jobs.json'),JSON.stringify(x.plan.runs));fs.writeFileSync(path.join(root,'planned-runs.json'),canonical(x.plan)+'\n');
  keyedDigest('synthetic-c41-key',root,{create:true});
  const ctx={home:root,journal,site:'owner'},exact=reconcile(ctx,tool,{now:Date.parse(x.asOf)}),copy=reconcile(ctx,tool,{now:Date.parse(x.asOf),privacy:true});
  assert.equal(exact.observation_checks.length,8);

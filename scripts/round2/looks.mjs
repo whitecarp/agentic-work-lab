@@ -12,11 +12,19 @@ export function secondLookDue(look,step,records){
   r.d.job===look.d.job&&r.d.about==='post'&&(r.d.platform??look.d.platform)===look.d.platform);
  const first=earlier.find(r=>lookTiming(r,step,[]).counts);
  if(first?.d.seen!=='absent')return false;
- const steps=records.filter(r=>r.type==='STEP'&&r.d.job===look.d.job&&r.seq<=first.seq&&r.d.platforms.includes(look.d.platform));
- const last=steps.findLast(r=>['publish','repeat_same','resume','verify'].includes(r.d.role));
- const a=last?.d.answers?.find(a=>a.platform===look.d.platform);
- return a?!confirmedAnswer(a,'post')&&(uncertainState(a,'post')||last.d.result==='unknown'):
-  ['in_doubt','unknown'].includes(last?.d.result);
+ // An unresolved case survives busy/refused/not-started helper answers.
+ const steps=records.filter(r=>r.type==='STEP'&&r.d.job===look.d.job&&r.seq<=first.seq&&
+  r.d.started!==false&&r.d.exit!==127&&r.d.platforms.includes(look.d.platform)&&
+  ['publish','repeat_same','resume','verify'].includes(r.d.role));
+ let open=false;
+ for(const s of steps){
+  const a=s.d.answers?.find(a=>a.platform===look.d.platform);
+  if(a&&confirmedAnswer(a,'post')){open=false;continue;}
+  if(a&&(uncertainState(a,'post')||a.press_flag===true||
+    a.state==='SKIPPED_EXISTING'&&['IN_PROGRESS','UNKNOWN'].includes(a.previous_state))||
+    ['in_doubt','unknown'].includes(s.d.result))open=true;
+ }
+ return open;
 }
 export function lookTiming(look,step,records=[],cutoff=Infinity){
  const n=look.d.minutes_after;

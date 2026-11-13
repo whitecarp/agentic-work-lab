@@ -11,7 +11,7 @@ test('C37 A3 premature claimed 15-minute look does not settle, elapsed one does'
 test('C37 A4 whole no-contact record proves no press with null counters too',t=>{
  const f=ready(t);record(f);const d=structuredClone(audit);record(f,{role:'repeat_same',result:'ok',exit:0,awl_run_id:d.runs[0].awl_run_id});record(f,{role:'verify',result:'ok',exit:0,confirmed_state:'SUBMISSION_VERIFIED'});
  const file=path.join(f.root,'audit.json'),before=d.events[0].before={state:'UNKNOWN',final_presses:1},after=d.events.at(-1).after={state:'UNKNOWN',final_presses:1};before.delete_attempted=after.delete_attempted=null;fs.writeFileSync(file,JSON.stringify(d));assert.equal(reconcile(f.ctx,file).in_doubt[0].ignored_no_press_steps.length,1);
- before.final_presses=after.final_presses=null;fs.writeFileSync(file,JSON.stringify(d));assert.equal(reconcile(f.ctx,file).in_doubt[0].ignored_no_press_steps.length,1);
+ before.final_presses=after.final_presses=d.events.at(-1).platforms.youtube.final_presses=null;fs.writeFileSync(file,JSON.stringify(d));assert.equal(reconcile(f.ctx,file).in_doubt[0].ignored_no_press_steps.length,1);
 });
 for(const role of ['edit','delete'])test('C37 A5 '+role+' ignores an old upload press marker',t=>{
  const f=ready(t),d=structuredClone(audit);record(f,{action:role,role,exit:3,result:'unknown',answered:false,awl_run_id:d.runs[0].awl_run_id});
@@ -33,7 +33,7 @@ test('C37 A6 controller attachment failure cannot relabel a spawned child as uns
 test('C37 A9 standing job remains open',t=>{const f=fixture(t);setup(f.ctx,[{id:'standing',class:'read',run_class:'standing',platforms:[],due_at:'2020-01-01'}]);assert.throws(()=>closeJob(f.ctx,{job:'standing',reason:'done'}),/standing_job_never_closed/);});
 test('C37 A10 independent platform closures permit one clean done',t=>{
  const f=fixture(t);setup(f.ctx,[{id:'job-1',class:'write',run_class:'test_post',platforms:['youtube','douyin'],due_at:'2020-01-01'}]);
- record(f,{role:'delete',action:'delete',platforms:['youtube']});record(f,{role:'delete_verify',action:'delete',class:'read',result:'ok',exit:0,confirmed_state:'DELETED_VERIFIED'});
+ approve(f.ctx,'job-1',1,'one_delete');record(f,{role:'delete',action:'delete',platforms:['youtube']});record(f,{role:'delete_verify',action:'delete',class:'read',result:'ok',exit:0,confirmed_state:'DELETED_VERIFIED'});
  put(f.ctx,'NOTE',{code:'manual_step',job:'job-1',platform:'douyin',agent:null,minutes_ago:null});
  closeJob(f.ctx,{job:'job-1',reason:'done'});assert.deepEqual(last(f.ctx,'JOB_END').d.platform_settlements,[{platform:'youtube',how:'delete_confirmed'},{platform:'douyin',how:'removed_by_hand'}]);
 });
@@ -47,7 +47,7 @@ test('C37 A12 every CLI needs a real typed slot and A13 rejects a stray journal'
 });
 test('C37 A14 two-phase seal forward only; A15 exact source regeneration catches edited list',t=>{
  const f=fixture(t);setup(f.ctx);fs.unlinkSync(path.join(f.home,'jobs.json'));make(f.home,counts,'owner',{dueFrom:'2020-01-01'});assert.equal(verifyPlan(f.home).matches,true);
- const protocol=path.join(f.root,'protocol.md');fs.writeFileSync(protocol,'synthetic protocol');const args=phase=>['protocol-seal',...flags(f),'--phase',phase,'--protocol',protocol,'--lab-commit','a'.repeat(40),'--crosscast-commit','b'.repeat(40),'--plan',path.join(f.home,'planned-runs.json')];
+ const protocol=path.join(f.root,'protocol.md');fs.writeFileSync(protocol,'synthetic protocol');const args=phase=>['protocol-seal',...flags(f),'--phase',phase,'--protocol',protocol,'--rules-card',protocol,'--analysis',protocol,'--crosscast-digest','c'.repeat(64),'--lab-commit','a'.repeat(40),'--crosscast-commit','b'.repeat(40),'--plan',path.join(f.home,'planned-runs.json')];
  assert.equal(cli(f,'journal',args('2b')).status,0);assert.match(cli(f,'journal',args('2b')).stderr,/refreeze_owner_words_required/);for(const phase of ['2a','rehearsal'])assert.match(cli(f,'journal',args(phase)).stderr,/seal_phase_not_forward/);
  fs.appendFileSync(path.join(f.home,'jobs.json'),' ');assert.throws(()=>verifyPlan(f.home),/plan_reproduction_mismatch/);
 });

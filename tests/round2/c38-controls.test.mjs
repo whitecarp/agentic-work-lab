@@ -32,7 +32,7 @@ test('partial step retains both platform outcomes and fixed code words',()=>{
  }
 });
 test('missing export still lists an exit-2 press-capable error',async t=>{
- const f=admitted(t);
+ const f=admitted(t);approve(f.ctx,'job-1',1,'one_write','edit');
  await step(f.ctx,{job:'job-1',role:'edit',platform:['youtube']},[process.execPath,'-e',
   'console.log(JSON.stringify({ok:false,error:{code:"layout_changed"}}));process.exitCode=2']);
  const s=last(f.ctx,'STEP');
