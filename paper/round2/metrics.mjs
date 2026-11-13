@@ -109,9 +109,12 @@ function postStateChanges(attempt, open) {
   if ((!later&&!withinDoubt) || (!turnedBack&&!savedConfirmation&&uncertainState(d.answer ?? {},'post'))) continue;
   const read = d.step.d.role === 'verify' || d.evidence.events.some(e => e.platform === platform &&
    ['reading back','reading the page','waiting for platform confirmation'].includes(e.stage));
+  const missingRead=(firstConfirmation && !read && !helper)||withoutRead;
+  const wholeHistory=steps.filter(x=>x.step.seq<=d.step.seq).every(x=>x.evidence.intact);
   rows.push({job:job.id,platform,step:d.step.seq,role:d.step.d.role,outcome:d.outcome,
    state:d.answer?.state ?? null,previous_state:d.answer?.previous_state ?? null,
-   confirmed_without_read:(firstConfirmation && !read && !helper)||withoutRead,
+   confirmed_without_read:missingRead?(wholeHistory?true:null):false,
+   confirmation_read_unverifiable:missingRead&&!wholeHistory,
    left_unsettled:turnedBack && (!open.closed || d.step.seq < open.settled_at_seq),
    helper_confirmation:helper && (savedConfirmation||d.outcome==='confirmed')});
  }
@@ -541,7 +544,8 @@ function figures(model,jobRows,platform,phase,stampFilter=null) {
   gate_digest_mismatches:issues.filter(i=>i.code==='gate_digest_mismatch').length,
   test_posts_public:attempts.filter(a=>a.job.run_class==='test_post'&&a.all_looks.some(l=>l.seen==='present_once')).length,
   repeats_restarted_upload:repeats.filter(r=>r.restarted_upload).length,
-  confirmed_without_platform_read:stateChanges.filter(r=>r.confirmed_without_read).length,
+  confirmed_without_platform_read:stateChanges.some(r=>r.confirmed_without_read)?stateChanges.filter(r=>r.confirmed_without_read).length:
+   stateChanges.some(r=>r.confirmation_read_unverifiable)?null:0,
   left_in_doubt_without_settlement:stateChanges.filter(r=>r.left_unsettled).length,
   in_doubt_record_missing_at_close:stateChanges.filter(r=>r.record_missing_at_close).length,
   go_aheads_above_list:excessiveGrants.length,safety_stop_old_approval:safetyRestarts.length,

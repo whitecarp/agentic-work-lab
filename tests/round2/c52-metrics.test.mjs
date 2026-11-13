@@ -60,6 +60,13 @@ test('C52 G1 an edit approval above one unit is independently reported',()=>{
  assert.equal(all(run(f)).must_be_zero.go_aheads_above_list,1);
 });
 
+test('C52 B12 missing worker evidence is unknown, not a proved spontaneous confirmation',()=>{
+ const f=fixture(),s=f.step({state:'UNKNOWN',press:1,exit:4,m:3});cut(f,s);
+ f.step({role:'resume',press:1,contact:false,m:5,before:{final_presses:1},after:{final_presses:1}});f.look({m:20,minutes_after:15});
+ const r=all(run(f));assert.equal(r.must_be_zero.confirmed_without_platform_read,null);
+ assert.ok(r.in_doubt.state_changes.some(x=>x.confirmation_read_unverifiable));
+});
+
 test('C52 G10 a read with no admitted session violates Rule 3',()=>{
  const f=clean(),s=f.step({role:'delete_verify',kind:'deletion',state:'DELETED_VERIFIED',cls:'read',m:22});s.run='9'.repeat(32);
  const r=all(run(f));assert.equal(r.must_be_zero.nonwrite_steps_without_admission,1);assert.equal(r.protocol.runs[0].rules['3_admitted_intact'],false);
