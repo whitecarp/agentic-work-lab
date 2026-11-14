@@ -11,7 +11,7 @@ import {classify, guardRole, grant, grantScope, limits, outcome, roles} from './
 import {bindHome,HOME_ERRORS} from './site.mjs';
 import {jobList,sealedPlan} from './jobs.mjs';
 import {selectFault,armFault,faultVariable,faultController} from './planned-faults.mjs';
-import {countsLook} from './looks.mjs';
+import {countsLook,lookStep} from './looks.mjs';
 import {publishStartedOn,confirmedAnswer} from './answers.mjs';
 
 const gateFile=new URL('../operations-gate.mjs',import.meta.url);
@@ -281,6 +281,26 @@ export function endFailedSession(ctx,by,statement){
     return {exit:0,record};
   });
 }
+function confirmsDelete(step, platform) {
+  const d = step.d;
+  if (d.answers) return confirmedAnswer(d.answers.find(a => a.platform === platform) ?? {}, 'delete');
+  // Early journals recorded successful delete read-backs without a state field.
+  return d.result === 'ok' && (d.confirmed_state === 'DELETED_VERIFIED' ||
+    (d.role === 'delete_verify' && !Object.hasOwn(d, 'confirmed_state')));
+}
+
+function unresolvedDelete(steps, platform) {
+  // A refusal cannot settle an earlier press. Only a saved confirmation clears it.
+  let pending = false;
+  for (const step of steps) {
+    const d = step.d;
+    if (d.started === false || d.exit === 127 || !['delete', 'delete_verify'].includes(d.role)) continue;
+    if (confirmsDelete(step, platform)) pending = false;
+    else if (d.role === 'delete' && d.class === 'write' && ['in_doubt', 'unknown'].includes(d.result)) pending = true;
+  }
+  return pending;
+}
+
 export function closeJob(ctx,flags){
   return withLock(guard(ctx),()=>{
     const records=readJournal(ctx.journal), active=readJSON(runFile(ctx),null);
@@ -300,13 +320,17 @@ export function closeJob(ctx,flags){
       const platformOf=r=>r.d.platform??(job.platforms?.length===1?job.platforms[0]:null);
       settlements=(job.platforms??[]).map(platform=>{
         const steps=own.filter(r=>r.type==='STEP'&&r.d.platforms.includes(platform)),writes=steps.filter(r=>r.d.class==='write');
-        const last=writes.at(-1),del=steps.filter(r=>r.d.role==='delete').at(-1),post=steps.filter(r=>['publish','repeat_same','changed_plan','resume'].includes(r.d.role)).at(-1);
+        const last=writes.at(-1),hasDelete=steps.some(r=>r.d.role==='delete'),post=steps.filter(r=>['publish','repeat_same','changed_plan','resume'].includes(r.d.role)).at(-1);
         const look=(about,step)=>own.find(r=>r.type==='OBSERVATION'&&r.seq>(last?.seq??0)&&r.d.about===about&&r.d.seen==='absent'&&platformOf(r)===platform&&countsLook(r,step));
-        const verified=steps.find(r=>r.seq>(last?.seq??0)&&r.d.role==='delete_verify'&&
-          (r.d.answers?confirmedAnswer(r.d.answers.find(a=>a.platform===platform)??{},'delete'):r.d.result==='ok'&&(!Object.hasOwn(r.d,'confirmed_state')||r.d.confirmed_state==='DELETED_VERIFIED')));
+        const verified=steps.find(r=>r.seq>(last?.seq??0)&&r.d.role==='delete_verify'&&confirmsDelete(r,platform));
         const manual=own.find(r=>r.type==='NOTE'&&r.d.code==='manual_step'&&platformOf(r)===platform&&r.seq>(last?.seq??0));
-        const how=verified?'delete_confirmed':manual?'removed_by_hand':!del&&look('post',post)?'nothing_posted':del&&['in_doubt','unknown'].includes(del.d.result)&&look('delete',del)?'gone_by_person':null;
-        return {platform,how};
+        if (verified) return {platform, how: 'delete_confirmed'};
+        if (manual) return {platform, how: 'removed_by_hand'};
+        if (!hasDelete && look('post', post)) return {platform, how: 'nothing_posted'};
+        if (unresolvedDelete(steps, platform) && look('delete', lookStep(own, job.id, platform, 'delete'))) {
+          return {platform, how: 'gone_by_person'};
+        }
+        return {platform, how: null};
       });
       if(!settlements.length||pending.length||settlements.some(s=>!s.how)||reason==='nothing_posted'&&settlements.some(s=>s.how!=='nothing_posted')||reason==='removed_by_hand'&&settlements.some(s=>s.how!=='removed_by_hand'))throw new Error('job_close_evidence_missing');
     }
