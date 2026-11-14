@@ -47,7 +47,7 @@ export function reconcileData(records,cc,{jobs=[],reservations=[],now}={}){
  const owesLook=lookChecks.filter(r=>!['on_time','late','second_look'].includes(r.status)||r.second_look_owed&&!r.second_look_done);
  // Time overlap is never a substitute for the id passed to a specific child.
  // Missing STEP (including a crash before its append) is an unproven binding.
- const trusted=cc.present&&cc.chain_ok&&cc.runs.every(r=>r.chain_ok!==false);
+ const trusted=cc.present&&cc.chain_ok&&cc.integrity?.salt_ok!==false&&cc.runs.every(r=>r.chain_ok!==false);
  const bindings=cc.runs.filter(r=>commandClass(r)==='write').map(command=>{
   const id=command.awl_run_id??null,candidates=id?steps.filter(s=>s.d.awl_run_id===id):[];
   let status='matched',s=candidates[0];
@@ -62,7 +62,7 @@ export function reconcileData(records,cc,{jobs=[],reservations=[],now}={}){
   return {run:command.run,awl_run_id:id,step_seq:status==='matched'?s.seq:null,status};
  });
  const ungated=trusted?bindings.filter(b=>b.status!=='matched').length:null;
- const intact=cc.integrity?.unreadable_loss_records===0 && cc.integrity?.loss_records_complete===true &&
+ const intact=cc.integrity?.salt_ok!==false && cc.integrity?.unreadable_loss_records===0 && cc.integrity?.loss_records_complete===true &&
    cc.integrity?.loss_folder_unreadable===false && (cc.integrity?.unplaced_dropped_events??0)===0;
  function matched(s){
    const b=bindings.find(b=>b.step_seq===s.seq&&b.status==='matched');

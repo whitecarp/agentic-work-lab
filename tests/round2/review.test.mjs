@@ -125,6 +125,29 @@ test('invalid global loss flags cannot enter a public summary',t=>{
   assert.throws(()=>exportData(f.ctx,{crosscast:file}),/invalid_crosscast_loss/);
  }
 });
+
+test('C53 salt health travels separately from the chain and gates command binding',t=>{
+ const f=ready(t),id='f'.repeat(32);
+ f.ctx.run=begin(f.ctx,{}).run;step(f,{awl_run_id:id},f.ctx.run);
+ for(const salt of [{},{salt_ok:true,salt_error:null},{salt_ok:false,salt_error:'missing_salt_with_existing_history'}]){
+  const file=audit(f,[run({awl_run_id:id})],{integrity:{chain_ok:true,...salt}});
+  const r=reconcile(f.ctx,file),e=exportData(f.ctx,{crosscast:file});
+  for(const v of [e,r]){
+   assert.equal(v.crosscast_chain_ok,true);
+   assert.equal(v.crosscast_integrity.salt_ok,salt.salt_ok??null);
+   assert.equal(v.crosscast_integrity.salt_error,salt.salt_error??null);
+  }
+  assert.equal(r.write_bindings[0].status,salt.salt_ok===false?'unverifiable':'matched');
+  assert.equal(r.ungated_writes,salt.salt_ok===false?null:0);
+ }
+});
+
+test('C53 malformed salt evidence is rejected at import',t=>{
+ const f=ready(t);
+ for(const fields of [{salt_ok:0},{salt_ok:null},{salt_ok:'false'},{salt_error:1},{salt_error:{}},{salt_error:false}]){
+  assert.throws(()=>crosscast(audit(f,[],{integrity:{chain_ok:true,...fields}})),/invalid_crosscast_loss/);
+ }
+});
 test('invalid CrossCast loss fields, duplicate commands and schema are refused',t=>{
  const f=ready(t);for(const rows of [[run({dropped_events:-1})],[run({sequence_gap:'false'})],[run(),run()],[run({run:'PRIVATE'})]])assert.throws(()=>crosscast(audit(f,rows)));
  assert.throws(()=>crosscast(audit(f,[],{schema:'other'})));

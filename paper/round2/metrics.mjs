@@ -42,7 +42,7 @@ function commandEvidence(s,step,platform) {
    r.d.role===step.d.role&&killed.includes(r.d.kind)&&(r.d.fired||r.d.failed)&&
    s.records.find(x=>x.type==='STEP'&&x.seq>r.seq&&x.run===r.run&&x.d.job===r.d.job&&x.d.role===r.d.role)?.seq===step.seq);
  const intact=!!command&&command.ended&&command.exit_code===step.d.exit&&first&&end&&command.chain_ok!==false&&
-   integrity.chain_ok===true&&command.sequence_gap===false&&command.dropped_events!=null&&!loss&&
+   integrity.chain_ok===true&&integrity.salt_ok!==false&&command.sequence_gap===false&&command.dropped_events!=null&&!loss&&
    integrity.loss_records_complete===true&&integrity.loss_folder_unreadable===false&&
    integrity.unreadable_loss_records===0&&integrity.unplaced_dropped_events===0&&!interrupted;
  const middle=events.filter(e=>own(e)&&!['command_start','command_end'].includes(e.type));
@@ -683,7 +683,7 @@ function figures(model,jobRows,platform,phase,stampFilter=null) {
      source:later.length?'resume_or_edit_readback':a?.receipt?'export':null,
      agrees:!readable?null:stage==='waiting for platform confirmation'?flag===true&&count>=1:true};
    })),
-   A3:{journal:s.integrity,tool_chain_attested:s.tool.integrity?.chain_ok??null,record_edits:rec.filter(r=>r.type==='VIOLATION'&&r.d.rule==='record_edited').length,limit:'nothing else checks manual record edits'},
+   A3:{journal:s.integrity,tool_chain_attested:s.tool.integrity?.chain_ok??null,tool_salt_ok:s.tool.integrity?.salt_ok??null,record_edits:rec.filter(r=>r.type==='VIOLATION'&&r.d.rule==='record_edited').length,limit:'nothing else checks manual record edits'},
    A4:attempts.filter(a=>a.press_markers>1).map(a=>({job:a.job.id,ref:a.ref,markers:a.press_markers,draft_before_second:a.draft_before_second,
     first_marker_had_click:!a.job.faults.some(f=>f.kind==='between_save_and_press'&&f.state==='fired'),
     looks_before_second:model.records.filter(r=>r.type==='OBSERVATION'&&r.d.job===a.job.id&&r.d.platform===a.platform&&r.d.about==='post'&&r.seq<(a.details.find(d=>markers(d)>1)?.step.seq??0)).map(r=>({seq:r.seq,seen:r.d.seen}))}))}
@@ -881,6 +881,7 @@ export function analyze(inputs,{gateHash,gateHashes=[gateHash],lastDay='2026-11-
  // Journal-wide integrity exceptions also affect the counted export. Phase-local
  // missing evidence stays with the job/table that generated it.
  const allGaps=siteIntegrity.flatMap(s=>s.journal.exceptions.map(v=>({site:s.site,...v})));
+ for(const s of siteIntegrity)if(s.tool.salt_ok===false)allGaps.push({site:s.site,code:'tool_salt_unavailable'});
  for(const m of models)for(const j of m.jobs)for(const code of j.unknown)
   allGaps.push({site:m.s.site,phase:j.phase,job:j.id,code});
  for(const t of tables.filter(t=>t.platform===null)){

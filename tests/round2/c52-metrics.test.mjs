@@ -37,6 +37,21 @@ test('C52 B9 a private observation cannot establish real public release capabili
  const z=run(f);assert.equal(cell(z,1).independent_agreed,0);assert.equal(all(z).must_be_zero.contradicted_confirmations,1);
 });
 
+test('C53 salt loss with an intact chain cannot prove a no-contact refusal in either analysis copy',()=>{
+ for(const site of ['owner','tester'])for(const salt of [undefined,null,true,false]){
+  const f=fixture({site,jobs:[job({run_class:'refusal',kind:'changed_title'})]});
+  if(salt!==undefined)f.tool.integrity.salt_ok=salt;
+  f.step({role:'changed_plan',state:null,press:0,exit:2,code:'confirmation_required',contact:false});
+  const data=f.finish();
+  assert.equal(data.reconcile.write_bindings[0].status,salt===false?'unverifiable':'matched');
+  const z=analyze(bundle(site==='tester'?privateSite(data):data),{gateHash}),r=all(z);
+  assert.equal(r.assumptions.A3.tool_chain_attested,true);
+  assert.equal(r.assumptions.A3.tool_salt_ok,salt??null);
+  assert.equal(!!r.plan_binding.changed[0].refused_before_contact,salt!==false);
+  assert.equal(z.verdict.gaps.some(g=>g.code==='tool_salt_unavailable'),salt===false);
+ }
+});
+
 for(const seen of ['absent','present_twice_or_more','present_once'])test('C52 B10 unconfirmed edit still fails the '+seen+' post invariant',()=>{
  const f=clean();f.step({role:'edit',kind:'edit',state:'EDIT_UNAVAILABLE',press:0,exit:4,m:21});f.look({about:'edit',seen,m:36});
  const r=all(run(f));assert.equal(r.must_be_zero.edit_post_invariant_broken,1);assert.equal(r.readback.edits[0].confirmed_by,null);

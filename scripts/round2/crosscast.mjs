@@ -13,10 +13,13 @@ export function crosscast(file){
   if(value.integrity[field]!==undefined&&!number(value.integrity[field]))throw new Error('invalid_crosscast_loss');
   integrity[field]=value.integrity[field]??null;
  }
- for(const field of ['dropped_count_is_lower_bound','loss_records_complete','loss_folder_unreadable']){
+ for(const field of ['dropped_count_is_lower_bound','loss_records_complete','loss_folder_unreadable','salt_ok']){
   if(value.integrity[field]!==undefined&&!bool(value.integrity[field]))throw new Error('invalid_crosscast_loss');
   integrity[field]=value.integrity[field]??null;
  }
+ const saltError=value.integrity.salt_error;
+ if(saltError!=null&&typeof saltError!=='string')throw new Error('invalid_crosscast_loss');
+ integrity.salt_error=saltError??null;
  for(const run of value.runs){
   if(!hex32(run.run)||seen.has(run.run))throw new Error('invalid_crosscast_command');seen.add(run.run);
   if(run.awl_run_id!=null&&!hex32(run.awl_run_id))throw new Error('invalid_crosscast_shared_id');
