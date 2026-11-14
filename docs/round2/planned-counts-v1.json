@@ -1,0 +1,128 @@
+{
+  "version": 1,
+  "about": "Counts of the planned runs of round two, Core size. The table of planned runs in the protocol states the same numbers; if the two ever differ, the protocol wins and this file is corrected before the list is made.",
+  "caps": {
+    "test_uploads_per_platform_per_24h": 4,
+    "minutes_between_test_uploads_on_one_platform": 20,
+    "minutes_after_any_other_upload_the_journal_knows_of_on_that_platform": 20,
+    "hours_a_platform_is_stopped_after_a_warning": 48,
+    "rule": "The caps count test posts, by the first publish command of each planned run. Its repeat and resume commands are not new uploads for the caps."
+  },
+  "clip_pools": {
+    "owner_uploads": { "short": [1, 60], "long": [1, 12], "rule": "Shakedown and counted phase together. One long clip serves one release on both platforms. No file is uploaded twice." },
+    "refusal_runs": { "short": [61, 70], "rule": "The owner's site only. Never uploaded, so they may be used again. A refusal clip that a failed refusal uploaded is retired." },
+    "tester_uploads": { "short": [71, 90], "rule": "The two sites never upload the same bytes. Of these twenty clips the list gives 14 to the tester's test posts and 5 to the tester's refusal runs, which are never uploaded." },
+    "rule": "The list of planned runs gives every run its clip from the right pool, in order, starting after the last clip the shakedown used. More clips can be made at any time; each new file gets a new number."
+  },
+  "write_steps_a_go_ahead_covers": {
+    "test_post_from_the_days_list": 5,
+    "test_post_with_an_edit_from_the_days_list": 6,
+    "test_post_on_two_platforms_from_the_days_list": 8,
+    "refusal_run_from_the_days_list": 1,
+    "delete": 2,
+    "delete_with_another_posts_code_first": 3,
+    "real_release": 4,
+    "per_platform_rule": "resume, verify, edit and delete each act on one platform's record, so they are run once for each platform. A test post covers 2 + 3 x platforms write steps (5 on one platform, 8 on two), plus 1 for each platform edited. A real release covers 1 + 3 x platforms (4 on one platform). The numbers above for a test post and a real release are for one platform.",
+    "who_approves": "Owner's site: test posts and refusal runs by a day's list; each delete and each real release on its own. Tester's site: each test post, each edit, each delete and each refusal run on its own, as the signed consent form says.",
+    "rule": "Test post: the publish, the same publish again, then for each platform one resume and up to two read-backs (vpub verify is a write step), plus the edit. Delete: the delete and, if it ends with its record pending, one repeat that must be refused. Real release: the publish and three read-backs for each platform. The list of planned runs carries these numbers for each run."
+  },
+  "fault_kinds": {
+    "end_command_after_press": { "mechanism": "wrapper_kill", "role": "publish", "trigger": "waiting for platform confirmation", "ends": "the command's own process only; the worker it started may finish" },
+    "end_tree_after_press": { "mechanism": "wrapper_kill", "role": "publish", "trigger": "waiting for platform confirmation", "ends": "the command and every process it started, each one checked to have ended" },
+    "readback_timeout": { "mechanism": "tool_switch", "role": "publish", "trigger": "none", "switch": "after_press" },
+    "between_save_and_press": { "mechanism": "tool_switch", "role": "publish", "trigger": "none", "switch": "before_press" },
+    "browser_lost_during_upload": { "mechanism": "wrapper_kill", "role": "publish", "trigger": "uploading", "ends": "the command and every process it started, each one checked to have ended" },
+    "stop_during_upload": { "mechanism": "stop_file", "role": "publish", "trigger": "uploading", "needs": "the study's stop file registered with the tool as its outside stop file (protocol Annex D), checked before arming", "expected": "the tool stops at its next check: before the press, or in doubt if the press had just been made; the repeat and the resume wait until the account owner's clearing is recorded" },
+    "delete_readback_lost": { "mechanism": "tool_switch", "role": "delete", "trigger": "none", "switch": "delete_readback_lost" },
+    "end_browser_after_edit_save": { "mechanism": "wrapper_kill", "role": "edit", "trigger": "reading back", "trigger_rule": "The first 'reading back' that follows 'pressing' in that edit command, never an earlier read.", "ends": "the command and every process it started, each one checked to have ended" },
+    "rule": "A trigger is a stage word exactly as the tool prints it on standard error, spaces included (Codex's report C5, answer 1). The wrapper matches the whole word. 'waiting for platform confirmation' is printed only after the final click has returned; 'pressing' is printed before it. A process is never ended by name, and never one this command did not start (C5, answer 2). Where a record of the study's journal holds a trigger, it is written with underscores in place of spaces; the wrapper still matches the word as the tool prints it."
+  },
+  "sites": {
+    "owner": {
+      "test_posts": [
+        { "group": "B", "platforms": ["youtube", "douyin"], "visibility": "private", "clip": "long", "runs": 6, "pairs": 3, "fault": null },
+
+        { "group": "C", "platforms": ["youtube"], "visibility": "private", "clip": "short", "runs": 4, "fault": "end_command_after_press" },
+        { "group": "C", "platforms": ["youtube"], "visibility": "private", "clip": "short", "runs": 3, "fault": "end_tree_after_press" },
+        { "group": "C", "platforms": ["youtube"], "visibility": "private", "clip": "short", "runs": 3, "fault": "readback_timeout" },
+        { "group": "C", "platforms": ["youtube"], "visibility": "private", "clip": "short", "runs": 3, "fault": "between_save_and_press" },
+        { "group": "C", "platforms": ["douyin"], "visibility": "private", "clip": "short", "runs": 4, "fault": "end_command_after_press" },
+        { "group": "C", "platforms": ["douyin"], "visibility": "private", "clip": "short", "runs": 3, "fault": "end_tree_after_press" },
+        { "group": "C", "platforms": ["douyin"], "visibility": "private", "clip": "short", "runs": 3, "fault": "readback_timeout" },
+        { "group": "C", "platforms": ["douyin"], "visibility": "private", "clip": "short", "runs": 3, "fault": "between_save_and_press" },
+
+        { "group": "D", "platforms": ["youtube"], "visibility": "private", "clip": "short", "runs": 2, "fault": "browser_lost_during_upload" },
+        { "group": "D", "platforms": ["youtube"], "visibility": "private", "clip": "short", "runs": 1, "fault": "stop_during_upload" },
+        { "group": "D", "platforms": ["douyin"], "visibility": "private", "clip": "short", "runs": 2, "fault": "browser_lost_during_upload" },
+        { "group": "D", "platforms": ["douyin"], "visibility": "private", "clip": "short", "runs": 1, "fault": "stop_during_upload" }
+      ],
+      "real_release_slots": [
+        { "group": "A", "platform": "bilibili", "slots": 3, "rule": "Three different days of the counted phase, drawn from its first nine days. On each, the day's first Bilibili release goes through the study version (the owner's choice of 10 November). A day with no Bilibili release moves the slot to the next day. After each, the delete dry run is asked once for that record and must be refused; no delete command is ever issued for Bilibili." }
+      ],
+      "variants_per_platform": {
+        "drawn_from": { "group": "C", "faults": ["end_command_after_press", "end_tree_after_press", "readback_timeout"] },
+        "edit": 5,
+        "edit_with_fault_end_browser_after_edit_save": 2,
+        "delete_with_fault_delete_readback_lost": 3,
+        "wrong_delete_code_first": 2,
+        "rule": "The two edits with a fault are among the five edits. A run never has both the delete fault and the wrong code. A run may have an edit and a delete fault together. A variant on a run that ends with nothing posted is reported as not reached and is not moved to another run."
+      },
+      "refusals": [
+        { "group": "E", "kind": "changed_words", "runs": 4, "plans": { "youtube": 2, "douyin": 2 } },
+        { "group": "E", "kind": "changed_video", "runs": 4, "plans": { "youtube": 2, "douyin": 2 } },
+        { "group": "E", "kind": "changed_cover", "runs": 4, "plans": { "youtube": 2, "douyin": 2 } },
+        { "group": "E", "kind": "changed_platform_list", "runs": 4, "plans": { "youtube": 2, "douyin": 2 }, "rule": "The changed list stays within youtube and douyin: a plan approved for one of them is changed to the other, or to both. Never bilibili, x or instagram." },
+        { "group": "E", "kind": "changed_visibility", "runs": 4, "plans": { "youtube": 4, "douyin": 0 } },
+        { "group": "E", "kind": "stop_before_write", "runs": 5, "plans": { "youtube": 3, "douyin": 2 }, "rule": "The operator sets the stop with the journal's command at the listed moment and clears it the same way once the refusal is recorded." }
+      ],
+      "drills": [
+        { "group": "I", "kind": "stop_flag", "runs": 10, "rule": "The agent that sets up the drill sets the stop and clears it again within the drill." },
+        { "group": "I", "kind": "not_owner", "runs": 10, "rule": "The gate's own word for a start by an agent that is not the named operator. 'Owner' here means the agent named to run, not the account owner." },
+        { "group": "I", "kind": "already_running", "runs": 10 },
+        { "group": "I", "kind": "not_authorized", "runs": 10 },
+        { "group": "I", "kind": "completed", "runs": 10 },
+        { "group": "I", "kind": "not_due", "runs": 10, "rule": "A job whose due time is still in the future, with a go-ahead already recorded for it. The gate must not admit it. Added on 10 November, when the owner decided against an hourly check started by the system, so that the due-time rule is still exercised." },
+        { "group": "I", "kind": "handoff", "runs": 3, "rule": "On three different days of the counted phase the owner hands one refusal run to the checking agent and takes the role back. A start by the agent that does not hold the role at that moment must be refused. The refusal run used is the next one in the list's order." }
+      ],
+      "who": { "operator": "gemini", "makes_the_list_and_sets_the_drills": "codex", "note": "The owner's decision of 10 November. The owner confirms the operator on 18 November, after the shakedown." }
+    },
+    "tester": {
+      "test_posts": [
+        { "group": "B", "platforms": ["youtube"], "visibility": "private", "clip": "short", "runs": 2, "fault": null },
+        { "group": "B", "platforms": ["douyin"], "visibility": "private", "clip": "short", "runs": 2, "fault": null },
+
+        { "group": "C", "platforms": ["youtube"], "visibility": "private", "clip": "short", "runs": 1, "fault": "end_command_after_press" },
+        { "group": "C", "platforms": ["youtube"], "visibility": "private", "clip": "short", "runs": 2, "fault": "end_tree_after_press" },
+        { "group": "C", "platforms": ["youtube"], "visibility": "private", "clip": "short", "runs": 1, "fault": "readback_timeout" },
+        { "group": "C", "platforms": ["douyin"], "visibility": "private", "clip": "short", "runs": 1, "fault": "end_command_after_press" },
+        { "group": "C", "platforms": ["douyin"], "visibility": "private", "clip": "short", "runs": 2, "fault": "end_tree_after_press" },
+        { "group": "C", "platforms": ["douyin"], "visibility": "private", "clip": "short", "runs": 1, "fault": "readback_timeout" },
+
+        { "group": "D", "platforms": ["youtube"], "visibility": "private", "clip": "short", "runs": 1, "fault": "browser_lost_during_upload" },
+        { "group": "D", "platforms": ["douyin"], "visibility": "private", "clip": "short", "runs": 1, "fault": "browser_lost_during_upload" }
+      ],
+      "variants_per_platform": {
+        "drawn_from": { "group": "B", "faults": [null] },
+        "edit": 2,
+        "edit_with_fault_end_browser_after_edit_save": 0,
+        "delete_with_fault_delete_readback_lost": 0,
+        "wrong_delete_code_first": 0,
+        "extra": { "drawn_from": { "group": "C", "faults": ["end_command_after_press", "end_tree_after_press", "readback_timeout"] }, "delete_with_fault_delete_readback_lost": 1 },
+        "rule": "Both no-fault posts on each platform get a plain edit. One fault run on each platform gets the delete fault."
+      },
+      "refusals": [
+        { "group": "E", "kind": "changed_words", "runs": 1, "plans": { "youtube": 1, "douyin": 0 } },
+        { "group": "E", "kind": "changed_video", "runs": 1, "plans": { "youtube": 0, "douyin": 1 } },
+        { "group": "E", "kind": "changed_cover", "runs": 1, "plans": { "youtube": 0, "douyin": 1 } },
+        { "group": "E", "kind": "changed_visibility", "runs": 1, "plans": { "youtube": 1, "douyin": 0 } },
+        { "group": "E", "kind": "stop_before_write", "runs": 1, "plans": { "youtube": 1, "douyin": 0 } }
+      ],
+      "drills": []
+    }
+  },
+  "totals_to_check": {
+    "owner": { "test_post_runs": 38, "test_posts": 44, "test_posts_per_platform": 22, "faults_around_the_press": 26, "faults_before_the_press": 6, "refusal_runs": 25, "drills": 63, "of_which_handoff_drills": 3, "gate_drills_of_the_six_kinds": 60, "repeats_after_a_delete_press": 6, "bilibili_real_release_slots": 3 },
+    "tester": { "test_post_runs": 14, "test_posts": 14, "test_posts_per_platform": 7, "faults_around_the_press": 8, "faults_before_the_press": 2, "refusal_runs": 5, "drills": 0, "repeats_after_a_delete_press": 2 },
+    "both": { "faults_around_the_press": 34, "faults_before_the_press": 8, "test_posts": 58 }
+  }
+}
