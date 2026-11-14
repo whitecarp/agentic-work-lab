@@ -2,9 +2,9 @@
 
 [繁體中文](README.md) · **English**
 
-2026-11-14 · **74** video versions · **5.24 GiB** (across **10** primary public Releases)
+2026-11-14 · **75** video versions · **5.26 GiB** (across **11** primary public Releases)
 
-All 74 remote sizes and SHA-256 digests match the manifest. Versions are not episode counts. Original sample dates and historical Bilibili states remain in the index; old scheduled times are not treated as proof of publication. Complete experimental exports are not claims of full user acceptance.
+All 75 remote sizes and SHA-256 digests match the manifest. Versions are not episode counts. Original sample dates and historical Bilibili states remain in the index; old scheduled times are not treated as proof of publication. Complete experimental exports are not claims of full user acceptance.
 
 [Checksums](SHA256SUMS.txt) · [Manifest](manifest.json) · [New research and limits](../docs/updates/2026-11-14_EN.md)
 
@@ -84,7 +84,8 @@ All 74 remote sizes and SHA-256 digests match the manifest. Versions are not epi
 | [ep07-vertical-l-clingy-v1.mp4](https://github.com/whitecarp/agentic-work-lab/releases/download/update-2026-11-14-catchup/ep07-vertical-l-clingy-v1.mp4) | WhaleGirl Shift Simulator Endings P12: The Tool That Never Clocks Out (`12/19` · 9:16 Vertical v1) | published (`BV1YL4M6EEek` P12 · `cid: 43590225876`) | 9.11 |
 | [aigo-ep06sp-v2-20261114.mp4](https://github.com/whitecarp/agentic-work-lab/releases/download/update-2026-11-14-catchup/aigo-ep06sp-v2-20261114.mp4) | AiGO!!!!! × Ai Mujica Ep.6 SP Memory — Debut Stage Live MV #2 (Approved Revised Cut v2) | published (`BV1rqWk6nE2M`) | 380.70 |
 | [aigo-epilogue-20261108-9x16-v2.mp4](https://github.com/whitecarp/agentic-work-lab/releases/download/update-2026-11-14-catchup/aigo-epilogue-20261108-9x16-v2.mp4) | AiGO Epilogue: Concert Compute Bill Tripped the Main Breaker (9:16 Reframed Approved v2 · Live Douyin Cut) | published (Douyin `7705901944459595046` / linked Bilibili `BV18i4x6ZEG1`) | 22.69 |
+| [news-20261114-gemini-4-hydrogen.mp4](https://github.com/whitecarp/agentic-work-lab/releases/download/update-2026-11-14-evening/news-20261114-gemini-4-hydrogen.mp4) | [AI News Flash] Google Releases Gemini 4 Hydrogen & Dynamic Orchestrator ($1.50/$7.50 Flat 1M Context Pricing · 16:9 Master v1) | published (`BV1mWs56JEFd`) | 21.44 |
 
-GitHub archival publication does not change Bilibili schedules (upcoming parts `P13–P19` of *WhaleGirl Shift Simulator*, banked/held masters for *AiGO!!!!! × Ai Mujica* `EP07–EP13B`, and tonight's `20:00` BJT scheduled *[AI News Flash]* `news-20261114-gemini-4-hydrogen.mp4` remain held locally until their public release). Technical checks are distinct from full subjective viewing/listening. Historical human-led originals are not available locally; their [data and platform links](../data/human-led-history.csv) remain available.
+GitHub archival publication does not change Bilibili schedules (upcoming parts `P13–P19` of *WhaleGirl Shift Simulator* and banked/held masters for *AiGO!!!!! × Ai Mujica* `EP07–EP13B` remain held locally until their public release). Technical checks are distinct from full subjective viewing/listening. Historical human-led originals are not available locally; their [data and platform links](../data/human-led-history.csv) remain available.
 
 [Back to the lab](../README_EN.md)

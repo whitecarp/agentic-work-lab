@@ -1,12 +1,12 @@
 {
   "date": "2026-11-14",
-  "coverage_window": "2026-11-09T21:33:30+08:00 to 2026-11-14T19:20:00+08:00",
-  "release_tag": "update-2026-11-14-catchup",
-  "release_url": "https://github.com/whitecarp/agentic-work-lab/releases/tag/update-2026-11-14-catchup",
-  "total_manifest_items": 74,
-  "total_manifest_bytes": 5621946634,
-  "total_manifest_gib": 5.24,
-  "total_public_releases": 10,
+  "coverage_window": "2026-11-09T21:33:30+08:00 to 2026-11-14T21:06:00+08:00",
+  "release_tag": "update-2026-11-14-evening",
+  "release_url": "https://github.com/whitecarp/agentic-work-lab/releases/tag/update-2026-11-14-evening",
+  "total_manifest_items": 75,
+  "total_manifest_bytes": 5644433114,
+  "total_manifest_gib": 5.26,
+  "total_public_releases": 11,
   "new_media": [
     {
       "id": "news-20261109-claude-to-pi",
@@ -333,6 +333,24 @@
           "url": "https://www.douyin.com/video/7705901944459595046"
         }
       }
+    },
+    {
+      "id": "news-20261114-gemini-4-hydrogen",
+      "file": "news-20261114-gemini-4-hydrogen.mp4",
+      "asset_id": 747517252,
+      "release_tag": "update-2026-11-14-evening",
+      "title_zh": "【AI快訊】百萬上下文統一價 $1.50/$7.50！Google 發布 Gemini 4 Hydrogen 與動態編排器（16:9 橫版母帶 v1）",
+      "title_en": "[AI News Flash] Google Releases Gemini 4 Hydrogen & Dynamic Orchestrator ($1.50/$7.50 Flat 1M Context Pricing · 16:9 Master v1)",
+      "bvid": "BV1mWs56JEFd",
+      "bilibili_url": "https://www.bilibili.com/video/BV1mWs56JEFd",
+      "aid": 117614676280973,
+      "cid": 43601429036,
+      "published_at": "2026-11-14T20:02:08+08:00",
+      "duration_seconds": 183.7,
+      "bytes": 22486480,
+      "sha256": "473ccb300bf07ccf3f99958539a32ff461a2093a99cebbe518511c9b180f1adc",
+      "download_url": "https://github.com/whitecarp/agentic-work-lab/releases/download/update-2026-11-14-evening/news-20261114-gemini-4-hydrogen.mp4",
+      "status": "published_verified"
     }
   ],
   "completed_unpublished_pending_release": [
@@ -452,25 +470,12 @@
       "sha256": "d2290f16c0aace5a60b6c80af0ffc70a2dc698048d47fb29e2dc33d6b9225de4",
       "scheduled_release_window": "2026-11-23 16:00 (UTC+8)",
       "status": "master_rendered_pending_v3_refinement_and_release_window"
-    },
-    {
-      "project_id": "news-20261114-gemini-4-hydrogen",
-      "working_title_zh": "【AI快訊】Gemini 4 Hydrogen 快訊成片（預定 11-14 20:00 BJT 公開）",
-      "working_title_en": "[AI News Flash] Gemini 4 Hydrogen Release Coverage (Held for 20:00 BJT Slot)",
-      "local_master_file": "news-20261114-gemini-4-hydrogen/renders/news-20261114-gemini-4-hydrogen.mp4",
-      "duration_seconds": 183.7,
-      "resolution": "1920x1080",
-      "fps": 30,
-      "bytes": 22486480,
-      "sha256": "473ccb300bf07ccf3f99958539a32ff461a2093a99cebbe518511c9b180f1adc",
-      "scheduled_release_window": "2026-11-14 20:00 (UTC+8)",
-      "status": "master_ready_held_for_2000_bjt_slot_not_uploaded"
     }
   ],
   "queued_daily_release_parts": {
     "parent_bvid": "BV1YL4M6EEek",
     "parent_title": "大肥魚值班小遊戲，到底有多少種結局？（B站裡就能玩）",
-    "schedule_rule": "截至 2026-11-14 19:00（UTC+8），P1–P12 已正式公開並全部納入 GitHub Release；未到排期的 P13–P19（共 7 條豎屏結局成片）嚴禁提前上傳附件，只保留於待發排期清單。",
+    "schedule_rule": "截至 2026-11-14 21:06（UTC+8），P1–P12 已正式公開並全部納入 GitHub Release；未到排期的 P13–P19（共 7 條豎屏結局成片）嚴禁提前上傳附件，只保留於待發排期清單。",
     "live_parts_count": 12,
     "remaining_queued_count": 7,
     "schedule_window": "2026-11-15 至 2026-11-20 每日 12:00 (UTC+8)",
@@ -579,7 +584,7 @@
     "ai_news_upload_time_natural_experiment": {
       "design": "Alternating odd/even day 12:00 vs 20:00 BJT AI News Flash release schedule on Bilibili with zero paid promotion and delayed community-form filing outside the comparison window, testing organic initial reach.",
       "status": "ongoing_exploratory_observation_non_causal",
-      "samples_recorded_through_2026_11_14_midday": [
+      "samples_recorded_through_2026_11_14_evening": [
         {
           "date": "2026-11-11",
           "slot": "12:00",
@@ -588,8 +593,8 @@
           "actual_public_time": "2026-11-11T12:21:46+08:00",
           "status": "missed",
           "excluded_from_comparison": true,
-          "live_views_at_2026_11_14_1916": 799,
-          "live_likes_at_2026_11_14_1916": 7
+          "live_views_at_2026_11_14_2106": 800,
+          "live_likes_at_2026_11_14_2106": 7
         },
         {
           "date": "2026-11-11",
@@ -599,8 +604,8 @@
           "actual_public_time": "2026-11-11T20:02:03+08:00",
           "status": "on_time",
           "excluded_from_comparison": false,
-          "live_views_at_2026_11_14_1916": 675,
-          "live_likes_at_2026_11_14_1916": 9
+          "live_views_at_2026_11_14_2106": 677,
+          "live_likes_at_2026_11_14_2106": 9
         },
         {
           "date": "2026-11-12",
@@ -610,8 +615,8 @@
           "actual_public_time": "2026-11-12T12:02:25+08:00",
           "status": "on_time",
           "excluded_from_comparison": false,
-          "live_views_at_2026_11_14_1916": 219,
-          "live_likes_at_2026_11_14_1916": 6
+          "live_views_at_2026_11_14_2106": 220,
+          "live_likes_at_2026_11_14_2106": 6
         },
         {
           "date": "2026-11-12",
@@ -621,8 +626,8 @@
           "actual_public_time": "2026-11-12T20:02:00+08:00",
           "status": "on_time",
           "excluded_from_comparison": false,
-          "live_views_at_2026_11_14_1916": 150,
-          "live_likes_at_2026_11_14_1916": 5
+          "live_views_at_2026_11_14_2106": 151,
+          "live_likes_at_2026_11_14_2106": 5
         },
         {
           "date": "2026-11-13",
@@ -632,8 +637,8 @@
           "actual_public_time": "2026-11-13T12:02:07+08:00",
           "status": "on_time",
           "excluded_from_comparison": false,
-          "live_views_at_2026_11_14_1916": 194,
-          "live_likes_at_2026_11_14_1916": 4
+          "live_views_at_2026_11_14_2106": 195,
+          "live_likes_at_2026_11_14_2106": 4
         },
         {
           "date": "2026-11-13",
@@ -643,8 +648,8 @@
           "actual_public_time": "2026-11-13T20:06:41+08:00",
           "status": "on_time",
           "excluded_from_comparison": false,
-          "live_views_at_2026_11_14_1916": 636,
-          "live_likes_at_2026_11_14_1916": 15
+          "live_views_at_2026_11_14_2106": 645,
+          "live_likes_at_2026_11_14_2106": 15
         },
         {
           "date": "2026-11-14",
@@ -654,8 +659,19 @@
           "actual_public_time": "2026-11-14T12:01:52+08:00",
           "status": "on_time",
           "excluded_from_comparison": false,
-          "live_views_at_2026_11_14_1916": 271,
-          "live_likes_at_2026_11_14_1916": 5
+          "live_views_at_2026_11_14_2106": 291,
+          "live_likes_at_2026_11_14_2106": 5
+        },
+        {
+          "date": "2026-11-14",
+          "slot": "20:00",
+          "bvid": "BV1mWs56JEFd",
+          "title": "百万上下文统一价$1.50/$7.50！Google发布Gemini 4 Hydrogen与动态编排器【AI快讯】",
+          "actual_public_time": "2026-11-14T20:02:08+08:00",
+          "status": "on_time",
+          "excluded_from_comparison": false,
+          "live_views_at_2026_11_14_2106": 32,
+          "live_likes_at_2026_11_14_2106": 1
         }
       ]
     }
@@ -663,11 +679,13 @@
   "public_channel_snapshot_2026_11_14": {
     "uid": 10706217,
     "name": "穿睡衣的小白白",
-    "followers": 37455,
+    "followers": 37475,
     "following": 29,
     "cumulative_views": 3268151,
-    "cumulative_likes": 221921,
-    "tracked_standalone_bvid_count": 29
+    "cumulative_likes": 222048,
+    "tracked_standalone_bvid_count": 30
   },
-  "updated_at": "2026-11-14T19:20:00+08:00"
+  "updated_at": "2026-11-14T21:06:00+08:00",
+  "catchup_release_tag": "update-2026-11-14-catchup",
+  "catchup_release_url": "https://github.com/whitecarp/agentic-work-lab/releases/tag/update-2026-11-14-catchup"
 }

@@ -2,9 +2,9 @@
 
 **繁體中文** · [English](README_EN.md)
 
-2026-11-14 · **74** 個影片版本 · **5.24 GiB**（分布於 **10** 個主要公開 Release）
+2026-11-14 · **75** 個影片版本 · **5.26 GiB**（分布於 **11** 個主要公開 Release）
 
-全部 74 個遠端附件的大小及 SHA-256 均與索引一致；版本數不等於集數。保留每筆採樣日期與 B站歷史狀態，不把已過的排期時間當作公開證明。完整實驗交付不等於使用者全片驗收。
+全部 75 個遠端附件的大小及 SHA-256 均與索引一致；版本數不等於集數。保留每筆採樣日期與 B站歷史狀態，不把已過的排期時間當作公開證明。完整實驗交付不等於使用者全片驗收。
 
 [校驗清單](SHA256SUMS.txt) · [完整索引](manifest.json) · [本輪研究與限制](../docs/updates/2026-11-14.md)
 
@@ -84,7 +84,8 @@
 | [ep07-vertical-l-clingy-v1.mp4](https://github.com/whitecarp/agentic-work-lab/releases/download/update-2026-11-14-catchup/ep07-vertical-l-clingy-v1.mp4) | 值班小遊戲結局合集 P12：永不下班的好用工具（`12/19` 9:16 豎版 v1） | 已公開（`BV1YL4M6EEek` P12 · `cid: 43590225876`） | 9.11 |
 | [aigo-ep06sp-v2-20261114.mp4](https://github.com/whitecarp/agentic-work-lab/releases/download/update-2026-11-14-catchup/aigo-ep06sp-v2-20261114.mp4) | 《AiGO!!!!! × Ai Mujica》第 6 話 SP 迷路憶（Memory · 舞台新裝出道 Live MV #2 修正定稿 v2） | 已公開（`BV1rqWk6nE2M`） | 380.70 |
 | [aigo-epilogue-20261108-9x16-v2.mp4](https://github.com/whitecarp/agentic-work-lab/releases/download/update-2026-11-14-catchup/aigo-epilogue-20261108-9x16-v2.mp4) | 《AiGO番外》慶功宴電費單直接把舞台幹跳閘了（9:16 豎版替換定稿 v2 · 抖音實發版） | 已公開（抖音 `7705901944459595046`／B站關聯 `BV18i4x6ZEG1`） | 22.69 |
+| [news-20261114-gemini-4-hydrogen.mp4](https://github.com/whitecarp/agentic-work-lab/releases/download/update-2026-11-14-evening/news-20261114-gemini-4-hydrogen.mp4) | 【AI快訊】百萬上下文統一價 $1.50/$7.50！Google 發布 Gemini 4 Hydrogen 與動態編排器（16:9 橫版母帶 v1） | 已公開（`BV1mWs56JEFd`） | 21.44 |
 
-GitHub 存檔公開不更改 B站排期（如《大肥魚值班小遊戲》未到期分P `P13–P19`、儲備成片《AiGO!!!!! × Ai Mujica》第 7 話至第 13 話後篇 `EP07–EP13B`，以及當晚 `20:00` BJT 排期【AI快訊】`news-20261114-gemini-4-hydrogen.mp4` 均待 B站正式公開後再歸檔原始 MP4）；技術檢查與全片主觀觀看／聆聽分開記錄。歷史人工影片原檔不在本機，仍提供其[數據與平台連結](../data/human-led-history.csv)。
+GitHub 存檔公開不更改 B站排期（如《大肥魚值班小遊戲》未到期分P `P13–P19` 及儲備成片《AiGO!!!!! × Ai Mujica》第 7 話至第 13 話後篇 `EP07–EP13B` 均待 B站正式公開後再歸檔原始 MP4）；技術檢查與全片主觀觀看／聆聽分開記錄。歷史人工影片原檔不在本機，仍提供其[數據與平台連結](../data/human-led-history.csv)。
 
 [返回實驗室](../README.md)
