@@ -15,6 +15,7 @@ export function normalizeSite(input) {
  if(tool?.schema!=='crosscast-audit/1'||!tool.window?.since)throw new Error('windowed_tool_export_required');
  if(!journal.privacy&&tool.times!=='exact')throw new Error('owner_exact_tool_times_required');
  if(!Array.isArray(tool.runs)||!Array.isArray(tool.events)||!tool.integrity)throw new Error('invalid_tool_export');
+ if(Object.hasOwn(tool.integrity,'salt_ok')&&typeof tool.integrity.salt_ok!=='boolean')throw new Error('invalid_tool_salt');
  if(!journal.privacy){
   const since=time(tool.window.since),until=tool.window.until?time(tool.window.until):Infinity;
   if(!Number.isFinite(since)||!(until>since))throw new Error('invalid_export_window');
@@ -69,8 +70,14 @@ export function normalizeSite(input) {
  let calculated=null;
  if(!privacy){
   calculated=reconcileData(records,cc,{jobs,now:time(asOf)});
-  for(const key of ['in_doubt','look_checks','write_bindings','error_steps_unclassified','ungated_writes','gate_checks','publish_checks','observation_checks','run_checks','count_changed_without_press'])
-   if(!equal(calculated[key],comparison[key]))errors.push({code:'reconcile_disagreement',field:key});
+  // Old on-site reports include the generated standing row. Compare substantive
+  // study rows by identity without hiding missing, duplicate or unknown jobs.
+  const byJob=rows=>Array.isArray(rows)?rows.filter(r=>![site+'-standing',site+'-practice-standing'].includes(r.job))
+   .sort((a,b)=>a.job.localeCompare(b.job)):rows;
+  for(const key of ['in_doubt','look_checks','write_bindings','error_steps_unclassified','ungated_writes','gate_checks','publish_checks','observation_checks','run_checks','count_changed_without_press']){
+   const same=key==='run_checks'?equal(byJob(calculated[key]),byJob(comparison[key])):equal(calculated[key],comparison[key]);
+   if(!same)errors.push({code:'reconcile_disagreement',field:key});
+  }
  }
  const result={...input,privacy,tool,cc,records,plan,jobs,seals,asOf,comparison:privacy?comparison:calculated,integrity,
   provenance:{plan_sha256:hash(bytes),seed_sha256:hash(seed),plan_reproduced:!!input.counts,practice_plan_sha256:practiceText?hash(practiceText):null,practice_plan_status:practice?'unsealed_list':'not_supplied',

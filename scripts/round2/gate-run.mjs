@@ -11,6 +11,7 @@ import {classify, guardRole, grant, grantScope, limits, outcome, roles} from './
 import {bindHome,HOME_ERRORS} from './site.mjs';
 import {jobList,sealedPlan} from './jobs.mjs';
 import {selectFault,armFault,faultVariable,faultController} from './planned-faults.mjs';
+import {checkedPublish} from './test-manifest.mjs';
 import {countsLook,lookStep} from './looks.mjs';
 import {publishStartedOn,confirmedAnswer} from './answers.mjs';
 
@@ -138,16 +139,23 @@ function prepare(ctx,flags,command,launch,supportCheck){
     // from a successful read. This re-check uses the same admitted due set.
     const checkedInput={executor:ctx.slot,owner:ctx.slot,stop:false,running:false,now:utc(),jobs:run.jobs};
     const checked=planRun(checkedInput);
-    put(ctx,'GATE_DECISION',{...admission.d,...checked,now:checkedInput.now,jobs:gateJobs(run.jobs),stop:false,running:false,
-      gate_sha256:sha(fs.readFileSync(gateFile))},ctx.run);
-    const reservation={id:newRunId(),wrapper_pid:process.pid,run:ctx.run,job:job.id,class:policy.class,role:flags.role,
-      platforms,scope,purpose:flags.role==='edit'?'edit':flags.role==='resume'&&job.run_class==='real_release'?'resume':'publish',run_class:job.run_class??null,at:utc(),step_seq:null,started:null};
-    const fault=selectFault(ctx,job,flags.role,policy);
-    armFault(ctx,fault,command[0],supportCheck);
-    list.push(reservation);writeReservations(ctx,list);
-    atomic(runFile(ctx),{...run,child_pid:process.pid});
-    if(stop(ctx)) throw new Error('stop_flag');
-    return {policy,reservation,run,capture:launch(reservation.id,pinned,fault)};
+    const testPublish=job.run_class==='test_post'&&['publish','repeat_same','changed_plan'].includes(flags.role);
+    const phase=records.findLast(r=>r.type==='PROTOCOL_SEAL')?.d.phase;
+    if(testPublish&&['2a','2b'].includes(phase)&&policy.tool!=='vpub')throw new Error('test_plan_invalid');
+    const checkedPlan=testPublish&&policy.tool==='vpub'?checkedPublish(job,command):null;
+    try {
+      put(ctx,'GATE_DECISION',{...admission.d,...checked,now:checkedInput.now,jobs:gateJobs(run.jobs),stop:false,running:false,
+        gate_sha256:sha(fs.readFileSync(gateFile))},ctx.run);
+      const reservation={id:newRunId(),wrapper_pid:process.pid,run:ctx.run,job:job.id,class:policy.class,role:flags.role,
+        platforms,scope,purpose:flags.role==='edit'?'edit':flags.role==='resume'&&['real_release','real_slot'].includes(job.run_class)?'resume':'publish',run_class:job.run_class??null,at:utc(),step_seq:null,started:null};
+      const fault=selectFault(ctx,job,flags.role,policy);
+      armFault(ctx,fault,command[0],supportCheck);
+      list.push(reservation);writeReservations(ctx,list);
+      atomic(runFile(ctx),{...run,child_pid:process.pid});
+      if(stop(ctx)) throw new Error('stop_flag');
+      const capture=launch(reservation.id,pinned,fault,checkedPlan?.args??command);
+      return {policy,reservation,run,capture:checkedPlan?capture.finally(checkedPlan.dispose):capture};
+    } catch(e){checkedPlan?.dispose();throw e;}
   });
 }
 function captureChild(ctx,command,reservationId,pinned,fault,controllerFactory=faultController){
@@ -205,7 +213,7 @@ function captureChild(ctx,command,reservationId,pinned,fault,controllerFactory=f
 }
 export async function step(ctx,flags,command,{supportCheck,controllerFactory}={}){
   let prepared;
-  try{prepared=prepare(ctx,flags,command,(id,pinned,fault)=>captureChild(ctx,command,id,pinned,fault,controllerFactory),supportCheck);}
+  try{prepared=prepare(ctx,flags,command,(id,pinned,fault,args)=>captureChild(ctx,args,id,pinned,fault,controllerFactory),supportCheck);}
   catch(e){
     if(['broken_journal','lock_unavailable'].includes(e.message)) throw e;
     // Fixed words only. No command arguments, path or child error is echoed.
@@ -312,6 +320,7 @@ export function closeJob(ctx,flags){
     if(records.some(r=>r.type==='JOB_END'&&r.d.job===job.id)) throw new Error('job_closed');
     const reason=flags.reason, by=flags.by??'operator';
     if(!['done','nothing_posted','removed_by_hand','abandoned'].includes(reason)||!['operator','owner','tester'].includes(by)) throw new Error('invalid_close');
+    if(reason==='abandoned'&&by!==ctx.site)throw new Error('invalid_close');
     if(job.run_class!=='test_post'&&!['done','abandoned'].includes(reason)) throw new Error('invalid_close');
     const own=records.filter(r=>r.d.job===job.id);
     const pending=reservations(ctx).filter(r=>r.job===job.id&&r.class==='write'&&r.step_seq===null);
@@ -321,7 +330,7 @@ export function closeJob(ctx,flags){
       settlements=(job.platforms??[]).map(platform=>{
         const steps=own.filter(r=>r.type==='STEP'&&r.d.platforms.includes(platform)),writes=steps.filter(r=>r.d.class==='write');
         const last=writes.at(-1),hasDelete=steps.some(r=>r.d.role==='delete'),post=steps.filter(r=>['publish','repeat_same','changed_plan','resume'].includes(r.d.role)).at(-1);
-        const look=(about,step)=>own.find(r=>r.type==='OBSERVATION'&&r.seq>(last?.seq??0)&&r.d.about===about&&r.d.seen==='absent'&&platformOf(r)===platform&&countsLook(r,step));
+        const look=(about,step)=>own.find(r=>r.type==='OBSERVATION'&&r.seq>(last?.seq??0)&&r.d.about===about&&r.d.seen==='absent'&&platformOf(r)===platform&&countsLook(r,step,Infinity,own));
         const verified=steps.find(r=>r.seq>(last?.seq??0)&&r.d.role==='delete_verify'&&confirmsDelete(r,platform));
         const manual=own.find(r=>r.type==='NOTE'&&r.d.code==='manual_step'&&platformOf(r)===platform&&r.seq>(last?.seq??0));
         if (verified) return {platform, how: 'delete_confirmed'};

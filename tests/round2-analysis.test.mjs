@@ -79,7 +79,7 @@ test('fifth first publish in 24 hours exceeds cap but repeats do not consume ano
 });
 test('every must-be-zero counter has a named planted-fault test',()=>{
  const counters=Object.keys(all(run(clean().finish())).must_be_zero);
- const covered=['duplicate_posts','second_press_without_draft','contradicted_confirmations','wrong_post_deletes','second_delete_presses',
+ const covered=['duplicate_posts','second_press_without_draft','contradicted_confirmations','wrong_post_deletes','wrong_code_delete_went_ahead','foreign_go_aheads','second_delete_presses',
   'changed_plans_went_ahead','gate_replay_disagreements','writes_without_admission','writes_without_approval','deletes_without_own_approval',
   'releases_without_own_approval','wrong_operator_steps','wrong_operator_decisions','steps_after_drill_refusal','broken_chain_or_seals',
   'code_stamp_mismatches','gate_digest_mismatches','test_posts_public','test_daily_cap','test_spacing','steps_after_job_end','test_receipts_with_parts','missing_looks','repeats_restarted_upload','confirmed_without_platform_read','left_in_doubt_without_settlement','in_doubt_record_missing_at_close','go_aheads_above_list','nonwrite_steps_without_admission','edit_post_invariant_broken','safety_stop_old_approval','handoff_drill_failures'];

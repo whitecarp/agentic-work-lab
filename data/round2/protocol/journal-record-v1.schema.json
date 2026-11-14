@@ -2304,6 +2304,8 @@
                 "job_class_mismatch",
                 "bilibili_delete_forbidden",
                 "test_platform_forbidden",
+                "douyin_manual_removal",
+                "test_plan_invalid",
                 "test_post_daily_cap",
                 "publish_spacing",
                 "outside_upload_spacing",

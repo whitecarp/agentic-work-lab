@@ -1,7 +1,8 @@
 // Derive the shareable tester copy from CrossCast's bounded local export.
 export function privateToolCopy(source,commit,withheld=new Set()){
  if(source.schema!=='crosscast-audit/1'||!['exact','relative'].includes(source.times))throw new Error('invalid_crosscast_export');
- const copy=structuredClone(source), absolute=source.times==='exact';
+ const copy=structuredClone(source);copy.duration_withholding_reported=true;
+ const absolute=source.times==='exact';
  function seconds(value){
   if(value==null)return null;
   const n=absolute?Date.parse(value)/1000:value;
@@ -22,7 +23,7 @@ export function privateToolCopy(source,commit,withheld=new Set()){
   const boundary=withheld.has(run.awl_run_id)||daysByRun.get(run.run)?.size>1||crosses([run.t_start,run.t_end]);
   const origin=boundary?null:seconds(run.t_start);byRun.set(run.run,origin);
   if(boundary){
-   suppressed.add(run.run);run.seconds=null;run.concurrency=null;
+   suppressed.add(run.run);run.duration_withheld=true;run.seconds=null;run.concurrency=null;
    for(const span of run.spans??[]){span[2]=null;span[3]=null;}
   }
   const startEvent=copy.events.find(e=>e.run===run.run&&e.type==='command_start');

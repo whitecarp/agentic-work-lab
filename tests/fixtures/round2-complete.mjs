@@ -112,6 +112,11 @@ export function completeSite(site,{plantSecond=false}={}){
    }
    grant('one_delete',j.wrong_delete_code_first?3:2,begin+41,p);
    if(j.wrong_delete_code_first)step({role:'delete',ps:[p],m:begin+42,n,state:null,exit:2,code:'confirmation_required'});
+   if(p==='douyin'){
+    put('NOTE',{job:j.id,platform:p,code:'manual_step',words_sha256:'9'.repeat(64)},begin+44);
+    look(p,'delete','absent',begin+60,begin+44);
+    settlements.push({platform:p,how:'removed_by_hand'});continue;
+   }
    const df=j.faults.find(f=>f.role==='delete');if(df)arm(df,begin+43);
    step({role:'delete',ps:[p],m:begin+44,n,press:true,read:!df,deleteFlag:true,state:df?'DELETE_PENDING':'DELETED_VERIFIED',exit:df?4:0});
    if(df)step({role:'delete',ps:[p],m:begin+46,n,state:null,deleteFlag:null,code:'deletion_already_attempted',exit:2});

@@ -217,6 +217,7 @@ export function main(argv=process.argv.slice(2)){
         type='FAULT_PLATFORM_POLICY';d={platform:f.platform[0],enabled:false,by:f.by,words_sha256:words(ctx.home)};break;
       case 'go-ahead':{
         const job=jobList(ctx,readJournal(ctx.journal)).find(j=>j.id===f.job);
+        if(f.scope==='listed_test_posts'&&['real_slot','real_release'].includes(job?.run_class))throw new Error('invalid_approval_scope');
         if(f.scope==='one_delete'&&(!job||f.platform?.length!==1||!job.platforms?.includes(f.platform[0])||f.platform[0]==='bilibili'))throw new Error('delete_approval_platform_required');
         if(f.scope!=='one_delete'&&f.platform)throw new Error('unexpected_platform');
         if(f.purpose&&f.scope!=='one_write')throw new Error('unexpected_approval_purpose');

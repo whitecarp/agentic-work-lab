@@ -47,6 +47,8 @@ for(const reason of REFUSALS.filter(r=>!r.startsWith('fault_')))test(`wrapper re
   case 'job_class_mismatch':job.class='read';break;
   case 'bilibili_delete_forbidden':command=['bili','delete'];break;
   case 'test_platform_forbidden':job.platforms=['x'];args.role='publish';break;
+  case 'douyin_manual_removal':args.role='delete';job.platforms=['douyin'];break;
+  case 'test_plan_invalid':args.role='publish';command=['vpub','publish','PRIVATE_INVALID'];break;
   case 'test_post_daily_cap':args.role='publish';write(f,'reservations.json',Array.from({length:4},(_,i)=>({...reservation,job:'old-'+i,role:'publish',run_class:'test_post',at:new Date(Date.now()-3600000).toISOString()})));break;
   case 'publish_spacing':args.role='publish';write(f,'reservations.json',[{...reservation,job:'earlier',run_class:'test_post',role:'publish'}]);break;
   case 'outside_upload_spacing':args.role='publish';put(f.ctx,'NOTE',{code:'outside_upload',platform:'youtube',job:null,agent:'gemini',minutes_ago:0});break;

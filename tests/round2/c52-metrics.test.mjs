@@ -6,7 +6,7 @@ import {hash} from '../../paper/round2/inputs.mjs';
 import {canonical} from '../../scripts/round2/journal.mjs';
 const run=(f,options={})=>analyze(bundle(f.finish()),{gateHash,...options});
 const all=z=>z.tables.find(t=>t.phase==='2b'&&t.platform===null).all_recorded;
-const cell=(z,n)=>z.checklist.counted.find(c=>c.cell===n&&c.platform==='youtube');
+const cell=(z,n)=>z.checklist.all_recorded.find(c=>c.cell===n&&c.platform==='youtube');
 const clean=()=>{const f=fixture();f.step({m:3});f.look({m:20,minutes_after:17});return f;};
 const job=(extra={})=>({id:'job-a',run_class:'test_post',platforms:['youtube'],group:'C',faults:[],...extra});
 function fault(f,kind){f.plan.runs[0].faults=[{kind,role:'publish',mechanism:kind==='readback_timeout'||kind==='between_save_and_press'?'tool_switch':'wrapper_kill',delay_ms:0}];f.rows[0].d.plan_sha256=hash(canonical(f.plan)+'\n');f.put('FAULT_RESULT',{job:'job-a',kind,role:'publish',fired:true,failed:false,action_delay_ms:1,gone_delay_ms:2},2.5);}
@@ -16,6 +16,7 @@ test('C52 B6 checklist retains reached attempts excluded by the primary cutoff',
  const f=clean(),z=run(f,{lastDay:'2026-11-19'});
  assert.equal(z.tables.find(t=>t.platform==='youtube').counted.submission.attempts.length,0);
  assert.equal(cell(z,2).n,1);assert.equal(cell(z,2).independent_agreed,1);
+ assert.equal(z.checklist.counted.find(c=>c.cell===2&&c.platform==='youtube').n,0);
 });
 
 test('C52 B6 contradictions on excluded runs remain a checklist veto',()=>{
@@ -34,11 +35,12 @@ test('C52 B8 changed-plan stopped/error replies are not confirmed capability ref
 
 test('C52 B9 a private observation cannot establish real public release capability',()=>{
  const f=fixture({jobs:[job({run_class:'real_release',group:'A'})]});f.rows.find(r=>r.type==='GO_AHEAD').d.scope='one_write';f.step();f.look({seen:'present_private'});
- const z=run(f);assert.equal(cell(z,1).independent_agreed,0);assert.equal(all(z).must_be_zero.contradicted_confirmations,1);
+ const z=run(f);assert.equal(cell(z,1).independent_agreed,0);assert.equal(cell(z,1).confirmed,0);
+ assert.equal(all(z).must_be_zero.contradicted_confirmations,0);assert.equal(all(z).readback.held_private.length,1);
 });
 
 test('C53 salt loss with an intact chain cannot prove a no-contact refusal in either analysis copy',()=>{
- for(const site of ['owner','tester'])for(const salt of [undefined,null,true,false]){
+ for(const site of ['owner','tester'])for(const salt of [undefined,true,false]){
   const f=fixture({site,jobs:[job({run_class:'refusal',kind:'changed_title'})]});
   if(salt!==undefined)f.tool.integrity.salt_ok=salt;
   f.step({role:'changed_plan',state:null,press:0,exit:2,code:'confirmation_required',contact:false});

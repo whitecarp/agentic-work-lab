@@ -10,7 +10,7 @@ import {configureSetup,recordSetup} from '../../scripts/round2/fault-setup.mjs';
 import {selectFault,FAULTS,verifyFaultSupport,injectedReply} from '../../scripts/round2/planned-faults.mjs';
 import {sha,alive} from '../../scripts/round2/io.mjs';
 
-const job={id:'job-1',class:'write',run_class:'test_post',platforms:['youtube'],visibility:'private',due_at:'2020-01-01'};
+const job={id:'job-1',class:'write',run_class:'test_post',platforms:['youtube'],visibility:'private',title:'private fixture',due_at:'2020-01-01'};
 function ready(t,kind='readback_timeout',script,delay=0){
  const f=fixture(t);setup(f.ctx,[job]);fs.writeFileSync(path.join(f.root,'vpub','config.json'),JSON.stringify({unrelated:17}));
  configureSetup(f.ctx,{enabled:true,by:'owner'},()=> 'a'.repeat(64));
@@ -19,7 +19,19 @@ function ready(t,kind='readback_timeout',script,delay=0){
  approve(f.ctx,'job-1',20);if(rule.role==='edit')approve(f.ctx,'job-1',1,'one_write','edit');if(rule.role==='delete')approve(f.ctx,'job-1',1,'one_delete');f.ctx.run=begin(f.ctx,{}).run;
  const exe=path.join(f.root,process.platform==='win32'?'vpub.exe':'vpub');try{fs.linkSync(process.execPath,exe);}catch{fs.copyFileSync(process.execPath,exe);}
  const file=path.join(f.root,'standin.cjs');fs.writeFileSync(file,script??"console.log(JSON.stringify({error:{code:process.env.VPUB_FAULT==='after_press'?'injected_fault':'unexpected'}}));process.exitCode=4;");
- f.command=[exe,file];return f;
+ if(rule.role==='publish'){
+  const manifest=path.join(f.root,'ready.json');
+  fs.writeFileSync(manifest,JSON.stringify({title:job.title,platforms:{youtube:{visibility:job.visibility}}}));
+  fs.copyFileSync(file,path.join(f.root,'publish'));
+  f.command=[exe,'publish',manifest];
+ }else f.command=[exe,file];
+ // The synthetic vpub executable is Node; its "publish" entry is a fixture script.
+ f.run=(role,options)=>{
+  const cwd=process.cwd();
+  try{process.chdir(f.root);return step(f.ctx,{job:'job-1',role},f.command,options);}
+  finally{process.chdir(cwd);}
+ };
+ return f;
 }
 test('setup and cleanup restore only prior settings, preserve other edits, require owner',t=>{
  const f=fixture(t);setup(f.ctx);const file=path.join(f.root,'vpub','config.json');fs.writeFileSync(file,JSON.stringify({x:1}));
@@ -36,30 +48,30 @@ test('fault selection skips absent/wrong role/other tool/public/real jobs and ne
  f.plan.runs[0].faults=[];f.save();assert.equal(selectFault(f.ctx,job,'publish',{tool:'vpub'}),null);
 });
 test('in-tool fault passes only its explicit environment and is armed once',async t=>{
- const f=ready(t);assert.equal(await step(f.ctx,{job:'job-1',role:'publish'},f.command,{supportCheck:()=>true}),4);
+ const f=ready(t);assert.equal(await f.run('publish',{supportCheck:()=>true}),4);
  assert.equal(last(f.ctx,'STEP').d.fault_fired,true);assert.equal(last(f.ctx,'FAULT_RESULT').d.fired,true);
  assert.equal(selectFault(f.ctx,job,'publish',{tool:'vpub'}),null);
  assert.equal(readJournal(f.journal).filter(r=>r.type==='FAULT').length,1);
 });
 test('edited settings refuse immediately before arming, without starting stand-in',async t=>{
  const f=ready(t);fs.writeFileSync(path.join(f.root,'vpub','config.json'),'{}');
- assert.equal(await step(f.ctx,{job:'job-1',role:'publish'},f.command,{supportCheck:()=>true}),5);assert.equal(last(f.ctx,'STEP_REFUSED').d.reason,'fault_setup_unconfirmed');
+ assert.equal(await f.run('publish',{supportCheck:()=>true}),5);assert.equal(last(f.ctx,'STEP_REFUSED').d.reason,'fault_setup_unconfirmed');
  assert.equal(readJournal(f.journal).filter(r=>r.type==='FAULT'||r.type==='STEP').length,0);
  assert.equal(fs.existsSync(path.join(f.home,'captures')),false);
 });
 test('a damaged journal prevents an arming record and any child',async t=>{
- const f=ready(t);fs.appendFileSync(f.journal,'damage');await assert.rejects(step(f.ctx,{job:'job-1',role:'publish'},f.command,{supportCheck:()=>true}),/broken_journal/);
+ const f=ready(t);fs.appendFileSync(f.journal,'damage');await assert.rejects(f.run('publish',{supportCheck:()=>true}),/broken_journal/);
  assert.equal(fs.existsSync(path.join(f.home,'captures')),false);
 });
 test('fault never triggered remains false and is not eligible again',async t=>{
  const f=ready(t,'end_tree_after_press',"console.error('waiting for platform confirmation'); console.error(JSON.stringify({event:'browser_progress',platform:'douyin',stage:'waiting for platform confirmation'})); console.error(JSON.stringify({event:'other',platform:'youtube',stage:'waiting for platform confirmation'})); console.log('{}');");
- assert.equal(await step(f.ctx,{job:'job-1',role:'publish'},f.command,{supportCheck:()=>true}),0);assert.equal(last(f.ctx,'STEP').d.fault_fired,false);
+ assert.equal(await f.run('publish',{supportCheck:()=>true}),0);assert.equal(last(f.ctx,'STEP').d.fault_fired,false);
  assert.equal(selectFault(f.ctx,job,'publish',{tool:'vpub'}),null);
 });
 test('stop during upload is observed at next check; manual removal does not authorize resume',async t=>{
  const source="const fs=require('fs'),path=require('path');console.error(JSON.stringify({event:'browser_progress',platform:'youtube',stage:'uploading'}));const t=setInterval(()=>{if(fs.existsSync(path.join(process.env.ROUND2_HOME,'STOP'))){clearInterval(t);console.log(JSON.stringify({state:'PREPARATION_INCOMPLETE',final_submit_attempted:false,error:{code:'stopped'}}));process.exitCode=2;}},40);setTimeout(()=>process.exit(99),10000).unref();";
  const f=ready(t,'stop_during_upload',source);const prior=process.env.ROUND2_HOME;process.env.ROUND2_HOME=f.home;t.after(()=>{if(prior===undefined)delete process.env.ROUND2_HOME;else process.env.ROUND2_HOME=prior;});
- assert.equal(await step(f.ctx,{job:'job-1',role:'publish'},f.command,{supportCheck:()=>true}),2);assert.equal(last(f.ctx,'STEP').d.fault_fired,true);
+ assert.equal(await f.run('publish',{supportCheck:()=>true}),2);assert.equal(last(f.ctx,'STEP').d.fault_fired,true);
  assert.equal(last(f.ctx,'STOP_SET').d.by,'scheduler');fs.unlinkSync(path.join(f.home,'STOP'));
  assert.equal(await step(f.ctx,{job:'job-1',role:'resume'},[process.execPath,'-e','process.exit(0)']),5);
  assert.equal(cli(f,'journal',['clear-stop',...flags(f),'--by','owner'],'Account owner clears synthetic upload stop').status,0);
@@ -69,7 +81,7 @@ for(const [kind,tree]of [['end_command_after_press',false],['end_tree_after_pres
  const source="const {spawn}=require('child_process'),fs=require('fs'),path=require('path');const c=spawn(process.execPath,['-e','setTimeout(()=>{},4000)'],{stdio:'ignore',windowsHide:true,detached:true});c.unref();fs.writeFileSync(path.join(process.env.ROUND2_HOME,'grandchild.pid'),String(c.pid));console.error(JSON.stringify({event:'browser_progress',platform:'youtube',stage:'waiting for platform confirmation'}));setTimeout(()=>{},30000);";
  const f=ready(t,kind,source,500),prior=process.env.ROUND2_HOME;process.env.ROUND2_HOME=f.home;
  t.after(()=>{if(prior===undefined)delete process.env.ROUND2_HOME;else process.env.ROUND2_HOME=prior;});
- const start=performance.now();await step(f.ctx,{job:'job-1',role:'publish'},f.command,{supportCheck:()=>true});
+ const start=performance.now();await f.run('publish',{supportCheck:()=>true});
  const result=last(f.ctx,'FAULT_RESULT').d;assert.equal(result.fired,true);assert.equal(result.failed,false);assert.ok(performance.now()-start>=500);
  assert.ok(result.processes.filter(p=>p.root||tree).every(p=>p.ended));assert.equal(last(f.ctx,'STEP').d.fault_fired,true);
  const grand=Number(fs.readFileSync(path.join(f.home,'grandchild.pid')));
@@ -79,7 +91,7 @@ for(const [kind,tree]of [['end_command_after_press',false],['end_tree_after_pres
 });
 test('edit fault ignores pre-save readback and fires only after pressing', {timeout:45000},async t=>{
  const source="console.error(JSON.stringify({event:'browser_progress',platform:'youtube',stage:'reading back'}));setTimeout(()=>{console.error(JSON.stringify({event:'browser_progress',platform:'youtube',stage:'pressing'}));console.error(JSON.stringify({event:'browser_progress',platform:'youtube',stage:'reading back'}))},700);setTimeout(()=>{},30000);";
- const f=ready(t,'end_browser_after_edit_save',source);const start=performance.now();await step(f.ctx,{job:'job-1',role:'edit'},f.command,{supportCheck:()=>true});
+ const f=ready(t,'end_browser_after_edit_save',source);const start=performance.now();await f.run('edit',{supportCheck:()=>true});
  assert.ok(performance.now()-start>=700);assert.equal(last(f.ctx,'FAULT_RESULT').d.fired,true);
 });
 
@@ -92,7 +104,7 @@ test('unknown or changed installation cannot claim the audited fault switch',t=>
  assert.equal(verifyFaultSupport(exe),false);
 });
 test('production step refuses unknown switch before FAULT and before spawn',async t=>{
- const f=ready(t);assert.equal(await step(f.ctx,{job:'job-1',role:'publish'},f.command),5);assert.equal(last(f.ctx,'STEP_REFUSED').d.reason,'fault_switch_unavailable');
+ const f=ready(t);assert.equal(await f.run('publish'),5);assert.equal(last(f.ctx,'STEP_REFUSED').d.reason,'fault_switch_unavailable');
  assert.equal(readJournal(f.journal).filter(r=>r.type==='FAULT'||r.type==='STEP').length,0);
  assert.equal(fs.existsSync(path.join(f.home,'captures')),false);
 });
@@ -100,7 +112,7 @@ test('production step refuses unknown switch before FAULT and before spawn',asyn
 
 test('a contradictory private plan refuses without a reservation or child',async t=>{
  const f=ready(t);f.plan.runs[0].visibility='public';f.save();
- assert.equal(await step(f.ctx,{job:'job-1',role:'publish'},f.command,{supportCheck:()=>true}),5);
+ assert.equal(await f.run('publish',{supportCheck:()=>true}),5);
  assert.equal(last(f.ctx,'STEP_REFUSED').d.reason,'fault_plan_invalid');
  assert.equal(fs.existsSync(path.join(f.home,'captures')),false);
 });
@@ -108,7 +120,7 @@ test('a contradictory private plan refuses without a reservation or child',async
 for(const [kind,point]of [['between_save_and_press','before_press'],['delete_readback_lost','delete_readback_lost']])test(`${kind} carries its matching in-tool point`,async t=>{
  const data=kind==='delete_readback_lost'?{state:'DELETE_PENDING',error:{code:'injected_fault'}}:{results:{youtube:{state:'UNKNOWN',error:{code:'injected_fault'}}}};
  const f=ready(t,kind,`if(process.env.VPUB_FAULT!==${JSON.stringify(point)})process.exit(99);console.log(${JSON.stringify(JSON.stringify({ok:false,data}))});process.exitCode=4;`);
- assert.equal(await step(f.ctx,{job:'job-1',role:f.fault.role},f.command,{supportCheck:()=>true}),4);
+ assert.equal(await f.run(f.fault.role,{supportCheck:()=>true}),4);
  assert.equal(last(f.ctx,'STEP').d.fault_fired,true);
 });
 test('fault response recognizes actual envelopes without borrowing another platform error',()=>{
@@ -122,7 +134,7 @@ test('upload tree fault waits for its delay and never targets an unrelated proce
  await new Promise((resolve,reject)=>{sentinel.once('spawn',resolve);sentinel.once('error',reject);});
  try{
   const f=ready(t,'browser_lost_during_upload',"if(process.env.VPUB_FAULT!=='external')process.exit(99);console.error(JSON.stringify({event:'browser_progress',platform:'youtube',stage:'uploading'}));setTimeout(()=>{},30000);",2000),start=performance.now();
-  await step(f.ctx,{job:'job-1',role:'publish'},f.command,{supportCheck:()=>true});
+  await f.run('publish',{supportCheck:()=>true});
   assert.ok(performance.now()-start>=2000);assert.equal(alive(sentinel.pid),true);
   const r=last(f.ctx,'FAULT_RESULT').d;assert.equal(r.fired,true);assert.ok(!r.processes.some(p=>p.pid===sentinel.pid));
  }finally{sentinel.kill();await new Promise(resolve=>sentinel.once('exit',resolve));}

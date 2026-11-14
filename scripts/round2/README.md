@@ -639,7 +639,7 @@ A publish fault can be armed again when its own platform explicitly answered NOT
 
 For protocol 9 H's manual Douyin removal, record NOTE manual_step with the exact job and platform, then the deletion look with elapsed minutes from that note, then JOB_END with removed_by_hand. A generic account cleanup note must omit the job. The account owner performs removal; the tools only record it.
 
-## C49/C51 draft practice counts (phase 2a, Annex A 1.14)
+## Phase 2a practice counts (C49/C51 file under Annex A 1.15)
 
 `templates/round2/practice-counts-phase2a-v1.json` is the public draft for
 Claude's protocol review, revised by C51 after the owner's same-tab editor

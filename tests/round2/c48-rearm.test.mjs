@@ -44,9 +44,12 @@ for(const [exit,code,state] of [[4,'browser_busy','NOT_STARTED'],[2,'busy','NOT_
  });
 }
 for(const platform of ['youtube','douyin'])for(const role of ['edit','delete'])for(const code of ['busy','browser_busy']){
- test(`C48 ${platform} ${role} rearms ${code} whole refusal`,async t=>{
+ test(`C48/C56 ${platform} ${role} after ${code} whole refusal`,async t=>{
   const f=ready(t,role,platform),value={ok:false,error:{code}};
-  record(f,value,2);assert.deepEqual(selectFault(f.ctx,f.job,role,{tool:'vpub'}),f.fault);
+  record(f,value,2);
+  const next=selectFault(f.ctx,f.job,role,{tool:'vpub'});
+  if(platform==='douyin'&&role==='delete'){assert.equal(next,null);return;}
+  assert.deepEqual(next,f.fault);
   const c=faultController(f.ctx,f.fault);await c.finish(JSON.stringify(value),2);
   assert.equal(last(f.ctx,'FAULT_RESULT').d.reason,'busy_not_reached');
  });

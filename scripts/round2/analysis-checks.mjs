@@ -60,7 +60,7 @@ export function publishChecks(records,jobs){
 
 // Exact local chronology exported as record numbers/booleans, never clocks.
 export function runChecks(records,jobs,lookChecks){
- return jobs.map(j=>{
+ return jobs.filter(j=>j.run_class!=='standing').map(j=>{
   const steps=records.filter(r=>r.type==='STEP'&&r.d.job===j.id&&started(r));
   const related=records.filter(r=>r.d.job===j.id&&['STEP','GO_AHEAD','OBSERVATION','JOB_END'].includes(r.type));
   const signoffs=[...new Set(related.map(r=>r.at.slice(0,10)))].map(day=>{

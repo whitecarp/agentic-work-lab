@@ -35,7 +35,7 @@ export function grantScope(records,job,cls,reservations=[],role=null,platforms=[
   const grants=records.filter(r=>r.type==='GO_AHEAD'&&r.d.job===job&&r.d.by===r.site&&
     (r.d.scope!=='one_delete'||role===null||r.d.platform===platforms[0]));
   if(cls!=='write')return grants.length?'read_only':null;
-  const purpose=role==='edit'?'edit':role==='resume'&&runClass==='real_release'?'resume':'publish';
+  const purpose=role==='edit'?'edit':role==='resume'&&['real_release','real_slot'].includes(runClass)?'resume':'publish';
   const kinds=['listed_test_posts','one_delete','publish','edit','resume'];
   const left=Object.fromEntries(kinds.map(k=>[k,0]));
   for(const r of grants){const k=r.d.scope==='one_write'?(r.d.purpose??'publish'):r.d.scope;if(k in left)left[k]+=r.d.count;}
@@ -48,7 +48,7 @@ export function grantScope(records,job,cls,reservations=[],role=null,platforms=[
   if(role===null&&left.one_delete>0)return 'one_delete';
   const listed=['publish','repeat_same','resume','verify','edit','changed_plan'];
   const separate=purpose==='resume'||role==='edit'&&grants.some(r=>r.site==='tester');
-  if(!separate&&(role===null||listed.includes(role))&&left.listed_test_posts>0)return 'listed_test_posts';
+  if(!separate&&!['real_release','real_slot'].includes(runClass)&&(role===null||listed.includes(role))&&left.listed_test_posts>0)return 'listed_test_posts';
   return (role===null?['publish','edit','resume'].some(k=>left[k]>0):left[purpose]>0)?'one_write':null;
 }
 
@@ -67,6 +67,7 @@ export function validRestartGrant(record, jobId, threshold, start) {
 export function limits(records,job,role,platforms,now,reservations=[],jobs=[]) {
   if(platforms.some(p=>!PLATFORMS.includes(p))||new Set(platforms).size!==platforms.length) return 'invalid_platforms';
   if(role==='delete' && (platforms.length===0||platforms.includes('bilibili'))) return 'bilibili_delete_forbidden';
+  if(role==='delete'&&job.run_class==='test_post'&&platforms.includes('douyin')&&!job.wrong_delete_code_first)return 'douyin_manual_removal';
   if(job.run_class!=='test_post'||role!=='publish') return null;
   if(!platforms.length || platforms.some(p=>!['youtube','douyin'].includes(p))) return 'test_platform_forbidden';
   const when=Date.parse(now);
@@ -75,7 +76,7 @@ export function limits(records,job,role,platforms,now,reservations=[],jobs=[]) {
     const step=publishes.find(s=>s.run===r.run && s.seq===r.step_seq);
     if(!step)return r;
     const at=Number.isFinite(step.d.ms)?new Date(Date.parse(step.at)-step.d.ms).toISOString():r.at;
-    return {...r,at,platforms:r.platforms.filter(p=>publishStartedOn(step,p))};
+    return {...r,at,run_class:r.run_class??jobs.find(j=>j.id===step.d.job)?.run_class,platforms:r.platforms.filter(p=>publishStartedOn(step,p))};
   });
   // Imported/completed STEP records use end time minus elapsed duration.
   const fallback=publishes.filter(r=>

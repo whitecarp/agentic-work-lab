@@ -42,7 +42,7 @@ export function verifyFaultSupport(executable,expected=supported){
  }return Object.keys(expected.files).length>0;}catch{return false;}
 }
 export function selectFault(ctx,job,role,policy){
- if(policy.tool!=='vpub'||job.run_class!=='test_post')return null;
+ if(policy.tool!=='vpub'||job.run_class!=='test_post'||role==='delete'&&job.platforms?.includes('douyin'))return null;
  const file=path.join(ctx.home,'planned-runs.json');
  const records=readJournal(ctx.journal),plan=sealedPlan(ctx,records);
  if(!plan)return null;

@@ -13,6 +13,13 @@ test('C42 counts-file whole round: 34 fault runs, 100 repeats, 24 changed plans,
  assert.equal(all.reduce((n,t)=>n+t.gate.drill_bound.n,0),60);
  assert.equal(z.pooled_secondary_bounds[0].repeat.counted.n,100);
  assert.equal(z.pooled_secondary_bounds[0].changed_plan.counted.n,24);
+ const cell=z.checklist.all_recorded.find(c=>c.cell===7&&c.platform==='douyin');
+ assert.equal(cell.status,'not_attempted');assert.equal(cell.n,0);
+ for(const t of all){
+  assert.ok(t.protocol.runs.some(j=>j.closed?.platform_settlements.some(s=>s.platform==='douyin'&&s.how==='removed_by_hand')));
+  const faults=t.submission.faults.filter(f=>f.platforms.includes('douyin')&&f.kind==='delete_readback_lost');
+  assert.ok(faults.length>0&&faults.every(f=>!f.armed));
+ }
  assert.deepEqual(z.checklist.counted.filter(c=>c.n>=3&&c.status!=='confirmed'),[]);
  assert.ok(all.every(t=>t.protocol.runs.every(r=>r.counted)));
 });
