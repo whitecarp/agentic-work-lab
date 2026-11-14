@@ -41,6 +41,8 @@ export function validateRecord(record) {
        d.release_writes!==1+3*d.platforms.length||d.by!==record.site)problems.push('invalid real release');
   }
   if(record.type==='FAULT_SETUP'&&(record.d.by!==record.site||record.d.enabled!==record.d.stop_registered))problems.push('invalid fault setup');
+  if(record.type==='FAULT_SETUP'&&record.d.displaced_external_stop&&
+     !(record.site==='owner'&&record.d.configured===true&&record.d.enabled))problems.push('invalid stop displacement');
   if(['PROTOCOL_SEAL','RUN_END'].includes(record.type)&&Object.hasOwn(record.d,'by')){
     if(record.d.by!==record.site||!record.d.words_sha256)problems.push('owner words required');
     if(record.type==='RUN_END'&&(record.d.state!=='interrupted'||!record.d.operator))problems.push('invalid session recovery');

@@ -2549,6 +2549,9 @@
             },
             "configured": {
               "type": "boolean"
+            },
+            "displaced_external_stop": {
+              "const": true
             }
           },
           "required": [

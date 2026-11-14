@@ -29,7 +29,7 @@ export function recordSetup(ctx,{enabled,by},statement){
 }
 // Operator-only setup/cleanup. Tests call this only with empty synthetic homes.
 // Prior values stay private; only checked booleans and a keyed path digest travel.
-export function configureSetup(ctx,{enabled,by},statement){
+export function configureSetup(ctx,{enabled,by,displaceStop=false},statement){
  if(by!==ctx.site||typeof enabled!=='boolean')throw new Error('fault_setup_unconfirmed');
  return withLock(path.join(ctx.home,'operation.guard'),()=>{
   const records=readJournal(ctx.journal);
@@ -39,9 +39,12 @@ export function configureSetup(ctx,{enabled,by},statement){
   const pinned=bindHome(ctx,records),file=path.join(pinned.home,'config.json');
   if(readJSON(path.join(ctx.home,'run.lock'),null))throw new Error('fault_setup_during_session');
   const before=inspect(ctx,records),config=readJSON(file),backup=path.join(ctx.home,'fault-config-original.json');
-  if(enabled && config.external_stop_file!=null && config.external_stop_file!=='' && !before.registered)
+  const displaced=enabled && config.external_stop_file!=null && config.external_stop_file!=='' && !before.registered;
+  if(displaceStop && (!enabled || ctx.site!=='owner'))throw new Error('invalid_arguments');
+  if(displaced && (displaceStop!==true || typeof config.external_stop_file!=='string'))
     throw new Error('external_stop_already_registered');
   const digest=statement();
+  if(typeof digest!=='string'||!/^[0-9a-f]{64}$/.test(digest))throw new Error('owner_words_required');
   if(enabled){
    if(fs.existsSync(backup)||before.enabled||before.registered)throw new Error('fault_setup_already_enabled');
    const prior={};for(const key of ['external_stop_file','fault_injection'])if(Object.hasOwn(config,key))prior[key]=config[key];
@@ -52,17 +55,19 @@ export function configureSetup(ctx,{enabled,by},statement){
    const prior=readJSON(backup);for(const key of ['external_stop_file','fault_injection']){delete config[key];if(Object.hasOwn(prior,key))config[key]=prior[key];}
   }
   atomic(file,config);const actual=inspect(ctx,records);
-  const r=put(ctx,'FAULT_SETUP',{enabled:actual.enabled,stop_registered:actual.registered,stop_digest:actual.stop_digest,by,words_sha256:digest,configured:true});
+  const r=put(ctx,'FAULT_SETUP',{enabled:actual.enabled,stop_registered:actual.registered,stop_digest:actual.stop_digest,by,words_sha256:digest,configured:true,
+    ...(displaced?{displaced_external_stop:true}:{})});
   // Preserve the original settings as evidence; a second setup requires review.
   return r;
  });
 }
 export function main(argv=process.argv.slice(2)){
  const configure=argv[0]==='configure';if(configure)argv.shift();
- const {flags:f,command}=parseFlags(argv);allowed(f,['site','slot','journal','enabled','by']);
+ const {flags:f,command}=parseFlags(argv);allowed(f,['site','slot','journal','enabled','by','displace-stop']);
  if(command.length||!['true','false'].includes(f.enabled))throw new Error('invalid_arguments');
+ if(Object.hasOwn(f,'displace-stop')&&(!configure||f['displace-stop']!=='true'))throw new Error('invalid_arguments');
  const ctx=context(f);
- console.log(JSON.stringify((configure?configureSetup:recordSetup)(ctx,{enabled:f.enabled==='true',by:f.by??ctx.site},()=>words(ctx.home))));return 0;
+ console.log(JSON.stringify((configure?configureSetup:recordSetup)(ctx,{enabled:f.enabled==='true',by:f.by??ctx.site,displaceStop:f['displace-stop']==='true'},()=>words(ctx.home))));return 0;
 }
 if(process.argv[1]&&import.meta.url===pathToFileURL(path.resolve(process.argv[1])).href){
  try{process.exitCode=main();}catch(e){console.error(refusalWord(e,'fault_setup_unconfirmed'));process.exitCode=70;}

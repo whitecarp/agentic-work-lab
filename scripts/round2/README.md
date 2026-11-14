@@ -348,11 +348,14 @@ Omitting `configure` returns `configure_required`. Arming checks the recorded
 setup and the current settings. Every currently unarmed child strips all inherited VPUB_FAULT variants;
 C15 may add the selected variable only after its per-step checks.
 
-At close the authorized operator turns the setting off and removes/restores
-the study stop registration, then records --enabled false through the same
-command. Any existing unrelated stop registration must be reviewed before
-setup and restored by that operator where appropriate. Codex does not make
-these signed-in configuration changes. A stop is a checkpoint-based control;
+When the owner explicitly authorizes displacing an earlier stop registration,
+Gemini adds `--displace-stop true` to the enable command above and pipes the
+owner's words to its standard input. The public FAULT_SETUP record carries
+`displaced_external_stop: true` and the words digest. The previous registration
+stays in the private backup. The earlier stop file itself is left in place.
+At close Gemini pipes the owner's cleanup words to the same command with
+`--enabled false`, omitting the displacement flag. It restores the original
+registration and fault switch while preserving unrelated config edits. A stop is a checkpoint-based control;
 record actual press/termination evidence rather than assuming that creating
 the stop guarantees zero subsequent presses.
 The operator can use the read-class command vpub status and inspect
@@ -461,8 +464,8 @@ No Linux tree-control acceptance is claimed. No account settings are read by the
 Fixed review cutoffs require an explicit UTC Z or offset; timezone-naive --as-of input is refused.
 
 The named operator configures the fault switch once. An existing different
-external stop file yields `external_stop_already_registered` and the operator
-reports that to the owner. Cleanup keeps the original settings backup, so any
+external stop file yields `external_stop_already_registered` by default.
+At the owner site the displacement option above requires the owner's words. Cleanup keeps the original settings backup, so any
 second setup needs review. Clearing a scheduled or personal stop requires that
 site person's words on stdin. An agent can clear its own drill or refusal stop.
 
