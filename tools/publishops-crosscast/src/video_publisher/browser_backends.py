@@ -2,31 +2,102 @@
 from __future__ import annotations
 
 import asyncio
+from datetime import datetime, timedelta, timezone
 import re
-import shutil
 import time
 from pathlib import Path
-from urllib.parse import urlsplit
+import unicodedata
+from urllib.parse import parse_qs, urlsplit
 
-from .core import VpubError, atomic_json, file_sha, home, now, read_json, stop_check
-from .browser_runtime import risk_check, unique_visible, visible
+from .core import VpubError, atomic_json, douyin_typed_lines, file_sha, home, now, presses_on_record, read_json, receipt_turn, snapshot_file, stop_check, wrong_file
+from .browser_runtime import failure_message, failure_record, look_until, plain_address, platform_at, risk_check, unique_visible, visible
+from .progress import stage
+from .video_shape import frame_size
+from .x_pages import own_posts, post_fields, post_row, post_time
 
 MANAGE = "https://creator.douyin.com/creator-micro/content/manage"
+PRESS_TRIAL_MS = 20000  # As long as the press itself may wait for its button.
+PRESS_RETRIAL_MS = 10000  # After whatever covered it was closed.
+STUDIO_VISIBILITY = {"public": {"Public", "公开", "公開"}, "unlisted": {"Unlisted", "不公开列出", "不公開"}, "private": {"Private", "私享", "私人"}}
+MONTHS = ("Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec")
+WEEKDAYS = ("Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun")
+X_CHOSEN_TIME = re.compile(r'([A-Z][a-z]{2}) (\d{1,2})(?:, (\d{4}))?, (1[0-2]|[1-9]):([0-5]\d) ([AP]M)')
+X_SCHEDULE_DAY = re.compile(r'([A-Z][a-z]{2} \d{1,2}) ([A-Z][a-z]{2})')
+X_SCHEDULE_CLOCK = re.compile(r'(1[0-2]|[1-9]):[0-5]\d [AP]M')
+X_SCHEDULE_PAGE = "https://studio.x.com/schedule"
+X_SCHEDULE_HEADINGS = ["Date", "Time", "Post", "Media"]
+X_SCHEDULE_EMPTY = "Schedule posts from your Library or Producer to see them here"
+X_SCHEDULE_TABLE = """headings => {
+  const shown = node => node.checkVisibility({checkOpacity: true, checkVisibilityCSS: true}) && node.getBoundingClientRect().height > 0;
+  const heads = row => shown(row) && headings.every((name, at) => row.cells[at]?.tagName === 'TH' && row.cells[at].textContent.trim() === name);
+  const tables = [...document.querySelectorAll('table')].filter(table => shown(table) && [...table.rows].some(heads));
+  if (tables.length > 1) return null;
+  return tables.length ? [...tables[0].rows].filter(row => shown(row) && row.cells[0]?.tagName === 'TD').map(row => [...row.cells].map(cell => cell.innerText)) : [];
+}"""
+X_SCHEDULE_SECONDS = 15
+X_CLOCK_GRACE = timedelta(minutes=5)
+X_DISCOVERY_SOURCE = 'native_prepress_and_unique_own_post'
+INSTAGRAM_CAPTION = r"""({words, owner}) => {
+  const said = text => (text || '').replace(/\s+/g, ' ').trim();
+  const bare = text => (text || '').replace(/\s+/g, '');
+  const people = e => [...e.querySelectorAll('a[href]')].filter(a => /^\/[^/]+\/$/.test(a.getAttribute('href')));
+  let head = [...document.querySelectorAll('time')].find(e => e.getClientRects().length);
+  while (head && !people(head).length) head = head.parentElement;
+  if (!head) return false;
+  while (head.parentElement && bare(head.parentElement.innerText) === bare(head.innerText)) head = head.parentElement;
+  const row = head.parentElement;
+  const rest = row ? [...row.children].filter(e => e !== head && e.getClientRects().length && said(e.innerText)) : [];
+  return rest.length === 1 && said(rest[0].innerText) === words && bare(row.innerText).length === bare(head.innerText).length + bare(rest[0].innerText).length
+    && people(head).every(a => a.getAttribute('href').toLowerCase() === '/' + owner.toLowerCase() + '/');
+}"""
+# Studio writes dates and times in its interface language. Each style is (pattern, read, write).
+STUDIO_DATES = (
+    (r"(\d{4})年(\d{1,2})月(\d{1,2})日", lambda m: (int(m[1]), int(m[2]), int(m[3])), lambda d: f"{d.year}年{d.month}月{d.day}日"),
+    (r"([A-Z][a-z]{2}) (\d{1,2}), (\d{4})", lambda m: (int(m[3]), MONTHS.index(m[1]) + 1, int(m[2])) if m[1] in MONTHS else None,
+     lambda d: f"{MONTHS[d.month - 1]} {d.day}, {d.year}"),
+    (r"(\d{1,2}) ([A-Z][a-z]{2}) (\d{4})", lambda m: (int(m[3]), MONTHS.index(m[2]) + 1, int(m[1])) if m[2] in MONTHS else None,
+     lambda d: f"{d.day} {MONTHS[d.month - 1]} {d.year}"),
+)
+# The 12-hour style comes first so "6:00 PM" is never read as 06:00.
+STUDIO_TIMES = (
+    (r"(\d{1,2}):(\d{2}) ?([AaPp][Mm])", lambda m: (int(m[1]) % 12 + (12 if m[3].upper() == "PM" else 0), int(m[2])),
+     lambda d: f"{d.hour % 12 or 12}:{d.minute:02d} {'AM' if d.hour < 12 else 'PM'}"),
+    (r"(\d{1,2}):(\d{2})", lambda m: (int(m[1]), int(m[2])), lambda d: f"{d.hour:02d}:{d.minute:02d}"),
+)
 
 
 def normalize(text):
     return re.sub(r"\s+", " ", text or "").strip()
 
 
+# A field run's post said "OC:@上善无形/@ZipZipPipe". X put its own link around @ZipZipPipe, and the page read a line break on each side of it,
+# so the words came back with a space the post doesn't have, and a post that had gone out stayed SUBMITTED_UNVERIFIED.
+# So on X, space next to a handle, a tag or a cashtag doesn't count, on both sides of every comparison.
+X_LINKED_WORD = re.compile(r"\s*([@#$＃]\w+)\s*")
+
+
+def x_words(text):
+    return X_LINKED_WORD.sub(r"\1", normalize(text))
+
+
 def work_url(platform, identity, work_id):
-    patterns = {"x": r"\d+", "douyin": r"\d+", "instagram": r"[A-Za-z0-9_-]+"}
+    patterns = {"x": r"\d+", "douyin": r"\d+", "instagram": r"[A-Za-z0-9_-]+", "youtube": r"[\w-]{11}"}
     if not re.fullmatch(patterns[platform], str(work_id)):
         raise VpubError("invalid_id", "Use a platform work ID, not an arbitrary URL.")
     if platform == "x":
         return f"https://x.com/{identity}/status/{work_id}"
     if platform == "douyin":
         return f"https://www.douyin.com/video/{work_id}"
+    if platform == "youtube":
+        return f"https://www.youtube.com/watch?v={work_id}"
     return f"https://www.instagram.com/reel/{work_id}/"
+
+
+def instagram_address_is(address, identity, work_id):
+    """Whether an address is this work's own page on Instagram. Field reads found it at /p/, /reel/ and /reels/, some with the owner's name in front."""
+    parts = urlsplit(address)
+    # Account names ignore case; the work's shortcode must match exactly.
+    return parts.hostname == "www.instagram.com" and re.fullmatch(rf"(?i:(/{re.escape(identity)})?/(p|reel|reels))/{re.escape(str(work_id))}/?", parts.path) is not None
 
 
 async def click_named(scope, name):
@@ -44,10 +115,32 @@ async def wait_until(page, predicate, *, seconds=120, label="page state"):
         if value:
             return value
         await asyncio.sleep(1)
-    raise VpubError("processing_timeout", f"Timed out waiting for {label}; existing upload retained.")
+    raise VpubError("processing_timeout", f"Timed out waiting for {label}.")
+
+
+async def before_a_file_goes_up(page):
+    """Choosing the file is what starts an upload. From a review: a warning can show while the page loads, and another command can stop everything after this one began, and both reached this point unchecked."""
+    await risk_check(page)
+    stop_check(platform_at(page.url))
+
+
+async def choose_file(page, box, path):
+    """Every file reaches a page here or in choose_in_picker, the video and the covers alike. A review found a stop could arrive while a cover's dialog opened, and the cover still went up."""
+    await before_a_file_goes_up(page)
+    await box.set_input_files(str(path), timeout=60000)
+
+
+async def choose_in_picker(page, opener, path):
+    """Opening the picker takes time too, so the check comes once it is open."""
+    async with page.expect_file_chooser(timeout=15000) as chosen:
+        await opener.click(timeout=15000)
+    picker = await chosen.value
+    await before_a_file_goes_up(page)
+    await picker.set_files(str(path), timeout=60000)
 
 
 async def upload_file(page, path, trigger=None, accept=None):
+    await before_a_file_goes_up(page)
     inputs = page.locator('input[type="file"]')
     candidates = []
     for item in await inputs.all():
@@ -55,18 +148,16 @@ async def upload_file(page, path, trigger=None, accept=None):
         if accept is None or accept in value:
             candidates.append(item)
     if len(candidates) == 1:
-        await candidates[0].set_input_files(str(path), timeout=60000)
+        await choose_file(page, candidates[0], path)
     elif trigger:
-        async with page.expect_file_chooser(timeout=15000) as chosen:
-            await trigger.click(timeout=15000)
-        await (await chosen.value).set_files(str(path), timeout=60000)
+        await choose_in_picker(page, trigger, path)
     else:
         raise VpubError("layout_changed", "Could not identify a unique file input for this upload.")
 
 
 class Transaction:
-    def __init__(self, platform, identity, plan, resume=False):
-        self.platform, self.identity, self.plan = platform, identity, plan
+    def __init__(self, platform, identity, plan, resume=False, prior_receipt=None):
+        self.platform, self.identity, self.plan, self.resuming = platform, identity, plan, resume
         self.options = plan["options"]
         self.path = home() / "browser-receipts" / (plan["confirmation"] + "-" + platform + ".json")
         if self.path.exists() and not resume:
@@ -75,40 +166,49 @@ class Transaction:
                         "identity": identity, "title": self.options["title"], "phase": "initial",
                         "video_sha256": plan["video_sha256"], "final_submit_attempted": False,
                         "media_selected": False, "started_at": now()}
-        if resume:
+        # No receipt means this attempt never reached the page, so it can start from the beginning. A review found that file going missing was enough to upload again, though the attempt's own record said a file was chosen.
+        if resume and self.path.exists():
             saved = read_json(self.path)
             if saved.get('video_sha256') != plan['video_sha256'] or saved.get('identity') != identity:
                 raise VpubError('receipt_conflict', 'Resume must use the same account and media.')
-            self.receipt = saved
+            self.receipt = {**saved, **presses_on_record(prior_receipt or {}, saved)}
+        elif resume and prior_receipt and (prior_receipt.get('media_selected') or prior_receipt.get('final_submit_attempted')):
+            raise VpubError('receipt_missing', "This attempt's browser receipt is gone, and its record says a file was already chosen, so nothing was uploaded again.", 'Inspect the platform, and use vpub verify to read the work back. Never upload it again.')
         elif platform=='douyin' and self.options.get('chapters'):
             self.receipt['pending_chapters']={'chapters':self.options['chapters'],
                                              'duration_seconds':self.options['duration_seconds']}
             self.receipt['chapters_state']='PENDING_WORK_ID'
 
     def save(self, **changes):
+        for key in ("review_url", "draft_url", "media_url"):
+            if changes.get(key):
+                changes[key] = plain_address(changes[key])
         self.receipt.update(changes, updated_at=now())
-        atomic_json(self.path, self.receipt)
+        with receipt_turn(self.path):
+            atomic_json(self.path, self.receipt)
         return dict(self.receipt)
 
+    def media_name(self):
+        return "crosscast-" + self.plan["video_sha256"][:16] + Path(self.plan["video"]).suffix
+
     def media(self):
-        self.validate_assets()
         src = Path(self.plan["video"])
-        dst = src.with_name("crosscast-" + self.plan["video_sha256"][:16] + src.suffix)
-        if not dst.exists():
-            shutil.copyfile(src, dst)
-        if file_sha(dst) != self.plan["video_sha256"]:
-            raise VpubError("source_changed", "Named upload snapshot differs from the planned video.")
+        # Each platform owns its alias. If hardlinks are unavailable, two
+        # browsers must not replace the same copy while one is uploading it.
+        target = src.parent / ("upload-" + self.platform) / self.media_name()
+        dst = snapshot_file(src, target, self.plan["video_sha256"], link=True)
         self.save(phase="selecting_media", media_selected=True, upload_filename=dst.name)
+        stage("uploading")
         return dst
 
     def validate_assets(self):
         if file_sha(self.plan["video"]) != self.plan["video_sha256"]:
-            raise VpubError("source_changed", "Snapshot changed before browser upload.")
+            raise wrong_file(self.plan["video"], self.plan["video_sha256"], "Snapshot changed before browser upload.")
         for asset in self.plan.get("covers", {}).get(self.platform, {}).values():
             if file_sha(asset["path"]) != asset["sha256"]:
-                raise VpubError("source_changed", "A cover snapshot changed before upload.")
+                raise wrong_file(asset["path"], asset["sha256"], "A cover snapshot changed before upload.")
         if self.plan.get("cover") and file_sha(self.plan["cover"]) != self.plan["cover_sha256"]:
-            raise VpubError("source_changed", "Cover snapshot changed before upload.")
+            raise wrong_file(self.plan["cover"], self.plan["cover_sha256"], "Cover snapshot changed before upload.")
 
     def cover(self, role="landscape"):
         asset = self.plan.get("covers", {}).get(self.platform, {}).get(role)
@@ -117,16 +217,51 @@ class Transaction:
             asset = self.plan.get('covers', {}).get('instagram', {}).get('portrait')
         return asset["path"] if asset else shared
 
-    async def submit(self, page, button):
+    def video_size(self):
+        """The video's width and height as its own file says, or None when that can't be read."""
+        return frame_size(self.plan.get("video"))
+
+    async def submit(self, page, button, still_holds=None, again=False, uncover=None):
+        """`again` is only for a press the page has shown did not publish anything. `uncover`, given what refused a trial press,
+        may close what covers the button, once, and says what it was."""
         if self.options.get("submission_mode") == "draft_only":
             raise VpubError("draft_only", "Final submission is forbidden in draft-only mode.")
-        if self.receipt["final_submit_attempted"]:
+        if self.receipt["final_submit_attempted"] and not again:
             raise VpubError("already_submitted", "A final submission was already attempted.")
         await risk_check(page)
         stop_check(self.platform)
-        self.save(state="UNKNOWN", phase="submitting", final_submit_attempted=True, review_url=page.url)
+        await self.can_press(button, uncover)
+        if still_holds:
+            await still_holds()  # What was read before that wait may not be true after it.
+        stop_check(self.platform)
+        self.save(state="UNKNOWN", phase="submitting", final_submit_attempted=True, final_presses=self.receipt.get("final_presses", 0) + 1, review_url=page.url)
+        stage("pressing")
         # Persist BEFORE clicking. A timeout must never cause another click.
+        stop_check(self.platform)  # Saving the receipt can wait on its own lock.
         await button.click(timeout=20000)
+        stage("waiting for platform confirmation")
+
+    async def can_press(self, button, uncover=None):
+        """A trial press, which clicks nothing. A field run's Schedule button was covered three times running, and each attempt was recorded
+        as pressed though Chrome had refused the click, which left the draft with no way out. A refusal here records nothing as pressed."""
+        import patchright.async_api as driver
+        controls = tuple(kind for kind in (getattr(driver, "Locator", None), getattr(driver, "ElementHandle", None)) if isinstance(kind, type))
+        if not controls or not isinstance(button, controls):
+            return None  # Only a page's own control has a trial press; a stand-in for one presses as it is.
+        BrowserError = driver.Error
+        try:
+            return await button.click(trial=True, timeout=PRESS_TRIAL_MS)
+        except BrowserError as exc:
+            refused = failure_message(exc)
+        covered = await uncover(refused) if uncover else None
+        if covered:
+            self.save(press_covered=covered)
+            try:
+                return await button.click(trial=True, timeout=PRESS_RETRIAL_MS)
+            except BrowserError as exc:
+                refused = failure_message(exc)
+        raise VpubError("press_blocked", f"The final button couldn't be pressed, so nothing was sent and nothing is recorded as pressed. {refused}",
+                        "vpub status gives the command that picks this attempt up again. It never presses twice.")
 
 
 async def links(page, platform, identity):
@@ -137,11 +272,14 @@ async def links(page, platform, identity):
         if platform == "x":
             match = re.fullmatch(r"/" + re.escape(identity) + r"/status/(\d+)", u.path, re.I) if u.hostname in {"x.com", "www.x.com"} else None
         elif platform == "instagram":
-            match = re.fullmatch(r"/(?:" + re.escape(identity) + r"/)?(?:reel|p)/([\w-]+)/?", u.path, re.I) if u.hostname == "www.instagram.com" else None
+            found = re.fullmatch(r"/(?:" + re.escape(identity) + r"/)?(reel|p)/([\w-]+)/?", u.path, re.I) if u.hostname == "www.instagram.com" else None
+            if found:
+                # A field read found a photo's link at /p/. Written as a Reel, its address would say something it isn't.
+                result[found[2]] = {"id": found[2], "url": f"https://www.instagram.com/{found[1].lower()}/{found[2]}/", "text": row["text"]}
+            continue
         else:
             match = re.fullmatch(r"/video/(\d+)", u.path) if u.hostname in {"www.douyin.com", "douyin.com"} else None
             if not match and u.hostname == "creator.douyin.com":
-                from urllib.parse import parse_qs
                 mid = parse_qs(u.query).get("mid", [""])[0]
                 if mid.isdigit():
                     result[mid] = {"id": mid, "url": work_url(platform, identity, mid), "text": row["text"]}
@@ -151,10 +289,449 @@ async def links(page, platform, identity):
     return result
 
 
-async def works(page, platform, identity):
+YT_EDIT_DRAFT = re.compile('^(编辑草稿|Edit draft)$', re.I)
+POPUP_MS = 15000
+DOUYIN_CARD_TIME = re.compile(r"(\d{4})年(\d{2})月(\d{2})日 (\d{2}):(\d{2})")
+DOUYIN_CARD = '[class^="video-card-content-"]'
+DOUYIN_NAME = '[class^="info-title-text-"]'
+DOUYIN_SCHEDULED = {'state': 'SUBMISSION_VERIFIED', 'phase': 'scheduled', 'error': None, 'verification_source': 'creator_card_title_and_time',
+                    'note': 'Douyin shows this new card with its title and scheduled time, and no ID until the time comes. Verify again after that time.'}
+X_SCHEDULED = {'state': 'SUBMISSION_VERIFIED', 'phase': 'scheduled', 'error': None, 'verification_source': 'studio_schedule_row',
+               'note': "Studio's schedule page shows one row with exactly its words, its date and time, and a video, and showed none like it before the upload. A row has no ID until the time comes and doesn't say which video. Verify again after that time."}
+
+
+def douyin_card_is_waiting(text):
+    """A card still under review or scheduled for later opens no work's page. A field check found a scheduled card's only sign is a time still to come."""
+    if re.search('审核中|定时发布', text):
+        return True
+    found = DOUYIN_CARD_TIME.search(text)
+    return bool(found) and datetime(*map(int, found.groups())) > datetime.now()
+
+
+async def douyin_card_status(card):
+    """A card's words apart from its title node, which a field check found goes on to hold the caption. A person's words can mention any date or state; only the platform's count."""
+    return normalize(await card.evaluate("""card => { const title = card.querySelector('[class^="info-title-text-"]'); return title ? card.innerText.replace(title.innerText, '') : card.innerText; }"""))
+
+
+async def douyin_card_under_review(page, title):
+    """Whether the one card with this title says Douyin is still reviewing it. A field run's chapters waited on such a card and only ever said TimeoutError."""
+    cards = page.locator(DOUYIN_CARD).filter(has_text=title)
+    return await cards.count() == 1 and '审核中' in await douyin_card_status(cards)
+
+
+# Douyin can make an #topic or @name in a caption a link of its own, and #tags typed one after another can then sit side by side, with no space
+# between them or each on a line of its own. A field run's caption with #tags and @names stopped as differing from the plan. So space between one
+# #topic or @name and the next doesn't count, on both sides of every comparison. Any other space still counts as it always has: a line that lost
+# its line break with nothing in its place still differs, and where a name ends can't be told without the space after it, as in @ZipZipPipe的.
+DOUYIN_BETWEEN_LINKS = re.compile(r'([#@＃＠][^\s#@＃＠]+)\s+(?=[#@＃＠][^\s#@＃＠])')
+
+
+def douyin_card_words(text):
+    """What was written, on a card or in a form's box. Invisible marks, how much spacing there is and space between one #topic or @name and
+    the next are the page's own. Otherwise punctuation and where a space falls are part of the words: reviews showed 1.2 and 12, and now here
+    and nowhere, must not read the same."""
+    unmarked = ''.join(c for c in unicodedata.normalize('NFC', text or '') if unicodedata.category(c) != 'Cf')
+    return normalize(DOUYIN_BETWEEN_LINKS.sub(r'\1', unmarked))
+
+
+def where_words_part(wanted, shown):
+    """For a stop's message: how far the words a form holds agree with the plan's, with spacing evened out, the plan's words just before they
+    part, and what differs after that: which of the plan's characters the form lacks, and how many it has in their place or besides. Nothing
+    the form holds is repeated, since a suggestion Douyin put in can be someone else's name."""
+    from difflib import SequenceMatcher
+    same = next((at for at, (one, other) in enumerate(zip(wanted, shown)) if one != other), min(len(wanted), len(shown)))
+    said = f"they agree for {same} of the plan's {len(wanted)} characters, up to \"{wanted[max(0, same - 16):same]}\", and the form holds {len(shown)}"
+    changes = []
+    for kind, start, end, other_start, other_end in SequenceMatcher(None, wanted, shown, autojunk=False).get_opcodes():
+        if kind == 'delete':
+            changes.append(f"lacks \"{wanted[start:end][:16]}\" at character {start + 1}")
+        elif kind == 'insert':
+            changes.append(f"has {other_end - other_start} more at character {start + 1}")
+        elif kind == 'replace':
+            changes.append(f"has {other_end - other_start} other in place of \"{wanted[start:end][:16]}\" at character {start + 1}")
+    if changes:
+        said += "; the form " + ", ".join(changes[:4]) + (f", and {len(changes) - 4} more changes" if len(changes) > 4 else "")
+    return said
+
+
+# A line whose last #topic or @name is an @name is typed with a space at its end, and a review found a line break lost after it then read as
+# the plan's: the line ran on into the next with that space where its break had been. So a form's box is read a line at a time as well.
+# Blank lines don't count, nor do lines of nothing but #topics and @names, which Douyin can set side by side or each on a line of its own.
+# A card holds no line breaks, so this is for a form's box only.
+DOUYIN_LINKS_ONLY = re.compile(r'(?:[#@＃＠][^\s#@＃＠]+)+')
+
+
+def douyin_lines(text):
+    """A box's lines that hold words, each as its own number and its words as douyin_card_words reads them."""
+    lines = ((number, douyin_card_words(line)) for number, line in enumerate((text or '').splitlines(), 1))
+    return [(number, words) for number, words in lines if words and not DOUYIN_LINKS_ONLY.fullmatch(words)]
+
+
+def douyin_form_differs(wanted, shown):
+    """How the words a Douyin form's box shows differ from the plan's, for a stop's message, or None when they don't: its words as a card's
+    are read, then where its lines end. Only the plan's own words and line numbers are given."""
+    words = douyin_card_words(wanted), douyin_card_words(shown)
+    if words[0] != words[1]:
+        return where_words_part(*words)
+    plan, form = douyin_lines(wanted), [line for _, line in douyin_lines(shown)]
+    if [line for _, line in plan] == form:
+        return None
+    parted = next((number for at, (number, line) in enumerate(plan) if form[at:at + 1] != [line]), plan[-1][0] if plan else 1)
+    return f"the form has the plan's words, but its lines don't end where the plan's do, first at the plan's line {parted}"
+
+
+# Douyin opens suggestions for an #topic or @name the cursor is at the end of, and Enter there picks one instead of starting a line.
+# A field run's caption had lines ending in @names, and the words on its form came out different from the plan's.
+# The next run closed the lists with Escape, and the form came back short of exactly the caption's three @, the one in the middle of a line
+# too: Douyin keeps a typed @ waiting for someone to be picked, past spaces, and takes it away when that is closed.
+# A later run's lines ended in "@ZipZipPipe " with a space, and every @ stayed through that same Escape and went out as written: a name
+# whose words before the cursor end in a space is no longer waiting. So a line whose last #topic or @name is an @name ends in a space
+# (core.douyin_typed_lines, which the 1000-unit checks count too), and a form's read-back counts where its lines end (douyin_form_differs),
+# since that space would otherwise hide a line break lost after it.
+DOUYIN_SUGGESTS = re.compile(r'[#@＃＠]')
+DOUYIN_SUGGESTIONS_MS = 500  # For a list that opens a moment after the words go in, as one that looks names up can.
+# The cursor to the end of the box's words, unless it is in the box already and that was asked for.
+DOUYIN_CURSOR_AT_END = """(e, unless_inside) => { if (unless_inside && e.contains(document.activeElement)) return;
+  e.focus(); const end = document.createRange(); end.selectNodeContents(e); end.collapse(false);
+  const chosen = getSelection(); chosen.removeAllRanges(); chosen.addRange(end); }"""
+
+
+async def douyin_close_suggestions(page, editor, more_to_type=True):
+    """Escape closes the list and changes no words. Should a page ever take it to mean leaving the box too, the cursor goes back to the end of
+    the words while there are more to type. The read-back after typing catches anything else."""
+    await page.wait_for_timeout(DOUYIN_SUGGESTIONS_MS)
+    await page.keyboard.press('Escape')
+    if more_to_type:
+        await editor.evaluate(DOUYIN_CURSOR_AT_END, True)
+
+
+async def douyin_leave_caption(page, editor, from_the_end=False):
+    """Before anything below the box is pressed: a list its words opened is closed once more, for one that opened late, and the cursor
+    leaves the box, so none opens again over the cover buttons. A field run's 9:16 video had its 横封面4:3 press taken by something over it,
+    and another's #tag suggestions had done that before. Escape goes only to the box, from the end of its words when it held no cursor.
+    A review found that if Escape left the box, the cursor went back to the end of its last #topic, where Douyin opens its list, just before
+    the box was left, so it isn't put back here."""
+    if from_the_end:
+        await editor.evaluate(DOUYIN_CURSOR_AT_END, False)
+    elif not await editor.evaluate('e => e.contains(document.activeElement)'):
+        return
+    await douyin_close_suggestions(page, editor, more_to_type=False)
+    await editor.evaluate('e => { if (e.contains(document.activeElement)) document.activeElement.blur(); }')
+
+
+async def douyin_type_caption(page, editor, caption):
+    """A caption set in one go came out with a star at each new paragraph, on the card and, for a real video, on its public page, and the person never wrote those. So it is typed as a person would, a line at a time.
+    A line with an #topic or @name in it has any suggestions closed before the next key, the last line too: a field run's suggestions for a last #tag stayed over the cover buttons below and took their click.
+    Closing them never picks anyone, and Escape kept the #. It takes away an @ still waiting for a pick, so a line whose last one is an @name gets
+    a space at its end first, which shows as nothing. Every caller reads the words back afterwards with douyin_form_differs, which also counts
+    where the lines end, so a line that ran on into the next with that space where its break had been still stops."""
+    await editor.click()
+    await editor.press('ControlOrMeta+A')
+    await editor.press('Backspace')
+    lines = douyin_typed_lines(caption)
+    for number, line in enumerate(lines):
+        if number:
+            await page.keyboard.press('Enter')
+        if line:
+            await page.keyboard.insert_text(line)
+            if DOUYIN_SUGGESTS.search(line):
+                await douyin_close_suggestions(page, editor, more_to_type=number < len(lines) - 1)
+
+
+def douyin_card_says(title, caption):
+    """What a card's title node shows for this title and caption: a field check found it holds both, with a star where each new paragraph begins if the caption was set in one go."""
+    return {douyin_card_words(title + ' ' + caption), douyin_card_words(title + ' ' + re.sub(r'\s*\n\s*', ' *', caption.strip()))}
+
+
+async def douyin_cards_saying(page, wanted):
+    """The cards with a title node saying one of these. A card with more than one counts if any of them does, so a count of what was already there can't come out low."""
+    cards = []
+    for card in await page.locator(DOUYIN_CARD).all():
+        for name in await card.locator(DOUYIN_NAME).all():
+            if douyin_card_words(await name.inner_text()) in wanted:
+                cards.append(card)
+                break
+    return cards
+
+
+async def douyin_cards_titled(page, title, caption=''):
+    """The Creator Center cards with exactly this title, or exactly this title and then this caption, which a field check found a card's title node holds, with a star where each new paragraph begins. A longer title or another caption is another work."""
+    return await douyin_cards_saying(page, {douyin_card_words(title)} | douyin_card_says(title, caption))
+
+
+def douyin_card_stamp(when):
+    """Its upload form writes the time one way and its works list another, as a field check found."""
+    local = when.astimezone()
+    return f'{local.year}年{local.month:02d}月{local.day:02d}日 {local.hour:02d}:{local.minute:02d}'
+
+
+async def douyin_card_time(card):
+    """The time in a card's own time node, which a field check found outside its title node, or None unless there is exactly one."""
+    nodes = card.locator('[class^="info-time-"]:not([class^="info-title-text-"] *)')
+    if await nodes.count() != 1:
+        return None
+    found = [match[0] for match in DOUYIN_CARD_TIME.finditer(normalize(await nodes.first.inner_text()))]
+    return found[0] if len(found) == 1 else None
+
+
+async def douyin_cards_at(cards, stamp):
+    """The cards that show this time, or might: one whose time cannot be read could be at any time."""
+    return [card for card in cards if await douyin_card_time(card) in (stamp, None)]
+
+
+async def douyin_scheduled_card(page, receipt):
+    """Before its time a scheduled work has a card and no ID anywhere. One more card than before with exactly this title, the only one whose own time node shows this time, and marked private if it was meant to be, is this one.
+    An older card with this title and time could pass for it, so unless none was there before the upload, this stays unverified."""
+    schedule = receipt.get('schedule') or {}
+    if not schedule.get('card_stamp') or 'same_title_cards_before' not in receipt or receipt.get('same_time_cards_before') != 0:
+        return False
+    cards = await douyin_cards_titled(page, receipt.get('title') or '', receipt.get('expected_caption') or '')
+    if len(cards) != receipt['same_title_cards_before'] + 1:
+        return False
+    matching = await douyin_cards_at(cards, schedule['card_stamp'])
+    if len(matching) != 1 or await douyin_card_time(matching[0]) != schedule['card_stamp']:
+        return False
+    return receipt.get('visibility') != 'private' or await matching[0].locator('[class*="private-mark-"]').count() > 0
+
+
+def douyin_editor_address(work_id):
+    return f'https://creator.douyin.com/creator-micro/content/post/video?mid={work_id}&enter_from=edit_item'
+
+
+def douyin_editor_work(address):
+    """The work whose edit page this address is, or None. Only the exact address a field run saw counts, with one work named."""
+    parts = urlsplit(address)
+    asked = parse_qs(parts.query, keep_blank_values=True)
+    found = asked.get('mid', [])
+    usable = (parts.scheme == 'https' and parts.netloc == 'creator.douyin.com' and parts.path == '/creator-micro/content/post/video' and not parts.fragment
+              and asked.get('enter_from') == ['edit_item'] and len(found) == 1 and re.fullmatch('[0-9]{1,40}', found[0]))
+    return found[0] if usable else None
+
+
+async def douyin_editor_boxes(page, work_id):
+    """The title and description boxes of a work's edit page, once this is that page and its title has come."""
+    title = page.locator('input[placeholder*="填写作品标题"]')
+    await title.wait_for(timeout=45000)
+    await risk_check(page)
+    if douyin_editor_work(page.url) != str(work_id):
+        raise VpubError('wrong_work', 'Douyin opened another page instead of this work; nothing changed.')
+    for _ in range(20):
+        if normalize(await title.input_value()):
+            break
+        await page.wait_for_timeout(500)
+    return title, await unique_visible(page.locator('[contenteditable=true]'), 'Douyin description')
+
+
+async def douyin_id_from_menu(page, shown):
+    """A private work's title opens nothing, a field run found, and its card's own 编辑作品 menu opens its edit page, whose address names it.
+    This looks in a tab of its own, so the list being read stays where it is, and presses only that menu item; nothing is saved. What opens has to be that tab or one tab it opened, and say what the card says, or the answer is None. A review found matching words alone could take another tab's page for it."""
+    from patchright.async_api import Error as BrowserError
+    tabs = list(page.context.pages)
+    side = await page.context.new_page()
+
+    async def target():
+        others = [tab for tab in page.context.pages if tab not in tabs and tab is not side]
+        if not others:
+            return side if douyin_editor_work(side.url) else None
+        return others[0] if len(others) == 1 and await others[0].opener() is side and douyin_editor_work(others[0].url) and not douyin_editor_work(side.url) else None
+    try:
+        await side.goto(MANAGE, wait_until='domcontentloaded', timeout=60000)
+        await side.locator(DOUYIN_NAME).first.wait_for(state='visible', timeout=20000)
+        await risk_check(side)
+        cards = await douyin_cards_saying(side, {shown})
+        if len(cards) != 1 or await cards[0].locator(DOUYIN_NAME).count() != 1:
+            return None
+        label = cards[0].get_by_text('编辑作品', exact=True)
+        item = side.locator('ul.semi-dropdown-menu[class*="edit-menu-"] > li.semi-dropdown-item').filter(has_text=re.compile(r'^\s*编辑作品\s*$'))
+        if await label.count() != 1 or await visible(item):
+            return None  # A menu already open is no card's in particular.
+        await label.hover(timeout=10000)
+        # The menu sits outside the card, and only the trigger it marks as showing says whose it is.
+        trigger = cards[0].locator('[class*="edit-btn-"].semi-dropdown-showing')
+
+        async def its_menu():
+            return await trigger.count() == 1 and await visible(item)
+        if not await look_until(side, its_menu, 5000) or await side.locator('.semi-dropdown-showing').count() != 1:
+            return None
+        press = await unique_visible(item, 'Douyin edit menu item')
+        await risk_check(side)
+        stop_check('douyin')
+        await press.click(timeout=10000)
+        opened = await look_until(side, target, 10000)
+        if not opened:
+            return None
+        work = douyin_editor_work(opened.url)
+        title, words = await douyin_editor_boxes(opened, work)
+
+        async def same():
+            return shown in douyin_card_says(await title.input_value(), await words.inner_text())
+        return work if await look_until(opened, same, 5000) and await target() is opened else None
+    except BrowserError:
+        return None
+    except VpubError as failure:
+        if failure.code != 'layout_changed':
+            raise
+        return None
+    finally:
+        # Only what this opened: another tab is not its to close, and a tab whose opener has closed no longer says so, so this looks first.
+        owned = [tab for tab in page.context.pages if tab is side or (tab not in tabs and await tab.opener() is side)]
+        for tab in owned:
+            await tab.close()
+
+
+def douyin_new_works(platform, receipt, works):
+    """Of the works new since an upload began and carrying its title, those that can be that upload.
+    A private work's ID takes its card's menu to read, which can work for a card one time and not another, so the list read before the upload may have left out an older private work. Only no card saying the same beforehand proves a matching one now is new, and its whole text has to match. Otherwise another work's ID goes on this upload's receipt, even if the receipt stays unconfirmed. From Codex's reviews."""
+    if platform != 'douyin' or receipt.get('visibility') != 'private':
+        return works
+    count, before = receipt.get('same_title_cards_before'), receipt.get('before_ids')
+    if type(count) is not int or count != 0 or 'expected_caption' not in receipt or type(before) is not list or not all(type(known) is str for known in before):
+        return []
+    wanted = douyin_card_says(receipt.get('title') or '', receipt['expected_caption'])
+    return [work for work in works if douyin_card_words(work.get('text')) in wanted]
+
+
+def x_new_works(platform, receipt, works):
+    """Of the works new since an upload began and carrying its title, those that can be that upload.
+    The list read before it holds only the posts that first showed, so an older post with the same words can look new, and would be taken for this one if this one never went out. An X post's ID says when it was made. The grace is for this computer's clock."""
+    if platform != 'x' or not receipt.get('started_at'):
+        return works
+    began = datetime.fromisoformat(receipt['started_at']) - X_CLOCK_GRACE
+    return [work for work in works if datetime.fromisoformat(post_time(work['id'])) >= began]
+
+
+# A field run's first vpub verify on a cold browser read the account a second after its post's link showed, before X had put
+# the video player into the post, so the post read as having no video and stayed unconfirmed until a second run.
+X_PLAYER_SECONDS = 8
+
+
+async def x_own_posts_with_players(page, identity, wanted):
+    """This account's posts, read again every half second for up to X_PLAYER_SECONDS while one that `wanted` picks shows no video yet.
+    For a one-shot read: finish() reads again on its own, five seconds apart. Each look again checks the page for a platform's check, as
+    works() does on each of its own: from a review, a check shown during the wait would otherwise go unrecorded by this command.
+    """
+    posts = await own_posts(page, identity)
+    for _ in range(X_PLAYER_SECONDS * 2):
+        if not any(wanted(post) and not post['has_video'] for post in posts):
+            break
+        await page.wait_for_timeout(500)
+        await risk_check(page)
+        posts = await own_posts(page, identity)
+    return posts
+
+
+async def x_new_posts(page, identity, receipt, *, wait_for_player=False):
+    """Discover one new own post by its posted words, not the separate Studio title.
+    The native path binds the source-named file, Studio URL, composer video and
+    text before recording its final attempt. With that context, correlate one
+    fresh exact own video post, as the custom-cover field recovery did. A readable
+    conflicting media ID rejects it; a hidden ID is not a contradiction.
+    This is not independent verification of posted bytes. The counter records
+    intent before clicking, and an identical external concurrent post cannot be
+    excluded. Missing native context or multiple exact posts stays uncertain.
+    """
+    text_fields = ('identity', 'video_sha256', 'upload_filename', 'media_url', 'expected_text', 'started_at')
+    if any(type(receipt.get(key)) is not str for key in text_fields):
+        return []
+    if (type(identity) is not str or not re.fullmatch(r'[A-Za-z0-9_]+', identity)
+            or receipt['identity'].casefold() != identity.casefold()
+            or receipt.get('method') != 'browser' or receipt.get('platform') != 'x' or receipt.get('schedule')):
+        return []
+    if (any(receipt.get(key) is not True for key in ('media_selected', 'file_video_seen', 'metadata_readback', 'final_submit_attempted'))
+            or type(receipt.get('final_presses')) is not int or receipt['final_presses'] != 1):
+        return []
+    source = receipt['video_sha256']
+    if (not re.fullmatch(r'[0-9a-f]{64}', source)
+            or not re.fullmatch(r'crosscast-' + source[:16] + r'\.[A-Za-z0-9]+', receipt['upload_filename'])):
+        return []
+    words = x_words(receipt['expected_text'])
+    media = re.fullmatch(r'https://studio\.x\.com/library/\d+_(\d+)/edit', receipt['media_url'])
+    before = receipt.get('before_ids')
+    if (not words or not media or type(before) is not list
+            or any(type(known) is not str or not re.fullmatch(r'[0-9]+', known) for known in before)):
+        return []
+    try:
+        started = datetime.fromisoformat(receipt['started_at'].replace('Z', '+00:00'))
+        until = datetime.now(timezone.utc) + X_CLOCK_GRACE
+        if started.tzinfo is None or started > until:
+            return []
+        began = started - X_CLOCK_GRACE
+    except (ValueError, OverflowError):
+        return []
+    def fresh(post):
+        return post['id'] not in before and x_words(post['text']) == words
+    posts = await x_own_posts_with_players(page, identity, fresh) if wait_for_player else await own_posts(page, identity)
+    matches = [post for post in posts
+               if fresh(post) and post['has_video'] and began <= datetime.fromisoformat(post_time(post['id'])) <= until]
+    # Count before checking media: a conflicting or hidden ID must not collapse two posts into one.
+    if len(matches) != 1 or (matches[0]['media_id'] is not None and matches[0]['media_id'] != media[1]):
+        return []
+    return [{**matches[0], 'url': work_url('x', identity, matches[0]['id']), 'discovery_source': X_DISCOVERY_SOURCE}]
+
+
+async def instagram_caption_says(page, identity, words):
+    """Whether the post's own caption is exactly these words. Reviews found they passed from anywhere on the page, from the owner's own comment, and from inside a longer caption. A field read of a real post found a row holding the owner's link and a time, then the whole caption, with no list, article or lasting class around it. So the row comes from the first time on the page rather than from the words, and all of its words have to match.
+    That the caption's row comes before any comment is how Instagram lays out a post, not something that read showed: it was of a photo page with no comments on it, so a Reel's page is still to be seen. A review found the limit of that: an owner's comment with these words would pass on a post with no caption, or with another caption that has no time beside it, or with the comment above the caption. Until a real page with comments has been read, a pass here is not proof of the caption."""
+    return await page.evaluate(INSTAGRAM_CAPTION, {"words": normalize(words), "owner": identity})
+
+
+async def x_post_reads_as_this_upload(page, receipt):
+    """Whether a post we sent reads back from its own row: exactly its words, and its own video. Reviews found a reply's words, or a quoted post's video, passed on the rest of the page.
+    A field read found a real post's video in its own row. A custom cover leaves no number to read, so a number can only rule a post out.
+    This checks an already identified post. Discovery without an ID requires the native attempt context in x_new_posts."""
+    from patchright.async_api import Error as BrowserError
+    media = re.search(r"/library/\d+_(\d+)", receipt.get("media_url") or "")
+    row = post_row(page, receipt["id"]).first
+
+    async def reads_right():
+        try:
+            fields = await post_fields(row)
+        except BrowserError:
+            return False
+        return bool(fields and fields["id"] == str(receipt["id"]) and x_words(fields["text"]) == x_words(receipt.get("expected_text") or receipt.get("title")) and fields["has_video"]
+                    and not (media and fields["media_id"] and fields["media_id"] != media[1]))
+    return bool(await look_until(page, reads_right, 6000))
+
+
+async def douyin_card_id(page, name, card):
+    """The ID behind a card of the works list, or None if it can't be told, which says nothing about the other cards."""
+    from patchright.async_api import Error as BrowserError
+    if not await card.get_by_text('私密', exact=True).count():
+        try:
+            async with page.expect_popup(timeout=POPUP_MS) as opened:
+                await name.click()
+            detail = await opened.value
+        except BrowserError:
+            detail = None
+        if detail:
+            try:
+                # Its address is all this needs, and a field run saw this page not finish loading in 15 seconds.
+                await detail.wait_for_url(re.compile(r'/work-detail/\d+'), timeout=15000, wait_until='commit')
+                match = re.fullmatch(r'/creator-micro/work-management/work-detail/(\d+)', urlsplit(detail.url).path)
+                return match[1] if match and urlsplit(detail.url).hostname == 'creator.douyin.com' else None
+            except BrowserError:
+                return None  # A page that never says which work it is can't tell this card's ID, which says nothing about the others.
+            finally:
+                await detail.close()
+        # From a review: a click that opens no new tab could move this one, and the rest would then be read from the wrong page. Never seen on a real account.
+        if urlsplit(page.url).path != urlsplit(MANAGE).path:
+            await page.goto(MANAGE, wait_until="domcontentloaded", timeout=60000)
+            return None
+    return await douyin_id_from_menu(page, douyin_card_words(await name.inner_text()))
+
+
+DOUYIN_LIST_SECONDS = 45
+DOUYIN_LIST_ENDS = re.compile('没有更多作品|暂无作品|暂无内容')
+
+
+async def works(page, platform, identity, must_answer=False):
+    if platform == "youtube":
+        from .youtube_studio import works as studio_works
+        return await studio_works(page, identity)
     url = MANAGE if platform == "douyin" else f"https://www.instagram.com/{identity}/" if platform == "instagram" else f"https://x.com/{identity}"
     await page.goto(url, wait_until="domcontentloaded", timeout=60000)
-    for _ in range(10):
+    # A field read found Douyin's list empty at 5 seconds and filled by 15, so ten seconds could answer that an account had no works.
+    for _ in range(DOUYIN_LIST_SECONDS if platform == 'douyin' else 10):
         await page.wait_for_timeout(1000)
         await risk_check(page)
         found = await links(page, platform, identity)
@@ -162,46 +739,415 @@ async def works(page, platform, identity):
             return found
         if platform == 'douyin':
             # Creator Center cards use click handlers rather than hrefs.
-            # Opening a work detail is read-only; never enter edit/delete here.
+            # Opening a work's own page or edit page is read-only; nothing is saved or deleted here.
             titles = page.locator('[class^="info-title-text-"]')
-            if await titles.count():
+            if await titles.locator('visible=true').count():
                 for title in (await titles.all())[:10]:
                     text = await title.inner_text()
                     card = title.locator('xpath=ancestor::div[starts-with(@class,"video-card-content-")]')
-                    if '审核中' in await card.inner_text():
-                        continue  # Review cards do not open a detail popup yet.
-                    async with page.expect_popup(timeout=15000) as opened:
-                        await title.click()
-                    detail = await opened.value
-                    try:
-                        await detail.wait_for_url(re.compile(r'/work-detail/\d+'), timeout=15000)
-                        match = re.fullmatch(r'/creator-micro/work-management/work-detail/(\d+)', urlsplit(detail.url).path)
-                        if match and urlsplit(detail.url).hostname == 'creator.douyin.com':
-                            k = match[1]
-                            found[k] = {'id': k, 'url': work_url(platform, identity, k), 'text': text}
-                    finally:
-                        await detail.close()
+                    # A title outside any card says nothing CrossCast can read, and asking its card for words would wait out the whole timeout.
+                    if not await card.count() or douyin_card_is_waiting(await douyin_card_status(card)):
+                        continue
+                    k = await douyin_card_id(page, title, card)
+                    if k:
+                        found[k] = {'id': k, 'url': work_url(platform, identity, k), 'text': text}
                 return found
+            if await page.get_by_text(DOUYIN_LIST_ENDS).locator('visible=true').count():
+                return {}
+    if must_answer:
+        raise VpubError('list_not_ready', "The account's list of works didn't load, so nothing could be compared with it. No video was selected.", 'Try again in a moment.')
     return {}
+
+
+def studio_visibility(text):
+    """The setting named in Studio's visibility control, in its English or Chinese interface."""
+    lines = {line.strip() for line in (text or "").splitlines()}
+    return next((value for value, labels in STUDIO_VISIBILITY.items() if lines & labels), None)
+
+
+def studio_style(styles, text):
+    """The style a whole Studio date or time is written in, or None."""
+    text = normalize(text)
+    return next((style for style in styles if (match := re.fullmatch(style[0], text)) and style[1](match)), None)
+
+
+def studio_read(styles, text):
+    style = studio_style(styles, text)
+    return style[1](re.fullmatch(style[0], normalize(text))) if style else None
+
+
+STUDIO_OFFSET = re.compile(r"(?:GMT|UTC|格林尼治标准时间)\s*([+\-−])\s*(\d{1,2})(?::?(\d{2}))?")
+
+
+def studio_moments(text):
+    """Every date and every time mentioned in a Studio summary such as "Scheduled for ...", as numbers."""
+    # The 05:00 in a zone label such as GMT-05:00 is not a scheduled time of day.
+    rest = STUDIO_OFFSET.sub(" ", normalize(text))
+    dates = {read(m) for pattern, read, _ in STUDIO_DATES for m in re.finditer(pattern, rest)} - {None}
+    times = set()
+    for pattern, read, _ in STUDIO_TIMES:
+        times |= {read(m) for m in re.finditer(pattern, rest)}
+        rest = re.sub(pattern, " ", rest)
+    return dates, times
+
+
+def studio_offsets(text):
+    """The GMT offsets Studio's scheduler names, in minutes."""
+    return {(-1 if sign in "-−" else 1) * (int(hours) * 60 + int(minutes or 0))
+            for sign, hours, minutes in STUDIO_OFFSET.findall(text or "")}
+
+
+def studio_zone_offsets_agree(offsets, local, current):
+    """A trusted named zone may label itself with today's or the target-date offset.
+
+    This checks a display label, never converts the scheduled wall time by that label.
+    Both callers first establish the target's local time from the named zone's rules.
+    """
+    valid = {local.utcoffset().total_seconds() / 60, current.utcoffset().total_seconds() / 60}
+    return len(offsets) <= 1 and offsets <= valid
+
+
+def youtube_schedule_passed(schedule):
+    """Whether a scheduled video's time has come, or None if its record can't say."""
+    try:
+        return datetime.now(timezone.utc) >= datetime.fromisoformat(schedule["at"])
+    except (KeyError, TypeError, ValueError):
+        return None
+
+
+def youtube_schedule_zone_agrees(shown, schedule):
+    """Check the approved instant in its trusted zone; display offsets follow the pre-Save rule."""
+    # UTC+01:00 is an offset label, not a second named zone called UTC.
+    shown = re.sub(r'(?<![\w/])UTC(?=\s*[+\-−])', 'GMT', shown)
+    # An IANA key such as Etc/GMT+5 is a name, not a GMT+5 display.
+    names = set(re.findall(r'(?<![\w/])(?:UTC|[A-Za-z][A-Za-z0-9_+\-]*(?:/[A-Za-z0-9_+\-]+)+)(?![\w/])', shown))
+    offsets_text = shown
+    for name in names:
+        if name != 'UTC':
+            offsets_text = offsets_text.replace(name, '')
+    offsets = studio_offsets(offsets_text)
+    if not names and not offsets and not schedule.get('timezone'):
+        return True  # Older wall-clock-only readback remains bounded by the pre-Save check.
+    try:
+        local = datetime.fromisoformat(schedule['local'])
+        intended = datetime.fromisoformat(schedule['at'])
+        if local.utcoffset() is None or intended.utcoffset() is None or local != intended:
+            return False
+        name = schedule.get('timezone')
+        if names and names != {name}:
+            return False
+        if name:
+            from zoneinfo import ZoneInfo
+            zone = timezone.utc if name == 'UTC' else ZoneInfo(name)
+            target = intended.astimezone(zone)
+            if target.isoformat() != local.isoformat() or target.replace(fold=1 - target.fold).utcoffset() != target.utcoffset():
+                return False
+            return studio_zone_offsets_agree(offsets, target, datetime.now(zone))
+        # Legacy offset-only evidence cannot establish target-date zone rules.
+        return not offsets or offsets == {local.utcoffset().total_seconds() / 60}
+    except (KeyError, TypeError, ValueError):
+        return False
+
+
+# How long Studio's visibility box gets to fill in. The one field read on a real channel came three seconds after the title, and a box read
+# before it fills in makes the video's visibility look different, so a slower connection gets longer.
+YT_VISIBILITY_LOOK = 10000
+YT_VISIBILITY_WANTED = {"public": "Public", "scheduled": "Scheduled, with this attempt's date and time", "private": "Private", "unlisted": "Unlisted"}
+# Studio's own window once a Save has gone through. A field run's said "Video scheduled" and "Your video will be set to public on
+# November 6, 2026 at 12:00 PM", while the video's page said only Scheduled, with no date or time to compare.
+YT_ZH_SCHEDULE_HEADING = '已安排好视频发布时间'
+YT_DONE_WINDOW = re.compile(r'\bVideo (scheduled|published)\b|^\s*' + YT_ZH_SCHEDULE_HEADING + r'(?:\s|$)')
+YT_SET_PUBLIC = re.compile(r'will be set to public on ([A-Z][a-z]+) (\d{1,2}), (\d{4}) at (1[0-2]|[1-9]):([0-5]\d) ?([AP]M)')
+YT_ZH_SET_PUBLIC = re.compile(r'视频将于\s*(\d{4})年(\d{1,2})月(\d{1,2})日\s+([01]?\d|2[0-3]):([0-5]\d)\s*设为公开')
+YT_SCHEDULED_WORD = re.compile(r'\s*(?:Scheduled|已排定时间)\s*')
+MONTH_NAMES = ("January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December")
+
+
+def youtube_zh_window_schedule(receipt):
+    """Match the dated confirmation and its video link when the details page only says 已排定时间."""
+    video_id = receipt.get('id')
+    schedule = receipt.get('schedule') or {}
+    if (not video_id or receipt.get('draft_id') not in (None, video_id)
+            or receipt.get('final_submit_attempted') is not True or not schedule.get('timezone')):
+        return None
+    try:
+        local = datetime.fromisoformat(schedule['local'])
+    except (KeyError, TypeError, ValueError):
+        return None
+    expected = ((local.year, local.month, local.day), (local.hour, local.minute))
+    windows = [receipt.get('studio_confirmation')]
+    windows.extend(part.get('text') for part in receipt.get('after_press') or []
+                   if isinstance(part, dict) and part.get('tag') == 'TP-YT-PAPER-DIALOG' and part.get('parent') == 'YTCP-DIALOG')
+    moments = set()
+    for text in windows:
+        lines = [line.strip() for line in text.splitlines() if line.strip()] if isinstance(text, str) else []
+        if lines[:1] != [YT_ZH_SCHEDULE_HEADING]:
+            continue
+        found = YT_ZH_SET_PUBLIC.fullmatch(lines[1]) if len(lines) > 1 else None
+        links = [link for label, link in zip(lines, lines[1:]) if label == '视频链接']
+        if not found or links != [f'https://youtu.be/{video_id}']:
+            return None
+        year, month, day, hour, minute = map(int, found.groups())
+        moments.add(((year, month, day), (hour, minute)))
+    return expected if moments == {expected} else None
+
+
+def youtube_window_schedule(receipt, shown):
+    """The date and time Studio's own window gave, after the press, for the video going public: ((year, month, day), (hour, minute)), or None."""
+    if normalize(shown) == '已排定时间':
+        return youtube_zh_window_schedule(receipt)
+    kept = [receipt.get('studio_confirmation')] + [part.get('text') for part in receipt.get('after_press') or [] if isinstance(part, dict)]
+    for words in kept:
+        found = YT_SET_PUBLIC.search(normalize(words)) if isinstance(words, str) else None
+        if found and found[1] in MONTH_NAMES:
+            return ((int(found[3]), MONTH_NAMES.index(found[1]) + 1, int(found[2])),
+                    (int(found[4]) % 12 + (12 if found[6] == 'PM' else 0), int(found[5])))
+    return None
+
+
+async def verify_youtube(page, receipt):
+    # Studio opens this page only for the signed-in channel's own videos, so reading it also proves ownership.
+    url = work_url("youtube", None, receipt["id"])
+    def on_this_video():
+        address = urlsplit(page.url)
+        return (address.scheme == "https" and address.netloc == "studio.youtube.com"
+                and address.path == f"/video/{receipt['id']}/edit")
+
+    stop_check('youtube')
+    await page.goto(f"https://studio.youtube.com/video/{receipt['id']}/edit", wait_until="domcontentloaded", timeout=60000)
+    title = page.locator("#title-textarea #textbox").first
+    seen = {}
+    shown = None
+    from_window = False
+    schedule = receipt.get("schedule")
+    passed = youtube_schedule_passed(schedule) if schedule else None
+    try:
+        if not on_this_video():
+            raise VpubError('wrong_work', "Studio did not open this attempt's video.")
+        await title.wait_for(state="visible", timeout=30000)
+        for _ in range(20):
+            seen["title"] = normalize(await title.inner_text())
+            if seen["title"]:
+                break
+            await page.wait_for_timeout(1000)
+        seen["description"] = normalize(await page.locator("#description-textarea #textbox").first.inner_text())
+        shown = await look_until(page, lambda: page.locator("ytcp-video-metadata-visibility #visibility-text").first.inner_text(timeout=1000), YT_VISIBILITY_LOOK)
+        seen["visibility"] = studio_visibility(shown)
+        if schedule:
+            dates, times = studio_moments(shown)
+            seen['schedule_timezone'] = youtube_schedule_zone_agrees(shown, schedule)
+            if seen["visibility"] != "public" and tuple(schedule["date"]) in dates and tuple(schedule["time"]) in times:
+                seen["visibility"] = "scheduled"
+            elif isinstance(shown, str) and YT_SCHEDULED_WORD.fullmatch(shown):
+                # A field run's box said only Scheduled. Before its time, the date and time it doesn't show are the ones Studio's own
+                # window gave at the press. Either way it isn't a draft, which has no visibility setting at all.
+                from_window = not passed and youtube_window_schedule(receipt, shown) == (tuple(schedule["date"]), tuple(schedule["time"]))
+                seen["visibility"] = "scheduled" if from_window else "scheduled_without_its_time"
+        if receipt.get("playlists"):
+            listed = normalize(await page.locator("ytcp-video-metadata-playlists").first.inner_text())
+            seen["playlists"] = all(normalize(title) in listed for title in receipt["playlists"])
+    except Exception:
+        pass
+    await risk_check(page)
+    stop_check('youtube')
+    bound = on_this_video()
+    # A field run's Publish left a draft: its page has a button to edit it, and no visibility setting at all.
+    still_a_draft = bound and not seen.get("visibility") and await visible(page.get_by_text(YT_EDIT_DRAFT)) is not None
+    expected = {"title": normalize(receipt["title"]) if receipt.get("title") else None,
+                "description": normalize(receipt["expected_text"]) if "expected_text" in receipt else None,
+                # A scheduled video shows its date and time until then, and afterwards it is public like any other.
+                "visibility": ("public" if passed else "scheduled") if schedule else receipt.get("visibility"),
+                "playlists": True if receipt.get("playlists") else None}
+    differs = sorted(name for name, value in expected.items() if value is not None and seen.get(name) != value)
+    if not bound:
+        differs.append("video_id")
+    if schedule and passed is None:
+        differs.append("schedule_time")
+    if schedule and seen.get('schedule_timezone') is False:
+        differs.append('schedule_timezone')
+    present = bool(seen.get("title")) and not differs
+    # Studio's own words, kept when they didn't match: a field run's record named the difference and not what the page showed.
+    words = normalize(shown)[:200] if "visibility" in differs and isinstance(shown, str) and shown.strip() else None
+    visibility_note = ("" if "visibility" not in differs else
+                       (" Studio's visibility box says only 'Scheduled', with no date or time, and "
+                        + ("no window from Studio at the press gave them." if youtube_window_schedule(receipt, shown) is None else
+                           "the time Studio's own window gave at the press isn't this attempt's.")) if schedule and not passed and words and YT_SCHEDULED_WORD.fullmatch(words) else
+                       f" Studio's visibility box says '{words}', and this attempt expected {YT_VISIBILITY_WANTED.get(expected['visibility'], expected['visibility'])}." if words else
+                       " Studio's visibility box didn't fill in, so its setting couldn't be read.")
+    # A video taken down since (a field run's was deleted by hand in Studio) leaves no title to read, so YouTube's own page is asked.
+    removed = False
+    if bound and not seen.get("title") and not still_a_draft:
+        from .work_delete_youtube import exact_gone
+        try:
+            removed = await exact_gone(page, {"url": url, "id": receipt["id"]})
+        except Exception:
+            removed = False  # Unknown stays unknown.
+    note = ("Current title, description and public visibility read back after the intended schedule; actual publication time and on-time release were not established." if present and passed else
+            "Title, description, visibility or schedule, and playlists read back from the channel's own Studio page; cover pixels and playback are separate."
+            + (" Studio's page says Scheduled; its date and time are the ones Studio's own window gave when it was saved." if from_window else "") if present else
+            "Studio still shows this as a draft, so viewers can't see it. Press Publish on this same draft with vpub resume; do not upload again." if still_a_draft else
+            f"YouTube's own page says this video has been removed by its uploader, so there's nothing left to verify. If that was you, take it off the list with vpub dismiss {receipt.get('key') or 'KEY'} --person-checked." if removed else
+            "Expected work/text not yet verified; do not upload again." + visibility_note)
+    return {**receipt, "url": url, "state": "SUBMISSION_VERIFIED" if present else "SUBMITTED_UNVERIFIED",
+            "phase": "complete" if present else "readback_pending", "error": None if present else receipt.get("error"),
+            "verification_source": "independent_browser_dom", "verified_at": now(), "readback_differs": differs, "note": note, "still_a_draft": still_a_draft,
+            **({"visibility_seen": words} if "visibility" in differs else {}),
+            **({"removed_by_uploader": True} if removed else {}),
+            **({"schedule_evidence": {"intended_at": schedule.get("at"), "scheduled_time_elapsed": passed, "on_time_publication_verified": False}} if schedule else {})}
+
+
+def x_chosen_time_says(words, schedule):
+    """Whether words like Nov 4, 6:26 PM, which a field run saw on the button that opened the calendar, are this schedule's date and time."""
+    found = X_CHOSEN_TIME.fullmatch(normalize(words))
+    if not found or found[1] not in MONTHS:
+        return False
+    date = (int(found[3] or schedule['date'][0]), MONTHS.index(found[1]) + 1, int(found[2]))
+    return date == tuple(schedule['date']) and (int(found[4]) % 12 + (12 if found[6] == 'PM' else 0), int(found[5])) == tuple(schedule['time'])
+
+
+def x_row_says_schedule(day, clock, schedule):
+    """Whether a row's Nov 8 Sun and 9:11 PM, as a field read found them on Studio's schedule page, are this schedule's. They carry no year, so the day of the week has to agree too."""
+    found = X_SCHEDULE_DAY.fullmatch(normalize(day))
+    return bool(found) and found[2] == WEEKDAYS[datetime(*schedule['date']).weekday()] and x_chosen_time_says(f'{found[1]}, {normalize(clock)}', schedule)
+
+
+def x_schedule_moment(when):
+    """The date and time Studio shows for a moment. Its calendar, clock and schedule page all use this computer's time zone."""
+    local = when.astimezone()
+    return {'at': when.isoformat(), 'local': local.isoformat(), 'date': [local.year, local.month, local.day], 'time': [local.hour, local.minute], 'timezone_basis': 'computer'}
+
+
+def x_row_has_words(cells, words):
+    return len(cells) >= len(X_SCHEDULE_HEADINGS) and x_words(cells[2]) == words
+
+
+def x_row_is_a_post(cells):
+    """A field read found the empty page keeps its message in a row of its own, in a single cell. A row with a post's cells or its day is a post's, however far it has got."""
+    return len(cells) >= len(X_SCHEDULE_HEADINGS) or bool(X_SCHEDULE_DAY.fullmatch(normalize(cells[0])))
+
+
+def x_row_is_finished(cells):
+    """A row showing everything a field read's did: Nov 8 Sun, 9:11 PM, the words and the media."""
+    return (len(cells) >= len(X_SCHEDULE_HEADINGS) and bool(X_SCHEDULE_DAY.fullmatch(normalize(cells[0]))) and bool(X_SCHEDULE_CLOCK.fullmatch(normalize(cells[1])))
+            and bool(normalize(cells[2])) and bool(normalize(cells[3])))
+
+
+def x_row_has_schedule(cells, schedule):
+    return x_row_says_schedule(cells[0], cells[1], schedule) and normalize(cells[3]) == "Video"
+
+
+async def x_schedule_rows(page):
+    """The cells of each row showing in the one table with these headings on Studio's schedule page, read together so that nothing is combined across a redraw. A review found rows in hidden or other tables could count."""
+    return await page.evaluate(X_SCHEDULE_TABLE, X_SCHEDULE_HEADINGS)
+
+
+async def x_schedule_read(page):
+    """All the posts Studio's schedule page holds, once it can be taken at its word. Reviews found a table can show its headings, something in place of its rows, or rows still filling in, and any of those would say nothing like this post is there.
+    So every post's row has to be finished, and no rows is only an answer once the page says so in its own words."""
+    rows = await x_schedule_rows(page)
+    if rows is None:
+        return None
+    posts = [cells for cells in rows if x_row_is_a_post(cells)]
+    if posts:
+        return {"rows": posts} if all(x_row_is_finished(cells) for cells in posts) else None
+    return {"rows": []} if await visible(page.get_by_text(X_SCHEDULE_EMPTY, exact=True)) else None
+
+
+async def x_schedule_baseline(page, post_text, schedule):
+    """How many rows already look like this post, read before anything of its own could be there. None if the page won't say."""
+    await page.goto(X_SCHEDULE_PAGE, wait_until="domcontentloaded", timeout=60000)
+    read = await look_until(page, lambda: x_schedule_read(page), X_SCHEDULE_SECONDS * 1000)
+    await risk_check(page)
+    if not read:
+        return None
+    return sum(x_row_has_words(cells, x_words(post_text)) and x_row_has_schedule(cells, schedule) for cells in read["rows"])
+
+
+async def verify_scheduled_x(page, identity, receipt):
+    """A scheduled post has no address until it goes out. Before its time, a field read found its row on Studio's schedule page shows its words, date and time, and that it has a video, in that
+    order, with no ID or link. A review showed a row already there would pass for it, so it only counts if the read before the upload found none like it. One such row settles that it's scheduled.
+    It can't say which video, which is why the final press is tied to the file's own, and an identical row added by someone else since that read would pass too.
+    After its time, one new post with exactly its words, at about that time, showing the video Media Studio numbered, settles it. Without that number it is named as a candidate for a person to check."""
+    moment = datetime.fromisoformat(receipt["schedule"]["at"])
+    if datetime.now(timezone.utc) >= moment:
+        words = x_words(receipt.get("expected_text") or receipt["title"])
+        await works(page, "x", identity)  # Opens the account's page and waits for its posts.
+        def fresh(post):
+            return post["id"] not in receipt.get("before_ids", []) and x_words(post["text"] or "") == words
+        matches = [post for post in await x_own_posts_with_players(page, identity, fresh) if fresh(post) and post["has_video"] and posted_around(post, moment)]
+        if len(matches) != 1:
+            return {**receipt, "state": "SUBMITTED_UNVERIFIED", "phase": "readback_pending", "note": f"Its time has passed and {len(matches)} posts on the first page match it exactly. Inspect the account; do not post again."}
+        address = work_url("x", identity, matches[0]["id"])
+        media = re.search(r"/library/\d+_(\d+)/", receipt.get("media_url") or "")
+        if not media or matches[0].get("media_id") != media[1]:
+            return {**receipt, "state": "SUBMITTED_UNVERIFIED", "phase": "readback_pending", "candidate_id": matches[0]["id"], "candidate_url": address,
+                    "note": "One new post has its exact words at about its time, but nothing here proves it carries this video. Check that post; do not post again."}
+        return await verify(page, "x", identity, {**receipt, "id": matches[0]["id"], "url": address})
+    await page.goto(X_SCHEDULE_PAGE, wait_until="domcontentloaded", timeout=60000)
+    words = x_words(receipt.get("expected_text") or receipt["title"])
+
+    # Another post's unfinished row doesn't stop this one being read: only the read before the upload needs them all.
+    async def rows_with_its_words():
+        return [cells for cells in await x_schedule_rows(page) or [] if x_row_has_words(cells, words)]
+    rows = await look_until(page, rows_with_its_words, X_SCHEDULE_SECONDS * 1000)
+    await risk_check(page)
+    matching = [cells for cells in rows if x_row_has_schedule(cells, receipt["schedule"])]
+    before = receipt.get("schedule_rows_before")
+    found = {"visibility": "scheduled", "review_url": X_SCHEDULE_PAGE, "verified_at": now(), "schedule_rows_with_its_words": len(rows), "schedule_rows_matching": len(matching)}
+    if len(matching) == 1 and type(before) is int and before == 0:
+        return {**receipt, **found, **X_SCHEDULED}
+    return {**receipt, **found, "state": "SUBMITTED_UNVERIFIED", "phase": "readback_pending", "verification_source": "studio_schedule_page",
+            "note": f"Studio's schedule page shows {len(rows)} row(s) with exactly its words, and {len(matching)} with its date and time and a video. Before the upload it showed {before if type(before) is int else 'an unknown number'} like that. One new row was expected, so check them there. Do not post again."}
+
+
+def posted_around(post, moment):
+    """X publishes a scheduled post within minutes of its time. A post with no readable time is not evidence."""
+    try:
+        return timedelta(minutes=-1) <= datetime.fromisoformat(str(post.get("published_at")).replace("Z", "+00:00")) - moment <= timedelta(minutes=30)
+    except (ValueError, TypeError):
+        return False
 
 
 async def verify(page, platform, identity, receipt):
     if receipt.get('identity') and receipt['identity'].casefold() != identity.casefold():
         raise VpubError('wrong_account', 'Original receipt belongs to another signed-in account.')
+    if platform == 'x' and receipt.get('schedule') and not receipt.get('id'):
+        return await verify_scheduled_x(page, identity, receipt)
     if not receipt.get('id') and receipt.get('final_submit_attempted') and 'before_ids' in receipt:
         found = await works(page, platform, identity)
-        matches = [v for k,v in found.items() if k not in receipt['before_ids'] and
-                   receipt.get('title') and normalize(receipt['title']) in normalize(v['text'])]
+        if platform == 'x':
+            matches = await x_new_posts(page, identity, receipt, wait_for_player=True)
+        else:
+            matches = douyin_new_works(platform, receipt, [v for k,v in found.items() if k not in receipt['before_ids'] and
+                                                         receipt.get('title') and normalize(receipt['title']) in normalize(v['text'])])
         if len(matches) == 1:
             receipt = {**receipt, 'id':matches[0]['id'], 'url':matches[0]['url']}
+            if platform == 'x':
+                receipt['discovery_source'] = matches[0]['discovery_source']
+    if platform == "youtube" and not receipt.get("id") and receipt.get("draft_id"):
+        # A final Save that outlasted its wait left only the upload's own ID, which is the video's ID,
+        # and the video may have been saved since. Only a full read-back gives the receipt that ID.
+        checked = await verify_youtube(page, {**receipt, "id": receipt["draft_id"]})
+        if checked["state"] == "SUBMISSION_VERIFIED":
+            return checked
+        return {**{key: value for key, value in checked.items() if key not in ("id", "url")},
+                **{key: receipt[key] for key in ("id", "url") if key in receipt}}
     if not receipt.get("id"):
-        if platform == 'douyin' and receipt.get('title'):
-            cards = page.locator('[class^="video-card-content-"]').filter(has_text=receipt['title'])
-            if await cards.count() == 1 and '审核中' in await cards.inner_text():
-                return {**receipt, 'state':'SUBMITTED_UNVERIFIED', 'phase':'platform_review',
-                        'platform_status':'UNDER_REVIEW', 'review_url':MANAGE, 'error':None,
-                        'note':'Matching submitted card is under platform review; verify later, never reupload.'}
+        if receipt.get("final_submit_attempted") is False and not receipt.get("final_presses"):
+            # Nothing was pressed, so there is nothing of it to find. A field run's verify called such an attempt SUBMITTED_UNVERIFIED,
+            # after which every way forward refused it: run again skipped it, delete needed a verified post, and verify could never find one.
+            # Only a receipt that says so counts: one with no word on it at all proves nothing, and stays unconfirmed below.
+            return {**receipt, "state": "PREPARATION_INCOMPLETE", "platform_writes": 0,
+                    "note": "This attempt stopped before its final press, so nothing was submitted. vpub resume picks it up again and never presses twice."}
+        if platform == 'douyin' and await douyin_scheduled_card(page, receipt):
+            return {**receipt, **DOUYIN_SCHEDULED, 'verified_at': now()}
+        if platform == 'douyin' and receipt.get('title') and await douyin_card_under_review(page, receipt['title']):
+            return {**receipt, 'state':'SUBMITTED_UNVERIFIED', 'phase':'platform_review',
+                    'platform_status':'UNDER_REVIEW', 'review_url':MANAGE, 'error':None,
+                    'note':'Matching submitted card is under platform review; verify later, never reupload.'}
         return {**receipt, "state": "SUBMITTED_UNVERIFIED", "note": "No durable work ID; inspect the original work, never reupload automatically."}
+    if platform == "youtube":
+        return await verify_youtube(page, receipt)
     url = work_url(platform, identity, receipt["id"])
     owned = None
     if platform == 'instagram':
@@ -212,31 +1158,64 @@ async def verify(page, platform, identity, receipt):
         found = await works(page, platform, identity)
         present = str(receipt["id"]) in found
     else:
-        await page.goto(url, wait_until="domcontentloaded", timeout=60000)
+        # A field run found a Reel's own address goes on to its viewer, which has no caption to read, while /p/ shows the same post with one.
+        await page.goto(f"https://www.instagram.com/p/{receipt['id']}/" if platform == 'instagram' else url, wait_until="domcontentloaded", timeout=60000)
         if platform == 'x':
             try:
-                await page.locator('[data-testid="tweetText"]').filter(has_text=receipt.get('title','')).first.wait_for(timeout=20000)
+                await post_row(page, receipt['id']).first.wait_for(timeout=20000)
             except Exception:
                 pass
-        else:
-            await page.wait_for_timeout(4000)
+        expected = receipt.get("expected_text")
+        if platform == "instagram":
+            # Everything read below, as soon as all of it shows. A page that never shows it gets the same four seconds.
+            async def shown():
+                return (await visible(page.locator('a[href="/'+identity+'/"]')) and await visible(page.locator('video'))
+                        and (not expected or await instagram_caption_says(page, identity, expected)))
+            await look_until(page, shown, 4000)
         await risk_check(page)
         present = str(receipt["id"]) in await links(page, platform, identity)
         if platform == "instagram":
             # An arbitrary video/player or the browser address is not evidence.
             author = await visible(page.locator('a[href="/'+identity+'/"]'))
-            present = bool(owned and author and await visible(page.locator('video')) and
-                           urlsplit(page.url).path.rstrip('/').endswith('/'+receipt['id']))
-        expected = receipt.get("expected_text")
-        if expected:
-            actual = normalize(await page.locator("body").inner_text())
-            present = present and normalize(expected) in actual
+            present = bool(owned and author and await visible(page.locator('video')) and instagram_address_is(page.url, identity, receipt['id']))
+        if expected and platform == "instagram":
+            present = present and await instagram_caption_says(page, identity, expected)
+        elif expected:
+            said = x_words if platform == "x" else normalize
+            present = present and said(expected) in said(await page.locator("body").inner_text())
+        if platform == 'x' and present and receipt.get('final_submit_attempted'):
+            present = await x_post_reads_as_this_upload(page, receipt)
     if platform == 'douyin' and receipt.get('expected_text'):
         present = present and receipt['expected_text'] in found.get(str(receipt['id']), {}).get('text', '')
-    return {**receipt, "url": url, "state": "SUBMISSION_VERIFIED" if present else "SUBMITTED_UNVERIFIED",
-            'phase':'complete' if present else 'readback_pending', 'error':None if present else receipt.get('error'),
-            "verification_source": "independent_browser_dom", "verified_at": now(),
-            "note": "Work and expected text verified on the signed-in page; cover pixels and anonymous playback are separate." if present else "Expected work/text not yet verified; do not upload again."}
+    if platform == 'douyin' and present and receipt.get('visibility') == 'private' and 'expected_caption' in receipt:
+        # Its card and its edit page are all there is to compare, so the whole text has to be right.
+        present = type(receipt['id']) is str and douyin_card_words(found[receipt['id']]['text']) in douyin_card_says(receipt.get('title') or '', receipt['expected_caption'])
+    if platform == 'douyin' and present and receipt.get('schedule') and datetime.now(timezone.utc) < datetime.fromisoformat(receipt['schedule']['at']):
+        # Before its time, only the work showing that time proves the schedule took, rather than it having gone out already.
+        present = receipt['schedule']['stamp'] in found.get(str(receipt['id']), {}).get('text', '')
+    note = "Work and expected text verified on the signed-in page; cover pixels and anonymous playback are separate."
+    if platform == 'x' and receipt.get('discovery_source') == X_DISCOVERY_SOURCE:
+        note = ("One fresh own video post matches the bound native attempt and exact text. This is correlation, not independent verification of posted video bytes; "
+                "an identical external concurrent post cannot be excluded. Cover pixels and anonymous playback are separate.")
+    result = {**receipt, "url": url, "state": "SUBMISSION_VERIFIED" if present else "SUBMITTED_UNVERIFIED",
+              'phase':'complete' if present else 'readback_pending', 'error':None if present else receipt.get('error'),
+              "verification_source": "independent_browser_dom", "verified_at": now(),
+              "note": note if present else "Expected work/text not yet verified; do not upload again."}
+    if platform == 'douyin':
+        # Read again each time from the work's own card. A field run's UNDER_REVIEW, written when it was submitted, stayed for
+        # four hours after the work was public, and on a record whose work had been deleted by hand, because nothing rewrote it.
+        # With no title there's no card to tell it by, and a card that can't be read says nothing either way.
+        result.pop('platform_status', None)
+        from patchright.async_api import Error as BrowserError
+        try:
+            reviewing = bool(receipt.get('title')) and await douyin_card_under_review(page, receipt['title'])
+        except BrowserError:
+            reviewing = False
+        if reviewing:
+            result['platform_status'] = 'UNDER_REVIEW'
+            result['note'] = ("The work is there with its expected text, and Douyin still marks it as under review (审核中)." if present else
+                              "Douyin still marks this work as under review (审核中), so it can't be checked yet. Run vpub verify again later; do not upload again.")
+    return result
 
 
 async def execute(page, platform, identity, payload):
@@ -252,12 +1231,15 @@ async def execute(page, platform, identity, payload):
         return await complete_pending_chapters(page,platform,identity,result)
     if action not in {"publish", "resume"}:
         raise VpubError("unsupported_action", "Use status, works, publish or verify.")
-    tx = Transaction(platform, identity, payload["plan"], resume=action == 'resume')
+    tx = Transaction(platform, identity, payload["plan"], resume=action == 'resume', prior_receipt=payload.get('prior_receipt'))
     if tx.receipt['final_submit_attempted']:
         result=await verify(page, platform, identity, tx.receipt)
-        return tx.save(**await complete_pending_chapters(page,platform,identity,result))
-    if action == 'resume' and tx.receipt['media_selected'] and platform != 'x':
-        raise VpubError('inspect_existing_draft', 'An upload already started. Resume requires inspecting that existing draft; uploading again is prohibited.')
+        # The read-back has just shown nothing went public, and the video is already there, so finishing it can't make a second one.
+        if not (action == 'resume' and result.get('still_a_draft')):
+            return tx.save(**await complete_pending_chapters(page,platform,identity,result))
+        tx.save(**result)
+    for stale in ('hint', 'blocked_phase'):
+        tx.receipt.pop(stale, None)
     tx.save(state='PREPARING', error=None, user_action_required=False)
     try:
         tx.validate_assets()
@@ -265,28 +1247,29 @@ async def execute(page, platform, identity, payload):
         result=await getattr(browser_forms, "publish_" + platform)(page, tx)
         return tx.save(**await complete_pending_chapters(page,platform,identity,result))
     except Exception as e:
-        # Local diagnostics are deliberately outside the repository. No cookies,
-        # form values, private URLs or raw page source are included in stdout.
+        # Local diagnostics, deliberately outside the repository.
         debug = home() / 'browser-debug' / (payload['plan']['confirmation']+'-'+platform)
         debug.mkdir(parents=True, exist_ok=True)
         try:
-            await page.screenshot(path=str(debug/'last-page.png'))
-            controls = await page.locator('button,input,textarea,[contenteditable=true]').evaluate_all("es=>es.map(e=>({tag:e.tagName,type:e.type,placeholder:e.getAttribute('placeholder'),label:e.getAttribute('aria-label'),text:e.tagName==='BUTTON'?e.innerText:null}))")
-            atomic_json(debug/'controls.json', controls)
+            await failure_record(page, e, debug/'failure.json', picture=debug/'last-page.png')
         except Exception:
             pass
         human = isinstance(e, VpubError) and e.code in {"human_verification_required", "auth_expired"}
         state = "WAITING_FOR_USER" if human else "UNKNOWN" if tx.receipt["final_submit_attempted"] else "PREPARATION_INCOMPLETE"
+        # This waits on a person's choice too, though no check of the account was asked for: turning the thumbnail on, or going without it.
+        chooses = human or (isinstance(e, VpubError) and e.code == "cover_unavailable")
         return tx.save(state=state, blocked_phase=tx.receipt['phase'], phase="blocked", review_url=page.url,
                        error={"code": e.code if isinstance(e, VpubError) else "browser_step_failed",
-                              "message": e.message if isinstance(e, VpubError) else type(e).__name__},
-                       user_action_required=human,
-                       hint="Inspect the existing draft/work. Progress is saved; no automatic upload or submit retry.")
+                              "message": e.message if isinstance(e, VpubError) else failure_message(e)},
+                       user_action_required=chooses,
+                       hint="Progress is saved here. Whether the platform kept a draft isn't known, so look there before running it again. Nothing is uploaded or submitted again automatically.")
 
 
 async def complete_pending_chapters(page,platform,identity,receipt):
     pending=receipt.get('pending_chapters')
     if platform!='douyin' or not pending or receipt.get('chapters_state')=='VERIFIED': return receipt
+    # An error is only this run's: a field run read a last run's TimeoutError, kept beside PENDING_WORK_ID, as a new one.
+    receipt={key:value for key,value in receipt.items() if key not in {'chapters_error','chapters_error_message'}}
     if not receipt.get('id') or receipt.get('state')!='SUBMISSION_VERIFIED':
         return {**receipt,'chapters_state':'PENDING_WORK_ID','next':'Run vpub verify for this receipt after platform review; chapters are not yet applied.'}
     from .browser_edits import execute as edit
@@ -300,5 +1283,9 @@ async def complete_pending_chapters(page,platform,identity,receipt):
             'patch':{**pending,'expected_identity':identity},'edit_receipt_path':str(path)})
         return {**receipt,'chapters_state':'VERIFIED' if result['state']=='EDIT_VERIFIED' else 'SAVE_UNVERIFIED','chapters_receipt':result}
     except Exception as exc:
+        # The words go with the code: a field run's three tries each left only TimeoutError, which says nothing about where it stopped.
+        waiting=isinstance(exc,VpubError) and exc.code=='not_public_yet'
         return {**receipt,'chapters_state':'INCOMPLETE','chapters_error':exc.code if isinstance(exc,VpubError) else type(exc).__name__,
-                'next':'The video exists. Fix/retry only the chapter step; do not upload the video again.'}
+                'chapters_error_message':exc.message if isinstance(exc,VpubError) else failure_message(exc),
+                'next':'Douyin is still reviewing this video. Run vpub verify for this receipt once it is public, and its chapters go on then. Never upload it again.' if waiting
+                       else 'The video exists. Fix/retry only the chapter step; do not upload the video again.'}

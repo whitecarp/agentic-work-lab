@@ -1,9 +1,13 @@
 """Bounded official-page discovery and fresh per-work management proof."""
 import re
 from urllib.parse import urlsplit
+from . import x_pages
 from .core import VpubError, stop_check
 from .browser_runtime import risk_check, unique_visible
-from .browser_backends import MANAGE, links, work_url
+from .browser_backends import MANAGE, douyin_card_id, douyin_card_is_waiting, douyin_card_status, douyin_editor_address, links, work_url
+from .browser_edits import douyin_fields
+
+EMPTY_LIST = re.compile(r'暂无作品|暂无内容|No posts yet|hasn.t posted', re.I)
 
 
 async def scan(page, platform, identity, limit, pages):
@@ -15,6 +19,11 @@ async def scan(page, platform, identity, limit, pages):
     for index in range(pages):
         stop_check(platform); await risk_check(page)
         await page.wait_for_timeout(2000 if index else 4000)
+        if platform=='douyin' and not index:
+            # The creator list fills in some time after the page shows.
+            for _ in range(20):
+                if await page.locator('[class^="info-title-text-"]').count() or EMPTY_LIST.search(await page.locator('body').inner_text()): break
+                await page.wait_for_timeout(1000)
         before=len(rows)
         # Scope link extraction to the authenticated account profile, not recommendation rails.
         found=await links(page,platform,identity)
@@ -28,15 +37,10 @@ async def scan(page, platform, identity, limit, pages):
             for title in (await titles.all())[:max(0,limit-len(rows))]:
                 text=await title.inner_text()
                 card=title.locator('xpath=ancestor::div[starts-with(@class,"video-card-content-")]')
-                if re.search('审核中|定时发布',await card.inner_text()): omitted+=1; continue
-                async with page.expect_popup(timeout=15000) as opened: await title.click()
-                detail=await opened.value
-                try:
-                    await detail.wait_for_url(re.compile(r'/work-detail/\d+'),timeout=15000)
-                    u=urlsplit(detail.url); match=re.fullmatch(r'/creator-micro/work-management/work-detail/(\d+)',u.path)
-                    if u.hostname=='creator.douyin.com' and match:
-                        k=match[1]; rows[k]={'id':k,'text':text,'url':work_url(platform,identity,k)}
-                finally: await detail.close()
+                if douyin_card_is_waiting(await douyin_card_status(card)): omitted+=1; continue
+                k=await douyin_card_id(page,title,card)
+                if not k: omitted+=1; continue
+                rows[k]={'id':k,'text':text,'url':work_url(platform,identity,k)}
         if len(rows)>=limit: reason='item_budget'; break
         if index+1>=pages: break
         stalled=stalled+1 if len(rows)==before else 0
@@ -55,11 +59,23 @@ async def scan(page, platform, identity, limit, pages):
         if not moved: reason='no_visible_continuation'; break
     if not rows:
         body=await page.locator('body').inner_text()
-        if not re.search(r'暂无作品|暂无内容|No posts yet|hasn.t posted',body,re.I):
+        if not EMPTY_LIST.search(body):
             raise VpubError('works_layout_unverified','No verified works or explicit empty state; discovery is incomplete.')
     return {'identity':identity,'items':list(rows.values())[:limit],'pages_read':index+1,
             'complete':False,'next_cursor':None,'stop_reason':reason,'omitted_cards':omitted,
             'source':'official_profile_or_creator_list','platform_writes':0}
+
+
+async def douyin_title(page,work):
+    """A card's title node goes on to hold the caption, so a work's title alone comes from its edit page. Covers and chapters compare it, and refuse a work with none on record."""
+    from patchright.async_api import Error as BrowserError
+    try:
+        box,_=await douyin_fields(page,douyin_editor_address(work),work)
+        return await box.input_value() or None
+    except BrowserError: return None
+    except VpubError as failure:
+        if failure.code not in {'layout_changed','wrong_work'}: raise
+        return None
 
 
 async def execute(page,platform,identity,payload):
@@ -72,13 +88,13 @@ async def execute(page,platform,identity,payload):
         result=await scan(page,platform,identity,200,payload['pages'])
         matches=[v for v in result['items'] if v['id']==work]
         if len(matches)!=1: raise VpubError('owner_unverified','Work not found in this account’s bounded creator list; increase --pages if needed.')
-        title=matches[0].get('text'); evidence='authenticated_creator_card_and_exact_detail_id'
+        title=await douyin_title(page,work); evidence='authenticated_creator_card_and_exact_work_id'
     else:
         from .operations_browser import open_work, x_root
         await open_work(page,platform,identity,work)
         if platform=='x':
-            root=await x_root(page,identity,work)
-            if not await root.locator(f'[data-testid="User-Name"] a[href="/{identity}"]').count():
+            post=await x_pages.post_fields(await x_root(page,identity,work))
+            if not post or post['id']!=work or post['author'].casefold()!=identity.casefold():
                 raise VpubError('owner_unverified','Exact post author was not verified.')
             evidence='exact_post_permalink_and_author'
         else:

@@ -1,8 +1,9 @@
 """Offline contract tests. These do not establish live platform compatibility."""
-import copy
+import io
 import json
 import os
 from pathlib import Path
+import sys
 import tempfile
 import unittest
 from unittest.mock import patch
@@ -14,14 +15,21 @@ from video_publisher.core import (Ledger, VpubError, atomic_json, home, load_pla
 
 class WorkflowTests(unittest.TestCase):
     def setUp(self):
+        tool = patch("video_publisher.rehearsal.shutil.which", return_value="ffmpeg.exe")
+        tool.start()
+        self.addCleanup(tool.stop)
+        runs = patch("video_publisher.rehearsal.ffmpeg_problem", return_value=None)
+        runs.start()
+        self.addCleanup(runs.stop)
         self.temp = tempfile.TemporaryDirectory()
         self.root = Path(self.temp.name)
         self.env = patch.dict(os.environ, {"VPUB_HOME": str(self.root / "runtime")})
         self.env.start()
         self.video = self.root / "complete.mp4"
-        self.video.write_bytes(b"synthetic test fixture, not a playable upload")
+        self.video.write_bytes(b"\x00\x00\x00\x18ftypisom\x00\x00\x00\x00isommp42")  # Container header, not a playable upload.
         self.manifest = self.root / "publish.json"
         self.value = cli.template(self.video)
+        self.value["title"] = "Workflow fixture"
         self.value["platforms"]["youtube"]["category_id"] = "1"  # Explicit synthetic fixture choice.
         self.save()
 
@@ -42,7 +50,7 @@ class WorkflowTests(unittest.TestCase):
 
     def native_job(self, platform="youtube"):
         plan = self.plan([platform])
-        result = cli.publish_plan(plan, plan["confirmation"])["results"][platform]
+        result = cli.publish_plan(plan, plan["confirmation"], reviewed=True)["results"][platform]
         self.assertEqual("WAITING_FOR_BROWSER", result["state"])
         return result["key"]
 
@@ -132,10 +140,13 @@ class WorkflowTests(unittest.TestCase):
                 saved = native_browser.record(key, path)
                 self.assertEqual("DRAFT_SAVED", saved["state"])
                 self.assertFalse(saved["published"])
-                self.assertEqual("SKIPPED_EXISTING", cli.publish_plan(plan, plan["confirmation"])["results"][platform]["state"])
+                self.assertEqual("SKIPPED_EXISTING", cli.publish_plan(plan, plan["confirmation"], reviewed=True)["results"][platform]["state"])
                 self.code("wrong_account", native_browser.authorize_publish, key, "wrong")
                 snapshot = native_browser.request(key)["plan"]["video"]
-                authorization = native_browser.authorize_publish(key, identity)
+                waiting = native_browser.authorize_publish(key, identity)
+                self.assertEqual('NEEDS_A_PERSON', waiting['state'])
+                self.assertFalse(native_browser.request(key)['final_submission_allowed'])
+                authorization = native_browser.authorize_publish(key, identity, waiting['confirmation'], person_approved=True)
                 self.assertTrue(authorization["final_submission_allowed"])
                 self.assertFalse(authorization["can_begin"])
                 self.assertEqual(0, authorization["platform_writes"])
@@ -151,19 +162,22 @@ class WorkflowTests(unittest.TestCase):
         self.value["platforms"] = {"douyin": {"method": "native", "visibility": "private", "ai_generated": True,
                                              "submission_mode": "draft_only"}}
         self.save()
-        self.code("invalid_manifest", self.plan)
+        self.code("invalid_submission_mode", self.plan)
 
     def test_init_draft_only_is_explicit_and_scoped(self):
         output = self.root / "draft-init.json"
         args = cli.parser().parse_args(["init", "--video", str(self.video), "--out", str(output),
                                        "--platforms", "instagram,x", "--draft-only"])
         cli.execute(args)
+        value = read_json(output)
+        value["title"] = "Draft fixture"
+        atomic_json(output, value)
         plan = load_plan(output)
         self.assertTrue(all(o["submission_mode"] == "draft_only" for o in plan["platforms"].values()))
-        args.out = str(self.root / "invalid-init.json")
-        args.platforms = "youtube,x"
-        self.code("invalid_submission_mode", cli.execute, args)
-        self.assertFalse(Path(args.out).exists())
+        args.out = str(self.root / "other-init.json")
+        args.platforms = "douyin,bilibili"
+        cli.execute(args)
+        self.assertTrue(all(o["submission_mode"] == "draft_only" for o in read_json(args.out)["platforms"].values()))
 
     def test_retry_requires_rejection_and_fresh_matching_absence_evidence(self):
         self.value["platforms"] = {"instagram": {"method":"native", "visibility":"account", "ai_generated":True, "expected_identity":"demo"}}
@@ -247,7 +261,8 @@ class WorkflowTests(unittest.TestCase):
     def test_concurrent_lock_refused(self):
         with publication_lock():
             self.code("busy", lambda: publication_lock().__enter__())
-        self.assertFalse((home() / "publisher.lock").exists())
+        from video_publisher.process_lock import released
+        self.assertTrue(released(read_json(home() / "publisher.lock")))
 
     def test_atomic_claim_same_video(self):
         a, b = Ledger(), Ledger()
@@ -263,8 +278,8 @@ class WorkflowTests(unittest.TestCase):
         self.save()
         plan = self.plan(["bilibili"])
         with patch.object(adapters, "preflight", return_value={"identity": "test"}), patch.object(adapters, "publish", side_effect=TimeoutError) as upload:
-            first = cli.publish_plan(plan, plan["confirmation"])
-            second = cli.publish_plan(plan, plan["confirmation"])
+            first = cli.publish_plan(plan, plan["confirmation"], reviewed=True)
+            second = cli.publish_plan(plan, plan["confirmation"], reviewed=True)
             self.assertEqual("UNKNOWN", first["results"]["bilibili"]["state"])
             self.assertEqual("SKIPPED_EXISTING", second["results"]["bilibili"]["state"])
             self.assertEqual(1, upload.call_count)
@@ -275,7 +290,7 @@ class WorkflowTests(unittest.TestCase):
             checkpoint({"state": "SUBMITTED", "id": "BV1234567890"})
             raise TimeoutError
         with patch.object(adapters, "preflight", return_value={}), patch.object(adapters, "publish", side_effect=fail):
-            r = cli.publish_plan(plan, plan["confirmation"])["results"]["bilibili"]
+            r = cli.publish_plan(plan, plan["confirmation"], reviewed=True)["results"]["bilibili"]
             self.assertEqual("BV1234567890", r["id"])
             self.assertEqual("SUBMITTED_UNVERIFIED", r["state"])
 
@@ -284,7 +299,7 @@ class WorkflowTests(unittest.TestCase):
         atomic_json(home() / "browser-receipts" / (plan["confirmation"] + "-youtube.json"),
                     {"state": "SUBMITTED", "id": "abcdefghijk", "method": "browser"})
         with patch.object(adapters, "publish", side_effect=TimeoutError):
-            r = cli.publish_plan(plan, plan["confirmation"])["results"]["youtube"]
+            r = cli.publish_plan(plan, plan["confirmation"], reviewed=True)["results"]["youtube"]
         self.assertEqual("abcdefghijk", r["id"])
         self.assertEqual("SUBMITTED_UNVERIFIED", r["state"])
 
@@ -295,7 +310,7 @@ class WorkflowTests(unittest.TestCase):
                 raise TimeoutError
             return {"state": "SUBMISSION_VERIFIED", "id": platform}
         with patch.object(adapters, "preflight", return_value={}), patch.object(adapters, "publish", side_effect=publish):
-            r = cli.publish_plan(plan, plan["confirmation"])
+            r = cli.publish_plan(plan, plan["confirmation"], reviewed=True)
         self.assertFalse(r["all_submissions_verified"])
         self.assertEqual("SUBMISSION_VERIFIED", r["results"]["bilibili"]["state"])
         self.assertEqual("SUBMISSION_VERIFIED", r["results"]["douyin"]["state"])
@@ -303,7 +318,7 @@ class WorkflowTests(unittest.TestCase):
     def test_risk_stops_remaining_platforms(self):
         plan = self.plan()
         with patch.object(adapters, "preflight", side_effect=VpubError("captcha_required", "test")), patch.object(adapters, "publish") as upload:
-            r = cli.publish_plan(plan, plan["confirmation"])
+            r = cli.publish_plan(plan, plan["confirmation"], reviewed=True)
             upload.assert_not_called()
         self.assertTrue((home() / "STOP.json").exists())
         self.assertEqual("stopped", r["results"]["youtube"]["code"])
@@ -320,7 +335,7 @@ class WorkflowTests(unittest.TestCase):
         key = self.native_job()
         self.video.write_bytes(b"later render")
         job = native_browser.request(key)
-        self.assertEqual(b"synthetic test fixture, not a playable upload", Path(job["plan"]["video"]).read_bytes())
+        self.assertEqual(b"\x00\x00\x00\x18ftypisom\x00\x00\x00\x00isommp42", Path(job["plan"]["video"]).read_bytes())
 
     def test_native_begin_is_single_use(self):
         key = self.native_job()
@@ -380,12 +395,13 @@ class WorkflowTests(unittest.TestCase):
         cli.execute(cli.parser().parse_args(["init", "--video", str(self.video), "--out", str(out), "--platforms", ",".join(cli.PLATFORMS)]))
         value = read_json(out)
         self.assertNotIn('category_id', value['platforms']['youtube'])
+        value['title'] = 'All platforms fixture'
         value['platforms']['youtube']['category_id'] = '1'
         atomic_json(out, value)
         p = load_plan(out)
         self.assertEqual(5, len(p["platforms"]))
         self.assertEqual("account", p["platforms"]["instagram"]["visibility"])
-        self.assertEqual({'bilibili':'cli','youtube':'api','douyin':'browser','instagram':'browser','x':'browser'},
+        self.assertEqual({'bilibili':'cli','youtube':'browser','douyin':'browser','instagram':'browser','x':'browser'},
                          {k:v['method'] for k,v in p['platforms'].items()})
 
     def test_cli_plan_never_calls_platform(self):
@@ -436,7 +452,7 @@ class WorkflowTests(unittest.TestCase):
         self.save()
         self.code("invalid_tags", self.plan)
         self.value["tags"] = ["AI"]
-        self.value["platforms"]["x"]["method"] = "api"
+        self.value["platforms"]["x"]["method"] = "cli"
         self.save()
         self.code("invalid_method", self.plan)
 
@@ -511,7 +527,154 @@ class WorkflowTests(unittest.TestCase):
         r = native_browser.record(key, path)
         self.assertEqual("AGENT_REPORTED_VERIFIED", r["state"])
         p = self.plan()
-        self.assertEqual("SKIPPED_EXISTING", cli.publish_plan(p, p["confirmation"])["results"]["x"]["state"])
+        self.assertEqual("SKIPPED_EXISTING", cli.publish_plan(p, p["confirmation"], reviewed=True)["results"]["x"]["state"])
+
+    def test_interrupted_snapshot_copy_does_not_block_the_next_publish(self):
+        plan = self.plan(["youtube"])
+        partial = home() / "jobs" / plan["confirmation"] / "video.mp4"
+        partial.parent.mkdir(parents=True)
+        partial.write_bytes(b"synthetic")  # What a copy cut off by Ctrl-C or a full disk leaves behind.
+        result = cli.publish_plan(plan, plan["confirmation"], reviewed=True)["results"]["youtube"]
+        self.assertEqual("WAITING_FOR_BROWSER", result["state"])
+        self.assertEqual(self.video.read_bytes(), partial.read_bytes())
+
+    def test_snapshot_failure_keeps_earlier_results_and_leaves_no_claim(self):
+        plan = self.plan(["bilibili", "youtube"])
+
+        def publish(platform, safe_plan, opts, checkpoint):
+            Path(safe_plan["video"]).unlink()
+            self.video.write_bytes(b"re-rendered while publishing")
+            return {"state": "SUBMISSION_VERIFIED", "id": "BV1234567890"}
+
+        with patch.object(adapters, "preflight", return_value={"identity": "owner"}), \
+                patch.object(adapters, "publish", side_effect=publish):
+            results = cli.publish_plan(plan, plan["confirmation"], reviewed=True)["results"]
+        self.assertEqual("SUBMISSION_VERIFIED", results["bilibili"]["state"])
+        self.assertEqual("NOT_STARTED", results["youtube"]["state"])
+        self.assertEqual("source_changed", results["youtube"]["code"])
+        ledger = Ledger()
+        self.assertEqual(["bilibili"], [row["platform"] for row in ledger.rows()])
+        ledger.close()
+
+    def test_missing_cover_snapshot_never_uses_up_the_attempt(self):
+        cover = self.root / "portrait.jpg"
+        cover.write_bytes(b"cover")
+        self.value["covers"] = {"douyin": {"portrait": "portrait.jpg"}}
+        self.save()
+        plan = self.plan(["douyin"])
+        cover.write_bytes(b"changed after approval")
+        with patch.object(adapters, "publish") as upload:
+            first = cli.publish_plan(plan, plan["confirmation"], reviewed=True)["results"]["douyin"]
+            upload.assert_not_called()
+        self.assertEqual("NOT_STARTED", first["state"])
+        self.assertEqual("source_changed", first["code"])
+        ledger = Ledger()
+        self.assertEqual([], ledger.rows())
+        ledger.close()
+
+    def test_refused_browser_lock_releases_the_claim_so_publish_can_run_again(self):
+        self.value["platforms"]["douyin"]["method"] = "browser"
+        self.save()
+        plan = self.plan(["douyin"])
+        with patch.object(adapters, "preflight", return_value={"identity": "owner"}), \
+                patch.object(adapters, "publish", side_effect=VpubError("browser_busy", "Busy", "Wait.")):
+            first = cli.publish_plan(plan, plan["confirmation"], reviewed=True)["results"]["douyin"]
+        self.assertEqual("NOT_STARTED", first["state"])
+        self.assertEqual("browser_busy", first["code"])
+        with patch.object(adapters, "preflight", return_value={"identity": "owner"}), \
+                patch.object(adapters, "publish", return_value={"state": "SUBMISSION_VERIFIED", "id": "123456789"}) as upload:
+            second = cli.publish_plan(plan, plan["confirmation"], reviewed=True)["results"]["douyin"]
+        self.assertEqual("SUBMISSION_VERIFIED", second["state"])
+        upload.assert_called_once()
+
+    def test_a_file_that_reads_wrong_once_is_named_as_that_and_still_stops(self):
+        """A field run's film read wrong by 10 bytes with the file unchanged."""
+        plan = self.plan(["douyin"])
+        real = cli.file_sha
+        reads = iter(["0" * 64])
+        with patch.object(cli, "file_sha", side_effect=lambda path: next(reads, None) or real(path)), self.assertRaises(VpubError) as caught:
+            cli.check_upload_copy(plan)
+        self.assertEqual("read_unstable", caught.exception.code)
+        self.assertIn("memory", caught.exception.hint)
+
+    def test_a_file_that_really_changed_is_still_called_changed(self):
+        plan = self.plan(["douyin"])
+        self.video.write_bytes(b"re-rendered")
+        with self.assertRaises(VpubError) as caught:
+            cli.check_upload_copy(plan)
+        self.assertEqual("source_changed", caught.exception.code)
+
+    def test_a_first_page_that_never_loaded_releases_the_claim_and_says_nothing_went_up(self):
+        """From a field run: Douyin's first page came back empty before any work on it, and the record then said not to submit again."""
+        self.value["platforms"]["douyin"]["method"] = "browser"
+        self.save()
+        plan = self.plan(["douyin"])
+        hint = "Check network/site availability; no upload or edit was attempted."
+        with patch.object(adapters, "preflight", return_value={"identity": "owner"}), \
+                patch.object(adapters, "publish", side_effect=VpubError("page_not_ready", "Empty page.", hint)):
+            first = cli.publish_plan(plan, plan["confirmation"], reviewed=True)["results"]["douyin"]
+        self.assertEqual(("NOT_STARTED", "page_not_ready", hint), (first["state"], first["code"], first["hint"]))
+        ledger = Ledger()
+        self.assertEqual([], ledger.rows())
+        ledger.close()
+        with patch.object(adapters, "preflight", return_value={"identity": "owner"}), \
+                patch.object(adapters, "publish", return_value={"state": "SUBMISSION_VERIFIED", "id": "123456789"}) as upload:
+            second = cli.publish_plan(plan, plan["confirmation"], reviewed=True)["results"]["douyin"]
+        self.assertEqual("SUBMISSION_VERIFIED", second["state"])
+        upload.assert_called_once()
+
+    def test_an_empty_page_after_a_receipt_exists_stays_on_record(self):
+        self.value["platforms"]["douyin"]["method"] = "browser"
+        self.save()
+        plan = self.plan(["douyin"])
+
+        def part_way(platform, safe_plan, opts, checkpoint):
+            checkpoint({"state": "SUBMITTED", "id": "1234567890"})
+            raise VpubError("page_not_ready", "Empty page.", "Check.")
+        with patch.object(adapters, "preflight", return_value={"identity": "owner"}), patch.object(adapters, "publish", side_effect=part_way):
+            first = cli.publish_plan(plan, plan["confirmation"], reviewed=True)["results"]["douyin"]
+        self.assertEqual(("SUBMITTED_UNVERIFIED", "1234567890"), (first["state"], first["id"]))
+        with patch.object(adapters, "preflight", return_value={"identity": "owner"}), patch.object(adapters, "publish") as upload:
+            again = cli.publish_plan(plan, plan["confirmation"], reviewed=True)["results"]["douyin"]
+        self.assertEqual("SKIPPED_EXISTING", again["state"])
+        upload.assert_not_called()
+
+    def run_cli(self, *arguments):
+        output = io.StringIO()
+        with patch.object(sys, "argv", ["vpub", *arguments]), patch.object(sys, "stdout", output), self.assertRaises(SystemExit) as stopped:
+            cli.main()
+        return stopped.exception.code, json.loads(output.getvalue())
+
+    def test_ordinary_file_mistakes_name_the_problem(self):
+        code, result = self.run_cli("plan", str(self.root / "missing.json"))
+        self.assertEqual(2, code)
+        self.assertEqual("file_not_found", result["error"]["code"])
+        self.assertIn("missing.json", result["error"]["message"])
+        broken = self.root / "broken.json"
+        broken.write_text('{"schema_version": 1,\n oops}')
+        code, result = self.run_cli("plan", str(broken))
+        self.assertEqual(2, code)
+        self.assertEqual("invalid_file", result["error"]["code"])
+        self.assertIn("line 2", result["error"]["message"])
+        code, result = self.run_cli("read-all", "status", "a" * 32)
+        self.assertEqual(2, code)
+        self.assertEqual("paid_feature_required", result["error"]["code"])
+
+    def test_limits_the_browser_routes_enforce_fail_at_plan_time(self):
+        self.value["platforms"] = {"x": {"method": "browser", "visibility": "account", "ai_generated": False, "title": "x" * 71}}
+        self.save()
+        self.code("invalid_title", self.plan)
+        self.value["platforms"]["x"].update(method="native")
+        self.save()
+        self.assertEqual("native", self.plan()["platforms"]["x"]["method"])
+        self.value["platforms"] = {"instagram": {"method": "browser", "visibility": "account", "ai_generated": False,
+                                                 "description": "a" * 1999, "title": "t" * 100, "tags": [f"tag{i}" for i in range(30)]}}
+        self.save()
+        self.code("invalid_description", self.plan)
+        self.value["platforms"] = {"douyin": {"method": "browser", "visibility": "private", "ai_generated": False,
+                                              "description": "好" * 999, "tags": ["两字"]}}
+        self.save()
+        self.code("invalid_description", self.plan)
 
 
 if __name__ == "__main__":

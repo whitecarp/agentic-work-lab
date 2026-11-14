@@ -5,7 +5,7 @@
 本倉庫 `tools/` 目錄完整收錄三套核心工程套件的原始碼與自動化測試：
 1. **[`tools/ai-memory-keeper/`](../tools/ai-memory-keeper/README.md)**（獨立倉庫 [`whitecarp/ai-memory-keeper`](https://github.com/whitecarp/ai-memory-keeper)）：跨智能體上下文壓縮記憶守護、模型降檔核驗與雙子座星圖網頁工作台。
 2. **[`tools/i-must-use-claude/`](../tools/i-must-use-claude/README.md)**（獨立倉庫 [`whitecarp/I-Must-Use-Claude`](https://github.com/whitecarp/I-Must-Use-Claude)）：面向 Claude 日常協作的四合一 Windows 原生工具箱（環境與 DNS 可逆自檢、即時雙語伴讀翻譯、兩地額度時鐘、≤29 MB 上下文打包器）。
-3. **[`tools/publishops-crosscast/`](../tools/publishops-crosscast/README.md)**（獨立倉庫 [`whitecarp/publishops-crosscast`](https://github.com/whitecarp/publishops-crosscast)）：跨平台影片發布營運台 `vpub`（保留 0.15.1 歷史快照，最新發行版見獨立倉庫）。
+3. **[`tools/publishops-crosscast/`](../tools/publishops-crosscast/README_ZH_TW.md)**（獨立倉庫 [`whitecarp/publishops-crosscast`](https://github.com/whitecarp/publishops-crosscast)）：跨平台影片發布營運台 `vpub`（已同步 **v0.16.0 alpha** 與內建 `bili-cli` 1.2.1；含繁體中文／簡體中文／英文文件）。
 
 本專案採用人類提出需求、Antigravity + Claude + Codex 黃金三角協作編寫、工具驗證與人類審閱的方式。程式能否重跑、失敗時怎麼處理，比單純列出語言或程式碼行數更重要。
 
@@ -37,19 +37,19 @@
 
 ---
 
-## 三、PublishOps CrossCast：跨平台發布與讀取恢復（`tools/publishops-crosscast/`）
+## 三、PublishOps CrossCast：跨平台發布、預演與安全護欄（`tools/publishops-crosscast/` · v0.16.0 alpha）
 
-- [process_lock.py](../tools/publishops-crosscast/src/video_publisher/process_lock.py)：跨程序互斥與確認程序已退出後的鎖標記回收。
-- [browser_session.py](../tools/publishops-crosscast/src/video_publisher/browser_session.py)：透過私有管道復用瀏覽器環境。
-- [upload_resume.py](../tools/publishops-crosscast/src/video_publisher/upload_resume.py)：保存上傳會話並以伺服器進度續傳。
-- [full_read.py](../tools/publishops-crosscast/src/video_publisher/full_read.py) 與 [full_read_browser.py](../tools/publishops-crosscast/src/video_publisher/full_read_browser.py)：API 分頁原子檢查點、完整樓中樓讀取與官方分頁結束標記核驗。
-- [collections.py](../tools/publishops-crosscast/src/video_publisher/collections.py) 與 [collections_browser.py](../tools/publishops-crosscast/src/video_publisher/collections_browser.py)：帳號與 ID 綁定、持久請求、禁止重送及獨立讀回。
-- [read_scheduler.py](../tools/publishops-crosscast/src/video_publisher/read_scheduler.py) 與 [playlists.py](../tools/publishops-crosscast/src/video_publisher/playlists.py)：有界平台並行、獨立檢查點與 YouTube 播放列表 CRUD。
-- [work_catalog.py](../tools/publishops-crosscast/src/video_publisher/work_catalog.py) 與 [operations_runs.py](../tools/publishops-crosscast/src/video_publisher/operations_runs.py)：作品目錄、即時歸屬核驗、帳號隔離快取與中斷恢復。
+- [cli.py](../tools/publishops-crosscast/src/video_publisher/cli.py)、[quick.py](../tools/publishops-crosscast/src/video_publisher/quick.py) 與 [rehearsal.py](../tools/publishops-crosscast/src/video_publisher/rehearsal.py)：`vpub` 命令列入口、一句話快速流程（`prepare`/`go`）與不觸網的 `--dry-run` 預演檢查。
+- [safety.py](../tools/publishops-crosscast/src/video_publisher/safety.py)、[language_policy.py](../tools/publishops-crosscast/src/video_publisher/language_policy.py) 與 [publication_review.py](../tools/publishops-crosscast/src/video_publisher/publication_review.py)：安全護欄（日上限、防連發、預警停機、首次雙因子顯式批准 `--confirm` + `--person-approved`）、各平台繁簡英語言與 AI 宣告檢核，以及發布前計劃審閱。
+- [process_lock.py](../tools/publishops-crosscast/src/video_publisher/process_lock.py)、[browser_broker.py](../tools/publishops-crosscast/src/video_publisher/browser_broker.py)、[browser_runtime.py](../tools/publishops-crosscast/src/video_publisher/browser_runtime.py) 與 [hidden_desktop.py](../tools/publishops-crosscast/src/video_publisher/hidden_desktop.py)：跨程序互斥與鎖回收、專用瀏覽器會話背景復用／隔離執行期，以及 Windows 隱藏桌面執行隔離。
+- [youtube_studio.py](../tools/publishops-crosscast/src/video_publisher/youtube_studio.py)、[youtube_playlists.py](../tools/publishops-crosscast/src/video_publisher/youtube_playlists.py) 與 [x_pages.py](../tools/publishops-crosscast/src/video_publisher/x_pages.py)：YouTube Studio 免費瀏覽器發布與播放清單 CRUD，以及 X（含新版頁面／Media Studio）雙路由適配。
+- [bili_cli/main.py](../tools/publishops-crosscast/src/bili_cli/main.py)、[drafts_bilibili.py](../tools/publishops-crosscast/src/video_publisher/drafts_bilibili.py)、[edits_bilibili.py](../tools/publishops-crosscast/src/video_publisher/edits_bilibili.py) 與 [widgets_bilibili.py](../tools/publishops-crosscast/src/video_publisher/widgets_bilibili.py)：隨附的 `bili-cli` 1.2.1 及 B站草稿、已發布稿件編修與互動組件管理。
+- [collections.py](../tools/publishops-crosscast/src/video_publisher/collections.py)、[collections_browser.py](../tools/publishops-crosscast/src/video_publisher/collections_browser.py) 與 [read_scheduler.py](../tools/publishops-crosscast/src/video_publisher/read_scheduler.py)：跨平台合集／收藏夾管理、有界並行與獨立分頁檢查點。
+- [work_catalog.py](../tools/publishops-crosscast/src/video_publisher/work_catalog.py)、[overview.py](../tools/publishops-crosscast/src/video_publisher/overview.py)、[progress.py](../tools/publishops-crosscast/src/video_publisher/progress.py)、[operations_runs.py](../tools/publishops-crosscast/src/video_publisher/operations_runs.py) 與 [work_delete.py](../tools/publishops-crosscast/src/video_publisher/work_delete.py)：作品認領與數據總覽、進度回報、中斷續傳與單條顯式授權刪稿（YouTube／抖音／Instagram／X 瀏覽器路線；B站不支援）。
 
 ---
 
-## 四、本倉庫根目录可直接執行的工作流腳本
+## 四、本倉庫根目錄可直接執行的工作流腳本
 
 | 程式 | 解決的問題 |
 | --- | --- |

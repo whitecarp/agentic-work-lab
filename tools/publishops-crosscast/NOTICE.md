@@ -1,16 +1,13 @@
-# 第三方來源
+# Notices
 
-**繁體中文** · [English](NOTICE_EN.md)
+PublishOps CrossCast is distributed under the MIT License; see [LICENSE](LICENSE).
 
-本工具為獨立、AI 協助開發的整合實驗，不是下列專案或平台的官方產品；原作者授權保留。
+This is an independent integration project, not an official product of the platforms below. 本项目为独立整合工具，保留第三方授权。此專案為獨立整合工具，保留第三方授權。
 
-- [bili-cli](https://github.com/kukemc/bili-cli)，MIT。透過 `bili-agent==0.7.0` 呼叫，保留其登入、限流與審計。
-- [social-auto-upload](https://github.com/dreammis/social-auto-upload)，MIT，Copyright 2023 dreammis。歷史選配抖音後端固定於 `3847fff01f5434a8a32829833163cd6723cabc59`，只用表單輔助；上游 LICENSE 留在獨立 checkout。
-- [Google API Python Client](https://github.com/googleapis/google-api-python-client)，Apache-2.0；[google-auth-oauthlib](https://github.com/googleapis/google-auth-library-python-oauthlib)，Apache-2.0。用於選配 YouTube API。
-- [Patchright](https://github.com/Kaliiiiiiiiii-Vinyzu/patchright-python)，Apache-2.0。用於抖音／Instagram／X 專用瀏覽器後端，不實作驗證繞過。
+- [`kukemc/bili-cli`](https://github.com/kukemc/bili-cli), MIT, Copyright (c) 2026 bili-cli contributors. A copy of v1.2.1 (commit `1181a8f`) is included unchanged in `src/bili_cli`, with its license in `src/bili_cli/LICENSE`. Its login, rate limits and audit behavior are that code's own. Its viewer-friendly README also informed this project's documentation structure; its artwork was not copied.
+- [`bilibili-api-python`](https://pypi.org/project/bilibili-api-python/), GPL-3.0-or-later. bili-cli needs it. It is installed as a separate dependency, is not included in this repository, and only runs inside the separate `bili` process.
+- [Google API Python Client](https://github.com/googleapis/google-api-python-client) and [google-auth-oauthlib](https://github.com/googleapis/google-auth-library-python-oauthlib), Apache-2.0, used only by the separate paid API add-on.
+- [Patchright](https://github.com/Kaliiiiiiiiii-Vinyzu/patchright-python), Apache-2.0, for the dedicated Douyin, Instagram and X browser backends. This project does not implement verification bypasses.
+- [twitter-text-parser](https://github.com/swen128/twitter-text-python), MIT, for offline X text weighting, a Python port of twitter-text. It is installed as a dependency, with setuptools below 81 for its pkg_resources data loader. Its bundled URL and emoji tables can lag the platform; CrossCast keeps the site's final counter check.
 
-完整直接依賴版本見 [pyproject.toml](pyproject.toml)，各依賴包含自己的授權。
-
-[返回實驗室首頁](../../README.md)
-
-0.3.0 預設瀏覽器路徑不下載或匯入 social-auto-upload，舊適配器保留作為來源記錄。
+All dependencies retain their own licenses; direct versions are listed in [pyproject.toml](pyproject.toml). CrossCast was extracted from [the original project](https://github.com/whitecarp/ai-video-lab); private operation records and account data were not carried into this repository.

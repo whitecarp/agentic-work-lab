@@ -3,7 +3,7 @@ import os
 from pathlib import Path
 import tempfile
 import unittest
-from unittest.mock import MagicMock,patch
+from unittest.mock import patch
 
 from video_publisher import operations as ops, operations_api as api, cli
 from video_publisher.core import atomic_json,home,digest,VpubError,read_json
@@ -31,7 +31,7 @@ class OperationsTests(unittest.TestCase):
             result=ops.reply('youtube','abcdefghijk','comment123','歌名是测试曲目。')
             duplicate=ops.reply('youtube','abcdefghijk','comment123','歌名是测试曲目。')
         self.assertEqual('REPLY_VERIFIED',result['state']);send.assert_called_once()
-        self.assertEqual('歌名是测试曲目。',send.call_args.kwargs['reply_request']['text'])
+        self.assertEqual('歌名是测试曲目。（AI 回复）',send.call_args.kwargs['reply_request']['text'])
         self.assertTrue(duplicate['reused']);self.assertEqual(0,duplicate['platform_writes'])
 
     def test_dry_run_never_dispatches_or_reserves_a_send(self):
@@ -60,7 +60,7 @@ class OperationsTests(unittest.TestCase):
     def test_reply_language_is_independent_of_report_setting(self):
         ops.set_language('en')
         result=ops.reply('youtube','abcdefghijk','comment123','谢谢。',dry_run=True)
-        self.assertEqual('zh',result['language']);self.assertEqual('谢谢。',result['text'])
+        self.assertEqual('zh',result['language']);self.assertEqual('谢谢。（AI 回复）',result['text'])
         with self.assertRaises(VpubError):ops.reply('youtube','abcdefghijk','comment123','Thanks',language='en',dry_run=True)
 
     def test_latin_text_requires_host_language_identification(self):
@@ -81,28 +81,6 @@ class OperationsTests(unittest.TestCase):
         with self.assertRaises(VpubError):ops.work_id('bilibili','--help')
         with self.assertRaises(VpubError):ops.work_id('x','https://x.com/owner/status/123')
 
-    def test_report_counts_unique_comments_and_latest_reply_state(self):
-        for _ in range(2):ops.record('comments','youtube','abcdefghijk',deepcopy(self.snapshot))
-        ops.record('reply','youtube','abcdefghijk',{'reply_key':'k','state':'REPLY_UNVERIFIED'})
-        ops.record('reply_verify','youtube','abcdefghijk',{'reply_key':'k','state':'REPLY_VERIFIED'})
-        zh=ops.report(language='zh');en=ops.report(language='en')
-        self.assertEqual(1,zh['platforms']['youtube']['comments_read'])
-        self.assertEqual(1,zh['platforms']['youtube']['replies_verified'])
-        self.assertEqual(0,zh['platforms']['youtube']['replies_pending'])
-        self.assertIn('回复1条并确认可见',zh['summary']);self.assertIn('verified visibility',en['summary'])
-        self.assertNotIn('点赞',zh['summary']);self.assertNotIn('liked',en['summary'])
-
-    def test_report_defaults_to_saved_user_language(self):
-        ops.set_language('en');self.assertEqual('en',ops.report()['language'])
-        ops.set_language('zh');self.assertEqual('zh',ops.report()['language'])
-        with self.assertRaises(VpubError):ops.report(since='2026-10-30T12:00:00')
-
-    def test_failed_read_is_not_reported_as_empty_success(self):
-        with patch.object(ops,'backend',side_effect=VpubError('comments_unavailable','Denied')):
-            with self.assertRaises(VpubError):ops.observe('youtube','abcdefghijk','comments')
-        result=ops.report(language='zh')
-        self.assertIn('读取未完成',result['summary']);self.assertNotIn('读取0条评论',result['summary'])
-
     def test_parser_keeps_direct_reply_and_optional_preview(self):
         args=cli.parser().parse_args(['comments','reply','youtube','abcdefghijk','comment123','--text','Thanks','--language','en'])
         self.assertFalse(args.dry_run);self.assertEqual('en',args.language)
@@ -120,18 +98,10 @@ class OperationsTests(unittest.TestCase):
     def test_uncertain_self_test_never_posts_a_second_seed(self):
         key=digest(['youtube','abcdefghijk','test-one'])
         atomic_json(home()/'operations/tests'/(key+'.json'),{'platform':'youtube','work_id':'abcdefghijk','state':'TEST_SEED_SUBMITTING'})
-        with patch.object(ops,'backend',return_value={'state':'TEST_SEED_UNVERIFIED'}) as backend:
+        with patch.object(ops,'backend',return_value={'state':'TEST_SEED_UNVERIFIED'}) as backend,patch('video_publisher.adapters.addon_installed',return_value=True):
             result=ops.self_test('youtube','abcdefghijk','test-one')
         self.assertEqual('TEST_SEED_UNVERIFIED',result['state'])
         self.assertEqual('test_seed_verify',backend.call_args.args[1]);backend.assert_called_once()
-
-    def test_reports_exclude_self_test_replies_and_owner_comments(self):
-        snapshot=deepcopy(self.snapshot);snapshot['items'][0]['is_owner']=True
-        ops.record('comments','youtube','abcdefghijk',snapshot)
-        ops.record('reply','youtube','abcdefghijk',{'test':True,'state':'REPLY_VERIFIED','reply_key':'test'})
-        result=ops.report(language='en')['platforms']['youtube']
-        self.assertEqual(0,result['comments_read']);self.assertEqual(0,result['replies_verified'])
-
 
 class MetricsTests(unittest.TestCase):
     def test_missing_is_not_zero_and_units_remain_distinct(self):
@@ -146,67 +116,12 @@ class MetricsTests(unittest.TestCase):
         self.assertIsNone(d['views']['value'])
 
 
-class YouTubeOperationsTests(unittest.TestCase):
-    def setUp(self):
-        self.service=MagicMock()
-        self.service.channels.return_value.list.return_value.execute.return_value={'items':[{'id':'owner'}]}
-        self.service.videos.return_value.list.return_value.execute.return_value={'items':[{'id':'abcdefghijk',
-            'snippet':{'channelId':'owner','title':'Video'},'statistics':{'viewCount':'1','likeCount':'0'}}]}
 
-    def test_stats_do_not_invent_missing_metrics(self):
-        with patch.object(api.adapters,'yt_service',return_value=self.service):r=api.execute('youtube','stats','abcdefghijk')
-        self.assertEqual(1,r['metrics']['views']['value']);self.assertEqual(0,r['metrics']['likes']['value'])
-        self.assertIsNone(r['metrics']['comments']['value']);self.assertIsNone(r['metrics']['completion_percent']['value'])
 
-    def test_foreign_work_fails_before_comment_read(self):
-        self.service.videos.return_value.list.return_value.execute.return_value['items'][0]['snippet']['channelId']='other'
-        with patch.object(api.adapters,'yt_service',return_value=self.service),self.assertRaises(VpubError):
-            api.execute('youtube','comments','abcdefghijk',limit=20)
-        self.service.commentThreads.assert_not_called()
 
-    def test_pagination_is_preserved_and_partial_replies_are_not_all_read(self):
-        self.service.commentThreads.return_value.list.return_value.execute.return_value={'nextPageToken':'next',
-            'items':[{'snippet':{'topLevelComment':{'id':'top','snippet':{'textOriginal':'Question','authorChannelId':{'value':'viewer'}}},'totalReplyCount':3},
-                      'replies':{'comments':[]}}]}
-        with patch.object(api.adapters,'yt_service',return_value=self.service):
-            r=api.execute('youtube','comments','abcdefghijk',limit=10,cursor='previous')
-        self.assertEqual('next',r['next_cursor']);self.assertFalse(r['complete'])
-        self.assertIsNone(r['items'][0]['owner_replied'])
-        self.assertEqual('previous',self.service.commentThreads.return_value.list.call_args.kwargs['pageToken'])
 
-    def test_reply_verification_requires_exact_author_parent_and_text(self):
-        target={'id':'top','snippet':{'videoId':'abcdefghijk','textOriginal':'Question','authorChannelId':{'value':'viewer'}}}
-        wrong={'id':'reply','snippet':{'parentId':'other','textOriginal':'Answer','authorChannelId':{'value':'owner'}}}
-        self.service.comments.return_value.list.return_value.execute.side_effect=[{'items':[target]},{'items':[wrong]}]
-        self.service.commentThreads.return_value.list.return_value.execute.return_value={'items':[{'snippet':{'videoId':'abcdefghijk','topLevelComment':target}}]}
-        req={'expected_identity':'owner','comment':{'id':'top','text':'Question'},'text':'Answer'}
-        with patch.object(api.adapters,'yt_service',return_value=self.service):
-            r=api.execute('youtube','verify_reply','abcdefghijk',reply_request=req,existing_reply={'reply_id':'reply'})
-        self.assertEqual('REPLY_UNVERIFIED',r['state'])
-        self.service.comments.return_value.insert.assert_not_called()
 
-    def test_reply_accepts_comment_without_video_id_but_checks_thread_membership(self):
-        target={'id':'top','snippet':{'textOriginal':'Question','authorChannelId':{'value':'viewer'}}}
-        posted={'id':'new','snippet':{'parentId':'top','textOriginal':'Answer','authorChannelId':{'value':'owner'}}}
-        self.service.comments.return_value.list.return_value.execute.side_effect=[{'items':[target]},{'items':[]},{'items':[target]},{'items':[posted]}]
-        self.service.commentThreads.return_value.list.return_value.execute.return_value={'items':[{'snippet':{'videoId':'abcdefghijk','topLevelComment':target}}]}
-        self.service.comments.return_value.insert.return_value.execute.return_value=posted
-        with tempfile.TemporaryDirectory() as td,patch.dict(os.environ,VPUB_HOME=td),patch.object(api.adapters,'yt_service',return_value=self.service),patch.object(api.adapters,'yt_credentials') as creds:
-            creds.return_value.has_scopes.return_value=True
-            path=Path(td)/'reply.json';atomic_json(path,{'state':'REPLY_READY'})
-            req={'expected_identity':'owner','comment':{'id':'top','text':'Question','thread_id':'thread'},'text':'Answer'}
-            result=api.execute('youtube','reply','abcdefghijk',reply_request=req,reply_receipt_path=str(path))
-            self.assertEqual('REPLY_VERIFIED',result['state'])
-            self.assertEqual('new',read_json(path)['reply_id'])
-        self.service.comments.return_value.insert.assert_called_once_with(part='snippet',body={'snippet':{'parentId':'top','textOriginal':'Answer'}})
 
-    def test_same_channel_other_video_comment_cannot_be_replied_to(self):
-        target={'id':'top','snippet':{'textOriginal':'Question','authorChannelId':{'value':'viewer'}}}
-        self.service.comments.return_value.list.return_value.execute.return_value={'items':[target]}
-        self.service.commentThreads.return_value.list.return_value.execute.return_value={'items':[{'snippet':{'videoId':'other_video','topLevelComment':target}}]}
-        with patch.object(api.adapters,'yt_service',return_value=self.service),self.assertRaises(VpubError):
-            api.execute('youtube','reply','abcdefghijk',reply_request={'expected_identity':'owner','comment':{'id':'top','text':'Question'},'text':'Answer'})
-        self.service.comments.return_value.insert.assert_not_called()
 
 
 class BilibiliOperationsTests(unittest.TestCase):

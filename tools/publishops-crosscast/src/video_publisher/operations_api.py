@@ -1,8 +1,8 @@
-"""Bili CLI and YouTube Data API operations. No automatic translation or likes."""
+"""Bili CLI operations and the shared read session. No automatic translation or likes."""
 from pathlib import Path
 import re
 from . import adapters
-from .core import VpubError, atomic_json, read_json, stop_check
+from .core import VpubError, atomic_json, read_json, reply_pressing, stop_check
 
 from contextlib import contextmanager
 from threading import local
@@ -20,50 +20,8 @@ def read_session():
         _READ.cache=previous
 
 
-def youtube_context(action,work):
-    cache=getattr(_READ,'cache',None) if action in {'comments','stats','replies'} else None
-    cache=cache if cache is not None else {}
-    if 'service' not in cache:
-        service=adapters.yt_service('default')
-        owners=service.channels().list(part='id',mine=True).execute().get('items',[])
-        if len(owners)!=1:raise VpubError('channel_required','Expected one authorized YouTube channel.')
-        cache.update(service=service,identity=owners[0]['id'],works={})
-    service,identity=cache['service'],cache['identity']
-    if work not in cache['works']:
-        works=service.videos().list(part='snippet,statistics,status',id=work).execute().get('items',[])
-        if len(works)!=1 or works[0]['snippet']['channelId']!=identity:
-            raise VpubError('wrong_work','This work does not belong to the signed-in YouTube channel.')
-        cache['works'][work]=works[0]
-    return service,identity,cache['works'][work]
-
-
-def youtube_account():
-    cache = getattr(_READ, 'cache', None)
-    if cache is None:
-        cache = {}
-    if 'service' not in cache:
-        service = adapters.yt_service('default')
-        owners = service.channels().list(part='id,contentDetails',mine=True).execute().get('items',[])
-        if len(owners) != 1:
-            raise VpubError('channel_required','Expected one authorized YouTube channel.')
-        cache.update(service=service,identity=owners[0]['id'],works={},channel=owners[0])
-    if 'channel' not in cache:
-        owners=cache['service'].channels().list(part='id,contentDetails',mine=True).execute().get('items',[])
-        if len(owners)!=1 or owners[0]['id']!=cache['identity']:
-            raise VpubError('wrong_account','YouTube account changed during pagination.')
-        cache['channel']=owners[0]
-    return cache['service'],cache['channel']
-
-
 def metric(value, label, unit='count'):
     return {'value':value,'label':label,'unit':unit,'availability':'observed' if value is not None else 'unavailable'}
-
-
-def _yt_comment(c, owner, parent=None):
-    s=c['snippet'];author=s.get('authorChannelId',{}).get('value')
-    return {'id':c['id'],'parent_id':s.get('parentId') or parent,'text':s.get('textOriginal',s.get('textDisplay','')),
-            'author':s.get('authorDisplayName'),'author_id':author,'published_at':s.get('publishedAt'),
-            'likes':s.get('likeCount'),'is_owner':author==owner,'owner_replied':None,'moderation_status':s.get('moderationStatus')}
 
 
 def _bili_comment(c, owner):
@@ -74,120 +32,38 @@ def _bili_comment(c, owner):
             'thread_id':str(c.get('root') or c['rpid']),'reply_count':c.get('reply_count')}
 
 
+def preview_text(*parts):
+    return '\n'.join(str(part) for part in parts if part)
+
+
+def bilibili_source(kind, identity, limit):
+    """Bilibili @ mentions or conversation previews for the local message inbox. Read-only."""
+    if kind == 'mentions':
+        data=adapters.bili(['feed','mentions','--limit',str(limit)])
+        items=[]
+        for r in data.get('items',[]):
+            if r.get('id') is None:continue
+            who,on=r.get('user') or {},r.get('on') or {}
+            # The text says who wrote, like the other platforms' previews. A mention in a post has no text of its own, so say where.
+            items.append({'id':str(r['id']),'url':on.get('url'),'is_owner':str(who.get('mid'))==identity,
+                          'text':preview_text(who.get('name') or f"UID {who.get('mid')}",r.get('content') or (on.get('type') and f"[{on['type']}]"))})
+        return {'identity':identity,'items':items,'complete':not data.get('next_cursor'),'source':'bili_cli_feed_mentions',
+                'scope':'Latest @ mentions; not the full notification history.'}
+    items=[]
+    for r in adapters.bili(['dm','list','--limit',str(limit)]).get('items',[]):
+        last=r.get('last_message') or {}
+        # A Bilibili auto-reply is not an answer: the other person is still waiting for one.
+        # Bilibili returns no name for some accounts, and some messages have no text.
+        items.append({'conversation_id':str(r['uid']),'name':r.get('name'),
+                      'preview':preview_text(r.get('name') or f"UID {r['uid']}",last.get('text')),
+                      'is_owner':last.get('from')=='me' and not last.get('auto_reply')})
+    return {'identity':identity,'items':items,'complete':False,'source':'bili_cli_dm_list',
+            'scope':'Most recent conversations; previews, not incoming-message counts.'}
+
+
 def execute(platform, action, work, **kw):
     if platform=='bilibili': return bilibili(action,work,**kw)
-    service,identity,video=youtube_context(action,work)
-    if action in {'test_seed','test_seed_verify'}:
-        test=kw['test_request']
-        if identity!=test['identity']: raise VpubError('wrong_account','Test account changed.')
-        saved=dict(test);path=Path(kw['test_receipt_path'])
-        if action=='test_seed':
-            if not adapters.yt_credentials('default').has_scopes([adapters.PLAYLIST_SCOPE]):
-                raise VpubError('oauth_scope_required','Test comments require youtube.force-ssl.')
-            stop_check('youtube')
-            saved['state']='TEST_SEED_SUBMITTING';atomic_json(path,saved)
-            data=service.commentThreads().insert(part='snippet',body={'snippet':{'videoId':work,
-                'topLevelComment':{'snippet':{'textOriginal':'你好'}}}}).execute()
-            saved['comment_id']=data['snippet']['topLevelComment']['id'];saved['thread_id']=data['id'];atomic_json(path,saved)
-        args={'part':'snippet','textFormat':'plainText'}
-        args.update({'id':saved.get('thread_id') or saved['comment_id']} if saved.get('comment_id') else
-                    {'videoId':work,'maxResults':100,'order':'time'})
-        threads=service.commentThreads().list(**args).execute().get('items',[])
-        comments=[t['snippet']['topLevelComment'] for t in threads if t['snippet'].get('videoId')==work]
-        matches=[c for c in comments if c['id'] not in test['before_ids'] and c['snippet'].get('textOriginal')=='你好'
-                 and c['snippet'].get('authorChannelId',{}).get('value')==identity and not c['snippet'].get('parentId')]
-        return {'state':'TEST_SEED_VERIFIED' if len(matches)==1 else 'TEST_SEED_UNVERIFIED',
-                'comment_id':matches[0]['id'] if len(matches)==1 else saved.get('comment_id')}
-    if action=='stats':
-        s=video.get('statistics',{})
-        def count(key): return int(s[key]) if key in s else None
-        return {'state':'OBSERVED','identity':identity,'title':video['snippet']['title'],'source':'youtube_data_api',
-                'metrics':{'views':metric(count('viewCount'),'YouTube viewCount'),
-                           'likes':metric(count('likeCount'),'YouTube likeCount'),
-                           'comments':metric(count('commentCount'),'YouTube commentCount'),
-                           'completion_percent':metric(None,'Not supplied by YouTube Data API','percent'),
-                           'average_watch_seconds':metric(None,'Requires separate YouTube Analytics access','seconds')},
-                'url':'https://www.youtube.com/watch?v='+work}
-    if action=='replies':
-        root=kw['comment_id']
-        threads=service.commentThreads().list(part='snippet',id=root,textFormat='plainText').execute().get('items',[])
-        if len(threads)!=1 or threads[0]['snippet'].get('videoId')!=work or threads[0]['snippet']['topLevelComment']['id']!=root:
-            raise VpubError('wrong_work','The root comment does not belong to the requested video.')
-        args={'part':'snippet','parentId':root,'maxResults':kw['limit'],'textFormat':'plainText'}
-        if kw.get('cursor'):args['pageToken']=kw['cursor']
-        data=service.comments().list(**args).execute()
-        children=[_yt_comment(c,identity,root) for c in data.get('items',[])]
-        if any(c['parent_id']!=root for c in children):raise VpubError('wrong_thread','Reply parent mismatch.')
-        top=_yt_comment(threads[0]['snippet']['topLevelComment'],identity)
-        top['owner_replied']=True if any(c['is_owner'] for c in children) else False if not kw.get('cursor') and not data.get('nextPageToken') else None
-        rows=[top,*children]
-        for c in rows:c['thread_id']=threads[0]['id']
-        return {'state':'OBSERVED','identity':identity,'items':rows,'root_id':root,'next_cursor':data.get('nextPageToken'),
-                'complete':not kw.get('cursor') and not data.get('nextPageToken'),'source':'youtube_comments_api',
-                'scope':'One page of replies to this root, with its root comment; not other video threads.'}
-    if action=='comments':
-        args={'part':'snippet,replies','videoId':work,'maxResults':kw['limit'],'order':'time','textFormat':'plainText'}
-        if kw.get('moderation_status'):
-            if kw['moderation_status'] not in {'heldForReview','published'}:raise VpubError('invalid_moderation','Unknown review filter.')
-            args['moderationStatus']=kw['moderation_status']
-        if kw.get('cursor'): args['pageToken']=kw['cursor']
-        try: data=service.commentThreads().list(**args).execute()
-        except Exception as exc:
-            # Never turn disabled comments or denied permission into an empty inbox.
-            if getattr(getattr(exc,'resp',None),'status',None) in {403,404}:
-                raise VpubError('comments_unavailable','Comments are disabled, inaccessible or the request lacks permission.') from None
-            raise
-        rows=[]
-        for thread in data.get('items',[]):
-            s=thread['snippet'];top=_yt_comment(s['topLevelComment'],identity)
-            children=[_yt_comment(c,identity,top['id']) for c in thread.get('replies',{}).get('comments',[])]
-            for row in [top,*children]: row['thread_id']=thread.get('id',top['id'])
-            top['reply_count']=s.get('totalReplyCount')
-            top['owner_replied']=True if any(c['is_owner'] for c in children) else False if len(children)==s.get('totalReplyCount',0) else None
-            rows.extend([top,*children])
-        return {'state':'OBSERVED','identity':identity,'items':rows,'next_cursor':data.get('nextPageToken'),
-                'scope':'One API page of top-level threads, with the API-provided reply preview; not a full reply export.',
-                'complete':not data.get('nextPageToken') and all(t['snippet'].get('totalReplyCount',0)==len(t.get('replies',{}).get('comments',[])) for t in data.get('items',[])),
-                'replies_complete':all(t['snippet'].get('totalReplyCount',0)==len(t.get('replies',{}).get('comments',[])) for t in data.get('items',[])),
-                'source':'youtube_data_api','moderation_filter':kw.get('moderation_status','published')}
-    request=kw['reply_request'];target=request['comment']
-    if identity!=request['expected_identity']: raise VpubError('wrong_account','The authorized channel changed since the comment was read.')
-    matches=service.comments().list(part='snippet',id=target['id'],textFormat='plainText').execute().get('items',[])
-    if len(matches)!=1 or _yt_comment(matches[0],identity)['text']!=target['text']:
-        raise VpubError('comment_changed','The target comment changed, disappeared, or belongs to another work.')
-    root=matches[0]['snippet'].get('parentId') or target['id']
-    # Comment resources need not expose videoId. Thread resources establish
-    # membership; channelId alone cannot distinguish two works by the same owner.
-    threads=service.commentThreads().list(part='snippet',id=target.get('thread_id') or root,textFormat='plainText').execute().get('items',[])
-    if len(threads)!=1 or threads[0]['snippet'].get('videoId')!=work or threads[0]['snippet']['topLevelComment']['id']!=root:
-        raise VpubError('wrong_work','The comment thread does not belong to the requested video.')
-    if action=='verify_reply':
-        rid=kw.get('existing_reply',{}).get('reply_id')
-        args={'part':'snippet','textFormat':'plainText'}
-        args.update({'id':rid} if rid else {'parentId':root,'maxResults':100})
-        replies=service.comments().list(**args).execute().get('items',[])
-        found=[c for c in replies if c['snippet'].get('parentId')==root and
-               c['snippet'].get('authorChannelId',{}).get('value')==identity and
-               c['snippet'].get('textOriginal')==request['text']]
-        return {'state':'REPLY_VERIFIED' if len(found)==1 else 'REPLY_UNVERIFIED',
-                'reply_id':found[0]['id'] if len(found)==1 else rid,'platform_writes':0,'verification_source':'youtube_comments_list'}
-    if action!='reply': raise VpubError('unsupported_operation','Unsupported YouTube operation.')
-    creds=adapters.yt_credentials('default')
-    if not creds.has_scopes([adapters.PLAYLIST_SCOPE]):
-        raise VpubError('oauth_scope_required','Comment replies require youtube.force-ssl; reauthorize the initial management permissions.')
-    # Observe the current thread again before sending, not only a stale snapshot.
-    reply_page=service.comments().list(part='snippet',parentId=root,maxResults=100,textFormat='plainText').execute()
-    replies=reply_page.get('items',[])
-    if any(c['snippet'].get('authorChannelId',{}).get('value')==identity for c in replies):
-        raise VpubError('already_replied','An owner reply already exists in the current thread.')
-    if reply_page.get('nextPageToken'):
-        raise VpubError('thread_too_large','This thread has more replies than the bounded pre-send duplicate check can inspect.')
-    path=Path(kw['reply_receipt_path']);saved=read_json(path)
-    stop_check('youtube');saved['state']='REPLY_SUBMITTING';atomic_json(path,saved)
-    posted=service.comments().insert(part='snippet',body={'snippet':{'parentId':root,'textOriginal':request['text']}}).execute()
-    saved.update(state='REPLY_UNVERIFIED',reply_id=posted.get('id'));atomic_json(path,saved)
-    verified=execute('youtube','verify_reply',work,**{**kw,'existing_reply':saved})
-    return {**verified,'platform_writes':1}
+    return adapters.youtube_api().operations(action,work,**kw)
 
 
 def bilibili(action,work,**kw):
@@ -265,7 +141,7 @@ def bilibili(action,work,**kw):
     if found: raise VpubError('already_replied','An identical owner reply already exists.')
     path=Path(kw['reply_receipt_path']);text_path=path.with_suffix('.txt');text_path.write_text(request['text'],encoding='utf-8')
     stop_check('bilibili')
-    saved=read_json(path);saved['state']='REPLY_SUBMITTING';atomic_json(path,saved)
+    saved=reply_pressing(path,request)
     args=['comment','reply',work,target['id'],'--file',str(text_path)]
     if target.get('parent_id'): args+=['--root',root]
     posted=adapters.bili(args)

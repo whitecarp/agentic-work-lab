@@ -4,10 +4,12 @@ from datetime import datetime, timedelta
 import re
 from urllib.parse import urlsplit
 
-from .core import VpubError, atomic_json, digest, read_json, stop_check
+from . import x_pages
+from .core import VpubError, atomic_json, digest, read_json, reply_pressing, stop_check
 from .browser_runtime import risk_check, unique_visible
 from .operations_api import metric
 from .browser_backends import normalize
+from .progress import stage
 
 
 def number(text):
@@ -32,6 +34,10 @@ def douyin_metrics(text):
     return result
 
 
+INSTAGRAM_POST_MS=45000
+INSTAGRAM_UNAVAILABLE=re.compile(r"^\s*Sorry, this page isn't available\.?\s*$")
+
+
 async def open_work(page, platform, identity, work, public_comments=False, reuse_page=False):
     urls={'instagram':f'https://www.instagram.com/p/{work}/',
           'x':f'https://x.com/{identity}/status/{work}',
@@ -41,7 +47,16 @@ async def open_work(page, platform, identity, work, public_comments=False, reuse
     if not (reuse_page and same):
         await page.goto(urls[platform],wait_until='domcontentloaded',timeout=60000)
     if platform=='instagram':
-        await page.locator('svg[aria-label="More options"]').wait_for(state='visible',timeout=45000)
+        from patchright.async_api import Error as BrowserError
+        try:
+            await page.locator('svg[aria-label="More options"]').wait_for(state='visible',timeout=INSTAGRAM_POST_MS)
+        except BrowserError:
+            # A field run read the comments of a post deleted the day before and got only a 45-second timeout. This says what the page showed,
+            # which proves nothing about the post: a deletion is settled only by vpub delete --verify-only.
+            if await page.get_by_text(INSTAGRAM_UNAVAILABLE).locator('visible=true').count():
+                raise VpubError('work_unavailable',"Instagram shows this post's page as not available, so nothing on it could be read.",
+                                'It may have been deleted, or be private. vpub works instagram lists the posts on the profile now.') from None
+            raise
     elif platform=='x':
         await page.locator(f'article a[href="/{identity}/status/{work}"]').first.wait_for(timeout=45000)
     elif public_comments:
@@ -57,24 +72,48 @@ async def open_work(page, platform, identity, work, public_comments=False, reuse
 
 
 async def x_root(page,identity,work):
-    return await unique_visible(page.locator('article').filter(has=page.locator(f'a[href="/{identity}/status/{work}"]')),'original post')
+    return await unique_visible(x_pages.post_row(page,work),'original post')
 
 
 async def x_metrics(root):
     values={}
-    for key,testid in [('comments','reply'),('reposts','retweet'),('likes','like'),('bookmarks','bookmark')]:
-        control=root.locator(f'[data-testid="{testid}"], [data-testid="un{testid}"]')
+    controls={'comments':x_pages.REPLY,'reposts':x_pages.REPOST,'likes':x_pages.LIKE_OFF+', '+x_pages.LIKE_ON,'bookmarks':x_pages.SAVE_OFF+', '+x_pages.SAVE_ON}
+    for key,selector in controls.items():
+        control=root.locator(selector)
         raw=await control.first.get_attribute('aria-label') if await control.count() else None
         m=re.match(r'([\d.,]+\s*[KkMm]?)\s',raw or '')
         display=m[1] if m else None
         values[key]={**metric(number(display),'X '+key),'display':raw,
                      'approximate':bool(display and re.search('[KkMm]',display))}
-    body=await root.inner_text()
-    m=re.search(r'(?:^|\n)([\d.,]+\s*[KkMm]?)\s*\n?\s*Views\b',body,re.I)
-    values['post_views']={**metric(number(m[1]) if m else None,'X post views, not video playback'),
-                          'display':m[0] if m else None,'approximate':bool(m and re.search('[KkMm]',m[1]))}
+    views=await x_pages.views_of(root)
+    m=re.search(r'(?:^|\n)([\d.,]+\s*[KkMm]?)\s*\n?\s*Views\b',await root.inner_text(),re.I)
+    display=views or (m[1] if m else None)
+    values['post_views']={**metric(number(display),'X post views, not video playback'),
+                          'display':display,'approximate':bool(display and re.search('[KkMm]',display))}
     values['video_plays']=metric(None,'Not exposed on the post page')
     return values
+
+
+COMPOSER_WAITS=(5000,15000)
+
+
+async def x_composer(page,row,label):
+    """X's own reply window for one post, opened from that post's Reply control. On a signed-in account a click can open nothing while the keyboard does,
+    as a field check found for the share menu, and the outer of its nested windows can have no size, so this looks for the text box inside them."""
+    control=await unique_visible(row.locator(x_pages.REPLY),label+' Reply')
+    await control.click()
+    boxes=page.locator('[role="dialog"]').locator(x_pages.TEXT_BOX)
+    for attempt in range(2):
+        try:
+            await boxes.first.wait_for(state='visible',timeout=COMPOSER_WAITS[attempt])
+            break
+        except Exception:
+            if attempt:raise VpubError('layout_changed','X did not open its reply box; nothing was sent.') from None
+            await control.press('Enter')
+    editor=await unique_visible(boxes,label+' text')
+    window=editor.locator('xpath=ancestor::*[@role="dialog"][last()]')
+    send=window.locator('[data-testid="tweetButton"]')
+    return editor,await unique_visible(send if await send.count() else window.get_by_role('button',name=x_pages.SEND_REPLY),label+' send')
 
 
 async def fill_x_text(page,editor,text):
@@ -148,16 +187,12 @@ async def comments(page,platform,identity,work,limit,expand_replies=True):
         for article in await page.locator('main article').all():
             if await article.evaluate('''e => [...document.querySelectorAll('main h2, main span')].some(n=>['Discover more','More posts','More for you'].includes(n.textContent.trim()) && Boolean(n.compareDocumentPosition(e)&Node.DOCUMENT_POSITION_FOLLOWING))'''):
                 break
-            anchor=article.locator('a[href*="/status/"]').filter(has=page.locator('time'))
-            if await anchor.count()!=1: continue
-            href=await anchor.get_attribute('href');m=re.fullmatch(r'/([A-Za-z0-9_]+)/status/(\d+)',href or '')
-            if not m or m[2]==work: continue
-            body=article.locator('[data-testid="tweetText"]')
-            if await body.count()!=1 or 'Promoted' in await article.inner_text(): continue
-            items.append({'id':m[2],'author':m[1],'author_id':m[1],
-                          'text':await body.inner_text(),'is_owner':m[1].lower()==identity.lower(),
-                          'parent_id':None,'conversation_work_id':work,'owner_replied':None,'url':'https://x.com'+href,
-                          'published_at':await anchor.locator('time').get_attribute('datetime'),
+            post=await x_pages.post_fields(article)
+            if not post or post['id']==work or not post['text'] or post['is_ad']: continue
+            items.append({'id':post['id'],'author':post['author'],'author_id':post['author'],
+                          'text':post['text'],'is_owner':post['author'].lower()==identity.lower(),
+                          'parent_id':None,'conversation_work_id':work,'owner_replied':None,'url':'https://x.com'+post['href'],
+                          'published_at':post['published_at'],
                           'relationship':'visible conversation entry; direct parent not exposed'})
             if len(items)>=limit:break
         return {'items':items,'complete':False,'scope':'Visible conversation only; ranked/collapsed replies may be absent.',
@@ -193,6 +228,9 @@ async def comments(page,platform,identity,work,limit,expand_replies=True):
 
 async def execute(page,platform,identity,payload):
     work=payload['work_id'];action=payload['operation']
+    if platform=='youtube':
+        from .youtube_studio import operations
+        return await operations(page,identity,payload)
     url=await open_work(page,platform,identity,work,public_comments=platform=='douyin' and action not in {'stats','test_seed','reply'},reuse_page=payload.get('reuse_page',False))
     if platform=='douyin' and action=='reply':
         from .operations_douyin import reply as creator_reply
@@ -225,12 +263,7 @@ async def execute(page,platform,identity,payload):
         if identity!=test['identity']: raise VpubError('wrong_account','Test account changed.')
         if action=='test_seed':
             if platform=='x':
-                root=await x_root(page,identity,work)
-                await root.locator('[data-testid="reply"]').click()
-                await page.locator('[role="dialog"][aria-modal="true"]').wait_for(state='visible',timeout=15000)
-                scope=await unique_visible(page.locator('[role="dialog"][aria-modal="true"]'),'test reply composer')
-                editor=await unique_visible(scope.locator('[data-testid="tweetTextarea_0"]'),'test text')
-                button=await unique_visible(scope.locator('[data-testid="tweetButton"]'),'test send')
+                editor,button=await x_composer(page,await x_root(page,identity,work),'test reply')
             elif platform=='instagram':
                 editor=await unique_visible(page.locator('textarea[aria-label="Add a comment…"]'),'test comment')
                 button=None
@@ -245,6 +278,7 @@ async def execute(page,platform,identity,payload):
             if not await button.is_enabled(): raise VpubError('reply_not_ready','Test submission is disabled.')
             await button.click(trial=True,timeout=10000)
             atomic_json(Path(payload['test_receipt_path']),{**test,'state':'TEST_SEED_SUBMITTING'})
+            stage('pressing')
             await button.click(timeout=20000)
             saved={**test,'state':'TEST_SEED_UNVERIFIED'}
             atomic_json(Path(payload['test_receipt_path']),saved)
@@ -265,7 +299,7 @@ async def execute(page,platform,identity,payload):
         if not saved.get('submitted_text') and platform=='instagram':
             texts.add(normalize('@'+target['author']+' '+request['text']))
         before=set(saved.get('before_reply_ids',[target['id']]))
-        cutoff=datetime.fromisoformat(saved['at'])-timedelta(seconds=2) if saved.get('at') else None
+        cutoff=datetime.fromisoformat(saved['at'].replace('Z','+00:00'))-timedelta(seconds=2) if saved.get('at') else None
         matches=[]
         for c in actual['items']:
             if not c['is_owner'] or normalize(c['text']) not in texts or c['id'] in before: continue
@@ -289,14 +323,12 @@ async def execute(page,platform,identity,payload):
     matches=[c for c in current['items'] if c['id']==target['id'] and normalize(c['text'])==normalize(target['text'])]
     if len(matches)!=1: raise VpubError('comment_changed','The exact comment is not visible or changed; collect it again.')
     actual=matches[0]
+    window=None
     if platform=='x':
-        row=await unique_visible(page.locator('main article').filter(has=page.locator(f'a[href="/{actual["author"]}/status/{actual["id"]}"]')),'target reply')
-        await row.locator('[data-testid="reply"]').click()
-        await page.locator('[role="dialog"][aria-modal="true"]').wait_for(state='visible',timeout=15000)
-        dialog=await unique_visible(page.locator('[role="dialog"][aria-modal="true"]'),'reply composer')
-        editor=await unique_visible(dialog.locator('[data-testid="tweetTextarea_0"]'),'reply text')
+        row=await unique_visible(x_pages.post_row(page,actual['id']),'target reply')
+        editor,button=await x_composer(page,row,'reply')
+        window=editor  # It goes when the reply is sent.
         await fill_x_text(page,editor,request['text'])
-        button=await unique_visible(dialog.locator('[data-testid="tweetButton"]'),'reply submit')
     else:
         row=page.locator(f'[data-crosscast-comment-row="{actual["ui_index"]}"]')
         await (await unique_visible(row.get_by_text('回复' if platform=='douyin' else 'Reply',exact=True),'comment Reply')).click()
@@ -315,17 +347,20 @@ async def execute(page,platform,identity,payload):
             button=await unique_visible(page.get_by_text('发送' if platform=='douyin' else 'Post',exact=True),'reply submit')
     await risk_check(page);stop_check(platform)
     if not await button.is_enabled(): raise VpubError('reply_not_ready','The platform has not enabled reply submission.')
-    path=Path(payload['reply_receipt_path']);saved=read_json(path)
-    saved['before_reply_ids']=[c['id'] for c in current['items']]
-    saved['submitted_text']=await editor.input_value() if await editor.evaluate('e=>e.tagName')=='TEXTAREA' else await editor.inner_text()
+    path=Path(payload['reply_receipt_path'])
+    submitted_text=await editor.input_value() if await editor.evaluate('e=>e.tagName')=='TEXTAREA' else await editor.inner_text()
     await button.click(trial=True,timeout=10000)
-    saved['state']='REPLY_SUBMITTING';atomic_json(path,saved)
+    saved=reply_pressing(path,request,before_reply_ids=[c['id'] for c in current['items']],submitted_text=submitted_text)
+    stage('pressing')
     await button.click(timeout=20000)
     # A successful click alone is not confirmed visibility. Keep this durable
     # uncertainty; verify-reply reads the original conversation without resending.
     saved['state']='REPLY_UNVERIFIED';atomic_json(path,saved)
     # Keep the page alive for the asynchronous send. Closing immediately after a
     # successful click can cancel the request before the platform finishes it.
+    if window:
+        try: await window.wait_for(state='hidden',timeout=20000)
+        except Exception: pass
     await page.wait_for_timeout(3000)
     await risk_check(page)
     return {'state':'REPLY_UNVERIFIED','platform_writes':1,'reply_id':None,

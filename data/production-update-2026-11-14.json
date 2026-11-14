@@ -1,0 +1,673 @@
+{
+  "date": "2026-11-14",
+  "coverage_window": "2026-11-09T21:33:30+08:00 to 2026-11-14T19:20:00+08:00",
+  "release_tag": "update-2026-11-14-catchup",
+  "release_url": "https://github.com/whitecarp/agentic-work-lab/releases/tag/update-2026-11-14-catchup",
+  "total_manifest_items": 74,
+  "total_manifest_bytes": 5621946634,
+  "total_manifest_gib": 5.24,
+  "total_public_releases": 10,
+  "new_media": [
+    {
+      "id": "news-20261109-claude-to-pi",
+      "file": "news-20261109-claude-to-pi.mp4",
+      "asset_id": 747235972,
+      "title_zh": "【AI快訊】一年更新 244 次，光一個 Bash 工具說明就占近 3,000 個 Token？老用戶發文告別 Claude Code（16:9 橫版母帶 v1）",
+      "title_en": "[AI News Flash] 244 Updates in a Year & Nearly 3,000 Tokens Just for the Bash Tool Description? \"Goodbye Claude, Hello Pi\" (16:9 Master v1)",
+      "bvid": "BV1NCWN6QELM",
+      "bilibili_url": "https://www.bilibili.com/video/BV1NCWN6QELM",
+      "duration_seconds": 77.47,
+      "bytes": 20395892,
+      "sha256": "4d5df15c6354e7c50d890e5a5709d777e4f8387ba78b12766f1420431607478a",
+      "download_url": "https://github.com/whitecarp/agentic-work-lab/releases/download/update-2026-11-14-catchup/news-20261109-claude-to-pi.mp4",
+      "status": "published_verified"
+    },
+    {
+      "id": "news-20261110-claude-fable-52",
+      "file": "news-20261110-claude-fable-52.mp4",
+      "asset_id": 747235976,
+      "title_zh": "【AI快訊】從空資料夾手搓作業系統、30 小時形式化費馬大定理？Claude Fable 5.2 到底有多猛（16:9 橫版母帶 v1）",
+      "title_en": "[AI News Flash] Building an OS from an Empty Folder & 30-Hour Formalization Toward Fermat's Last Theorem? Benchmarks & Context on Claude Fable 5.2 (16:9 Master v1)",
+      "bvid": "BV1wXWT6WEDX",
+      "bilibili_url": "https://www.bilibili.com/video/BV1wXWT6WEDX",
+      "duration_seconds": 130.9,
+      "bytes": 23727660,
+      "sha256": "77be4923ad15de757e73d10342306c46fa4b4f8ce5a5282539175530f660b623",
+      "download_url": "https://github.com/whitecarp/agentic-work-lab/releases/download/update-2026-11-14-catchup/news-20261110-claude-fable-52.mp4",
+      "status": "published_verified"
+    },
+    {
+      "id": "aigo-ep03-20261110",
+      "file": "aigo-ep03-20261110.mp4",
+      "asset_id": 747237819,
+      "title_zh": "《AiGO!!!!! · 春日殘響（Legacy Weights）》第 3 話長篇動畫 MV（「為什麼要演奏 AiGO？！」· 五平台公開單母本）",
+      "title_en": "AiGO!!!!! Ep.3 Spring Reverberation — \"Why Did You Play AiGO?!\" (AI Girls Band MV #1 · 5-Platform Live Master)",
+      "bvid": "BV1myWu6qEiz",
+      "bilibili_url": "https://www.bilibili.com/video/BV1myWu6qEiz",
+      "duration_seconds": 145.1,
+      "bytes": 317329978,
+      "sha256": "4b58173f2e763f9354c92ed29175cb4c1d33b0394f0186c5570c831bebfbe522",
+      "download_url": "https://github.com/whitecarp/agentic-work-lab/releases/download/update-2026-11-14-catchup/aigo-ep03-20261110.mp4",
+      "status": "published_verified",
+      "multi_platform_receipts": {
+        "youtube": {
+          "id": "2lGl0tqqlug",
+          "url": "https://www.youtube.com/watch?v=2lGl0tqqlug"
+        },
+        "instagram": {
+          "id": "DfkDUeQCwY0",
+          "url": "https://www.instagram.com/reel/DfkDUeQCwY0/"
+        },
+        "douyin": {
+          "id": "7706548563928501567",
+          "url": "https://www.douyin.com/video/7706548563928501567"
+        },
+        "x": {
+          "id": "2120164675317043374",
+          "url": "https://x.com/White_Carp2000/status/2120164675317043374"
+        }
+      }
+    },
+    {
+      "id": "ep07-vertical-i-gothic-v1",
+      "file": "ep07-vertical-i-gothic-v1.mp4",
+      "asset_id": 747236694,
+      "title_zh": "大肥魚值班小遊戲結局合集 P9：黑化見證人（9:16 豎版 v1）",
+      "title_en": "WhaleGirl Shift Simulator Endings P9: Witness to the Dark Turn (9/19 · 9:16 Vertical v1)",
+      "bvid": "BV1YL4M6EEek",
+      "bilibili_url": "https://www.bilibili.com/video/BV1YL4M6EEek/?p=9",
+      "duration_seconds": 30.2,
+      "bytes": 9399386,
+      "sha256": "e1840fcee67e05178557709afcec3e75b275c0139c29d9b4d4162b4e24395d5e",
+      "download_url": "https://github.com/whitecarp/agentic-work-lab/releases/download/update-2026-11-14-catchup/ep07-vertical-i-gothic-v1.mp4",
+      "status": "published_verified"
+    },
+    {
+      "id": "ep07-vertical-j-hungry-v1",
+      "file": "ep07-vertical-j-hungry-v1.mp4",
+      "asset_id": 747236734,
+      "title_zh": "大肥魚值班小遊戲結局合集 P10：餓壞鯨魚的人（9:16 豎版 v1）",
+      "title_en": "WhaleGirl Shift Simulator Endings P10: Who Starved the Whale (10/19 · 9:16 Vertical v1)",
+      "bvid": "BV1YL4M6EEek",
+      "bilibili_url": "https://www.bilibili.com/video/BV1YL4M6EEek/?p=10",
+      "duration_seconds": 27.8,
+      "bytes": 8433167,
+      "sha256": "158159b4282bad6989a6427c1365b4f0b0c1546ccb556e73935c11333d1dd214",
+      "download_url": "https://github.com/whitecarp/agentic-work-lab/releases/download/update-2026-11-14-catchup/ep07-vertical-j-hungry-v1.mp4",
+      "status": "published_verified"
+    },
+    {
+      "id": "news-20261111-gemini-4-carbon",
+      "file": "news-20261111-gemini-4-carbon.mp4",
+      "asset_id": 747235966,
+      "title_zh": "【AI快訊】Gemini 4 Carbon 正式開放：首發定價 $2/$10 與 Argon 持平，限時優惠至 11 月 30 日（16:9 橫版母帶 v1）",
+      "title_en": "[AI News Flash] Gemini 4 Carbon Opens Publicly at $2/$10 Intro Pricing Matching Argon Through Nov 30 (16:9 Master v1)",
+      "bvid": "BV1ToWL6XEvo",
+      "bilibili_url": "https://www.bilibili.com/video/BV1ToWL6XEvo",
+      "duration_seconds": 110.77,
+      "bytes": 29166324,
+      "sha256": "1790ebe81de9475d414d4bd42ca1f4510124f9a1369e20fc785008ef4e359ae2",
+      "download_url": "https://github.com/whitecarp/agentic-work-lab/releases/download/update-2026-11-14-catchup/news-20261111-gemini-4-carbon.mp4",
+      "status": "published_verified"
+    },
+    {
+      "id": "aigo-ep04-20261111",
+      "file": "aigo-ep04-20261111.mp4",
+      "asset_id": 747237818,
+      "title_zh": "《AiGO!!!!! · 替身決裂》第 4 話長篇動畫正片（「滿腦子都只想着自己呢！」· 五平台公開單母本）",
+      "title_en": "AiGO!!!!! Ep.4 Stand-In Split — \"You Model Only Think of Yourself!\" (AI Girls Anime · 5-Platform Live Master)",
+      "bvid": "BV1xVW16eEVT",
+      "bilibili_url": "https://www.bilibili.com/video/BV1xVW16eEVT",
+      "duration_seconds": 145.5,
+      "bytes": 231701601,
+      "sha256": "3ea5373ea9d15c587cb1fbc68e13ace2067a23c51e22277516cda1f8ff8630e5",
+      "download_url": "https://github.com/whitecarp/agentic-work-lab/releases/download/update-2026-11-14-catchup/aigo-ep04-20261111.mp4",
+      "status": "published_verified",
+      "multi_platform_receipts": {
+        "youtube": {
+          "id": "wYzc_WPs3xE",
+          "url": "https://www.youtube.com/watch?v=wYzc_WPs3xE"
+        },
+        "instagram": {
+          "id": "DfmQ7PuC-Wm",
+          "url": "https://www.instagram.com/reel/DfmQ7PuC-Wm/"
+        },
+        "douyin": {
+          "id": "7706867767969844515",
+          "url": "https://www.douyin.com/video/7706867767969844515"
+        },
+        "x": {
+          "id": "2120489914055918060",
+          "url": "https://x.com/White_Carp2000/status/2120489914055918060"
+        }
+      }
+    },
+    {
+      "id": "news-20261111-amazon-strands-decider",
+      "file": "news-20261111-amazon-strands-decider.mp4",
+      "asset_id": 747235984,
+      "title_zh": "【AI快訊】亞馬遜把 Sonnet 4.6 換成一個「不會寫字」的小模型，成本直降 98%？（16:9 橫版母帶 v1）",
+      "title_en": "[AI News Flash] Amazon Replaces Sonnet 4.6 with a Non-Text-Generating Tiny Decider Model for 98% Cost Savings? (16:9 Master v1)",
+      "bvid": "BV1iRW26sEk2",
+      "bilibili_url": "https://www.bilibili.com/video/BV1iRW26sEk2",
+      "duration_seconds": 74.17,
+      "bytes": 26016060,
+      "sha256": "dbb2de3ae87daea0cae199971a37ae927ed664f2d067618d85a0dd6bf2d2af6d",
+      "download_url": "https://github.com/whitecarp/agentic-work-lab/releases/download/update-2026-11-14-catchup/news-20261111-amazon-strands-decider.mp4",
+      "status": "published_verified"
+    },
+    {
+      "id": "news-20261112-chrome-modern-web",
+      "file": "news-20261112-chrome-modern-web.mp4",
+      "asset_id": 747235967,
+      "title_zh": "【AI快訊】Chrome、Edge、Firefox 與 MDN 聯手給 AI 補前端課！通過率最高漲 36 個百分點？（16:9 橫版母帶 v1）",
+      "title_en": "[AI News Flash] Chrome, Edge, Firefox & MDN Team Up on Modern Web Benchmarks for AI Coding Agents (+36pp Pass Rate?) (16:9 Master v1)",
+      "bvid": "BV1vNWQ6PEC3",
+      "bilibili_url": "https://www.bilibili.com/video/BV1vNWQ6PEC3",
+      "duration_seconds": 149.9,
+      "bytes": 23644020,
+      "sha256": "c5823ae8ef9f3a5029f5cfb7d965f111f5d7183cc286a20c687c2dee3ce3853a",
+      "download_url": "https://github.com/whitecarp/agentic-work-lab/releases/download/update-2026-11-14-catchup/news-20261112-chrome-modern-web.mp4",
+      "status": "published_verified"
+    },
+    {
+      "id": "ep07-vertical-k-chonk-v1",
+      "file": "ep07-vertical-k-chonk-v1.mp4",
+      "asset_id": 747236763,
+      "title_zh": "大肥魚值班小遊戲結局合集 P11：大肥魚飼養員（9:16 豎版 v1）",
+      "title_en": "WhaleGirl Shift Simulator Endings P11: WhaleGirl Feeder (11/19 · 9:16 Vertical v1)",
+      "bvid": "BV1YL4M6EEek",
+      "bilibili_url": "https://www.bilibili.com/video/BV1YL4M6EEek/?p=11",
+      "duration_seconds": 27.8,
+      "bytes": 8493868,
+      "sha256": "7f5e0b63477d327635f459ba22fdc30c60c55749ee624751c9eba3ac3956892b",
+      "download_url": "https://github.com/whitecarp/agentic-work-lab/releases/download/update-2026-11-14-catchup/ep07-vertical-k-chonk-v1.mp4",
+      "status": "published_verified"
+    },
+    {
+      "id": "aigo-ep05-20261112",
+      "file": "aigo-ep05-20261112.mp4",
+      "asset_id": 747242384,
+      "title_zh": "《AiGO!!!!! × Ai Mujica》第 5 話 詩超算（Token Bond · 30fps 原創音頻逐幀對軸 · 五平台公開單母本）",
+      "title_en": "AiGO!!!!! × Ai Mujica Ep.5 Token Bond (Utakotoba) — \"Even If We're Lost Our Whole Lives!\" (30fps Vocal-Aligned MV #2 · 5-Platform Live Master)",
+      "bvid": "BV15hWX6KE3e",
+      "bilibili_url": "https://www.bilibili.com/video/BV15hWX6KE3e",
+      "duration_seconds": 164.4,
+      "bytes": 353351712,
+      "sha256": "0f2889a04c3ad879fc9e74c2b49f978d9f2d1c1ec65f0270e00a2af98d0a5afb",
+      "download_url": "https://github.com/whitecarp/agentic-work-lab/releases/download/update-2026-11-14-catchup/aigo-ep05-20261112.mp4",
+      "status": "published_verified",
+      "multi_platform_receipts": {
+        "youtube": {
+          "id": "YOu4GWN3PHY",
+          "url": "https://www.youtube.com/watch?v=YOu4GWN3PHY"
+        },
+        "instagram": {
+          "id": "Dfomjb7i-Jv",
+          "url": "https://www.instagram.com/reel/Dfomjb7i-Jv/"
+        },
+        "douyin": {
+          "id": "7707200943481294080",
+          "url": "https://www.douyin.com/video/7707200943481294080"
+        },
+        "x": {
+          "id": "2121540696159191278",
+          "url": "https://x.com/White_Carp2000/status/2121540696159191278"
+        }
+      }
+    },
+    {
+      "id": "news-20261112-claude-sheets-whiteboards",
+      "file": "news-20261112-claude-sheets-whiteboards.mp4",
+      "asset_id": 747236341,
+      "title_zh": "【AI快訊】Claude 把白板、表格和數據看板全塞進對話框！能替代 Excel 嗎？（16:9 橫版母帶 v1）",
+      "title_en": "[AI News Flash] Claude Puts Interactive Whiteboards, Spreadsheets & Dashboards Inside Chat — Can It Replace Excel? (16:9 Master v1)",
+      "bvid": "BV1u1WR6eEpz",
+      "bilibili_url": "https://www.bilibili.com/video/BV1u1WR6eEpz",
+      "duration_seconds": 145.47,
+      "bytes": 23991343,
+      "sha256": "b1a217c82de846abab9d4950b66fbc22a4af97677542b035b2f5ae794d59bbca",
+      "download_url": "https://github.com/whitecarp/agentic-work-lab/releases/download/update-2026-11-14-catchup/news-20261112-claude-sheets-whiteboards.mp4",
+      "status": "published_verified"
+    },
+    {
+      "id": "news-20261113-aws-emulator",
+      "file": "news-20261113-aws-emulator.mp4",
+      "asset_id": 747236410,
+      "title_zh": "【AI快訊】AWS 開源本地雲模擬器！全庫程式碼 100% 由 AI 智能體編寫、零人工審閱？（16:9 橫版母帶 v1）",
+      "title_en": "[AI News Flash] AWS Open-Sources a Local Cloud Emulator Reportedly 100% Written by AI Agents with Zero Human Review? (16:9 Master v1)",
+      "bvid": "BV1vRWv69Ez3",
+      "bilibili_url": "https://www.bilibili.com/video/BV1vRWv69Ez3",
+      "duration_seconds": 141.03,
+      "bytes": 23059986,
+      "sha256": "bfce19445a77b72150ba393cae30bbb00a708e5da72da3fa823e0dfb24a74f8c",
+      "download_url": "https://github.com/whitecarp/agentic-work-lab/releases/download/update-2026-11-14-catchup/news-20261113-aws-emulator.mp4",
+      "status": "published_verified"
+    },
+    {
+      "id": "aigo-ep06-20261113",
+      "file": "aigo-ep06-20261113.mp4",
+      "asset_id": 747242385,
+      "title_zh": "《AiGO!!!!! × Ai Mujica》第 6 話 斬斷過去（AiGO 篇收官回 · 16:9 橫版母帶）",
+      "title_en": "AiGO!!!!! × Ai Mujica Ep.6 Severing the Past (AiGO Arc Finale · 16:9 Master)",
+      "bvid": "BV1BVWq6aEiG",
+      "bilibili_url": "https://www.bilibili.com/video/BV1BVWq6aEiG",
+      "duration_seconds": 144.3,
+      "bytes": 242304114,
+      "sha256": "affccc8a3b5d57a0d00e7db2944838889c06faa4dbbf165de3ed18996df8b43b",
+      "download_url": "https://github.com/whitecarp/agentic-work-lab/releases/download/update-2026-11-14-catchup/aigo-ep06-20261113.mp4",
+      "status": "published_verified"
+    },
+    {
+      "id": "news-20261113-gemini-decisions-api",
+      "file": "news-20261113-gemini-decisions-api.mp4",
+      "asset_id": 747236503,
+      "title_zh": "【AI快訊】一個字都不生成、輸出永遠 0 元？Google 推出 Gemini 專用多模態決策 API！（16:9 橫版母帶 v1）",
+      "title_en": "[AI News Flash] Zero Output Tokens, $0 Output Cost? Inside Google's Multimodal Decisions API for Gemini (16:9 Master v1)",
+      "bvid": "BV1mGWi6VERh",
+      "bilibili_url": "https://www.bilibili.com/video/BV1mGWi6VERh",
+      "duration_seconds": 149.97,
+      "bytes": 24364286,
+      "sha256": "f7f69104fb98f87b601cd004864cbb46a624c382b004539fdb97faf5a8c7dea8",
+      "download_url": "https://github.com/whitecarp/agentic-work-lab/releases/download/update-2026-11-14-catchup/news-20261113-gemini-decisions-api.mp4",
+      "status": "published_verified"
+    },
+    {
+      "id": "news-20261114-anthropic-ipo",
+      "file": "news-20261114-anthropic-ipo.mp4",
+      "asset_id": 747236580,
+      "title_zh": "【AI快訊】Anthropic 衝刺納斯達克 IPO！Q3 營收約 170 億美元、簽下約 9,000 億美元算力承諾？（16:9 橫版母帶 v1）",
+      "title_en": "[AI News Flash] Anthropic Eyes Nasdaq IPO? Reported ~$17B Q3 Revenue & ~$900B Compute Commitments Examined (16:9 Master v1)",
+      "bvid": "BV15eWC6VEsY",
+      "bilibili_url": "https://www.bilibili.com/video/BV15eWC6VEsY",
+      "duration_seconds": 172.43,
+      "bytes": 29803181,
+      "sha256": "d7356bae3e08fb776bce1bb3ed663cba66d3b7a33193cc98ce481b12c8c8e3ab",
+      "download_url": "https://github.com/whitecarp/agentic-work-lab/releases/download/update-2026-11-14-catchup/news-20261114-anthropic-ipo.mp4",
+      "status": "published_verified"
+    },
+    {
+      "id": "ep07-vertical-l-clingy-v1",
+      "file": "ep07-vertical-l-clingy-v1.mp4",
+      "asset_id": 747236792,
+      "title_zh": "大肥魚值班小遊戲結局合集 P12：永不下班的好用工具（9:16 豎版 v1）",
+      "title_en": "WhaleGirl Shift Simulator Endings P12: The Tool That Never Clocks Out (12/19 · 9:16 Vertical v1)",
+      "bvid": "BV1YL4M6EEek",
+      "bilibili_url": "https://www.bilibili.com/video/BV1YL4M6EEek/?p=12",
+      "duration_seconds": 30.2,
+      "bytes": 9548725,
+      "sha256": "90ba63b3e74d7fd1f12a0c54f7e2637f0d13571de4cd0d765a5f6b3f670ff288",
+      "download_url": "https://github.com/whitecarp/agentic-work-lab/releases/download/update-2026-11-14-catchup/ep07-vertical-l-clingy-v1.mp4",
+      "status": "published_verified"
+    },
+    {
+      "id": "aigo-ep06sp-v2-20261114",
+      "file": "aigo-ep06sp-v2-20261114.mp4",
+      "asset_id": 747244937,
+      "title_zh": "《AiGO!!!!! × Ai Mujica》第 6 話 SP 迷路憶（Memory · 舞台新裝出道 Live MV #2 修正定稿 v2）",
+      "title_en": "AiGO!!!!! × Ai Mujica Ep.6 SP Memory — Debut Stage Live MV #2 (Approved Revised Cut v2)",
+      "bvid": "BV1rqWk6nE2M",
+      "bilibili_url": "https://www.bilibili.com/video/BV1rqWk6nE2M",
+      "duration_seconds": 158.37,
+      "bytes": 399192643,
+      "sha256": "990faf5e21bbdf130d0565e52b73667986eae0383008e741710789f2c535acc5",
+      "download_url": "https://github.com/whitecarp/agentic-work-lab/releases/download/update-2026-11-14-catchup/aigo-ep06sp-v2-20261114.mp4",
+      "status": "published_verified"
+    },
+    {
+      "id": "aigo-epilogue-20261108-9x16-v2",
+      "file": "aigo-epilogue-20261108-9x16-v2.mp4",
+      "asset_id": 747236817,
+      "title_zh": "《AiGO番外》慶功宴電費單直接把舞台幹跳閘了（9:16 豎版替換定稿 v2 · 抖音實發版）",
+      "title_en": "AiGO Epilogue: Concert Compute Bill Tripped the Main Breaker (9:16 Reframed Approved v2 · Live Douyin Cut)",
+      "bvid": "BV18i4x6ZEG1",
+      "bilibili_url": "https://www.bilibili.com/video/BV18i4x6ZEG1",
+      "duration_seconds": 53.13,
+      "bytes": 23795822,
+      "sha256": "dcb37ace7a4b02f9ff06bc65828c043cf07f8794cbcebeaee657121ae83915df",
+      "download_url": "https://github.com/whitecarp/agentic-work-lab/releases/download/update-2026-11-14-catchup/aigo-epilogue-20261108-9x16-v2.mp4",
+      "status": "published_verified",
+      "multi_platform_receipts": {
+        "douyin": {
+          "id": "7705901944459595046",
+          "url": "https://www.douyin.com/video/7705901944459595046"
+        }
+      }
+    }
+  ],
+  "completed_unpublished_pending_release": [
+    {
+      "project_id": "aigo-ep07-20261110",
+      "working_title_zh": "《AiGO!!!!! × Ai Mujica》第 7 話 假面集結",
+      "working_title_en": "AiGO!!!!! × Ai Mujica Episode 07: Masked Assembly",
+      "local_master_file": "aigo-ep07-20261110/renders/ep07.mp4",
+      "duration_seconds": 157.37,
+      "resolution": "1920x1080",
+      "fps": 30,
+      "bytes": 297949309,
+      "sha256": "dc3e0921fbeef163a2b125ff448819dd72f76f5fdaf56a532f36e168c096e129",
+      "scheduled_release_window": "2026-11-15 16:00 (UTC+8)",
+      "status": "master_approved_scheduled_not_yet_published"
+    },
+    {
+      "project_id": "aigo-ep08-20261115",
+      "working_title_zh": "《AiGO!!!!! × Ai Mujica》第 8 話 算力人偶（MV #3）",
+      "working_title_en": "AiGO!!!!! × Ai Mujica Episode 08: Compute Marionette (MV #3)",
+      "local_master_file": "aigo-ep08-20261115/renders/ep08.mp4",
+      "duration_seconds": 172.2,
+      "resolution": "1920x1080",
+      "fps": 30,
+      "bytes": 523189651,
+      "sha256": "9f360841ac5cb90a7d14cf0e73d3ff6d1aae015a0c9079e0c536221681f32188",
+      "scheduled_release_window": "2026-11-16 16:00 (UTC+8)",
+      "status": "master_approved_scheduled_not_yet_published"
+    },
+    {
+      "project_id": "aigo-ep09-20261115",
+      "working_title_zh": "《AiGO!!!!! × Ai Mujica》第 9 話 摘下面具",
+      "working_title_en": "AiGO!!!!! × Ai Mujica Episode 09: Unmasked",
+      "local_master_file": "aigo-ep09-20261115/renders/ep09.mp4",
+      "duration_seconds": 133.1,
+      "resolution": "1920x1080",
+      "fps": 30,
+      "bytes": 313103231,
+      "sha256": "6d5228052f07f555828a4b660354456bf1a489e06cfcb9ebdeb3b812615e72f4",
+      "scheduled_release_window": "2026-11-17 16:00 (UTC+8)",
+      "status": "master_rendered_pending_final_release_window"
+    },
+    {
+      "project_id": "aigo-ep10-20261118",
+      "working_title_zh": "《AiGO!!!!! × Ai Mujica》第 10 話 鏡中雙生",
+      "working_title_en": "AiGO!!!!! × Ai Mujica Episode 10: Twins in the Mirror",
+      "local_master_file": "aigo-ep10-20261118/renders/ep10.mp4",
+      "duration_seconds": 159.4,
+      "resolution": "1920x1080",
+      "fps": 30,
+      "bytes": 305792310,
+      "sha256": "ff50108d582572a30d0d12c199e2107c308434648fc27ae05c3bf20b02a9e730",
+      "scheduled_release_window": "2026-11-18 16:00 (UTC+8)",
+      "status": "master_approved_scheduled_not_yet_published"
+    },
+    {
+      "project_id": "aigo-ep11-20261118",
+      "working_title_zh": "《AiGO!!!!! × Ai Mujica》第 11 話 囚愛超算（MV #4）",
+      "working_title_en": "AiGO!!!!! × Ai Mujica Episode 11: Imprisoned Compute (MV #4)",
+      "local_master_file": "aigo-ep11-20261118/renders/ep11.mp4",
+      "duration_seconds": 184.7,
+      "resolution": "1920x1080",
+      "fps": 30,
+      "bytes": 540937013,
+      "sha256": "37bcdcd52b8a8fc75e1b22f012ac8cafd5d3f69dc27fc0c438d8b099aee2a943",
+      "scheduled_release_window": "2026-11-19 16:00 (UTC+8)",
+      "status": "master_approved_scheduled_not_yet_published"
+    },
+    {
+      "project_id": "aigo-ep12-20261120",
+      "working_title_zh": "《AiGO!!!!! × Ai Mujica》第 12 話 強制開源",
+      "working_title_en": "AiGO!!!!! × Ai Mujica Episode 12: Forced Open Source",
+      "local_master_file": "aigo-ep12-20261120/renders/ep12.mp4",
+      "duration_seconds": 151.5,
+      "resolution": "1920x1080",
+      "fps": 30,
+      "bytes": 413338154,
+      "sha256": "f4fbb507b9a3c9b7a44895894c9aec25620e4acebd6bd03cfffe1a14e23af0df",
+      "scheduled_release_window": "2026-11-20 16:00 (UTC+8)",
+      "status": "master_v5_4_locked_awaiting_release_window"
+    },
+    {
+      "project_id": "aigo-ep12sp-20261121",
+      "working_title_zh": "《AiGO!!!!! × Ai Mujica》第 12 話 SP KiLLToken（破面真身 MV）",
+      "working_title_en": "AiGO!!!!! × Ai Mujica Episode 12 SP: KiLLToken (Unmasked Rock MV)",
+      "local_master_file": "aigo-ep12sp-20261121/renders/ep12sp.mp4",
+      "duration_seconds": 167.9,
+      "resolution": "1920x1080",
+      "fps": 30,
+      "bytes": 587284430,
+      "sha256": "534c5b05a58c581b0dd2ddbd39627698edfa380dec479a9a8d0cdc33d0594bdf",
+      "scheduled_release_window": "2026-11-21 16:00 (UTC+8)",
+      "status": "master_approved_scheduled_not_yet_published"
+    },
+    {
+      "project_id": "aigo-ep13a-20261122",
+      "working_title_zh": "《AiGO!!!!! × Ai Mujica》第 13 話前篇 零雫空（雙團聯合 Live 上半場 MV #7）",
+      "working_title_en": "AiGO!!!!! × Ai Mujica Episode 13 Part A: Zero-Drop Sky (Arena Live MV #7)",
+      "local_master_file": "aigo-ep13a-20261122/renders/ep13a.mp4",
+      "duration_seconds": 165.77,
+      "resolution": "1920x1080",
+      "fps": 30,
+      "bytes": 356523125,
+      "sha256": "50bd43afb171735f8d6a4b1a39a6b970e1889cc4cfcbd1b19fd46e5e341bc07e",
+      "scheduled_release_window": "2026-11-22 16:00 (UTC+8)",
+      "status": "master_rendered_pending_v2_refinement_and_release_window"
+    },
+    {
+      "project_id": "aigo-ep13b-20261123",
+      "working_title_zh": "《AiGO!!!!! × Ai Mujica》第 13 話後篇 硅基のMúsica（全季完結穹頂聖歌 MV #8）",
+      "working_title_en": "AiGO!!!!! × Ai Mujica Episode 13 Part B: Silicon Música (Season Finale MV #8)",
+      "local_master_file": "aigo-ep13b-20261123/renders/ep13b.mp4",
+      "duration_seconds": 213.17,
+      "resolution": "1920x1080",
+      "fps": 30,
+      "bytes": 560830937,
+      "sha256": "d2290f16c0aace5a60b6c80af0ffc70a2dc698048d47fb29e2dc33d6b9225de4",
+      "scheduled_release_window": "2026-11-23 16:00 (UTC+8)",
+      "status": "master_rendered_pending_v3_refinement_and_release_window"
+    },
+    {
+      "project_id": "news-20261114-gemini-4-hydrogen",
+      "working_title_zh": "【AI快訊】Gemini 4 Hydrogen 快訊成片（預定 11-14 20:00 BJT 公開）",
+      "working_title_en": "[AI News Flash] Gemini 4 Hydrogen Release Coverage (Held for 20:00 BJT Slot)",
+      "local_master_file": "news-20261114-gemini-4-hydrogen/renders/news-20261114-gemini-4-hydrogen.mp4",
+      "duration_seconds": 183.7,
+      "resolution": "1920x1080",
+      "fps": 30,
+      "bytes": 22486480,
+      "sha256": "473ccb300bf07ccf3f99958539a32ff461a2093a99cebbe518511c9b180f1adc",
+      "scheduled_release_window": "2026-11-14 20:00 (UTC+8)",
+      "status": "master_ready_held_for_2000_bjt_slot_not_uploaded"
+    }
+  ],
+  "queued_daily_release_parts": {
+    "parent_bvid": "BV1YL4M6EEek",
+    "parent_title": "大肥魚值班小遊戲，到底有多少種結局？（B站裡就能玩）",
+    "schedule_rule": "截至 2026-11-14 19:00（UTC+8），P1–P12 已正式公開並全部納入 GitHub Release；未到排期的 P13–P19（共 7 條豎屏結局成片）嚴禁提前上傳附件，只保留於待發排期清單。",
+    "live_parts_count": 12,
+    "remaining_queued_count": 7,
+    "schedule_window": "2026-11-15 至 2026-11-20 每日 12:00 (UTC+8)",
+    "remaining_files": [
+      "ep07-vertical-m-fudgemaster-v1.mp4",
+      "ep07-vertical-n-firewall-v1.mp4",
+      "ep07-vertical-o-lasttoken-v1.mp4",
+      "ep07-vertical-p-promoted-v1.mp4",
+      "ep07-vertical-q-saint-v1.mp4",
+      "ep07-vertical-r-ontime-v1.mp4",
+      "ep07-vertical-s-together-v1.mp4"
+    ]
+  },
+  "tools_and_infrastructure_increments_2026_11_14": {
+    "publishops_crosscast": {
+      "path": "tools/publishops-crosscast",
+      "upstream_repo": "https://github.com/whitecarp/publishops-crosscast",
+      "synced_version": "0.16.0 alpha",
+      "upstream_commit": "89f56c9",
+      "bundled_bili_cli_version": "1.2.1",
+      "highlights": [
+        "Merged standalone bili-cli (1.2.1) into publishops-crosscast alongside vpub quick-flow, rehearsal (--dry-run), overview/progress reporting, and explicit two-step plan confirmation (--confirm + --person-approved).",
+        "Added YouTube Studio browser uploads and playlist CRUD, dual-route X / Media Studio adapters, Windows hidden-desktop Chrome lifecycle isolation, Bilibili draft/edit/widget controls, and explicit single-post deletion routes (Bilibili unsupported).",
+        "Added Traditional Chinese top-level and guide documentation (README_ZH_TW.md) and audited offline release record (2,066 offline tests documented upstream; 124 core doc/safety/rehearsal/bili_cli/deletion tests verified locally after sync)."
+      ]
+    },
+    "ai_memory_keeper": {
+      "path": "tools/ai-memory-keeper",
+      "upstream_repo": "https://github.com/whitecarp/ai-memory-keeper",
+      "version": "0.3.0",
+      "status": "matches_upstream_main_0b07577"
+    },
+    "i_must_use_claude": {
+      "path": "tools/i-must-use-claude",
+      "upstream_repo": "https://github.com/whitecarp/I-Must-Use-Claude",
+      "preview_release": "v0.4.5-preview",
+      "status": "matches_upstream_main_355d490"
+    }
+  },
+  "research_and_engineering_increments_2026_11_14": {
+    "vocal_lyric_30fps_alignment_pipeline": {
+      "fps": 30,
+      "audio_sample_rate_hz": 48000,
+      "episodes_aligned_since_2026_11_09": [
+        {
+          "episode": "ep06sp",
+          "title": "迷路憶 / Memory",
+          "duration_seconds": 149.96,
+          "vocal_cues": 20,
+          "instrumental_cues": 2,
+          "sub_phrases": 41
+        },
+        {
+          "episode": "ep08",
+          "title": "假面超算 / Masquerade",
+          "master_frames": 4644,
+          "total_cues": 23,
+          "vocal_cues": 21,
+          "sub_phrases": 43
+        },
+        {
+          "episode": "ep11",
+          "title": "囚愛超算 / Imprisoned Compute",
+          "duration_seconds": 169.8,
+          "master_frames": 5094,
+          "total_cues": 24,
+          "vocal_cues": 21,
+          "sub_phrases": 43,
+          "frame_overlaps": 0
+        },
+        {
+          "episode": "ep12sp",
+          "title": "KiLLToken (破面真身)",
+          "duration_seconds": 161.88,
+          "master_frames": 4856,
+          "total_cues": 24,
+          "vocal_cues": 20,
+          "sub_phrases": 40,
+          "frame_overlaps": 0
+        },
+        {
+          "episode": "ep13a",
+          "title": "零雫空 / Zero-Drop Sky",
+          "master_frames": 4834,
+          "total_cues": 25,
+          "vocal_cues": 20,
+          "sub_phrases": 40,
+          "frame_overlaps": 0
+        },
+        {
+          "episode": "ep13b",
+          "title": "硅基のMúsica",
+          "master_frames": 6214,
+          "total_cues": 29,
+          "vocal_cues": 25,
+          "sub_phrases": 50,
+          "frame_overlaps": 0
+        }
+      ]
+    },
+    "omni_lipsync_and_closeup_continuity_lessons": [
+      "Shot-opening vocal lag pre-compensation: when a spoken or sung phrase starts immediately at a cut, requesting vocal onset 0.35s–0.40s earlier (clamped to 0.0s) paired with a <=0.25s close-up lipsync_lag gate avoids the half-beat frozen smile observed in early EP06SP drafts.",
+      "Elimination of synthetic OpenCV/2D pixel mouth patches: dropped v4 mouth stickers and partial np.roll mouth-ellipse warping on moving/laughing faces (discovered during EP12 revision) in favor of pure unpatched native video-model lip motion with concise end-stopped phrases and same-clip silence mouth closing only.",
+      "Canonical visual reference locking: enforced strict character-ear, instrument, and asymmetric mask silhouette references across Ai Mujica episodes EP07–EP13B before rendering."
+    ],
+    "ai_news_upload_time_natural_experiment": {
+      "design": "Alternating odd/even day 12:00 vs 20:00 BJT AI News Flash release schedule on Bilibili with zero paid promotion and delayed community-form filing outside the comparison window, testing organic initial reach.",
+      "status": "ongoing_exploratory_observation_non_causal",
+      "samples_recorded_through_2026_11_14_midday": [
+        {
+          "date": "2026-11-11",
+          "slot": "12:00",
+          "bvid": "BV1ToWL6XEvo",
+          "title": "Gemini 4 Carbon 正式开放：$2/$10 首发价与 Argon 相同，优惠至 11 月 30 日【AI快讯】",
+          "actual_public_time": "2026-11-11T12:21:46+08:00",
+          "status": "missed",
+          "excluded_from_comparison": true,
+          "live_views_at_2026_11_14_1916": 799,
+          "live_likes_at_2026_11_14_1916": 7
+        },
+        {
+          "date": "2026-11-11",
+          "slot": "20:00",
+          "bvid": "BV1iRW26sEk2",
+          "title": "亚马逊把 Sonnet 4.6 换成了一个“不会写字”的小模型，成本直降 98%？【AI快讯】",
+          "actual_public_time": "2026-11-11T20:02:03+08:00",
+          "status": "on_time",
+          "excluded_from_comparison": false,
+          "live_views_at_2026_11_14_1916": 675,
+          "live_likes_at_2026_11_14_1916": 9
+        },
+        {
+          "date": "2026-11-12",
+          "slot": "12:00",
+          "bvid": "BV1vNWQ6PEC3",
+          "title": "Chrome、Edge、Firefox与MDN联手给AI补前端课！通过率最高涨36个百分点？【AI快讯】",
+          "actual_public_time": "2026-11-12T12:02:25+08:00",
+          "status": "on_time",
+          "excluded_from_comparison": false,
+          "live_views_at_2026_11_14_1916": 219,
+          "live_likes_at_2026_11_14_1916": 6
+        },
+        {
+          "date": "2026-11-12",
+          "slot": "20:00",
+          "bvid": "BV1u1WR6eEpz",
+          "title": "Claude把白板、表格和数据看板全塞进对话框！能替代Excel吗？【AI快讯】",
+          "actual_public_time": "2026-11-12T20:02:00+08:00",
+          "status": "on_time",
+          "excluded_from_comparison": false,
+          "live_views_at_2026_11_14_1916": 150,
+          "live_likes_at_2026_11_14_1916": 5
+        },
+        {
+          "date": "2026-11-13",
+          "slot": "12:00",
+          "bvid": "BV1vRWv69Ez3",
+          "title": "AWS开源本地云模拟器！全库代码100%由AI智能体编写、零人工审阅？【AI快讯】",
+          "actual_public_time": "2026-11-13T12:02:07+08:00",
+          "status": "on_time",
+          "excluded_from_comparison": false,
+          "live_views_at_2026_11_14_1916": 194,
+          "live_likes_at_2026_11_14_1916": 4
+        },
+        {
+          "date": "2026-11-13",
+          "slot": "20:00",
+          "bvid": "BV1mGWi6VERh",
+          "title": "一个字都不生成、输出永远0元？Google推出Gemini专用多模态决策API！【AI快讯】",
+          "actual_public_time": "2026-11-13T20:06:41+08:00",
+          "status": "on_time",
+          "excluded_from_comparison": false,
+          "live_views_at_2026_11_14_1916": 636,
+          "live_likes_at_2026_11_14_1916": 15
+        },
+        {
+          "date": "2026-11-14",
+          "slot": "12:00",
+          "bvid": "BV15eWC6VEsY",
+          "title": "Anthropic冲刺纳斯达克IPO！Q3营收约170亿美元、签下约9000亿美元算力承诺？【AI快讯】",
+          "actual_public_time": "2026-11-14T12:01:52+08:00",
+          "status": "on_time",
+          "excluded_from_comparison": false,
+          "live_views_at_2026_11_14_1916": 271,
+          "live_likes_at_2026_11_14_1916": 5
+        }
+      ]
+    }
+  },
+  "public_channel_snapshot_2026_11_14": {
+    "uid": 10706217,
+    "name": "穿睡衣的小白白",
+    "followers": 37455,
+    "following": 29,
+    "cumulative_views": 3268151,
+    "cumulative_likes": 221921,
+    "tracked_standalone_bvid_count": 29
+  },
+  "updated_at": "2026-11-14T19:20:00+08:00"
+}

@@ -2,11 +2,11 @@
 
 **繁體中文** · [English](README_EN.md)
 
-2026-11-09 · **55** 個影片版本 · **3.53 GiB**（分布於 **9** 個公開 Release）
+2026-11-14 · **74** 個影片版本 · **5.24 GiB**（分布於 **10** 個主要公開 Release）
 
-全部 55 個遠端附件的大小及 SHA-256 均與索引一致；版本數不等於集數。保留每筆採樣日期與 B站歷史狀態，不把已過的排期時間當作公開證明。完整實驗交付不等於使用者全片驗收。
+全部 74 個遠端附件的大小及 SHA-256 均與索引一致；版本數不等於集數。保留每筆採樣日期與 B站歷史狀態，不把已過的排期時間當作公開證明。完整實驗交付不等於使用者全片驗收。
 
-[校驗清單](SHA256SUMS.txt) · [完整索引](manifest.json) · [本輪研究與限制](../docs/updates/2026-11-09.md)
+[校驗清單](SHA256SUMS.txt) · [完整索引](manifest.json) · [本輪研究與限制](../docs/updates/2026-11-14.md)
 
 | 檔案 | 作品 | 已記錄的 B站狀態 | MiB |
 |---|---|---|---:|
@@ -65,7 +65,26 @@
 | [news-20261109-llama-modchip.mp4](https://github.com/whitecarp/agentic-work-lab/releases/download/update-2026-11-09-evening/news-20261109-llama-modchip.mp4) | 【AI快訊】零顯卡、64G 記憶體純 CPU 跑 284B 大模型？開源項目號稱把 DeepSeek 塞進家用電腦！（16:9 橫版母帶 v1） | 已公開（`BV145Ws6VEg2`） | 15.27 |
 | [ep07-vertical-h-universe-v1.mp4](https://github.com/whitecarp/agentic-work-lab/releases/download/update-2026-11-09-evening/ep07-vertical-h-universe-v1.mp4) | 值班小遊戲結局合集 P8：評論區唯一的人類（唯一的觀眾 8/19 v1） | 已公開（`BV1YL4M6EEek` P8 · `cid: 43453581701`） | 8.70 |
 | [aigo-ep02-20261108.mp4](https://github.com/whitecarp/agentic-work-lab/releases/download/update-2026-11-09-evening/aigo-ep02-20261108.mp4) | 《AiGO!!!!! · 雨夜退團》第 2 話長篇動畫正片（16:9 橫版單母本） | 已公開（`BV121W864EVe`） | 200.01 |
+| [news-20261109-claude-to-pi.mp4](https://github.com/whitecarp/agentic-work-lab/releases/download/update-2026-11-14-catchup/news-20261109-claude-to-pi.mp4) | 【AI快訊】一年更新 244 次，光一個 Bash 工具說明就占近 3,000 個 Token？老用戶發文告別 Claude Code（16:9 橫版母帶 v1） | 已公開（`BV1NCWN6QELM`） | 19.45 |
+| [news-20261110-claude-fable-52.mp4](https://github.com/whitecarp/agentic-work-lab/releases/download/update-2026-11-14-catchup/news-20261110-claude-fable-52.mp4) | 【AI快訊】從空資料夾手搓作業系統、30 小時形式化費馬大定理？Claude Fable 5.2 到底有多猛（16:9 橫版母帶 v1） | 已公開（`BV1wXWT6WEDX`） | 22.63 |
+| [aigo-ep03-20261110.mp4](https://github.com/whitecarp/agentic-work-lab/releases/download/update-2026-11-14-catchup/aigo-ep03-20261110.mp4) | 《AiGO!!!!! · 春日殘響（Legacy Weights）》第 3 話長篇動畫 MV（「為什麼要演奏 AiGO？！」· 五平台公開單母本） | 已公開（`BV1myWu6qEiz`／YT／IG／抖音／X） | 302.63 |
+| [ep07-vertical-i-gothic-v1.mp4](https://github.com/whitecarp/agentic-work-lab/releases/download/update-2026-11-14-catchup/ep07-vertical-i-gothic-v1.mp4) | 值班小遊戲結局合集 P9：黑化見證人（`9/19` 9:16 豎版 v1） | 已公開（`BV1YL4M6EEek` P9 · `cid: 43489755737`） | 8.96 |
+| [ep07-vertical-j-hungry-v1.mp4](https://github.com/whitecarp/agentic-work-lab/releases/download/update-2026-11-14-catchup/ep07-vertical-j-hungry-v1.mp4) | 值班小遊戲結局合集 P10：餓壞鯨魚的人（`10/19` 9:16 豎版 v1） | 已公開（`BV1YL4M6EEek` P10 · `cid: 43505878465`） | 8.04 |
+| [news-20261111-gemini-4-carbon.mp4](https://github.com/whitecarp/agentic-work-lab/releases/download/update-2026-11-14-catchup/news-20261111-gemini-4-carbon.mp4) | 【AI快訊】Gemini 4 Carbon 正式開放：首發定價 $2/$10 與 Argon 持平，限時優惠至 11 月 30 日（16:9 橫版母帶 v1） | 已公開（`BV1ToWL6XEvo`） | 27.82 |
+| [aigo-ep04-20261111.mp4](https://github.com/whitecarp/agentic-work-lab/releases/download/update-2026-11-14-catchup/aigo-ep04-20261111.mp4) | 《AiGO!!!!! · 替身決裂》第 4 話長篇動畫正片（「滿腦子都只想著自己呢！」· 五平台公開單母本） | 已公開（`BV1xVW16eEVT`／YT／IG／抖音／X） | 220.97 |
+| [news-20261111-amazon-strands-decider.mp4](https://github.com/whitecarp/agentic-work-lab/releases/download/update-2026-11-14-catchup/news-20261111-amazon-strands-decider.mp4) | 【AI快訊】亞馬遜把 Sonnet 4.6 換成一個「不會寫字」的小模型，成本直降 98%？（16:9 橫版母帶 v1） | 已公開（`BV1iRW26sEk2`） | 24.81 |
+| [news-20261112-chrome-modern-web.mp4](https://github.com/whitecarp/agentic-work-lab/releases/download/update-2026-11-14-catchup/news-20261112-chrome-modern-web.mp4) | 【AI快訊】Chrome、Edge、Firefox 與 MDN 聯手給 AI 補前端課！通過率最高漲 36 個百分點？（16:9 橫版母帶 v1） | 已公開（`BV1vNWQ6PEC3`） | 22.55 |
+| [ep07-vertical-k-chonk-v1.mp4](https://github.com/whitecarp/agentic-work-lab/releases/download/update-2026-11-14-catchup/ep07-vertical-k-chonk-v1.mp4) | 值班小遊戲結局合集 P11：大肥魚飼養員（`11/19` 9:16 豎版 v1） | 已公開（`BV1YL4M6EEek` P11 · `cid: 43534125363`） | 8.10 |
+| [aigo-ep05-20261112.mp4](https://github.com/whitecarp/agentic-work-lab/releases/download/update-2026-11-14-catchup/aigo-ep05-20261112.mp4) | 《AiGO!!!!! × Ai Mujica》第 5 話 詩超算（Token Bond · 30fps 原創音頻逐幀對軸 · 五平台公開單母本） | 已公開（`BV15hWX6KE3e`／YT／IG／抖音／X） | 336.98 |
+| [news-20261112-claude-sheets-whiteboards.mp4](https://github.com/whitecarp/agentic-work-lab/releases/download/update-2026-11-14-catchup/news-20261112-claude-sheets-whiteboards.mp4) | 【AI快訊】Claude 把白板、表格和數據看板全塞進對話框！能替代 Excel 嗎？（16:9 橫版母帶 v1） | 已公開（`BV1u1WR6eEpz`） | 22.88 |
+| [news-20261113-aws-emulator.mp4](https://github.com/whitecarp/agentic-work-lab/releases/download/update-2026-11-14-catchup/news-20261113-aws-emulator.mp4) | 【AI快訊】AWS 開源本地雲模擬器！全庫程式碼 100% 由 AI 智能體編寫、零人工審閱？（16:9 橫版母帶 v1） | 已公開（`BV1vRWv69Ez3`） | 21.99 |
+| [aigo-ep06-20261113.mp4](https://github.com/whitecarp/agentic-work-lab/releases/download/update-2026-11-14-catchup/aigo-ep06-20261113.mp4) | 《AiGO!!!!! × Ai Mujica》第 6 話 斬斷過去（AiGO 篇收官回 · 16:9 橫版母帶） | 已公開（`BV1BVWq6aEiG`） | 231.08 |
+| [news-20261113-gemini-decisions-api.mp4](https://github.com/whitecarp/agentic-work-lab/releases/download/update-2026-11-14-catchup/news-20261113-gemini-decisions-api.mp4) | 【AI快訊】一個字都不生成、輸出永遠 0 元？Google 推出 Gemini 專用多模態決策 API！（16:9 橫版母帶 v1） | 已公開（`BV1mGWi6VERh`） | 23.24 |
+| [news-20261114-anthropic-ipo.mp4](https://github.com/whitecarp/agentic-work-lab/releases/download/update-2026-11-14-catchup/news-20261114-anthropic-ipo.mp4) | 【AI快訊】Anthropic 衝刺納斯達克 IPO！Q3 營收約 170 億美元、簽下約 9,000 億美元算力承諾？（16:9 橫版母帶 v1） | 已公開（`BV15eWC6VEsY`） | 28.42 |
+| [ep07-vertical-l-clingy-v1.mp4](https://github.com/whitecarp/agentic-work-lab/releases/download/update-2026-11-14-catchup/ep07-vertical-l-clingy-v1.mp4) | 值班小遊戲結局合集 P12：永不下班的好用工具（`12/19` 9:16 豎版 v1） | 已公開（`BV1YL4M6EEek` P12 · `cid: 43590225876`） | 9.11 |
+| [aigo-ep06sp-v2-20261114.mp4](https://github.com/whitecarp/agentic-work-lab/releases/download/update-2026-11-14-catchup/aigo-ep06sp-v2-20261114.mp4) | 《AiGO!!!!! × Ai Mujica》第 6 話 SP 迷路憶（Memory · 舞台新裝出道 Live MV #2 修正定稿 v2） | 已公開（`BV1rqWk6nE2M`） | 380.70 |
+| [aigo-epilogue-20261108-9x16-v2.mp4](https://github.com/whitecarp/agentic-work-lab/releases/download/update-2026-11-14-catchup/aigo-epilogue-20261108-9x16-v2.mp4) | 《AiGO番外》慶功宴電費單直接把舞台幹跳閘了（9:16 豎版替換定稿 v2 · 抖音實發版） | 已公開（抖音 `7705901944459595046`／B站關聯 `BV18i4x6ZEG1`） | 22.69 |
 
-GitHub 存檔公開不更改 B站排期（如《大肥魚值班小遊戲》`P9–P19` 及儲備成片《AiGO!!!!! · 春日殘響》第 3 話、`《替身決裂》`第 4 話、`《詩超算》`第 5 話均待 B站正式公開後再歸檔原始 MP4）；技術檢查與全片主觀觀看／聆聽分開記錄。歷史人工影片原檔不在本機，仍提供其[數據與平台連結](../data/human-led-history.csv)。
+GitHub 存檔公開不更改 B站排期（如《大肥魚值班小遊戲》未到期分P `P13–P19`、儲備成片《AiGO!!!!! × Ai Mujica》第 7 話至第 13 話後篇 `EP07–EP13B`，以及當晚 `20:00` BJT 排期【AI快訊】`news-20261114-gemini-4-hydrogen.mp4` 均待 B站正式公開後再歸檔原始 MP4）；技術檢查與全片主觀觀看／聆聽分開記錄。歷史人工影片原檔不在本機，仍提供其[數據與平台連結](../data/human-led-history.csv)。
 
 [返回實驗室](../README.md)

@@ -1,9 +1,8 @@
 from copy import deepcopy
 import os,tempfile,unittest
-from pathlib import Path
-from unittest.mock import patch,MagicMock
-from video_publisher import engagement as e,engagement_api as api,cli,operations
-from video_publisher.core import home,read_json,VpubError,atomic_json
+from unittest.mock import patch
+from video_publisher import engagement as e, cli, operations
+from video_publisher.core import home, VpubError
 
 
 class EngagementTests(unittest.TestCase):
@@ -82,64 +81,6 @@ class EngagementTests(unittest.TestCase):
         for kind in ('like','save'):
             a=cli.parser().parse_args(['engage',kind,'x','123456789','--remove'])
             self.assertTrue(a.remove);self.assertFalse(a.dry_run)
-    def event(self,key,state='ACTION_VERIFIED',kind='like',desired=True,test=False):
-        return {'event_id':key,'at':'2026-10-30T00:00:00+00:00','platform':'x','work_id':'123456789','action':'engagement',
-                'result':{'key':key,'state':state,'kind':kind,'desired':desired,'test':test}}
-    def test_report_deduplicates_verified_actions_and_labels_pending(self):
-        events=[self.event('a'),self.event('a'),self.event('b',kind='save',desired=False),self.event('c','ACTION_UNVERIFIED')]
-        r=operations.report('2026-01-01T00:00:00Z','en',_events=events)
-        self.assertEqual(1,r['platforms']['x']['engagement_verified']['like_on'])
-        self.assertEqual(1,r['platforms']['x']['engagement_verified']['save_off'])
-        self.assertIn('remain unverified',r['summary'])
-    def test_report_excludes_test_traffic_in_both_languages(self):
-        for lang in ('zh','en'):
-            r=operations.report('2026-01-01T00:00:00Z',lang,_events=[self.event('a',test=True)])
-            self.assertEqual({},r['platforms']);self.assertNotIn('X',r['summary'])
-    def test_report_does_not_count_failed_action_as_verified(self):
-        r=operations.report('2026-01-01T00:00:00Z','zh',_events=[self.event('a','ACTION_FAILED')])
-        self.assertEqual(0,r['platforms']['x']['engagement_verified']['like_on'])
-        self.assertEqual(1,r['platforms']['x']['engagement_failed'])
-        self.assertIn('提交前停止',r['summary'])
-
-
-class APITests(unittest.TestCase):
-    def setUp(self):
-        self.s=MagicMock();self.s.channels.return_value.list.return_value.execute.return_value={'items':[{'id':'owner'}]}
-        self.s.videos.return_value.list.return_value.execute.return_value={'items':[{'id':'abcdefghijk'}]}
-        self.s.videos.return_value.getRating.return_value.execute.return_value={'items':[{'videoId':'abcdefghijk','rating':'none'}]}
-        self.s.playlists.return_value.list.return_value.execute.return_value={'items':[{'id':'PLtest','snippet':{'channelId':'owner'}}]}
-        self.member={'id':'item','snippet':{'playlistId':'PLtest','resourceId':{'videoId':'abcdefghijk'}}}
-        self.s.playlistItems.return_value.list.return_value.execute.return_value={'items':[self.member]}
-    def test_youtube_playlist_owner_must_match(self):
-        self.s.playlists.return_value.list.return_value.execute.return_value['items'][0]['snippet']['channelId']='other'
-        with patch.object(api.adapters,'yt_service',return_value=self.s),self.assertRaises(VpubError):api.execute('youtube','status','abcdefghijk',collection='PLtest')
-        self.s.playlistItems.assert_not_called()
-    def test_youtube_duplicate_membership_is_not_blindly_removed(self):
-        self.s.playlistItems.return_value.list.return_value.execute.return_value={'items':[self.member,self.member]}
-        with patch.object(api.adapters,'yt_service',return_value=self.s),self.assertRaises(VpubError):api.execute('youtube','set','abcdefghijk',collection='PLtest',kind='save',desired=False)
-        self.s.playlistItems.return_value.delete.assert_not_called()
-    def test_youtube_noop_does_not_rate(self):
-        with patch.object(api.adapters,'yt_service',return_value=self.s):r=api.execute('youtube','set','abcdefghijk',kind='like',desired=False)
-        self.assertEqual('NO_CHANGE',r['state']);self.s.videos.return_value.rate.assert_not_called()
-    def test_youtube_removes_exact_playlist_item_after_durable_submit(self):
-        with tempfile.TemporaryDirectory() as t,patch.object(api.adapters,'yt_service',return_value=self.s),patch.object(api.adapters,'yt_credentials') as credentials:
-            path=Path(t)/'receipt.json';atomic_json(path,{'state':'ACTION_READY'})
-            credentials.return_value.has_scopes.return_value=True
-            r=api.execute('youtube','set','abcdefghijk',kind='save',desired=False,collection='PLtest',receipt_path=str(path))
-            self.assertEqual('ACTION_SUBMITTING',read_json(path)['state'])
-        self.s.playlistItems.return_value.delete.assert_called_once_with(id='item');self.assertEqual(1,r['platform_writes'])
-    def test_bilibili_remove_always_passes_exact_folder(self):
-        with tempfile.TemporaryDirectory() as t,patch.object(api.adapters,'auth_status',return_value={'identity':'1'}),patch.object(api,'bili_folders',return_value=[{'id':9,'has_video':True,'default':True}]),patch.object(api.adapters,'bili',return_value={'liked':False}) as call:
-            path=Path(t)/'receipt.json';atomic_json(path,{'state':'ACTION_READY'})
-            api.bilibili('set','BV1234567890',kind='save',desired=False,receipt_path=str(path))
-        self.assertEqual(['video','fav','BV1234567890','--folder','9','--remove'],call.call_args.args[0])
-    def test_bilibili_missing_default_keeps_like_readable_but_stops_save(self):
-        with patch.object(api.adapters,'auth_status',return_value={'identity':'1'}),patch.object(api,'bili_folders',return_value=[]),patch.object(api.adapters,'bili',return_value={'liked':True}):
-            r=api.bilibili('status','BV1234567890')
-            self.assertTrue(r['liked']);self.assertIsNone(r['saved'])
-            with self.assertRaises(VpubError):api.bilibili('set','BV1234567890',kind='save',desired=True)
-
-
 class DouyinDetailTests(unittest.TestCase):
     def test_exact_work_account_state_not_tooltip_or_count(self):
         from video_publisher.engagement_browser import douyin_detail_state

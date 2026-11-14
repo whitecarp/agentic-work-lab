@@ -7,14 +7,13 @@ cannot independently inspect the host's browser and never claims that it did.
 from __future__ import annotations
 
 import re
-import shutil
 import sqlite3
 from copy import deepcopy
 from pathlib import Path
 from urllib.parse import urlsplit, parse_qs
 
 from .core import (Ledger, VpubError, atomic_json, file_sha, home, now,
-                   publication_lock, read_json, stop_check, platform_check, load_plan, digest)
+                   publication_lock, read_json, snapshot_file, stop_check, platform_check, load_plan, digest)
 
 URLS = {
     "bilibili": "https://member.bilibili.com/",
@@ -45,6 +44,8 @@ def queue(platform, plan, options):
 
 
 def request(key):
+    from .work_delete_state import refuse_other_action
+    refuse_other_action(key)
     ledger = Ledger()
     try:
         old = ledger.get(key)
@@ -135,7 +136,7 @@ def retry_rejected(key, identity, evidence_path):
             ledger.close()
 
 
-def authorize_publish(key, identity):
+def authorize_publish(key, identity, confirmation=None, *, person_approved=False):
     """Explicit operator authorization to submit the existing draft, never reupload."""
     with publication_lock():
         job = request(key)
@@ -147,11 +148,21 @@ def authorize_publish(key, identity):
             if identity != old["data"].get("browser_identity"):
                 raise VpubError("wrong_account", "Confirm the original account in the current browser first.")
             data = old["data"]
-            data.setdefault("submission_authorizations", []).append({"at": now(), "identity": identity,
-                "previous_state": old["state"], "previous_plan_hash": data["plan_hash"], "previous_receipt": data.get("receipt")})
             plan = deepcopy({k:v for k,v in data["approved_plan"].items() if k != "confirmation"})
             plan["platforms"][old["platform"]]["submission_mode"] = "publish"
             plan["confirmation"] = digest(plan)
+            from .publication_review import check
+            waiting = check(plan, confirmation, person_approved, draft_promotion=True)
+            if waiting:
+                return {**waiting, "key": key, "final_submission_allowed": False,
+                        "next": "Stop and show the changed publication plan to the user. Wait for their yes. "
+                                f"Only then run vpub browser authorize-publish {key} --identity {identity} "
+                                f"--confirm {plan['confirmation']} --person-approved. "
+                                "This attests their approval; the CLI cannot verify who supplied it. "
+                                "Keep the existing draft; do not upload again."}
+            data.setdefault("submission_authorizations", []).append({"at": now(), "identity": identity,
+                "previous_state": old["state"], "previous_plan_hash": data["plan_hash"], "previous_receipt": data.get("receipt"),
+                "person_approved": person_approved is True})
             opts = plan["platforms"][old["platform"]]
             data.update(approved_plan=plan, plan_hash=plan["confirmation"], options=opts)
             job["plan"]["platforms"] = deepcopy(plan["platforms"])
@@ -169,6 +180,8 @@ def authorize_publish(key, identity):
 def revise(key, manifest, confirmation, identity):
     """Update approved text in place; keep the existing upload and its durable ID."""
     with publication_lock():
+        from .work_delete_state import refuse_other_action
+        refuse_other_action(key)
         ledger = Ledger()
         try:
             old = ledger.get(key)
@@ -224,12 +237,14 @@ def record(key, evidence_path):
     if not isinstance(evidence, dict) or set(evidence) - allowed:
         raise VpubError("invalid_evidence", "Use only documented browser-evidence fields; never include cookies or raw page dumps.")
     outcome = evidence.get("outcome")
-    if outcome not in {"verified", "uncertain", "rejected", "action_required", "draft"}:
+    if not isinstance(outcome, str) or outcome not in {"verified", "uncertain", "rejected", "action_required", "draft"}:
         raise VpubError("invalid_evidence", "outcome must be verified, uncertain, rejected, action_required or draft.")
     if not isinstance(evidence.get("observation"), str) or not 1 <= len(evidence["observation"]) <= 1000:
         raise VpubError("invalid_evidence", "Supply a short factual UI observation, at most 1000 characters.")
     # Recording an outcome remains possible after STOP: preserving receipts is safe.
     with publication_lock():
+        from .work_delete_state import refuse_other_action
+        refuse_other_action(key)
         ledger = Ledger()
         try:
             old = ledger.get(key)
@@ -317,8 +332,8 @@ def record(key, evidence_path):
             notification = None
             if state == "WAITING_FOR_USER":
                 try:
-                    from .notifications import enqueue
-                    notification = enqueue(key, old["platform"], old["data"].get("user_action_episode", 1))
+                    from .adapters import email_reminder
+                    notification = email_reminder(key, old["platform"], old["data"].get("user_action_episode", 1))
                 except (OSError, ValueError, VpubError, sqlite3.Error):
                     notification = {"state": "QUEUE_ERROR", "email_sent": False, "inline_notice_required": True}
             return {"key": key, **receipt, "user_action_required": state == "WAITING_FOR_USER",
@@ -333,6 +348,8 @@ def revise_cover(key, cover_path, identity, portrait_path=None):
     if not source.is_file() or source.suffix.lower() not in {".jpg", ".jpeg", ".png"} or not source.stat().st_size:
         raise VpubError("invalid_cover", "Choose a nonempty production JPG or PNG cover.")
     with publication_lock():
+        from .work_delete_state import refuse_other_action
+        refuse_other_action(key)
         ledger = Ledger()
         try:
             old = ledger.get(key)
@@ -348,12 +365,7 @@ def revise_cover(key, cover_path, identity, portrait_path=None):
                 raise VpubError("unsupported_cover", "Portrait variants currently require Douyin/Instagram native mode.")
             stop_check(old["platform"])
             sha = file_sha(source)
-            target = home() / "covers" / (sha + source.suffix.lower())
-            target.parent.mkdir(parents=True, exist_ok=True)
-            if not target.exists():
-                shutil.copyfile(source, target)
-            if file_sha(target) != sha:
-                raise VpubError("source_changed", "Cover snapshot changed during copying.")
+            target = snapshot_file(source, home() / "covers" / (sha + source.suffix.lower()), sha)
             plan = deepcopy({k: v for k, v in data["approved_plan"].items() if k != "confirmation"})
             plan.update(cover=str(target), cover_sha256=sha)
             if portrait_path:
@@ -361,11 +373,7 @@ def revise_cover(key, cover_path, identity, portrait_path=None):
                 if not portrait.is_file() or portrait.suffix.lower() not in {".jpg", ".jpeg", ".png"} or not portrait.stat().st_size:
                     raise VpubError("invalid_cover", "Choose a complete portrait JPG/PNG.")
                 portrait_sha = file_sha(portrait)
-                portrait_target = target.parent / (portrait_sha + portrait.suffix.lower())
-                if not portrait_target.exists():
-                    shutil.copyfile(portrait, portrait_target)
-                if file_sha(portrait_target) != portrait_sha:
-                    raise VpubError("source_changed", "Portrait snapshot changed.")
+                portrait_target = snapshot_file(portrait, target.parent / (portrait_sha + portrait.suffix.lower()), portrait_sha)
                 plan.setdefault("covers", {})[old["platform"]] = {
                     "landscape": {"path": str(target), "sha256": sha},
                     "portrait": {"path": str(portrait_target), "sha256": portrait_sha}}

@@ -97,7 +97,7 @@ def make_run(platforms,limit,pages,language,reply_pages,reply_threads,min_interv
             jobs.append(job)
     for p in selected:
         for kind in dict.fromkeys(k for k in kinds if k in {'mentions','dm_preview'}):
-            if p not in {'douyin','instagram','x'}:
+            if p not in {'bilibili','douyin','instagram','x'}:
                 source_status.append({'platform':p,'kind':kind,'state':'UNSUPPORTED'})
                 continue
             from .direct_messages import identity
@@ -113,7 +113,7 @@ def make_run(platforms,limit,pages,language,reply_pages,reply_threads,min_interv
         cp=cache_path(job,options)
         if not full and min_interval and cp.exists():
             cached=read_json(cp)
-            age=(datetime.now(timezone.utc)-datetime.fromisoformat(cached['checked_at'])).total_seconds()
+            age=(datetime.now(timezone.utc)-datetime.fromisoformat(cached['checked_at'].replace('Z','+00:00'))).total_seconds()
             if 0<=age<min_interval:
                 job.update(state='CACHED',result=cached['result'],checked_at=cached['checked_at'],cache_age_seconds=round(age,2))
     run={'schema_version':1,'run_id':uuid.uuid4().hex,'state':'RUNNING','started_at':now(),'options':options,
@@ -230,9 +230,10 @@ def recover_batches(run):
 
 
 def browser_group(run,group):
+    from .direct_messages import identity as account_identity
     p,identity=group[0]['platform'],group[0]['identity'];o=run['options']
     for j in group:
-        if (ops.browser_identity(p,j['work_id']) if j['work_id']!='@account' else __import__('video_publisher.direct_messages',fromlist=['identity']).identity(p))!=identity:raise VpubError('wrong_account','Work binding changed.')
+        if (ops.browser_identity(p,j['work_id']) if j['work_id']!='@account' else account_identity(p))!=identity:raise VpubError('wrong_account','Work binding changed.')
     reads=[{'operation':j['operation'],'work_id':j['work_id'],'limit':o['limit'],
             **({'pages':o['pages'],'reply_pages':o['reply_pages']} if j['operation']=='comments' else {})} for j in group]
     batch={'id':uuid.uuid4().hex,'identity':identity,'platform':p,'job_ids':[j['job_id'] for j in group],
@@ -245,6 +246,15 @@ def browser_group(run,group):
     # Also support a worker that returned before the parent had read its last checkpoint.
     atomic_json(path,{**value,'request_hash':batch['request_hash']})
     recover_batches(run)
+
+
+def read_direct(run,job):
+    """A read through the platform's own CLI or API rather than a shared browser."""
+    if job['operation']=='comments':return api_comments(run,job)
+    if job['operation'] in {'mentions','dm_preview'}:
+        from .operations_api import bilibili_source
+        return bilibili_source(job['operation'],job['identity'],run['options']['limit'])
+    return ops.backend(job['platform'],'stats',job['work_id'])
 
 
 def execute_serial(run):
@@ -264,7 +274,7 @@ def execute_serial(run):
                 if any(j['state']!='DONE' for j in group):blocked.add(p)
             else:
                 job['state']='RUNNING';save(run)
-                value=job.get('raw_result') or (api_comments(run,job) if job['operation']=='comments' else ops.backend(p,'stats',job['work_id']))
+                value=job.get('raw_result') or read_direct(run,job)
                 finish(run,job,value)
         except Exception as exc:
             # Do not try another route on a challenged account. Other platforms can continue.
@@ -299,7 +309,7 @@ def finalize(run):
                items=list(items.values()),inbox=inbox,
                reads_completed=sum(j['state']=='DONE' for j in run['jobs']),cached_reads=sum(j['state']=='CACHED' for j in run['jobs']),
                changes=[{'platform':j['platform'],'work_id':j['work_id'],**c} for j in run['jobs'] if j['state']=='DONE' for c in j.get('changes',[])],
-               report=ops.report(since=run['started_at'],language=run['options']['language'],_events=run['events']))
+               report=patrol_summary(run))
     run['sources']=list(run.get('source_status',[]))
     for j in run['jobs']:
         if j['operation'] not in {'mentions','dm_preview','comments'}:continue
@@ -320,6 +330,17 @@ def finalize(run):
         run['report']=(f'本轮读取 {good} 个消息来源，复用 {cached} 项缓存；新观察到 {added} 条提及或会话预览。首次读取仅建立基线，受限来源见明细。未发送回复、私信或邮件。' if ops.reporting_language(run['options']['language'])=='zh' else
                        f'Read {good} message sources; reused {cached} cached reads; {added} newly observed mentions or conversation previews. First reads establish a baseline; see coverage limits. No replies, DMs or email sent.')
     save(run);return run
+
+
+def patrol_summary(run):
+    """What this one patrol read. The report across time is in the paid add-on."""
+    done=sum(j['state']=='DONE' for j in run['jobs']);cached=sum(j['state']=='CACHED' for j in run['jobs'])
+    failed=sum(j['state'] not in {'DONE','CACHED'} for j in run['jobs'])
+    new=sum(len(j['result'].get('newly_observed_ids',[])) for j in run['jobs'] if j['state']=='DONE' and j['operation']=='comments')
+    language=ops.reporting_language(run['options']['language'])
+    summary=(f'本轮完成 {done} 次读取，复用 {cached} 项缓存，新观察到 {new} 条评论，{failed} 次读取未完成。未发送回复、私信或邮件。' if language=='zh' else
+             f'Completed {done} reads, reused {cached} cached reads, observed {new} new comments; {failed} reads did not complete. No replies, DMs or email sent.')
+    return {'language':language,'summary':summary,'reads_completed':done,'cached_reads':cached,'newly_observed_comments':new,'failed_reads':failed}
 
 
 def execute(run,progress=False):

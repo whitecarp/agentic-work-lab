@@ -12,4 +12,3 @@ If you have a working TikTok account in another region and would like to help te
 
 This release does not support TikTok publication. Restoring the integration requires separate validation and a new release.
 
-[Back to the lab](../../../README_EN.md)

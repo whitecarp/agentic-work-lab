@@ -2,11 +2,11 @@
 
 [繁體中文](X_GUIDE.md) · **English**
 
-**X publishing supports subscribed users whose accounts can actually access Media Studio.**
+**The free X browser publishing route requires a subscription and actual Media Studio access.** The official API route belongs to the separate paid add-on, which is not on sale yet; this does not establish support for free or Basic accounts.
 
-This requirement exists because non-subscribers are limited to **140-second, 512 MB** video uploads and cannot use the Media Studio media-management and custom-thumbnail workflow on which this tool depends. CrossCast uploads videos and sets production thumbnails through Media Studio, so its X backend currently supports subscription accounts with that access. Login or payment alone does not establish access; the CLI checks the library entry and managed account before selecting media. [Official upload limits](https://help.x.com/en/using-x/x-videos) · [Media Studio access](https://help.x.com/en/using-x/media-studio).
+This requirement exists because non-subscribers are limited to **140-second, 512 MB** video uploads and cannot use the Media Studio media-management and custom-thumbnail workflow on which the free browser route depends. CrossCast's free X browser backend uploads videos and sets production thumbnails through Media Studio, so that route supports subscription accounts with that access. Login or payment alone does not establish access; the CLI checks the library entry and managed account before selecting media. [Official upload limits](https://help.x.com/en/using-x/x-videos) · [Media Studio access](https://help.x.com/en/using-x/media-studio).
 
-**0.3.1 alpha:** `vpub auth login x` opens the official login window once. Later `publish` commands reuse CrossCast's dedicated profile headlessly: check account → upload to Media Studio → apply the production thumbnail → fill exact source-aware post text → submit once → read back the original status. This is a scripted official website workflow, not an X API client.
+**0.3.1 alpha:** `vpub auth login x` opens the official login window once. Later `publish` commands reuse CrossCast's dedicated profile headlessly: check account → upload to Media Studio → apply the production thumbnail → fill exact source-aware post text → submit once → read back the original status. This is a scripted official website workflow, not an X API client. X may treat CrossCast's dedicated browser as a new device and ask for a check or account recovery: finish it yourself on X's own page; CrossCast never answers it.
 
 ```sh
 vpub auth login x
@@ -19,15 +19,24 @@ vpub verify RECEIPT_KEY
 vpub works x
 ```
 
-Use `expected_identity` for the intended handle. Media Studio access is checked before upload, including the managed account identity. If processing or a selector fails before Post, `resume KEY` can reopen the same saved media; after Post it only verifies. Existing receipts prevent another upload. `--draft-only` stops at preview, which is not a guaranteed persistent post draft. This route uses current account audience and does not alter protected-account settings.
+Use `expected_identity` for the intended handle. Media Studio access is checked before upload, including the managed account identity. If processing or a selector fails before Post, `resume KEY` can reopen the same saved media; after Post it only verifies. While a Library tile's `Loading N%` keeps moving, the file is not opened and the wait goes on, for most of one command's 30 minutes; a file that can't go up in that time stops with `upload_too_slow`. If the browser closed before Media Studio had the whole file, Library holds no file of its name: `resume` looks for one for a minute, loads Library again and looks for another minute, and only then uploads the file once more. A file of that name it sees is opened, not uploaded again. If Library is slow, or later uploads have pushed the file down the list, resume may not see it and uploads it again; two files of one name then stop the attempt until one of them is deleted in Media Studio. This recovery comes from a field run's interrupted 61 MB upload and has not itself been run on a real account yet. A plan can set `existing_media_url` to a clip's own page in Media Studio, and it then posts that clip with no upload, provided the page's file has this video's `crosscast-<hash>` name. An existing receipt stops `vpub publish` from starting the same attempt again. `--draft-only` stops at preview, which is not a guaranteed persistent post draft. This route uses current account audience and does not alter protected-account settings.
 
 Production cover upload and episode-two publication were observed; [validation](VALIDATION_EN.md) records the repairs and limits. Custom thumbnails require actual Media Studio access; a subscription alone is not a guarantee. Native AI-label control was not observed in Studio, so this route retains the explicit AI-generated caption disclosure.
 
 ## Eligibility and official limits
 
-This project currently supports subscription accounts with actual Media Studio access. A free account's short-video allowance does not make it a supported publishing route here. X's general web-upload guide lists 140 seconds and 512 MB for non-subscribers; Studio thumbnail and media-management features require the appropriate access. [General upload limits](https://help.x.com/en/using-x/x-videos) · [Media Studio access](https://help.x.com/en/using-x/media-studio).
+This project's free browser publishing route supports subscription accounts with actual Media Studio access. A free account's short-video allowance does not make it a supported publishing route here. X's general web-upload guide lists 140 seconds and 512 MB for non-subscribers; Studio thumbnail and media-management features require the appropriate access. [General upload limits](https://help.x.com/en/using-x/x-videos) · [Media Studio access](https://help.x.com/en/using-x/media-studio).
 
 The official legacy tier table excludes Media Studio from Basic and includes it in Premium/Premium+. Other newer plans also exist; the actual account entitlement is decisive. Do not promise support for every paid plan. [Official tiers](https://help.x.com/en/using-x/x-premium). Checked 2026-10-30.
+
+## Scheduling, folders and X's two websites
+
+- **Scheduling.** Put a future `schedule` (an ISO time with an explicit time zone) in the X entry of the manifest. CrossCast fills Media Studio's own calendar and clock in this computer's time zone, reads them back and saves once. CrossCast reads Studio's schedule page once before the upload. Before its time, one new row there with exactly its words, its date and time and a video makes the receipt `SUBMISSION_VERIFIED` in phase `scheduled`. A row has no ID and doesn't say which video, and an identical row added by someone else after that first read would pass too. If a row like it was already there, or the first read couldn't tell, it stays `SUBMITTED_UNVERIFIED` until you look. After the time has passed, `vpub verify` confirms the post only from one new post with exactly its words, at about that time, showing the video Media Studio numbered; if that number cannot be read, it names the post as a `candidate_id` for you to check. On the one real post checked, a video with a custom cover showed no readable number, so this check would name a candidate rather than confirm. On a real account a post was scheduled this way and cancelled before its time; the row check was written from what that run saw and hasn't itself run there. No scheduled post has reached its time. To cancel one, open that page, hover over its row, press its Delete, then the red Delete. CrossCast has no command for this, and the clip stays in the Library until you delete it. The API route cannot schedule.
+- **A cover on a vertical video.** On a real post a 3:4 cover was stored at 900×1200, but the public post shows it in the video's 9:16 frame, which clipped both edges of its title. Keep important words away from the edges. A landscape film's 16:9 cover hasn't been checked on its public post yet.
+- **A video's length.** If the X entry of a plan has `duration_seconds`, CrossCast checks the file's video shows that length, within a second, before composing the post, and stops with `video_unverified` if it can't. Its picture size isn't checked, since a 1920×1080 film's preview played at 480×270.
+- **Two websites.** X serves two versions of its website and CrossCast detects which one the account gets; so far a signed-in account gets the earlier one. A page that matches neither stops with an error; read that attempt's receipt (its `state`, `submitted_at` and `platform_writes`) to see whether anything had already gone out.
+- **Bookmark folders** need X Premium. On the earlier site, listing, creating, renaming and deleting folders and adding a post to a folder were confirmed on a real account (a first add had gone in but was reported as unconfirmed, because CrossCast gave up waiting for X's answer; that wait is fixed). A post comes out of a folder through the share menu on the folder's own page; that worked by hand. Through CrossCast the first try ran out of time in the background browser before anything was recorded, and the second made one recorded press and ended unconfirmed, because the page showed no folder control when CrossCast went to read the result back (probably a page redraw; the control now gets a moment to come back). A later try through CrossCast was confirmed, with a separate read showing the folder empty.
+- **Drafts.** `vpub init --draft-only` stops at the composer preview with the media saved in Media Studio (`PREVIEW_READY`); that is not a confirmed saved draft.
 
 ## Historical native-browser guide
 
@@ -57,11 +66,11 @@ Set `expected_identity` to the handle visible in the signed-in profile, without 
 
 X's web-upload guide currently lists 140 seconds and 512 MB for non-subscribers, with different paid limits; validate the actual account UI as well. [Official source](https://help.x.com/en/using-x/x-videos) (checked 2026-10-29).
 
-Discovery, work listings, analytics, comments and inbox are not unified X commands yet. Do not describe this handoff as a full X CLI.
+This native handoff does not cover discovery, work listings, analytics, comments or the inbox; those are separate commands now (`vpub works x`, `vpub stats x`, `vpub comments`, `vpub messages` and `vpub dm`, see the [feature scope](FEATURES_EN.md)). Do not describe this handoff itself as a full X CLI.
 
 ## Custom thumbnails and subscription
 
-**Custom thumbnails use subscription-gated Media Studio.** Official guidance limits Studio access to verified subscribers. Its library offers Change thumbnail with a video frame or uploaded image matching the video aspect ratio. Ordinary post composition is a different surface; payment alone does not prove that the library is ready.
+**Custom thumbnails on the free browser route use subscription-gated Media Studio.** Official guidance limits Studio access to verified subscribers. Its library offers Change thumbnail with a video frame or uploaded image matching the video aspect ratio. Ordinary post composition is a different surface; payment alone does not prove that the library is ready.
 
 [Official access](https://help.x.com/en/using-x/media-studio) · [Official thumbnail guidance](https://help.x.com/en/using-x/media-studio-faqs) (checked 2026-10-29).
 
@@ -77,4 +86,3 @@ This Studio post retains the AI-generated text disclosure, but the native Made w
 
 Related links: [Draft procedure](DRAFT_TESTING_EN.md)
 
-[Back to the lab](../../../README_EN.md)

@@ -1,0 +1,14 @@
+include LICENSE
+include README.md
+include README_EN.md
+include README_ZH_TW.md
+include NOTICE.md
+include CONTRIBUTING.md
+recursive-include assets *.svg
+include docs/.nojekyll
+recursive-include docs *.md *.html *.css *.js
+recursive-include src/video_publisher *.py
+recursive-include src/bili_cli *.py *.md
+include src/bili_cli/LICENSE
+recursive-include tests *.py
+recursive-include skills *.md *.yaml

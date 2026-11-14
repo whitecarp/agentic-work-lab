@@ -1,11 +1,10 @@
-from copy import deepcopy
 import os
 from pathlib import Path
 import tempfile
 import unittest
-from unittest.mock import MagicMock, patch
+from unittest.mock import patch
 
-from video_publisher import adapters, cli, metadata, native_browser
+from video_publisher import cli, metadata, native_browser
 from video_publisher.core import atomic_json, load_plan, read_json, VpubError
 
 
@@ -21,6 +20,7 @@ class MetadataTests(unittest.TestCase):
         self.cover.write_bytes(b'not a real cover; structural fixture')
         self.path = self.root / 'publish.json'
         self.value = cli.template(self.video, 'ja')
+        self.value['title'] = 'Metadata fixture'
         self.value['platforms']['youtube']['category_id']='1'  # Synthetic fixture only.
         self.value['platforms']['instagram'] = {'method':'native','visibility':'account','ai_generated':True}
         self.value['platforms']['x'] = {'method':'native','visibility':'account','ai_generated':True}
@@ -33,7 +33,7 @@ class MetadataTests(unittest.TestCase):
         self.temp.cleanup()
 
     def prepared_response(self):
-        job = metadata.request(self.path, bilingual=['youtube'])
+        job = metadata.request(self.path)
         response = {'request_id':job['request_id'],'platforms':{p: {
             'title':'测试' if p in ('bilibili','douyin') else 'Test',
             'description':'内容' if p in ('bilibili','douyin') else 'Video description',
@@ -83,7 +83,7 @@ class MetadataTests(unittest.TestCase):
 
     def test_cover_edit_and_playlist_receipt_require_real_observations(self):
         plan=load_plan(self.path,['youtube'])
-        key=cli.publish_plan(plan,plan['confirmation'])['results']['youtube']['key']
+        key=cli.publish_plan(plan,plan['confirmation'], reviewed=True)['results']['youtube']['key']
         identity='UC'+'a'*22
         native_browser.begin(key,identity)
         native_browser.revise_cover(key,self.cover,identity)
@@ -139,29 +139,4 @@ class MetadataTests(unittest.TestCase):
         result=metadata.apply(self.path,req,path,self.root/'output.json')
         self.assertEqual('Start',read_json(result['manifest'])['platforms']['youtube']['chapters'][0]['title'])
 
-    def test_playlist_insert_dedup_and_uncertain_retry_suppressed(self):
-        service=MagicMock()
-        api=service.playlistItems.return_value
-        api.list.return_value.execute.return_value={'items':[{'id':'existing'}]}
-        receipt={'id':'abcdefghijk'}
-        adapters.ensure_youtube_playlists(service,receipt['id'],['PL12345678'],receipt,lambda r:None)
-        api.insert.assert_not_called()
-        self.assertEqual('VERIFIED',receipt['playlists']['PL12345678']['state'])
-        api.list.return_value.execute.return_value={'items':[]}
-        api.insert.return_value.execute.side_effect=TimeoutError
-        receipt={'id':'abcdefghijk'}
-        checkpoints=[]
-        for _ in range(2):
-            adapters.ensure_youtube_playlists(service,receipt['id'],['PL12345678'],receipt,lambda r:checkpoints.append(deepcopy(r)))
-        self.assertEqual(1,api.insert.call_count)
-        self.assertEqual('ADDING',checkpoints[0]['playlists']['PL12345678']['state'])
-        self.assertEqual('UNKNOWN',receipt['playlists']['PL12345678']['state'])
-        self.assertEqual('abcdefghijk',receipt['id'])
 
-    def test_playlist_scope_missing_blocks_before_upload(self):
-        creds=MagicMock()
-        creds.has_scopes.return_value=False
-        with patch.object(adapters,'yt_credentials',return_value=creds), patch.object(adapters,'auth_status') as status:
-            with self.assertRaises(VpubError):
-                adapters.preflight('youtube',{'method':'api','account':'default','playlist_ids':['PL12345678']})
-            status.assert_not_called()

@@ -8,6 +8,8 @@
 
 🎬 [Bilibili：穿睡衣的小白白](https://space.bilibili.com/10706217) · 📦 [影片下載](https://github.com/whitecarp/agentic-work-lab/releases) · [影片目錄](media/README.md) · [營運資料](data/README.md)
 
+**2026-11-14 更新（11-10 至 11-14 公開成片補檔）：** 補齊 `2026-11-10` 至 `11-14 19:20`（UTC+8）經線上實查確認已正式公開（`state == 0`）的 **19 個新增成片版本**（合計 `1,827,719,768` 位元組 · `1.70 GiB`，歸檔於 [`update-2026-11-14-catchup`](https://github.com/whitecarp/agentic-work-lab/releases/tag/update-2026-11-14-catchup)，累計 **74 個影片版本 · `5.24 GiB`**，跨 **10 個主要公開 GitHub Releases**）：包含《AiGO!!!!! × Ai Mujica》`EP03`《春日殘響》（[`BV1myWu6qEiz`](https://www.bilibili.com/video/BV1myWu6qEiz) 五平台）、`EP04`《替身決裂》（經 `bili.exe` 核實正式公開 BV 號為 [`BV1xVW16eEVT`](https://www.bilibili.com/video/BV1xVW16eEVT) 五平台）、`EP05`《詩超算》（[`BV15hWX6KE3e`](https://www.bilibili.com/video/BV15hWX6KE3e) 五平台含今日 X 回執）、`EP06`《斬斷過去》（[`BV1BVWq6aEiG`](https://www.bilibili.com/video/BV1BVWq6aEiG)）及今日 `16:00` 首播之 `EP06SP v2`《迷路憶》（[`BV1rqWk6nE2M`](https://www.bilibili.com/video/BV1rqWk6nE2M)），**9 支已公開【AI快訊】**（`BV1NCWN6QELM` 至今日 `12:01` `BV15eWC6VEsY`），《大肥魚值班小遊戲》[`BV1YL4M6EEek`](https://www.bilibili.com/video/BV1YL4M6EEek) 新公開 **`P9–P12`** 分P（累計 `P1–P12` 已歸檔；未到期 `P13–P19`、儲備正片 `EP07–EP13B` 與今晚 `20:00` 排期之 `news-20261114-gemini-4-hydrogen.mp4` 嚴格保持僅元數據、不提前上傳），以及《AiGO番外》抖音 `9:16 v2`（`7705901944459595046`）；同步將 `tools/publishops-crosscast/` 升級至上游 `v0.16.0 alpha`（整合 `bili-cli 1.2.1`、YouTube Studio 上傳／清單 CRUD 與 `124` 項實機核心單元測試全過），並收錄 `EP06SP`–`EP13B` `30fps` 歌聲對齊與 Omni 近景無貼片規範。截至 `2026-11-14 19:16` BJT，頻道推進至 **`37,455` 粉絲**、**`3,268,151` 全站累計播放**、**Google Cloud 官方扶持三片矩陣推進至 `39,444` 播放與 `4,590` 讚藏**，第 1 話 `BV1sQ4E6eEhK` 正式突破 **3 萬播放（`30,814`）**，變裝短片 `BV1Eaxt6LEhb` 達 **`109,239` 播放**。[查看更新](docs/updates/2026-11-14.md) · [結構化紀錄](data/production-update-2026-11-14.json) · [即時指標](data/metrics/current-metrics.json)。
+
 **2026-11-09 更新（晚間 21:00 增量同步）：** 新增 **3 個已公開成片版本**（累計 **55 個影片版本 · 3.53 GiB**，跨 **9 個主要 GitHub Releases**）：早間【AI快訊】[`BV145Ws6VEg2`](https://www.bilibili.com/video/BV145Ws6VEg2)《零顯卡、64G 記憶體純 CPU 跑 284B 大模型？開源項目號稱把 DeepSeek 塞進家用電腦！》（`news-20261109-llama-modchip.mp4`，`79.4s`，`16,015,103` 位元組，首日 `851` 播放）、《大肥魚值班小遊戲》[`BV1YL4M6EEek`](https://www.bilibili.com/video/BV1YL4M6EEek/?p=8) 第 8 彈 `P8 · 評論區唯一的人類`（`ep07-vertical-h-universe-v1.mp4`，`29.0s`，`9,123,425` 位元組，前置 4 大互動組件已核驗在線），以及長篇連載正劇第 2 集 [`BV121W864EVe`](https://www.bilibili.com/video/BV121W864EVe)《AiGO!!!!! · 雨夜退團》（`aigo-ep02-20261108.mp4`，`143.6s`，`209,727,093` 位元組，由儲備待發正式轉為已公開歸檔）；同步公開 **《AiGO!!!!! × Ai Mujica》10 日雙季企劃（EP01–EP10）** 工程架構、EP05《詩超算 · Token Bond》30fps 零偏移逐字時間軸與三階段混合對口型（Three-Stage Hybrid Lip-Sync）管線、4 部待發母帶（EP03–EP05 與英語快訊 `news-20261109-claude-to-pi`）之預登記雜湊，以及 [`BV1sQ4E6eEhK`](https://www.bilibili.com/video/BV1sQ4E6eEhK) 兩輪受控受眾分群（Audience Cohort）A/B 實測（推動第 1 集衝上 **`29,039` 播放、`833` 點讚、`915` 收藏**，驗證 `L2` 21-UID 相似受眾包在互動密度上以首輪 `5.18%` 讚藏率、次輪中場 `7.39%` 讚藏率及 `2.51×` 相對密度全面勝出，換裝短片 `BV1Eaxt6LEhb` 亦推進至 **`107,055` 播放、`15,596` 點讚、`5,137` 收藏**）。[查看更新](docs/updates/2026-11-09.md) · [結構化紀錄](data/production-update-2026-11-09.json) · [即時指標](data/metrics/current-metrics.json)。
 
 **2026-11-08 更新（晚間 21:06 增量同步）：** 補齊 2026-11-04 至 11-08 全部公開成果，新增 **22 個公開成片版本**（當時累計 **52 個影片版本 · 3.31 GiB**，含 11 月 8 日當日新發之 `BV18i4x6ZEG1`《AiGO番外》、`BV1YL4M6EEek` `P7`《老闆的對手腳本》、`BV1Tz4x6dEdW`【AI快訊】與 `BV1BkWJ6UE7p`《半夜失憶便籤》），並將兩套核心開源工具 **[AI Memory Keeper（AI 記憶守護者）](tools/ai-memory-keeper/README.md)** 與 **[I Must Use Claude（大肥魚工具箱）](tools/i-must-use-claude/README.md)** 完整納入本實驗室 [`tools/`](docs/code-map.md)，連同 **[PublishOps CrossCast](tools/publishops-crosscast/README.md)** 構成三大實戰工具套件；同時公開 **黃金三角分工（Antigravity + Claude + Codex）**、「單母本（16:9）多端自適應 ＋ 每日 2+1 矩陣」工作流，以及 Google（Antigravity / Gemini / Vertex AI / Google Cloud）在 24/7 帳號運營、**Google Cloud 官方流量扶持**、強鉤子策劃、多模態批量生產及跨模型記憶守護中的完整實證紀錄。截至 `2026-11-08 21:06`（UTC+8），頻道粉絲數突破 **`3.7 萬`（`37,005` 粉絲）**；由 **Google Cloud（Google 出海創新競賽單元）官方流量扶持**之 [AI Memory Keeper](https://github.com/whitecarp/ai-memory-keeper) 三片矩陣已斬獲 **`35,690` 總播放、`2,104` 點讚、`2,203` 收藏（`4,307` 總讚藏，主力片 `BV1WQ4t6xEdT` `24,943` 播放、讚藏率 `14.85%`，教學片 `BV1nw4h64Ebf` `5,954` 播放、收藏／點讚比達 `2.57×`）**；換裝短片 `BV1Eaxt6LEhb` 突破 **10 萬播放大關（`106,127` 播放、`15,509` 點讚、`5,088` 收藏）**；六平台長篇動畫 PV《AiGO!!!!! · 迷途算力》`BV1sQ4E6eEhK` 衝上 **`22,989` 播放、`649` 點讚（突破 500 讚里程碑）、`716` 收藏**（並完成 300 位點讚者相似受眾逆向工程）。[查看更新](docs/updates/2026-11-08.md) · [結構化紀錄](data/production-update-2026-11-08.json) · [即時指標](data/metrics/current-metrics.json)。
@@ -32,7 +34,7 @@
 |---|---|---|---|---|
 | **[AI Memory Keeper（AI 記憶守護者）](tools/ai-memory-keeper/README.md)** | 跨長會話與多宿主（Claude Code / OpenAI Codex / Google Antigravity / OpenClaw）的持久化本地工作記憶、全量歸檔與智能壓縮檢索系統（含 `amk` 零依賴 CLI 鉤子與 [`web/`](tools/ai-memory-keeper/web/README.md) 靜態網頁工作台）。 | 解決長週期項目「對話視窗自動壓縮（`/compact`）抹除前序規則與踩坑紀錄（AI 失憶）」、「跨模型接力（Antigravity ↔ Claude ↔ Codex）需反覆交代背景」、「歷史對話散落難以回溯及模型偷降檔」痛點。 | 多智能體協作開發者與重度 Vibe Coder、長週期研究／商戶調研與內容運營團隊、企業與團隊知識交接負責人。 | [實驗室源碼與說明](tools/ai-memory-keeper/README.md) · [網頁版工作台](https://ai-memory-keeper.web.app/) · [獨立倉庫](https://github.com/whitecarp/ai-memory-keeper) |
 | **[I Must Use Claude（我一定要用上 Claude · 大肥魚工具箱）](tools/i-must-use-claude/README.md)** | 面向日常高頻跨時區協作、Claude 桌面端即時雙語溝通、大檔案／多模態素材打包投餵與桌面環境自檢的一體化 Windows 原生工具箱（含環境助手、即時翻譯器、兩地與額度時鐘、29 MB 打包助手四款工具）。 | 解決日常深度使用 Claude 時的四大摩擦：(1) 中英雙語混合文檔中的專業術語與語境失真；(2) 跨時區排程與 Claude 5h／週額度刷新換算錯誤；(3) 手動複製多檔案上下文繁瑣且易超限；(4) 桌面與網路配置盲目修改缺乏備份與撤回。 | 以 Claude 為主力工作台的跨語言／跨時區從業者（PM、BD、研究員、留學生）、高頻向 Claude 投餵專案資料的創作者與工程師、追求低摩擦桌面工作流的效率實踐者。 | [實驗室源碼與說明](tools/i-must-use-claude/README.md) · [v0.4.5-preview 發行版](https://github.com/whitecarp/I-Must-Use-Claude/releases/tag/v0.4.5-preview) · [獨立倉庫](https://github.com/whitecarp/I-Must-Use-Claude) |
-| **[PublishOps CrossCast（跨平台影片發布營運台）](tools/publishops-crosscast/README.md)** | 跨平台影片發布與回執歸檔營運台（CLI 指令 `vpub`），將成片、各平台差異化文案、專用封面、發布前合規檢查與公開連結回執收斂為單一流程。 | 解決多平台（Bilibili、抖音、小紅書、YouTube、Instagram、X）手工重複填表、封面規格錯配、會話過期與發布回執散落難核對的問題。 | 多平台內容創作者、品牌新媒體營運團隊、需要可審計發布回執與雜湊校驗的製作工作室。 | [實驗室源碼與說明](tools/publishops-crosscast/README.md) · [v0.16.0 發行版](https://github.com/whitecarp/publishops-crosscast/releases/tag/v0.16.0) · [獨立倉庫](https://github.com/whitecarp/publishops-crosscast) |
+| **[PublishOps CrossCast（跨平台影片發布營運台）](tools/publishops-crosscast/README_ZH_TW.md)** | 跨平台影片發布與回執歸檔營運台（`v0.16.0 alpha`，整併 `bili-cli 1.2.1` 與 `vpub`），將成片、各平台差異化文案、專用封面、預演兩段確認、發布前合規檢查與公開連結回執收斂為單一流程。 | 解決多平台（Bilibili、抖音、小紅書、YouTube、Instagram、X）手工重複填表、封面規格錯配、會話過期、瀏覽器環境干擾與發布回執散落難核對的問題。 | 多平台內容創作者、品牌新媒體營運團隊、需要可審計發布回執與雜湊校驗的製作工作室。 | [實驗室源碼與說明](tools/publishops-crosscast/README_ZH_TW.md) · [v0.16.0 發行版](https://github.com/whitecarp/publishops-crosscast/releases/tag/v0.16.0) · [獨立倉庫](https://github.com/whitecarp/publishops-crosscast) |
 
 ### 1. AI Memory Keeper（AI 記憶守護者 · `tools/ai-memory-keeper/`）
 
@@ -49,8 +51,8 @@
 
 ### 3. PublishOps CrossCast（跨平台發布營運台 · `tools/publishops-crosscast/`）
 
-- **跨平台影片發布營運台**，CLI 指令為 `vpub`。六個主流平台均有實發回執記錄。首次登入後復用本機會話，遇到官方驗證再由使用者協助；發布結果不確定時保留原紀錄，先核對作品再決定下一步。
-- [獨立倉庫與安裝說明](https://github.com/whitecarp/publishops-crosscast) · [v0.16.0 發行版](https://github.com/whitecarp/publishops-crosscast/releases/tag/v0.16.0) · [本輪實作與限制](docs/updates/2026-11-03.md) · [實驗室 0.15.1 快照](tools/publishops-crosscast/README.md)。
+- **跨平台影片發布營運台**，整併 `bili-cli 1.2.1` 與 `vpub` CLI 管線（並涵蓋 YouTube Studio 瀏覽器上傳／播放清單 CRUD、X 雙路徑與隱藏桌面 Chrome 隔離）。六個主流平台均有實發回執記錄。首次登入後復用本機會話，遇到官方驗證再由使用者協助；發布結果不確定時保留原紀錄，先核對作品再決定下一步。
+- [獨立倉庫與安裝說明](https://github.com/whitecarp/publishops-crosscast) · [v0.16.0 發行版](https://github.com/whitecarp/publishops-crosscast/releases/tag/v0.16.0) · [本輪實作與限制](docs/updates/2026-11-14.md) · [實驗室 v0.16.0 alpha 繁中說明](tools/publishops-crosscast/README_ZH_TW.md)。
 
 ---
 
@@ -98,7 +100,7 @@
 | 比較營運數據並檢查結論 | [數據對比與限制](docs/data-comparison.md) |
 | 保存工作脈絡，方便團隊接手 | [商戶簡報範本](templates/merchant-brief.md)（[填寫示例](examples/merchant-brief-demo-cafe-a.md)） · [營運檢查表](templates/operations-checklist.md)（[填寫示例](examples/operations-checklist-2026-10-28.md)） |
 
-**2026-10-28 基礎資料快照（後續更新疊加於此底座之上）：** 55 筆稿件資料、69 筆去識別營運事件、19 個已公開影片版本（截至 2026-11-09 晚間已擴展至 **55 個公開影片版本 · 3.53 GiB** 及 **3 套完整開源工具**）、4 個流程示例腳本／模組，以及 10 項流程測試。商戶示例使用虛構資料，沒有把模擬結果寫成真實簽約或團隊提效業績。
+**2026-10-28 基礎資料快照（後續更新疊加於此底座之上）：** 55 筆稿件資料、69 筆去識別營運事件、19 個已公開影片版本（截至 2026-11-14 補檔已擴展至 **74 個公開影片版本 · 5.24 GiB** 及 **3 套完整開源工具**）、4 個流程示例腳本／模組，以及 10 項流程測試。商戶示例使用虛構資料，沒有把模擬結果寫成真實簽約或團隊提效業績。
 
 我以需求提出、選題方向、回饋與審片推進專案，AI 協助研究、編寫程式及製作。這個實驗室記錄工具如何進入實際流程、遇到哪些錯誤，以及如何改善交付；程式與文件也明確標示 AI 協助。
 
@@ -131,6 +133,20 @@ npm test         # 流程檢查
 
 | 發布日期（UTC+8） | 作品 |
 |---|---|
+| 2026-11-14 | [《AiGO!!!!! × Ai Mujica》第 6 話 SP 迷路憶（Memory · 舞台新裝出道 Live MV #2 修正定稿 v2）](https://www.bilibili.com/video/BV1rqWk6nE2M) |
+| 2026-11-14 | [【AI快訊】Anthropic 衝刺納斯達克 IPO！Q3 營收約 170 億美元、簽下約 9,000 億美元算力承諾？](https://www.bilibili.com/video/BV15eWC6VEsY) |
+| 2026-11-13 | [【AI快訊】一個字都不生成、輸出永遠 0 元？Google 推出 Gemini 專用多模態決策 API！](https://www.bilibili.com/video/BV1mGWi6VERh) |
+| 2026-11-13 | [《AiGO!!!!! × Ai Mujica》第 6 話 斬斷過去（AiGO 篇收官回）](https://www.bilibili.com/video/BV1BVWq6aEiG) |
+| 2026-11-13 | [【AI快訊】AWS 開源本地雲模擬器！全庫程式碼 100% 由 AI 智能體編寫、零人工審閱？](https://www.bilibili.com/video/BV1vRWv69Ez3) |
+| 2026-11-12 | [【AI快訊】Claude 把白板、表格和數據看板全塞進對話框！能替代 Excel 嗎？](https://www.bilibili.com/video/BV1u1WR6eEpz) |
+| 2026-11-12 | [《AiGO!!!!! × Ai Mujica》第 5 話 詩超算（Token Bond · 30fps 原創音頻對軸 · 五平台同步）](https://www.bilibili.com/video/BV15hWX6KE3e) |
+| 2026-11-12 | [【AI快訊】Chrome、Edge、Firefox 與 MDN 聯手給 AI 補前端課！通過率最高漲 36 個百分點？](https://www.bilibili.com/video/BV1vNWQ6PEC3) |
+| 2026-11-11 | [【AI快訊】亞馬遜把 Sonnet 4.6 換成一個「不會寫字」的小模型，成本直降 98%？](https://www.bilibili.com/video/BV1iRW26sEk2) |
+| 2026-11-11 | [《AiGO!!!!! · 替身決裂》第 4 話正片（「滿腦子都只想著自己呢！」· 五平台同步）](https://www.bilibili.com/video/BV1xVW16eEVT) |
+| 2026-11-11 | [【AI快訊】Gemini 4 Carbon 正式開放：首發定價 $2/$10 與 Argon 持平，優惠至 11 月 30 日](https://www.bilibili.com/video/BV1ToWL6XEvo) |
+| 2026-11-10 | [《AiGO!!!!! · 春日殘響（Legacy Weights）》第 3 話長篇動畫 MV（「為什麼要演奏 AiGO？！」· 五平台同步）](https://www.bilibili.com/video/BV1myWu6qEiz) |
+| 2026-11-10 | [【AI快訊】從空資料夾手搓作業系統、30 小時形式化費馬大定理？Claude Fable 5.2 到底有多猛](https://www.bilibili.com/video/BV1wXWT6WEDX) |
+| 2026-11-10 | [【AI快訊】一年更新 244 次，光一個 Bash 工具說明就占近 3,000 個 Token？老用戶發文告別 Claude Code](https://www.bilibili.com/video/BV1NCWN6QELM) |
 | 2026-11-09 | [《AiGO!!!!! · 第2集》舞台斷電之後，藍髮貝斯手在雨夜說出了那句話（六平台同步正劇）](https://www.bilibili.com/video/BV121W864EVe) |
 | 2026-11-09 | [【AI快訊】零顯卡、64G 記憶體純 CPU 跑 284B 大模型？開源專案號稱把 DeepSeek 塞進家用電腦！](https://www.bilibili.com/video/BV145Ws6VEg2) |
 | 2026-11-08 | [《每天半夜失憶的大肥魚，偷偷給明天的自己留了一張便籤》（Claude 生成 · 90 秒溫情短片）](https://www.bilibili.com/video/BV1BkWJ6UE7p) |
@@ -142,7 +158,7 @@ npm test         # 流程檢查
 | 2026-11-05 | [《風衣底下是誰》大肥魚與 Claude 娘的記憶備份小劇場](https://www.bilibili.com/video/BV1BM4h6pEY7) |
 | 2026-11-05 | [3 分鐘拿到免費 Gemini API Key 並跑通 AI Memory Keeper（保姆級教學）](https://www.bilibili.com/video/BV1nw4h64Ebf) |
 | 2026-11-04 | [把「她忘了我」做成開源桌面工具：AI Memory Keeper v0.3.0 實機演示](https://www.bilibili.com/video/BV1WQ4t6xEdT) |
-| 2026-11-04 | [大肥魚值班小遊戲，到底有多少種結局？（B站裡就能玩 · 已上線 P1–P8）](https://www.bilibili.com/video/BV1YL4M6EEek) |
+| 2026-11-04 | [大肥魚值班小遊戲，到底有多少種結局？（B站裡就能玩 · 已上線 P1–P12）](https://www.bilibili.com/video/BV1YL4M6EEek) |
 | 2026-11-04 | [鯨魚娘代班日誌07｜GPT替大肥魚值班，第4張工單就破產了（參賽版）](https://www.bilibili.com/video/BV1Xz4u6DEt8) |
 | 2026-11-03 | [《我替你看過了》三分鐘多角色敘事短片](https://www.bilibili.com/video/BV15B4F6hEYr) |
 | 2026-11-02 | [《魚，你又穿誰衣服了？！GPT與Claude參上!!!》變裝短片](https://www.bilibili.com/video/BV1Eaxt6LEhb) |
@@ -156,7 +172,7 @@ npm test         # 流程檢查
 
 未在 B站公開的成片及舊版實驗片，另見[影片目錄](media/README.md)。GitHub 公開與 B站發布是兩個不同狀態，本倉庫不會更改 B站排期。
 
-[2026-11-09 晚間更新：《AiGO!!!!!》第 2 集、《值班小遊戲》P8 與【AI快訊】公開歸檔、10 日雙季工程管線與受眾分群控制變數 A/B 實測](docs/updates/2026-11-09.md) · [2026-11-08 階段性與晚間更新](docs/updates/2026-11-08.md) · [2026-10-28 晚間更新](docs/updates/2026-10-28-evening.md)
+[2026-11-14 補檔更新：`EP03–EP06SP`、`P9–P12`、`9` 支【AI快訊】公開歸檔、`CrossCast v0.16.0 alpha` 同步與 `30fps` 對齊工程](docs/updates/2026-11-14.md) · [2026-11-09 晚間更新](docs/updates/2026-11-09.md) · [2026-11-08 階段性與晚間更新](docs/updates/2026-11-08.md) · [2026-10-28 晚間更新](docs/updates/2026-10-28-evening.md)
 
 ## 使用資料與方法
 
@@ -171,4 +187,4 @@ npm test         # 流程檢查
 
 本倉庫公開研究說明、影片、帳號整體及單片數據、去識別的營運紀錄。登入憑證、私人訊息、觀眾個人資料及不相關的私人文件不屬於公開資料。作品中引用的第三方素材仍屬各自權利人；公開展示不代表授予第三方素材的再利用授權。
 
-首次整理：2026-10-28。首頁研究更新：2026-11-09；三大工具套件（CrossCast、AI Memory Keeper、I Must Use Claude）已完整收錄於 `tools/`。
+首次整理：2026-10-28。首頁研究更新：2026-11-14；三大工具套件（CrossCast v0.16.0 alpha、AI Memory Keeper、I Must Use Claude）已完整收錄於 `tools/`。

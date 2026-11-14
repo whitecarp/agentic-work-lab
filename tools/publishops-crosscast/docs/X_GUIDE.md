@@ -2,11 +2,11 @@
 
 **繁體中文** · [English](X_GUIDE_EN.md)
 
-**X 發布僅面向已訂閱、且帳號實際能進入 Media Studio 的使用者。**
+**X 的免費瀏覽器發布路徑僅面向已訂閱、且帳號實際能進入 Media Studio 的使用者。** 官方 API 路徑屬於另售的付費附加元件，目前尚未開賣；這不代表一般免費帳號或 Basic 帳號已受支援。
 
-原因是未訂閱帳號的影片上傳上限為 **140 秒、512 MB**，且無法使用本工具所依賴的 Media Studio 媒體管理與自訂封面流程。CrossCast 的 X 後端透過 Media Studio 上傳影片並設定製作封面，因此目前僅支援具備此權限的訂閱帳號。登入或付款本身不代表權限已開通，上傳前仍會核對媒體庫入口與所選帳號。[官方上傳限制](https://help.x.com/en/using-x/x-videos) · [Media Studio 權限](https://help.x.com/en/using-x/media-studio)。
+原因是未訂閱帳號的影片上傳上限為 **140 秒、512 MB**，且無法使用免費瀏覽器路徑所依賴的 Media Studio 媒體管理與自訂封面流程。CrossCast 的 X 免費瀏覽器後端透過 Media Studio 上傳影片並設定製作封面，因此目前僅支援具備此權限的訂閱帳號。登入或付款本身不代表權限已開通，上傳前仍會核對媒體庫入口與所選帳號。[官方上傳限制](https://help.x.com/en/using-x/x-videos) · [Media Studio 權限](https://help.x.com/en/using-x/media-studio)。
 
-**0.3.1 alpha：** 首次 `vpub auth login x` 開啟官方登入視窗。之後 `publish` 在背景復用 CrossCast 專用會話：核對帳號 → 上傳 Media Studio → 套用製作封面 → 填入按原語言規則產生的完整帖文 → 提交一次 → 讀回原帖。這是程式操作官方網站，不是 X API 用戶端。
+**0.3.1 alpha：** 首次 `vpub auth login x` 開啟官方登入視窗。之後 `publish` 在背景復用 CrossCast 專用會話：核對帳號 → 上傳 Media Studio → 套用製作封面 → 填入按原語言規則產生的完整帖文 → 提交一次 → 讀回原帖。這是程式操作官方網站，不是 X API 用戶端。X 可能把 CrossCast 的專用瀏覽器當成新裝置，要求檢查或找回帳號：請你自己在 X 的頁面完成，CrossCast 不會代為回答。
 
 ```sh
 vpub auth login x
@@ -19,15 +19,24 @@ vpub verify RECEIPT_KEY
 vpub works x
 ```
 
-用 `expected_identity` 綁定目標帳號。上傳前檢查 Studio 權限及其管理中的帳號。處理或選擇器在 Post 前失敗時，`resume KEY` 可接續既有素材；Post 後只驗證。既有回執阻止重傳。`--draft-only` 停在預覽，不保證關閉瀏覽器後仍是持久草稿。此路徑沿用帳號受眾，不修改受保護帳號設定。
+用 `expected_identity` 綁定目標帳號。上傳前檢查 Studio 權限及其管理中的帳號。處理或選擇器在 Post 前失敗時，`resume KEY` 可接續既有素材；Post 後只驗證。媒體庫方塊的 `Loading N%` 還在前進時不會點開檔案，會繼續等，最長約到單一指令 30 分鐘時限的前兩分鐘；在這之前傳不完會以 `upload_too_slow` 停下。若瀏覽器在 Media Studio 收完整個檔案前就關閉，媒體庫裡不會有這個檔名：`resume` 會先找一分鐘，重新載入媒體庫再找一分鐘，仍找不到才再上傳一次；找到同名檔案就直接開啟，不會重傳。媒體庫載入很慢，或之後的上傳把它擠到清單後面時，續傳可能看不到它而再上傳一次；同名檔案有兩個時，這次嘗試會停住，直到在 Media Studio 刪掉其中一個。這項恢復依據一次 61 MB 上傳中斷的實際紀錄，本身尚未在真實帳號上跑過。方案也可以用 `existing_media_url` 指定 Media Studio 裡某個素材自己的頁面，這樣就不上傳，直接發布該素材，前提是頁面上的檔名是這部影片的 `crosscast-<雜湊>`。既有回執會阻止 `vpub publish` 再次開始同一個嘗試。`--draft-only` 停在預覽，不保證關閉瀏覽器後仍是持久草稿。此路徑沿用帳號受眾，不修改受保護帳號設定。
 
 製作封面與第二期發布已實測，修復及限制見[驗證記錄](VALIDATION.md)。自訂縮圖需要真正可用的 Media Studio，訂閱本身不是成功保證。Studio 未觀察到原生 AI 標示控制，因此保留明確的 AI-generated 文字聲明。
 
 ## 支援條件與官方限制
 
-本專案目前只適配具有實際 Media Studio 存取權的訂閱帳號，不以免費帳號的短片額度作為本後端的支援承諾。X 官方一般網頁上傳說明列出非訂閱帳號上限為 140 秒、512 MB；Media Studio 的自訂封面與媒體管理需要另外符合存取權限。[一般上傳限制](https://help.x.com/en/using-x/x-videos) · [Media Studio 權限](https://help.x.com/en/using-x/media-studio)。
+本專案的免費瀏覽器發布路徑目前只適配具有實際 Media Studio 存取權的訂閱帳號，不以免費帳號的短片額度作為本後端的支援承諾。X 官方一般網頁上傳說明列出非訂閱帳號上限為 140 秒、512 MB；Media Studio 的自訂封面與媒體管理需要另外符合存取權限。[一般上傳限制](https://help.x.com/en/using-x/x-videos) · [Media Studio 權限](https://help.x.com/en/using-x/media-studio)。
 
 現行官方級別表的傳統 Basic 不含 Media Studio，Premium／Premium+ 包含；平台亦有其他新方案，最終以帳號實際權限為準，不保證所有付費方案都適用。[官方級別說明](https://help.x.com/en/using-x/x-premium)。核對日期：2026-10-30。
+
+## 排程、書籤夾與 X 的兩個網站
+
+- **排程。** 在方案的 X 項目裡填一個帶明確時區的未來時間 `schedule`。CrossCast 在 Media Studio 自己的日曆與時鐘上，依這台電腦的時區填入並讀回，只保存一次。CrossCast 會在上傳前先讀一次 Studio 的排程頁。到點之前，如果那裡多出一列文字完全相同、日期時間相符且帶影片，回執就是 `SUBMISSION_VERIFIED`，階段為 `scheduled`。這一列沒有編號，也看不出是哪部影片；如果別人在第一次讀取之後加了一模一樣的一列，也會通過。如果原本就有相同的一列，或第一次讀取無法判斷，就維持 `SUBMITTED_UNVERIFIED`，直到你親自查看。時間過後，`vpub verify` 只有在找到一則字句完全相同、時間相近，且影片與 Media Studio 編號相符的新貼文時才會確認；讀不到該編號時，會把貼文列為 `candidate_id` 供你查看。在唯一檢查過的真實貼文上，帶自訂封面的影片讀不到這個編號，所以這項核對只會列出候選，不會確認。在真實帳號上，有一則貼文這樣排程後，在到點前取消了；這項對列的檢查是依那次看到的內容寫的，本身還沒有在真實帳號上跑過。還沒有排程貼文真正走到發布時間。要取消時，打開那個頁面，滑到該列上，按它的 Delete，再按紅色的 Delete。CrossCast 沒有這個指令，影片也會留在 Library，直到你刪除它。API 路徑也不能排程。
+- **直式影片的封面。** 在一則真實貼文上，3:4 的封面以 900×1200 儲存，但公開貼文以影片的 9:16 畫面顯示，標題兩側都被裁掉。重要的字不要靠近邊緣。橫式影片的 16:9 封面還沒有在公開貼文上核對過。
+- **影片長度。** 如果方案的 X 項目有 `duration_seconds`，CrossCast 在撰寫貼文前會核對檔案的影片是否顯示這個長度（誤差一秒內），做不到就以 `video_unverified` 停止。不檢查畫面大小，因為 1920×1080 影片的預覽是以 480×270 播放的。
+- **兩個網站。** X 有兩個版本的網站，CrossCast 會判斷帳號使用哪一個；到目前為止，已登入的帳號使用的是舊版。兩種都對不上的頁面會報錯停下；請看那次嘗試的回執（`state`、`submitted_at` 和 `platform_writes`）確認有沒有東西已經送出。
+- **書籤夾** 需要 X Premium。在舊版上，列出、建立、更名、刪除書籤夾與把貼文加入書籤夾已在真實帳號上確認（第一次加入時 X 那邊已經加進去了，但 CrossCast 因為等不到 X 的回覆就放棄等待，回報為未確認；這個等待已經修好）。把貼文移出書籤夾要透過書籤夾頁面自己的分享選單；這手動做成功過。透過 CrossCast 試過兩次：第一次在背景瀏覽器裡逾時了，還沒記下任何東西；第二次按了一次，結果卻沒能確認，因為 CrossCast 去讀回結果時頁面上找不到書籤夾的控制項（多半是頁面重繪了一下；現在控制項會多給一點時間重新出現）。之後透過 CrossCast 再試一次已確認，另外讀取時書籤夾也是空的。
+- **草稿。** `vpub init --draft-only` 停在發文編輯器的預覽，媒體已存進 Media Studio（`PREVIEW_READY`）；這不是已確認保存的草稿。
 
 ## 歷史 native 瀏覽器指南
 
@@ -57,11 +66,11 @@ vpub publish x-publish.json --confirm CURRENT_PLAN_HASH
 
 X 官方網頁上傳說明目前列出：未訂閱帳號最多 140 秒、512 MB；付費帳號有不同額度。這是查閱日期的參考，實際帳號介面仍須驗證。
 
-搜尋、作品清單、數據分析、評論與收件箱尚未接成統一 X 命令；不要將此交接流程宣傳為完整 X CLI。
+這個 native 交接流程本身不含搜尋、作品清單、數據分析、評論與收件箱；現在它們是各自獨立的命令（`vpub works x`、`vpub stats x`、`vpub comments`、`vpub messages` 和 `vpub dm`，見[功能範圍](FEATURES.md)）。不要將此交接流程本身宣傳為完整 X CLI。
 
 ## 自訂封面與訂閱
 
-**自訂封面走需要訂閱權限的 Media Studio。** X 官方資料說明 Media Studio 僅向已驗證訂閱者開放，媒體庫的 Change thumbnail 可選影片影格或上傳圖片；圖片比例應與影片相同。一般發帖頁沒有同等保證，訂閱付款也不代表媒體庫已完成初始化。
+**免費瀏覽器路徑的自訂封面走需要訂閱權限的 Media Studio。** X 官方資料說明 Media Studio 僅向已驗證訂閱者開放，媒體庫的 Change thumbnail 可選影片影格或上傳圖片；圖片比例應與影片相同。一般發帖頁沒有同等保證，訂閱付款也不代表媒體庫已完成初始化。
 
 [官方權限說明](https://help.x.com/en/using-x/media-studio) · [官方縮圖說明](https://help.x.com/en/using-x/media-studio-faqs)（查閱：2026-10-29）。
 
@@ -75,4 +84,3 @@ X 官方網頁上傳說明目前列出：未訂閱帳號最多 140 秒、512 MB�
 
 相關連結：[官方來源](https://help.x.com/en/using-x/x-videos)
 
-[返回實驗室首頁](../../../README.md)

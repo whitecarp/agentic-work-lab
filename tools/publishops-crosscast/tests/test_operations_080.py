@@ -1,12 +1,13 @@
 import os
 import tempfile
 import unittest
-from unittest.mock import patch, MagicMock
+from unittest.mock import patch
 from video_publisher import direct_messages as dm, comment_actions as actions, comment_actions_api as api
 from video_publisher.direct_messages_browser import new_outgoing, MESSAGE_ROWS
 from video_publisher.comment_actions_douyin import observed
-from video_publisher.core import VpubError, atomic_json, home, read_json
+from video_publisher.core import VpubError, home
 from video_publisher import cli, operations
+from shared_chrome import ChromeCase, async_playwright
 
 
 class MessageTests(unittest.TestCase):
@@ -80,17 +81,6 @@ class MessageTests(unittest.TestCase):
             with self.assertRaises(VpubError):actions.mutate('douyin','123456789','1','hide')
         network.assert_not_called()
 
-    def test_reports_dedupe_and_exclude_message_tests(self):
-        events=[{'action':'direct_message','platform':'instagram','work_id':None,'at':'2026-10-30T00:00:00Z','event_id':str(i),
-                 'result':{'key':key,'state':state,'test':test}} for i,(key,state,test) in enumerate([
-                    ('one','DM_UNVERIFIED',False),('one','DM_VISIBLE',False),('test','DM_VISIBLE',True),('failed','DM_FAILED',False)])]
-        for language in ('zh','en'):
-            result=operations.report('2026-10-29T00:00:00Z',language,_events=events)
-            self.assertEqual(1,result['platforms']['instagram']['direct_messages_visible'])
-            self.assertEqual(0,result['platforms']['instagram']['direct_messages_pending'])
-            self.assertEqual(1,result['platforms']['instagram']['direct_messages_failed'])
-
-
 class DouyinStateTests(unittest.TestCase):
     def setUp(self):
         self.r={'work_id':'123456789','comment':{'id':'42','text':'Hello'},'kind':'delete','verification':True}
@@ -108,9 +98,8 @@ class DouyinStateTests(unittest.TestCase):
         self.assertIsNone(observed({'status_code':0,'comments':[c]},self.r,'owner')['liked'])
 
 
-class MessageDOMTests(unittest.IsolatedAsyncioTestCase):
+class MessageDOMTests(ChromeCase):
     async def test_sender_is_scoped_to_one_message_not_adjacent_message(self):
-        from patchright.async_api import async_playwright
         async with async_playwright() as pw:
             browser=await pw.chromium.launch(channel='chrome',headless=True)
             try:
@@ -166,9 +155,8 @@ class PinAndRecipientTests(unittest.TestCase):
         with self.assertRaises(SystemExit):parser.parse_args(['dm','unlock','instagram'])
 
 
-class AdditionalMessageDOMTests(unittest.IsolatedAsyncioTestCase):
+class AdditionalMessageDOMTests(ChromeCase):
     async def test_platform_ownership_and_sent_status(self):
-        from patchright.async_api import async_playwright
         from video_publisher.direct_messages_browser import INBOX_SUMMARIES
         from video_publisher.direct_messages_x import MESSAGE_ROWS as X_ROWS
         from video_publisher.direct_messages_douyin import MESSAGE_ROWS as DY_ROWS

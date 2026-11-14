@@ -1,12 +1,15 @@
 """Fit existing artwork without cropping. Presets are working canvas sizes,
 not universal platform limits. Baked-in text is not translated by this module.
+Only a portrait cover built from chosen parts crops, and only to the parts it was given.
 """
 from copy import deepcopy
+import os
 from pathlib import Path
-import tempfile
+import re
 import shutil
-from PIL import Image, ImageOps, UnidentifiedImageError
-from .core import VpubError, atomic_json, digest, file_sha, load_plan, read_json
+from PIL import Image, ImageFilter, ImageOps, UnidentifiedImageError
+from .core import VpubError, atomic_json, digest, file_sha, load_plan, read_json, shared_portrait
+from .runtime_scratch import scratch
 
 PRESETS = {
     "bilibili": {"landscape": (1600, 1000)},
@@ -15,16 +18,168 @@ PRESETS = {
     "instagram": {"landscape": (1920, 1080), "portrait": (1080, 1920)},
     "x": {"landscape": (1920, 1080)},
 }
+BACKGROUND = "#151923"
+# Covers past this aren't opened to be fitted. Bilibili's 4:3 cover goes up unfitted and is held to the same limit and no other, since no size Bilibili refuses is known.
+MOST_PIXELS = 40000000
+# A 9:16 cover whose central 3:4 area holds everything that matters, so Instagram's full frame and Douyin's crop both keep it.
+CANVAS = (1080, 1920)
+SAFE = (0, 240, 1080, 1440)
+MARGIN = 60
+GAP = 24
+MOST_PARTS = 3
+SMALLEST_SIDE = 100
+# Below this the parts would float in a band of background, which is a letterboxed landscape in all but name.
+LEAST_FILL = 0.6
+SOFT_ABOVE = 2.5
+# What load_plan says first of a plan with no words at all: vpub init leaves every title empty and YouTube's category unset.
+WORDS_UNWRITTEN = {"category_required", "invalid_title"}
+
+
+def parse_box(value, width, height):
+    found = re.fullmatch(r"(\d+),(\d+),(\d+),(\d+)", value or "")
+    if not found:
+        raise VpubError("invalid_box", "Write each part as x,y,width,height in the source image's pixels.")
+    left, top, wide, tall = map(int, found.groups())
+    if wide < SMALLEST_SIDE or tall < SMALLEST_SIDE or left + wide > width or top + tall > height:
+        raise VpubError("invalid_box", f"Each part must be at least {SMALLEST_SIDE} pixels on both sides and inside the {width}x{height} source.")
+    return left, top, wide, tall
+
+
+def layout(boxes):
+    """Where each part lands: as wide as the safe area allows, stacked and centred. The stack must fill that area."""
+    room_wide, room_tall = SAFE[2] - 2 * MARGIN, SAFE[3] - 2 * MARGIN
+    gaps = GAP * (len(boxes) - 1)
+    natural = sum(tall * room_wide / wide for _, _, wide, tall in boxes)
+    shrink = min(1, (room_tall - gaps) / natural)
+    stack = natural * shrink + gaps
+    if stack < LEAST_FILL * room_tall:
+        raise VpubError("would_letterbox", "These parts would sit in a band across the cover, which reads as a letterboxed landscape.",
+                        "Give a taller part, or separate parts for the subject and the title so they stack.")
+    placed, top = [], SAFE[1] + (SAFE[3] - stack) / 2
+    for box in boxes:
+        scale = shrink * room_wide / box[2]
+        wide, tall = round(box[2] * scale), round(box[3] * scale)
+        placed.append({"box": list(box), "placed": [(CANVAS[0] - wide) // 2, round(top), wide, tall], "scale": round(scale, 3)})
+        top += tall + GAP
+    return placed
+
+
+def portrait(source, boxes, output):
+    """Lay chosen parts of an image into a portrait cover, with no AI. The agent looks at the image and picks the parts."""
+    source, output = Path(source).resolve(), Path(output).resolve()
+    if not source.is_file() or source.suffix.lower() not in {".jpg", ".jpeg", ".png"}:
+        raise VpubError("invalid_cover", "Choose a complete production JPG/PNG.")
+    if output.suffix.lower() not in {".jpg", ".jpeg"}:
+        raise VpubError("invalid_output", "The portrait cover is saved as a .jpg file.")
+    if output.exists():
+        raise VpubError("already_exists", "Choose a new output path; existing artwork will not be overwritten.")
+    if not boxes or len(boxes) > MOST_PARTS:
+        raise VpubError("invalid_box", f"Give from 1 to {MOST_PARTS} parts with --box.")
+    before = file_sha(source)
+    try:
+        with Image.open(source) as opened:
+            if opened.width * opened.height > MOST_PIXELS:
+                raise VpubError("invalid_cover", "Cover exceeds the 40-megapixel processing limit.")
+            image = ImageOps.exif_transpose(opened).convert("RGB")
+    except (OSError, UnidentifiedImageError, Image.DecompressionBombError) as exc:
+        raise VpubError("invalid_cover", "Cannot decode the production image.") from exc
+    parts = layout([parse_box(value, image.width, image.height) for value in boxes])
+    blurred = ImageOps.fit(image, CANVAS, Image.Resampling.LANCZOS).filter(ImageFilter.GaussianBlur(60))
+    canvas = Image.blend(blurred, Image.new("RGB", CANVAS, BACKGROUND), 0.45)
+    for part in parts:
+        left, top, wide, tall = part["box"]
+        canvas.paste(image.crop((left, top, left + wide, top + tall)).resize(tuple(part["placed"][2:]), Image.Resampling.LANCZOS), tuple(part["placed"][:2]))
+    output.parent.mkdir(parents=True, exist_ok=True)
+    with scratch(output.parent) as tmp:
+        target = Path(tmp) / output.name
+        for quality in (92, 85, 75, 60):
+            canvas.save(target, "JPEG", quality=quality, optimize=True)
+            if target.stat().st_size <= 1900000:
+                break
+        else:
+            raise VpubError("cover_too_large", "Output exceeds the conservative local file-size budget.")
+        if file_sha(source) != before:
+            raise VpubError("source_changed", "Artwork changed during preparation; retry after it finishes.")
+        os.replace(target, output)
+    return {"state": "PREPARED", "mode": "layout_without_ai", "path": str(output), "sha256": file_sha(output), "bytes": output.stat().st_size,
+            "size": list(CANVAS), "safe_area": {"left": SAFE[0], "top": SAFE[1], "width": SAFE[2], "height": SAFE[3]}, "parts": parts,
+            "soft_parts": [number for number, part in enumerate(parts, 1) if part["scale"] > SOFT_ABOVE], "source_sha256": before, "platform_writes": 0,
+            "next": "Look at the result before using it: text must read clearly and nothing important may be cut. Then use it as the --portrait cover, in vpub prepare or covers prepare."}
+
+
+def check_cover43(path):
+    """Bilibili's 4:3 cover goes up as it is, with no fitting, so it has to be 4:3 already. A landscape given by mistake would show squeezed or cut in its phone feed."""
+    try:
+        with Image.open(path) as opened:
+            wide, tall = opened.size
+    except (OSError, UnidentifiedImageError, Image.DecompressionBombError) as exc:
+        raise VpubError("invalid_cover", f"Can't read Bilibili's 4:3 cover: {path}") from exc
+    if wide * tall > MOST_PIXELS:
+        raise VpubError("invalid_cover", f"Bilibili's 4:3 cover is {wide}x{tall}, over the 40-megapixel limit CrossCast keeps every cover to.",
+                        "Use a smaller copy of the same artwork, such as 1200x900; CrossCast doesn't resize it. Nothing was uploaded.")
+    if abs(wide * 3 - tall * 4) > tall * 4 / 100:
+        raise VpubError("invalid_cover", f"Bilibili's 4:3 cover is {wide}x{tall}, which isn't 4:3.",
+                        "Use the 4:3 artwork made for Bilibili's phone feed, such as 1200x900, or leave it out and Bilibili makes one from the landscape cover. Nothing was uploaded.")
+
+
+def check_supplied(cover, portrait, platforms):
+    """The covers someone named, before anyone writes words around them. prepare still checks them when it fits them."""
+    if not cover:
+        raise VpubError("cover_required", "--portrait goes with --cover, because each platform also needs its landscape cover.")
+    for path in filter(None, (cover, portrait)):
+        if not Path(path).is_file() or Path(path).suffix.lower() not in {".jpg", ".jpeg", ".png"}:
+            raise VpubError("invalid_cover", f"Not a JPG or PNG file: {path}")
+    if {"douyin", "instagram"} & set(platforms) and not portrait:
+        raise VpubError('portrait_required', 'Supply a dedicated shared Douyin/Instagram portrait; a letterboxed landscape thumbnail is not a portrait composition.', 'Prepare one portrait with text and faces inside the common grid safe area, then pass --portrait PATH. Without an image generator, build it with vpub covers portrait.')
+    if portrait:
+        try:
+            with Image.open(portrait) as opened:
+                tall = opened.height > opened.width
+        except OSError:
+            raise VpubError("invalid_cover", f"Not a JPG or PNG file: {portrait}")
+        if not tall:
+            raise VpubError('portrait_required', 'The shared portrait must have a portrait aspect ratio.')
+
+
+def words_first(manifest, value, error):
+    """Covers are fitted to a plan whose words are written. A field run's skill listed covers before metadata, and on a new YouTube plan
+    covers prepare stopped on the category; with that set, the empty title would have stopped it next.
+    From a review: only a plan with no words at all gets this answer. One whose words a person wrote keeps its own error and hint, because
+    metadata request would rewrite those words from the root title alone. A folder from vpub prepare gets its words through copy.json and vpub go."""
+    platforms = value.get("platforms") if isinstance(value, dict) else None
+    if error.code not in WORDS_UNWRITTEN or not isinstance(platforms, dict) or not all(isinstance(o, dict) for o in platforms.values()):
+        return error
+    titles = [value.get("title"), *(options.get("title") for options in platforms.values())]
+    if any(isinstance(title, str) and title.strip() for title in titles) or any("metadata_mode" in options for options in platforms.values()):
+        return error
+    plan = Path(manifest)
+    message = f"Covers come after the words, and this plan has none yet, so nothing was fitted. {error.message}"
+    if (plan.parent / "copy.json").is_file():
+        return VpubError("copy_not_written", message, f'Write the words in "{plan.parent / "copy.json"}", then run vpub go "{plan.parent}". It fits the covers once the words are in. {error.hint}'.strip())
+    request, localized = plan.with_name("request.json"), plan.with_name("localized.json")
+    ask = (f'Use the request already at "{request}"' if request.exists()
+           else f'Run vpub metadata request "{plan}" --source SCRIPT_OR_SUMMARY.txt --out "{request}"')
+    return VpubError("copy_not_written", message,
+                     f'{ask}, write the answer in its template as RESPONSE.json, run vpub metadata apply "{plan}" --request "{request}" --response RESPONSE.json --out "{localized}", '
+                     f'then run vpub covers prepare on "{localized}". {error.hint}'.strip())
 
 
 def prepare(manifest, source, out_dir, output, portrait=None):
     path, source = Path(manifest).resolve(), Path(source).resolve()
     directory, output = Path(out_dir).resolve(), Path(output).resolve()
     original = read_json(path)
-    load_plan(path)
+    try:
+        load_plan(path)
+    except VpubError as error:
+        answer = words_first(path, original, error)
+        if answer is error:
+            raise
+        raise answer from None
+    from .publication_review import carry_choice
+    carry_choice(path, output, original)
     portrait = Path(portrait).resolve() if portrait else None
     variants = original.get('covers', {})
-    shared = variants.get('douyin', {}).get('portrait') or variants.get('instagram', {}).get('portrait')
+    shared = shared_portrait(variants)
     shared = portrait or ((path.parent / shared).resolve() if shared else None)
     jobs, skipped = [], {}
     for platform, opts in original["platforms"].items():
@@ -44,7 +199,7 @@ def prepare(manifest, source, out_dir, output, portrait=None):
             jobs.append({"platform": platform, "role": role, "size": list(size),
                          "source": str(asset), "source_sha256": file_sha(asset)})
     recipe = {"version": 2, "manifest_sha256": digest(original), "jobs": jobs,
-              "mode": "contain", "background": "#151923", "skipped": skipped}
+              "mode": "contain", "background": BACKGROUND, "skipped": skipped}
     recipe_hash = digest(recipe)
     receipt_path = directory / "cover-receipt.json"
     if directory.exists() or output.exists():
@@ -60,8 +215,12 @@ def prepare(manifest, source, out_dir, output, portrait=None):
     value["video"] = str((path.parent / value["video"]).resolve())
     value.pop("cover", None)
     value["covers"] = {}
+    # Bilibili's 4:3 cover is used as it is, not fitted, so it only moves along with the plan.
+    cover43 = (variants.get("bilibili") or {}).get("cover43")
+    if cover43:
+        value["covers"]["bilibili"] = {"cover43": str((path.parent / cover43).resolve())}
     assets = []
-    with tempfile.TemporaryDirectory(prefix=".crosscast-covers-", dir=directory.parent) as tmp:
+    with scratch(directory.parent) as tmp:
         staging = Path(tmp)
         for job in jobs:
             if job['role']=='portrait':
@@ -83,7 +242,7 @@ def prepare(manifest, source, out_dir, output, portrait=None):
             target = staging / filename
             try:
                 with Image.open(job["source"]) as opened:
-                    if opened.width * opened.height > 40000000:
+                    if opened.width * opened.height > MOST_PIXELS:
                         raise VpubError("invalid_cover", "Cover exceeds the 40-megapixel processing limit.")
                     image = ImageOps.exif_transpose(opened).convert("RGBA")
                     image = ImageOps.contain(image, tuple(job["size"]), Image.Resampling.LANCZOS)
@@ -106,7 +265,7 @@ def prepare(manifest, source, out_dir, output, portrait=None):
                    "skipped": skipped, "state": "PREPARED", "platform_writes": 0,
                    "mode": "landscape_contain_shared_portrait", "text_translated": False,
                    "portrait_policy": "Douyin and Instagram receive the identical portrait file/hash. Keep titles and faces within the central crop-safe area; mobile grid adjustment remains separately verified.",
-                   "next": "Apply supported covers to the existing work and inspect each saved variant; preparation is not upload verification."}
+                   "next": "Look at each saved cover, then run vpub plan on the new manifest. Preparing covers uploads nothing."}
         atomic_json(staging / "cover-receipt.json", receipt)
         staging.rename(directory)
     atomic_json(output, value)

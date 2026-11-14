@@ -18,9 +18,23 @@ vpub browser request RECEIPT_KEY
 vpub browser begin RECEIPT_KEY --identity OBSERVED_ACCOUNT
 ```
 
-The flag stores `submission_mode: draft_only` for selected Instagram/X platforms. Other platforms reject it instead of silently publishing. Use a separate Instagram plan or platform-specific `covers` for custom artwork; X rejects a shared custom thumbnail.
+The flag stores `submission_mode: draft_only` for every selected platform. A route that cannot hold a draft (the paid API routes) rejects it instead of silently publishing. Use a separate Instagram plan or platform-specific `covers` for custom artwork; X rejects a shared custom thumbnail.
 
 The commands create a durable handoff and record the attempt before file selection. A false final-submission flag requires the host to stop at preview or saved draft: **never Share/Post or schedule**. The CLI cannot disable browser controls; the executing agent must honor the flag. Visibility remains account-based rather than inventing a per-post private option.
+
+## Draft-only on the current routes
+
+With the default routes, `vpub publish` does the whole run itself and stops before the final button, so the `browser request` and `browser begin` handoff above is only for `method: native`. Where each platform stops and how the run ends:
+
+| Platform | Stops at | State |
+| --- | --- | --- |
+| Bilibili | A draft saved through Bilibili's own upload requests and read back from its draft list | `DRAFT_SAVED` |
+| YouTube | An unpublished draft in YouTube Studio, before the final Save | `PREVIEW_READY` |
+| Douyin | Douyin's own 暂存离开 pressed once; the upload page may then offer a kept draft under 继续编辑, which a dry run only looks at (it can't show whose draft that is, and opening it may use it up). `vpub resume` of an attempt that stopped before its final press does open it, if the page offered none before the attempt began, and stops unless it comes back with the attempt's exact title | `PREVIEW_READY` |
+| Instagram | The unpublished preview, which may not survive closing the browser | `PREVIEW_READY` |
+| X | The post composer, with the media saved in Media Studio; not a confirmed saved draft | `PREVIEW_READY` |
+
+The paid API routes for YouTube, X and Instagram have no drafts and refuse the flag. A Bilibili or Douyin draft keeps only the title, description, tags and cover, so a plan that also has a schedule, chapters or a collection is refused. CrossCast has no command that removes a draft: delete a Bilibili draft by hand on the 草稿 page of its upload manager. A person can open a Douyin draft from the upload page's 继续编辑 offer, but opening it may use the draft up. A plan with drafts reports `all_drafts_ready`, which is true once every draft platform stopped before publishing (`DRAFT_SAVED` or `PREVIEW_READY`) and sets the exit code (false exits 4), and `drafts_read_back`, which names the platforms whose draft was read back as this draft: today only Bilibili, from its draft list. Douyin's receipt records `draft_offer_seen`, whether the upload page then offered a draft it had not offered before, but that offer cannot show whose draft it is, so it is not counted in `drafts_read_back`. A platform not named in `drafts_read_back` has only a preview, and an Instagram or X preview may not outlive its browser, so never call it saved. Before it selects a video, a Douyin upload stops with `existing_draft_requires_attention` if the upload page is already offering a kept draft: continue or discard that draft there yourself, then run it again. When no platform in the plan was meant to publish, `all_submissions_verified` is `null`, so a draft never reads as a publication. `vpub status` lists the drafts and previews it has a local record of; that does not show the platform still holds them. A normal plan for the same video then goes ahead and replaces that record, and any draft or clip the first run left stays where it is. On a real account Bilibili drafts were saved this way, read back and deleted by hand. On Douyin a draft was kept once, when `vpub resume` finished an earlier attempt, and a person who opened it from 继续编辑 found the exact test title (opening an offered draft used it up once and left it in place another time); CrossCast's own look for that offer has not been run on a real account. On YouTube, draft uploads on a real channel stopped before the final Save with their playlist and schedule read back. On X's earlier site, draft uploads reached the composer with the right file's details and were removed unposted, after earlier uploads had stopped short ([validation](VALIDATION_EN.md)). Instagram was tried through this command once, on a tester's account: the run stopped at the preview (`PREVIEW_READY`) with the video chosen and the caption read back, without pressing Share.
 
 ## Live observations
 
@@ -85,4 +99,3 @@ Inserting artwork at the start as an X thumbnail candidate remains a proposed te
 
 The operator subsequently authorized deleting the Instagram test work; refreshed absence was verified. Replacement remains at an unpublished cover preview with no new work ID. The X status is retained. Following subscription, Media Studio replaces the cancelled intro-cover approach, but library setup has not succeeded. This supersedes next-step plans in the historical entries above.
 
-[Back to the lab](../../../README_EN.md)
