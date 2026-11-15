@@ -1327,3 +1327,73 @@ Protocol 1.0, section 9, A, line 246:
 **What follows for the tools.** Nothing to build. The operator's sheet gets the order (task G44).
 
 **Not in this entry.** A9 stays open, as said above.
+
+**The second entry of amendments: A9.** Entered on 15 November 2026.
+
+**Who decided, and when.** The account owner, on 15 November 2026 at about 11:40 AM Central Time. With this entry every entry that came out of the review after the seal has been decided and entered.
+
+**What had been seen.** The first entry says what had been seen by then. This entry was prepared on 15 November 2026 with the owner's journal standing at record 244. Since the first entry the shakedown had added the read-backs of the first episode of entry B1 about an hour after its releases, and one private Douyin test post whose planned edit the platform refused twice. That refusal is the reason for this entry. Nothing recorded after record 244 was seen when this text was written. Shakedown records are never counted (section 5).
+
+**Annex A** is version 1.17 from the day of this entry: one sentence of its section 6 is changed, as A9 says below. The pointer under "Annex A. Measures" now means version 1.17. Version 1.16 stays in the Lab repository at commit `365943d`, and version 1.15 at the tag `round2-protocol-v1.0`.
+
+### A9. No edit of a Douyin test post in this round
+
+**Decided by the owner on 15 November 2026.** This entry was kept open on 14 November for the first Douyin edit of the shakedown. That edit was tried on 15 November and could not be made. The entry was written with those records in view: they are its reason.
+
+**Sealed words.**
+
+Protocol 1.0, section 9, G, line 307:
+
+> **Edits** of title and description on test posts: owner 5 on each platform, 2 of them with the browser ended right after the save; tester 2 on each platform.
+
+Protocol 1.0, section 13 (the table, row 6), line 495:
+
+> | 6 | An edit in place, read back on the same post | YouTube, Douyin; elsewhere only on a real edit the owner wants | Group G |
+
+Protocol 1.0, section 13 (the point on cell 6), line 505:
+
+> Cell 6: every edit. A try is confirmed when the edit command, or the `--verify-only` read-back that follows it, reports the edit read back on the same post.
+
+Protocol 1.0, section 9 (not run in this round), line 343:
+
+> Any test post on Bilibili, X or Instagram.
+
+Annex A 1.15, section 6 (which tries belong to a cell), line 126:
+
+> Cell 6: every edit; confirmed when 5.3 shows it confirmed by the command or by the read-back after it, on the same post.
+
+Annex A 1.15, the paragraph on a person's look (agreement), line 72:
+
+> An edit: agrees when the look finds the post as it was before the edit (`present_private` for a test post) with the changed words shown; contradicted by any other word, or by the changed words not being shown.
+
+**Amended words.**
+
+Section 9, G. The sealed sentence stands. These sentences are added after it.
+
+> On Douyin no edit of a test post is run in this round. The list still gives Douyin test posts their edits, and two of the owner's their edit fault, as the counts file was sealed. Each is listed and never run, and the fault is never armed there, as with the Douyin delete fault (section 9, H). The wrapper refuses an edit command on a Douyin test post. The edits of test posts that are made are those on YouTube: owner 5, 2 of them with the browser ended right after the save, and tester 2. No edit of a Douyin post goes through the study version in this round: a change that the owner wants on a public Douyin post is made with the phone or on the platform's own website, outside the study (section 5a).
+
+Section 13, the table. Row 6 is replaced by this row.
+
+> | 6 | An edit in place, read back on the same post | YouTube; on Douyin not attempted, because a private post there cannot be edited (amendment A9); elsewhere only on a real edit the owner wants | Group G |
+
+Section 13, the point on cell 6. The sealed sentence stands. This sentence is added after it.
+
+> On Douyin the cell is Not attempted, with the reason "no private setting": the edits that the list gives Douyin test posts are reported as listed and not run.
+
+Section 9, the list "Not run in this round, and reported as such". This point is added after the one quoted above.
+
+> An edit of a test post on Douyin, and the edit fault there (amendment A9).
+
+Annex A, section 6. The sentence quoted above is replaced by these two. It was the same in versions 1.15 and 1.16.
+
+> Cell 6: every edit; confirmed when 5.3 shows it confirmed by the command or by the read-back after it, on the same post. No edit is run on a Douyin test post (protocol, amendment A9): there the cell is `not_attempted`, with the reason, and the edits that the list gives Douyin test posts are printed with 5.3 as listed and not run, never as not reached and never as missing steps.
+
+The sentence on which word of a look agrees with an edit stands as sealed. No Douyin edit is looked at in this round, so the question this entry was first kept open for, what a look means while Douyin is still reviewing a change, does not arise.
+
+**Why.** The first Douyin edit of the shakedown was tried on 15 November on a private test post. The post was published, read back and seen. The tool then refused the edit twice, about 16 and about 34 minutes after the last step of the upload that could press. Douyin's own edit page said that changes to the work were not allowed for now, and the tool read that before it typed or pressed anything (its word `edit_held_by_review`, exit code 2; read in the tool's code by the author). The owner looked at the page by hand 48 minutes after that step and saw the same: the button that saves a change was greyed out, with a line saying that a change was under review, although no change had ever been sent. By the operator's check of the field notes of 2 November, before round two, three private works of the same account had been held in the same way; the author read there that one of them stayed held through four checks over about 50 minutes. So four of four private works could not be edited for as long as each was watched. Public works of the same account showed no such line: three older ones read on 2 November, and the first episode of entry B1, read about 10 hours after it was posted.
+
+What this shows, and what it does not. That Douyin never lets a private work be edited is likely. It is not shown: a hold on any new work in its first hours is not ruled out, because no public work was read in its first hour. For this round the two come to the same thing. A test post is never public (Annex B, rule 6), and it comes down at the end of its own run (section 9, H). So an edit of a Douyin test post cannot be made inside a run.
+
+The planned edits are not moved to YouTube: the plan is not rebuilt to make up for what a platform refused. The cost is said plainly. This round can say nothing about edits on Douyin, and the edit fault is tried on one platform only, in two runs.
+
+**What follows for the tools.** To be built before the freeze (task C63): the wrapper's refusal of an edit command on a Douyin test post; the script's report of the listed Douyin edits as listed and not run, and of the cell as not attempted; and the made-up whole round without Douyin edits. One thing stays as it is: a look is owed after any edit that was started, also where the tool refused it before typing (section 7; Annex A, 5.3), and the tools list it so.
