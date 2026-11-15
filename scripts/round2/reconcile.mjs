@@ -55,8 +55,8 @@ export function reconcile(ctx,crosscastFile,{now=Date.now(),privacy=false,practi
  const obligations=new Map();
   for(const s of eligible.filter(r=>['test_post','real_slot','real_release'].includes(scope(r.d.job))&&started(r)))
   for(const platform of s.d.platforms)obligations.set(JSON.stringify([s.d.job,platform,operation(s)]),{job:s.d.job,platform,about:operation(s)});
- for(const r of records.filter(r=>r.type==='NOTE'&&r.d.code==='manual_step'&&r.d.platform==='douyin'&&scope(r.d.job)==='test_post'))
-  obligations.set(JSON.stringify([r.d.job,'douyin','delete']),{job:r.d.job,platform:'douyin',about:'delete'});
+ for(const r of records.filter(r=>r.type==='NOTE'&&r.d.code==='manual_step'&&r.d.platform&&scope(r.d.job)==='test_post'))
+  obligations.set(JSON.stringify([r.d.job,r.d.platform,'delete']),{job:r.d.job,platform:r.d.platform,about:'delete'});
  const lookChecks=[...obligations.values()].map(({job,platform,about})=>{
     const s=lookStep(records.filter(r=>r.type!=='STEP'||started(r)),job,platform,about);
   const looks=records.filter(r=>r.seq>s.seq&&r.type==='OBSERVATION'&&r.d.job===job&&r.d.about===about&&observationPlatform(r)===platform&&r.d.seen!=='unclear');
@@ -70,7 +70,8 @@ export function reconcile(ctx,crosscastFile,{now=Date.now(),privacy=false,practi
   const status=qualifying?(lookTiming(qualifying,s,records,now).status):
     now-Date.parse(s.at)>=86400000?'no_ground_truth':early.length?'early':'pending';
     const premature=looks.filter(r=>Date.parse(r.at)-Date.parse(s.at)<r.d.minutes_after*60000).map(r=>r.seq);
-    return {job,platform,step:s.seq,about,status,second_look_owed:secondOwed,second_look_done:secondDone,observation:qualifying?.seq??null,early_observations:early,counting_observations:looks.filter(r=>countsLook(r,s,now,records)).map(r=>r.seq),
+    const toolDelete = about==='delete' ? eligible.findLast(r=>r.d.job===job&&r.d.platforms.includes(platform)&&r.d.role==='delete'&&started(r)) : null;
+    return {job,platform,step:s.seq,...(s.type==='NOTE'?{last_tool_delete_step:toolDelete?.seq??null}:{}),about,status,second_look_owed:secondOwed,second_look_done:secondDone,observation:qualifying?.seq??null,early_observations:early,counting_observations:looks.filter(r=>countsLook(r,s,now,records)).map(r=>r.seq),
       recorded_before_claimed_minute:premature};
  });
  const owesLook=lookChecks.filter(r=>!['on_time','late','second_look'].includes(r.status)||r.second_look_owed&&!r.second_look_done);
@@ -161,7 +162,7 @@ export function reconcile(ctx,crosscastFile,{now=Date.now(),privacy=false,practi
    const about=operation(s),later=records.filter(r=>r.seq>s.seq&&r.d.job===s.d.job);
    function settles(r){
      if(r.type==='OBSERVATION'){
-       const anchor=records.find(x=>x.seq===firstEligible);
+       const anchor=about==='delete' ? lookStep(records.filter(x=>x.seq<r.seq),s.d.job,platform,about) : records.find(x=>x.seq===firstEligible);
        if(r.d.about!==about||observationPlatform(r)!==platform||!countsLook(r,anchor,now,records))return false;
        if(about==='post'&&r.d.seen==='absent'&&secondLookDue({seq:r.seq+0.5,d:{job:s.d.job,platform,about}},anchor,records))
         return lookTiming(r,anchor,records,now).status==='second_look';

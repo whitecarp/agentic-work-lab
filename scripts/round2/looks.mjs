@@ -1,6 +1,6 @@
 import {operation,uncertainState,confirmedAnswer} from './answers.mjs';
 export function lookStep(records,job,platform,about){
- return records.findLast(r=>r.d.job===job&&(about==='delete'&&platform==='douyin'&&
+ return records.findLast(r=>r.d.job===job&&(about==='delete'&&job&&platform&&
   r.type==='NOTE'&&r.d.code==='manual_step'&&r.d.platform===platform ||
   r.type==='STEP'&&r.d.platforms.includes(platform)&&
   r.d.started!==false&&r.d.exit!==127&&r.d.class==='write'&&operation(r)===about&&
