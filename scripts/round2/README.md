@@ -480,6 +480,20 @@ records its starter only, without delaying the signal for a process scan; the
 worker may keep running and STEP may precede its completion. Unknown controller
 results keep the STEP. Tool-switch faults have neither measured delay.
 
+C62 adds an optional `FAULT_RESULT.d.survivor_check` for command-only C1.
+A read-only Windows helper tracks verified handles without termination rights;
+it never delays the termination request. About three seconds after the launcher
+is observed gone, it records `after_gone_ms`, `known_descendants`, `alive` and
+`unopened_present`. These are counts from the known lineage, not proof that
+every transient descendant was found. A positive `alive` proves a survivor at
+that observation; zero does not prove the whole tree was gone. Failed or
+unavailable observation records null counts and a fixed reason, independently
+of whether C1 fired. The existing `processes` field still records only the
+launcher ended by C1. Historical records stay valid without this field. Privacy
+exports retain the counts and withhold the observation delay for a cross-day
+job, as they do the other fault delays. No observation authorizes a retry or
+account action, and the worker may continue after the wrapper returns.
+
 For the tester share, run the Lab export with both --privacy and --crosscast.
 Share that derived file and the separately generated privacy comparison. Its crosscast section rebases times per command,
 only. All record-level publication/deletion/edit/observation offsets are null.

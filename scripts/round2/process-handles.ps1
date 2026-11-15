@@ -16,10 +16,11 @@ public class OwnedProcesses {
  public class Row {public uint pid,parent;public string born,image;public bool ended;internal IntPtr handle;}
  readonly Dictionary<uint,Row> held = new Dictionary<uint,Row>();
  readonly HashSet<uint> failedOpens = new HashSet<uint>();
+ bool readOnly;
  public int Unopened { get { return failedOpens.Count; } }
  public int UnopenedPresent { get; private set; }
- static Row Hold(PE expected) {
-   var handle = OpenProcess(0x101001,false,expected.pid);
+ Row Hold(PE expected) {
+   var handle = OpenProcess(readOnly ? 0x101000u : 0x101001u,false,expected.pid);
    if(handle==IntPtr.Zero) return null;
    try {
      // Re-read the parent *after* opening this object. Never trust the PID and
@@ -44,7 +45,8 @@ public class OwnedProcesses {
      return list;
    } finally { CloseHandle(snapshot); }
  }
- public void Init(uint root,uint parent,long earliest) {
+ public void Init(uint root,uint parent,long earliest,bool observationOnly=false) {
+   readOnly=observationOnly;
    PE entry;
    if(!Snapshot().TryGetValue(root,out entry)) throw new Exception("starter_missing");
    if(entry.parent!=parent) throw new Exception("starter_identity_missing");
@@ -97,6 +99,7 @@ public class OwnedProcesses {
    return new List<Row>(held.Values).ToArray();
  }
  public Row[] End() {
+   if(readOnly) throw new Exception("observation_only");
    Scan();
    var rows=new List<Row>(held.Values);
    rows.Sort((a,b)=>long.Parse(a.born).CompareTo(long.Parse(b.born)));
@@ -119,7 +122,7 @@ try {
   try {
    $request = $line | ConvertFrom-Json
    switch ($request.op) {
-    'init' { $owned.Init([uint32]$request.root,[uint32]$request.parent,[long]$request.earliest); $rows=@($owned.Scan()) }
+    'init' { $owned.Init([uint32]$request.root,[uint32]$request.parent,[long]$request.earliest,[bool]$request.read_only); $rows=@($owned.Scan()) }
     'scan' { $rows=@($owned.Scan()) }
     'end' { $rows=@($owned.End()) }
     'close' { break }

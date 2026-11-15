@@ -2,11 +2,13 @@
  static Dictionary<uint,PE> Table=new Dictionary<uint,PE>();
  static Dictionary<uint,long> Birth=new Dictionary<uint,long>(), ExitTime=new Dictionary<uint,long>();
  static List<uint> Ended=new List<uint>();
+ static uint LastRights;
  static void Add(uint pid,uint parent,long born) {
    Table[pid]=new PE {pid=pid,parent=parent,name="fixture"};
    Birth[pid]=born; ExitTime[pid]=0;
  }
  static IntPtr OpenProcess(uint rights,bool inherit,uint pid) {
+   LastRights=rights;
    if(pid==140) return IntPtr.Zero;
    if(pid==150) Add(150,999,40); // Number recycled after discovery.
    return (IntPtr)(int)pid;
@@ -35,5 +37,11 @@
    Check(Array.Exists(after,r=>r.pid==160 && !r.ended),"late child of exited parent lost");
    Check(observer.UnopenedPresent==1,"still-visible inaccessible child forgotten");
    Table.Remove(140); observer.Scan(); Check(observer.UnopenedPresent==0,"departed child marked present");
-   observer.Close(); return "lineage checks passed";
+   observer.Close();
+   Table.Clear(); Birth.Clear(); ExitTime.Clear(); Ended.Clear(); Add(200,999,110);
+   var readOnly=new OwnedProcesses();readOnly.Init(200,999,100,true);
+   Check((LastRights&1)==0,"read-only observer acquired termination access");
+   bool refused=false;try{readOnly.End();}catch(Exception e){refused=e.Message=="observation_only";}
+   Check(refused && Ended.Count==0,"read-only observer attempted termination");
+   readOnly.Close();return "lineage checks passed";
  }

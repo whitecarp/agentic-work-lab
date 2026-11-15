@@ -53,6 +53,12 @@ export function validateRecord(record) {
   if (record.type === 'GATE_DECISION') for(const j of record.d.jobs) {
     if(Object.hasOwn(j,'due_at') && !Number.isFinite(Date.parse(j.due_at))) problems.push('invalid job time');
   }
+  if(record.type==='FAULT_RESULT'&&record.d.survivor_check){
+    const s=record.d.survivor_check;
+    if(record.d.kind!=='end_command_after_press'||
+       (s.reason===null&&(s.after_gone_ms===null||s.known_descendants===null||s.alive===null||s.unopened_present===null||s.alive>s.known_descendants))||
+       (s.reason!==null&&[s.known_descendants,s.alive,s.unopened_present].some(v=>v!==null)))problems.push('invalid survivor observation');
+  }
   if (record.type === 'NOTE') {
     const d=record.d;
     if (d.code === 'outside_upload') {

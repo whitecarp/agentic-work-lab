@@ -82,7 +82,7 @@ export function exportData(ctx,{privacy=false,deny,crosscast:ccfile}={}){
     const original=records.find(x=>x.seq===r.seq);
     if(gate&&gate.at.slice(0,10)!==original.at.slice(0,10))delete r.d.ms;
    }
-   if(r.type==='FAULT_RESULT'&&jobDays.get(r.d.job)?.size>1){r.d.action_delay_ms=null;r.d.gone_delay_ms=null;}
+   if(r.type==='FAULT_RESULT'&&jobDays.get(r.d.job)?.size>1){r.d.action_delay_ms=null;r.d.gone_delay_ms=null;if(r.d.survivor_check)r.d.survivor_check.after_gone_ms=null;}
    if(r.type==='FAULT_RESULT')for(const p of r.d.processes??[]){
     if(p.born){p.instance=key(p.pid+'/'+p.born);delete p.born;}
    }

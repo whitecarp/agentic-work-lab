@@ -2771,6 +2771,71 @@
             "unopened_present": {
               "type": "integer",
               "minimum": 0
+            },
+            "survivor_check": {
+              "type": "object",
+              "properties": {
+                "after_gone_ms": {
+                  "anyOf": [
+                    {
+                      "type": "integer",
+                      "minimum": 0
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "known_descendants": {
+                  "anyOf": [
+                    {
+                      "type": "integer",
+                      "minimum": 0
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "alive": {
+                  "anyOf": [
+                    {
+                      "type": "integer",
+                      "minimum": 0
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "unopened_present": {
+                  "anyOf": [
+                    {
+                      "type": "integer",
+                      "minimum": 0
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "reason": {
+                  "enum": [
+                    null,
+                    "not_observed",
+                    "observation_unavailable",
+                    "process_observation_failed"
+                  ]
+                }
+              },
+              "required": [
+                "after_gone_ms",
+                "known_descendants",
+                "alive",
+                "unopened_present",
+                "reason"
+              ],
+              "additionalProperties": false
             }
           },
           "required": [

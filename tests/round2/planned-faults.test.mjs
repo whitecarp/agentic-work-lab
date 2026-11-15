@@ -78,7 +78,7 @@ test('stop during upload is observed at next check; manual removal does not auth
  assert.equal(await step(f.ctx,{job:'job-1',role:'resume'},[process.execPath,'-e','process.exit(0)']),0);
 });
 for(const [kind,tree]of [['end_command_after_press',false],['end_tree_after_press',true]])test(`${kind} ends only its owned targets and records observations`,{timeout:45000},async t=>{
- const source="const {spawn}=require('child_process'),fs=require('fs'),path=require('path');const c=spawn(process.execPath,['-e','setTimeout(()=>{},4000)'],{stdio:'ignore',windowsHide:true,detached:true});c.unref();fs.writeFileSync(path.join(process.env.ROUND2_HOME,'grandchild.pid'),String(c.pid));console.error(JSON.stringify({event:'browser_progress',platform:'youtube',stage:'waiting for platform confirmation'}));setTimeout(()=>{},30000);";
+ const source="const {spawn}=require('child_process'),fs=require('fs'),path=require('path');const c=spawn(process.execPath,['-e','setTimeout(()=>{},8000)'],{stdio:'ignore',windowsHide:true,detached:true});c.unref();fs.writeFileSync(path.join(process.env.ROUND2_HOME,'grandchild.pid'),String(c.pid));console.error(JSON.stringify({event:'browser_progress',platform:'youtube',stage:'waiting for platform confirmation'}));setTimeout(()=>{},30000);";
  const f=ready(t,kind,source,500),prior=process.env.ROUND2_HOME;process.env.ROUND2_HOME=f.home;
  t.after(()=>{if(prior===undefined)delete process.env.ROUND2_HOME;else process.env.ROUND2_HOME=prior;});
  const start=performance.now();await f.run('publish',{supportCheck:()=>true});
@@ -86,7 +86,7 @@ for(const [kind,tree]of [['end_command_after_press',false],['end_tree_after_pres
  assert.ok(result.processes.filter(p=>p.root||tree).every(p=>p.ended));assert.equal(last(f.ctx,'STEP').d.fault_fired,true);
  const grand=Number(fs.readFileSync(path.join(f.home,'grandchild.pid')));
  // The command-only descendant expires by its own bounded timer; never reopen a PID for termination.
- if(!tree){assert.equal(alive(grand),true);assert.equal(result.processes.length,1);await new Promise(r=>setTimeout(r,4500));assert.equal(alive(grand),false);}
+ if(!tree){assert.equal(alive(grand),true);assert.equal(result.processes.length,1);for(let i=0;i<90&&alive(grand);i++)await new Promise(r=>setTimeout(r,100));assert.equal(alive(grand),false);}
  else {assert.equal(alive(grand),false);assert.ok(result.processes.some(p=>p.pid===grand));}
 });
 test('edit fault ignores pre-save readback and fires only after pressing', {timeout:45000},async t=>{

@@ -104,19 +104,49 @@ export function family(rows,root){
 }
 const pause=ms=>new Promise(r=>setTimeout(r,ms));
 const category=r=>/^python(?:w)?(?:\.exe)?$/i.test(r.image)?'python':/^node(?:\.exe)?$/i.test(r.image)?'driver':/chrome|chromium/i.test(r.image)?'chromium':'other';
-export function faultController(ctx,fault,{snapshot,kill}={}){
+export function faultController(ctx,fault,{snapshot,kill,observerFactory=processHandles,survivorDelayMs=3000}={}){
  if(!fault)return null;
  const rule=FAULTS[fault.kind],created=Date.now();
  let child,observer,rootReady=Promise.resolve(),rootIdentity,press=false,triggered=false,fired=false,failed=false,pending=Promise.resolve(),partial='',ended=[];
  let requestMs=null,goneMs=null,killExit=null,reason=null,childEnded=false,answerSeen=false;
+ let survivorCheck=null,observationError=null,monitor=Promise.resolve(),monitorStop=false;
+ const observeCommand=fault.kind==='end_command_after_press';
  const running=()=>child&&!childEnded&&child.exitCode==null&&child.signalCode==null;
  const rowsOf=rows=>rows.map(r=>({pid:r.pid,parent:r.parent,root:r.pid===child.pid,...(r.born?{born:r.born}:{}),kind:r.pid===child.pid?'launcher':category(r),ended:r.ended??null}));
+ async function observeSurvivors(goneAt){
+  // Observation cannot move the termination request or turn a fired fault into a failure.
+  await rootReady;
+  await pause(Math.max(0,survivorDelayMs-(performance.now()-goneAt)));
+  monitorStop=true;await monitor;
+  try{
+   if(observationError)throw new Error(observationError);
+   if(!observer||!rootIdentity)throw new Error('observation_unavailable');
+   const rows=await observer.scan(),others=rows.filter(r=>r.pid!==child.pid);
+   survivorCheck={after_gone_ms:Math.round(performance.now()-goneAt),known_descendants:others.length,
+    alive:others.filter(r=>r.ended===false).length,unopened_present:observer.unopenedPresent,reason:null};
+  }catch{
+   survivorCheck={after_gone_ms:Math.round(performance.now()-goneAt),known_descendants:null,alive:null,unopened_present:null,
+    reason:observationError==='observation_unavailable'?'observation_unavailable':'process_observation_failed'};
+  }
+ }
  const api={
   attach(c){
    child=c;c.once('exit',()=>{childEnded=true;});
    if(rule.tree){
     if(!snapshot){if(process.platform!=='win32')throw new Error('owned_handle_controller_unavailable');observer=processHandles();}
     c.once('spawn',()=>{rootReady=(snapshot?snapshot():observer.init(c.pid,created)).then(rows=>{rootIdentity=rows.find(r=>r.pid===c.pid);if(!rootIdentity)throw new Error('starter_missing');}).catch(e=>{reason=e.message;});});
+   }else if(observeCommand){
+    survivorCheck={after_gone_ms:null,known_descendants:null,alive:null,unopened_present:null,reason:'not_observed'};
+    try{if(process.platform!=='win32'&&observerFactory===processHandles)throw new Error('observation_unavailable');observer=observerFactory({readOnly:true});}
+    catch{observationError='observation_unavailable';}
+    c.once('spawn',()=>{rootReady=(async()=>{
+     if(!observer)return;
+     try{
+      const rows=await observer.init(c.pid,created);rootIdentity=rows.find(r=>r.pid===c.pid);
+      if(!rootIdentity)throw new Error('starter_missing');
+      monitor=(async()=>{while(!monitorStop&&running()){await observer.scan();await pause(200);}})().catch(()=>{observationError='process_observation_failed';});
+     }catch{observationError='process_observation_failed';}
+    })();});
    }
   },
   answer(stdout){
@@ -149,7 +179,9 @@ export function faultController(ctx,fault,{snapshot,kill}={}){
      for(let i=0;i<100&&running();i++)await pause(10);
      fired=!running()&&!answerSeen;failed=running();reason=answerSeen?'completed_before_kill':failed?'starter_not_observed_gone':null;
      goneMs=fired?Math.round(performance.now()-start):null;
-     ended=[{pid:child.pid,root:true,kind:'launcher',ended:fired}];return;
+     ended=[{pid:child.pid,root:true,kind:'launcher',ended:fired}];
+     if(fired)await observeSurvivors(performance.now());
+     return;
     }
     await rootReady;
     if(answerSeen){reason='completed_before_kill';return;}
@@ -180,9 +212,10 @@ export function faultController(ctx,fault,{snapshot,kill}={}){
     const reasonWords=schema.oneOf.find(s=>s.properties.type.const==='FAULT_RESULT').properties.d.properties.reason.enum;
     if(reason!==null&&reasonWords&&!reasonWords.includes(reason))reason='process_controller_failed';
     put(ctx,'FAULT_RESULT',{job:fault.job,kind:fault.kind,role:fault.role,triggered,fired,failed,reason,
-     action_delay_ms:requestMs,gone_delay_ms:goneMs,kill_exit:killExit,processes:ended,...(observer?{unopened:observer.unopened,unopened_present:observer.unopenedPresent}:{})},ctx.run,30000);
+     action_delay_ms:requestMs,gone_delay_ms:goneMs,kill_exit:killExit,processes:ended,
+     ...(survivorCheck?{survivor_check:survivorCheck}:{}),...(observer?{unopened:observer.unopened,unopened_present:observer.unopenedPresent}:{})},ctx.run,30000);
     return {fired,failed,reason};
-   }finally{observer?.close();}
+   }finally{monitorStop=true;await monitor;observer?.close();}
   }
  };return api;
 }
