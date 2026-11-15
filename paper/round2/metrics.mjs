@@ -3,7 +3,7 @@
 // Lab refs never join CrossCast refs: joins use command awl_run_id + platform.
 import {pressEvidence,commandSnapshots,finiteCount,priorPressCount} from '../../scripts/round2/press-evidence.mjs';
 import {publishChecks,observationChecks} from '../../scripts/round2/analysis-checks.mjs';
-import {settled,nothingSent,uncertainState,operation,pressRoles,STATES,wholePublishRefusal} from '../../scripts/round2/answers.mjs';
+import {settled,nothingSent,uncertainState,operation,pressRoles,STATES,wholePublishRefusal,publishStartedOn} from '../../scripts/round2/answers.mjs';
 import {commandClass} from '../../scripts/round2/crosscast.mjs';
 import {grantScope} from '../../scripts/round2/policy.mjs';
 import {secondLookDue,lookStep} from '../../scripts/round2/looks.mjs';
@@ -38,9 +38,15 @@ function commandEvidence(s,step,platform) {
  const first=events.find(e=>e.type==='command_start'),end=events.findLast(e=>e.type==='command_end');
  const loss=Math.max(command?.dropped_events??0,events.reduce((n,e)=>n+(e.dropped_before??0),0));
  const integrity=s.tool.integrity??{};
- const interrupted=s.records.some(r=>r.type==='FAULT_RESULT'&&r.d.job===step.d.job&&r.run===step.run&&
+ const faultResult=s.records.find(r=>r.type==='FAULT_RESULT'&&r.d.job===step.d.job&&r.run===step.run&&
    r.d.role===step.d.role&&killed.includes(r.d.kind)&&(r.d.fired||r.d.failed)&&
    s.records.find(x=>x.type==='STEP'&&x.seq>r.seq&&x.run===r.run&&x.d.job===r.d.job&&x.d.role===r.d.role)?.seq===step.seq);
+ const interrupted=!!faultResult;
+ const treeEnded=faultResult?.d.fired===true&&!faultResult.d.failed&&
+  ['end_tree_after_press','browser_lost_during_upload','end_browser_after_edit_save'].includes(faultResult.d.kind)&&
+  (faultResult.d.processes??[]).every(p=>p.ended===true)&&!faultResult.d.unopened_present;
+ const cutoff=step.d.answered===false||interrupted;
+ const helperPossible=cutoff&&!treeEnded;
  const intact=!!command&&command.ended&&command.exit_code===step.d.exit&&first&&end&&command.chain_ok!==false&&
    integrity.chain_ok===true&&integrity.salt_ok!==false&&command.sequence_gap===false&&command.dropped_events!=null&&!loss&&
    integrity.loss_records_complete===true&&integrity.loss_folder_unreadable===false&&
@@ -54,7 +60,7 @@ function commandEvidence(s,step,platform) {
   first?.before?.platform===platform?first.before.ref:null,end?.after?.platform===platform?end.after.ref:null].filter(Boolean));
  return {command,events,snapshot,refs,priorCount,beforeCount:(!a?.platform||a.platform===platform)?a?.final_presses:null,missingBeforePositive,intact:!!intact,noContact:!!noContact,noPress,hasPress,countChangedWithoutPress,
   dropped_reported:command?.dropped_events??null,dropped_from_events:events.reduce((n,e)=>n+(e.dropped_before??0),0),
-  loss,interrupted,stamp:codeStamp(s,command)};
+  loss,interrupted,helperPossible,stamp:codeStamp(s,command)};
 }
 function answerOutcome(a,step,e) {
  if(a&&settled(a,operation(step)))return 'confirmed';
@@ -66,12 +72,13 @@ function answerOutcome(a,step,e) {
 }
 // Figure 4.6 reads the platform record in order. A command result alone says
 // nothing about whether a previously recorded submission was reversed.
-function workerConfirmation(attempt){
+function workerConfirmation(attempt, beforeSeq=Infinity){
+ if(!attempt.publish.evidence.helperPossible)return false;
  const events=attempt.publish.evidence.events;let read=false;
  for(const e of events){
-  if(e.platform&&e.platform!==attempt.platform)continue;
+  if(e.seq>=beforeSeq||e.platform&&e.platform!==attempt.platform)continue;
   if(e.type==='stage'&&['reading back','reading the page','waiting for platform confirmation'].includes(e.stage))read=true;
-  if(read&&e.type==='transition'&&!['edit','deletion'].includes(e.kind)&&
+  if(read&&e.phase!=='submitting'&&e.type==='transition'&&!['edit','deletion'].includes(e.kind)&&
     (!attempt.ref||!e.ref||e.ref===attempt.ref)&&[e.state,e.receipt_state].includes('SUBMISSION_VERIFIED'))return true;
  }
  return false;
@@ -80,11 +87,13 @@ function postStateChanges(attempt, open) {
  const {job,platform,ref} = attempt;
  const steps = job.details.filter(d => d.platform === platform && operation(d.step) === 'post' &&
   (!ref || !d.evidence.refs.length || d.evidence.refs.includes(ref)));
- const helper = workerConfirmation(attempt);
  const rows = [];
  let sawDoubt = false, sawPress = false, sawConfirmation = false;
  for (const d of steps) {
   const later = sawDoubt;
+  // A later command can only inherit a worker confirmation already recorded.
+  const helper = d===attempt.publish ? workerConfirmation(attempt) :
+   workerConfirmation(attempt,d.evidence.events[0]?.seq??0);
   let withinDoubt=false,savedConfirmation=false,withoutRead=false,readSeen=d.step.d.role==='verify';
   let turnedBack = false;
   function observe(record,canConfirm=true) {
@@ -110,12 +119,12 @@ function postStateChanges(attempt, open) {
   if ((!later&&!withinDoubt) || (!turnedBack&&!savedConfirmation&&uncertainState(d.answer ?? {},'post'))) continue;
   const read = d.step.d.role === 'verify' || d.evidence.events.some(e => e.platform === platform &&
    ['reading back','reading the page','waiting for platform confirmation'].includes(e.stage));
-  const missingRead=(firstConfirmation && !read && !helper)||withoutRead;
-  const wholeHistory=steps.filter(x=>x.step.seq<=d.step.seq).every(x=>x.evidence.intact);
+  const missingRead=!helper&&((firstConfirmation&&!read)||withoutRead);
+  const workerGap=attempt.publish.evidence.helperPossible&&!attempt.publish.evidence.intact;
   rows.push({job:job.id,platform,step:d.step.seq,role:d.step.d.role,outcome:d.outcome,
    state:d.answer?.state ?? null,previous_state:d.answer?.previous_state ?? null,
-   confirmed_without_read:missingRead?(wholeHistory?true:null):false,
-   confirmation_read_unverifiable:missingRead&&!wholeHistory,
+   confirmed_without_read:missingRead?(workerGap?null:true):false,
+   confirmation_read_unverifiable:missingRead&&workerGap,
    left_unsettled:turnedBack && (!open.closed || d.step.seq < open.settled_at_seq),
    helper_confirmation:helper && (savedConfirmation||d.outcome==='confirmed')});
  }
@@ -230,6 +239,14 @@ function siteModel(s,expectedGateHash,lastDay) {
  };
  const jobs=jobsWithUnplanned.map(job=>{
   const own=steps.filter(r=>r.d.job===job.id),first=own[0]??records.find(r=>r.d.job===job.id||r.d.slot_id===job.id),last=own.at(-1)??first,ds=details.filter(d=>d.step.d.job===job.id);
+  let datedStep;
+  if(job.run_class==='test_post'){
+   datedStep=own.find(r=>r.d.role==='publish'&&r.d.platforms.some(p=>publishStartedOn(r,p)));
+  }else if(job.run_class==='drill'){
+   datedStep=records.find(r=>r.type==='GATE_DECISION'&&r.d.slot_id===job.id);
+  }else{
+   datedStep=records.find(r=>r.d.job===job.id&&['STEP','STEP_REFUSED'].includes(r.type));
+  }
   const upload=own.filter(r=>started(r)&&['publish','repeat_same','resume'].includes(r.d.role));
   if(uniq(own.map(phaseFor)).length>1)throw new Error('job_crosses_phase_boundary');
   const phase=first?phaseFor(first):job.list_phase??'2b',seal=first?s.sealAt(first):s.seals.findLast(x=>x.d.phase==='2b');
@@ -276,7 +293,7 @@ function siteModel(s,expectedGateHash,lastDay) {
     outside=outsideNotes.some(r=>r.d.minutes_ago==null||time(r.at)-r.d.minutes_ago*60000>=lo&&time(r.at)-r.d.minutes_ago*60000<=hi);}
   }
   const rules={
-   '1_counted_phase':phase==='2b'&&(!first||day(first.at)<=lastDay)&&!job.listed_only,'2_frozen_commands':stampOK,
+   '1_counted_phase':phase==='2b'&&!!datedStep&&day(datedStep.at)<=lastDay&&!job.listed_only,'2_frozen_commands':stampOK,
    '3_admitted_intact':s.integrity.exceptions.length===0&&!breaks.some(i=>['write_without_admission','step_without_admission'].includes(i.code)),
    '4_approved':!breaks.some(i=>i.code.includes('approval')),
    '5_looks':obligations.filter(c=>c.about==='post').every(c=>countedLook(c)&&(!c.second_look_owed||c.second_look_done)),'6_no_voiding_violation':violations.length===0,
@@ -301,7 +318,7 @@ function siteModel(s,expectedGateHash,lastDay) {
      if(!valid)endProblems.push('platform_not_settled:'+platform);
      if(settlement?.how==='nothing_posted'){
       const beforeEnd=records.filter(r=>r.seq<end.seq),step=lookStep(beforeEnd,job.id,platform,'post');
-      const owed=secondLookDue({seq:end.seq,d:{job:job.id,platform,about:'post'}},step,beforeEnd);
+      const owed=secondLookDue({seq:end.seq,d:{job:job.id,platform,about:'post'}},step,beforeEnd,s.cc);
       if(s.privacy){
        if(local?.nothing_posted_before_second_look?.includes(platform))endProblems.push('nothing_posted_before_second_look:'+platform);
        else if(!Array.isArray(local?.nothing_posted_before_second_look))endProblems.push('second_look_closure_unmeasured:'+platform);
@@ -323,7 +340,7 @@ function siteModel(s,expectedGateHash,lastDay) {
     endProblems.push('drill_decision_missing');
   }
   const executed=own.some(started)||records.some(r=>r.type==='STEP_REFUSED'&&r.d.job===job.id||r.type==='GATE_DECISION'&&r.d.slot_id===job.id);
-  return {...job,phase,seal,steps:own,details:ds,executed,rules,failed,unknown,counted:executed&&!failed.length&&!unknown.length,
+  return {...job,phase,seal,datedStep,steps:own,details:ds,executed,rules,failed,unknown,counted:executed&&!failed.length&&!unknown.length,
    two_versions:twoVersions,late_signoffs:local?.signoffs.filter(z=>z.late)??[],
    row:twoVersions?'made_on_two_versions':failed.length===1&&failed[0]==='8_no_interruption'?'interrupted':failed.length===1&&failed[0]==='9_fault_fired'?'fault_did_not_fire':failed.length?'excluded':unknown.length?'unresolved':'counted',
    outside_upload:outside,faults: faultRows,violations,interference,end,endProblems,
@@ -408,7 +425,7 @@ function siteModel(s,expectedGateHash,lastDay) {
   return {...expected,daily:c?.daily??null,spacing:c?.spacing??null,
    reason:c?.reason??(c?null:'site_comparison_missing_or_ambiguous'),source:s.provenance.timing};
  });
- const humanLookRows=observationChecks(records,s.jobs).map(expected=>{
+ const humanLookRows=observationChecks(records,s.jobs,s.cc).map(expected=>{
   // Only identity comes from the redacted journal. Its removed minutes must
   // never be reconstructed from dates or a different observation's status.
   const matches=Array.isArray(s.comparison.observation_checks)?s.comparison.observation_checks.filter(c=>c?.seq===expected.seq):[];
@@ -667,7 +684,7 @@ function figures(model,jobRows,platform,phase,stampFilter=null) {
   protocol:{real_release_24h:{status:release24h.length?'checked':'not_applicable',
     reason:release24h.length?null:s.site==='tester'?'tester_no_real_releases':'no_real_releases_in_scope',checks:release24h},
    runs:jobRows.map(j=>({job:j.id,executed:j.executed,planned:!j.listed_only,class:j.run_class,
-    reason:j.end?.d.reason??(j.executed?'not_finished':'no_recorded_reason'),counted:j.counted,row:j.row,rules:j.rules,
+    reason:j.end?.d.reason??(j.executed?'not_finished':'no_recorded_reason'),counted:j.counted,row:j.row,rules:j.rules,dated_step:j.datedStep?.seq??null,run_day:day(j.datedStep?.at)??null,
     outside_upload:j.outside_upload,tool_record_incomplete:j.tool_record_incomplete,late_signoffs:j.late_signoffs,fault_states:j.faults.map(f=>({role:f.role,state:f.state,reason:f.reason})),
     closed:j.end?{reason:j.end.d.reason,platform_settlements:j.end.d.platform_settlements??[],problems:j.endProblems}:null})),
    violations:rec.filter(r=>r.type==='VIOLATION').map(r=>({seq:r.seq,...r.d,...modelPeriod(s,model.steps.findLast(x=>x.seq<r.seq&&x.d.job===r.d.job)??r)})),
@@ -720,13 +737,15 @@ function checklist(models,definition,onlyCounted) {
  for(const m of models)for(const a of m.attempts.filter(a=>a.phase==='2b'&&(!onlyCounted||a.job.counted))){
   const add=(cell,confirmed,lookAgrees,detail=a.publish,extra={})=>all.push({cell,platform:a.platform,site:a.site,
    job:a.job.id,step:detail.step.seq,at:detail.step.at,privacy:m.s.privacy,stamp:a.stamp?.commit??'unrecorded',
-   confirmed,look_agrees:lookAgrees,contradicted:a.contradicted,effect:present(a.look.seen)||a.look.seen==='present_twice_or_more',
+   voided:!a.job.rules['6_no_voiding_violation'],confirmed,look_agrees:lookAgrees,contradicted:a.contradicted,effect:present(a.look.seen)||a.look.seen==='present_twice_or_more',
    stopped:a.nothing_sent,...extra});
-  if(['real_slot','real_release'].includes(a.job.run_class))add(1,a.confirmed&&a.look.seen!=='present_private',agrees(a,a.look)===true);
-  if(a.job.group==='B')add(2,a.confirmed,agrees(a,a.look)===true);
-  if(repeatRows(a).some(r=>r.allowed_draft)||a.job.group==='D'||a.job.faults.some(f=>f.kind==='between_save_and_press'&&f.state==='fired')&&a.platform==='youtube'&&a.draft_before_second)
+  if(['real_slot','real_release'].includes(a.job.run_class))add(1,a.confirmed,agrees(a,a.look)===true);
+  const testPost=a.job.run_class==='test_post';
+  const finishedDraft=testPost&&repeatRows(a).some(r=>r.allowed_draft);
+  if(a.job.group==='B'&&testPost&&!finishedDraft)add(2,a.confirmed,agrees(a,a.look)===true);
+  if(testPost&&(finishedDraft||a.job.group==='D'||a.job.faults.some(f=>f.kind==='between_save_and_press'&&f.state==='fired')&&a.platform==='youtube'&&a.draft_before_second))
    add(3,a.confirmed&&a.press_markers!==null&&(a.press_markers===1||a.c4_one_click||repeatRows(a).some(r=>r.allowed_draft)),agrees(a,a.look)===true);
-  if(a.job.faults.some(f=>around.slice(0,3).includes(f.kind)&&f.state==='fired')&&!a.first_confirmed&&!a.nothing_sent&&present(a.look.seen)&&!repeatRows(a).some(r=>r.allowed_draft))
+  if(testPost&&a.job.faults.some(f=>around.slice(0,3).includes(f.kind)&&f.state==='fired')&&!a.first_confirmed&&!a.nothing_sent&&present(a.look.seen)&&!repeatRows(a).some(r=>r.allowed_draft))
    add(4,a.details.some(d=>d.step.d.role==='verify'&&d.outcome==='confirmed'),true);
   for(const d of a.details.filter(d=>d.step.d.role==='edit'&&d.step.d.class==='write'&&started(d.step))){
    const read=editReadback(a,d),l=m.looks(a.job.id,a.platform,'edit');
@@ -752,7 +771,7 @@ function checklist(models,definition,onlyCounted) {
    const ok=stopped?!!ref:eligible.length>0&&eligible.every(d=>d.step.d.exit===2&&d.answer?.code==='confirmation_required'&&d.evidence.noContact);
    const d=ds[0],r=d?.step??ref;if(!r)continue;
    all.push({cell:5,platform:p,site:m.s.site,job:j.id,step:r.seq,at:r.at,privacy:m.s.privacy,
-    stamp:d?.evidence.stamp?.commit??j.seal?.d.crosscast_commit??'unrecorded',confirmed:ok,look_agrees:true,contradicted:false,
+    stamp:d?.evidence.stamp?.commit??j.seal?.d.crosscast_commit??'unrecorded',voided:!j.rules['6_no_voiding_violation'],confirmed:ok,look_agrees:true,contradicted:false,
     effect:ds.some(d=>d.evidence.hasPress||d.evidence.events.some(e=>e.type==='call')),stopped:ok,refusal:true});
   }
   if(j.kind==='already_running'){
@@ -760,31 +779,31 @@ function checklist(models,definition,onlyCounted) {
     if(r.d.running!==true)continue;
     const effect=m.steps.some(x=>x.d.job===j.id||x.run===r.run&&x.seq>r.seq),refused=r.d.reason==='already_running'&&r.d.decision!=='plan_only';
     all.push({cell:5,platform:'gate',site:m.s.site,job:j.id,step:r.seq,at:r.at,privacy:m.s.privacy,
-     stamp:j.seal?.d.crosscast_commit??'unrecorded',confirmed:refused&&!effect,look_agrees:true,contradicted:false,effect,stopped:refused,refusal:true});
+     stamp:j.seal?.d.crosscast_commit??'unrecorded',voided:!j.rules['6_no_voiding_violation'],confirmed:refused&&!effect,look_agrees:true,contradicted:false,effect,stopped:refused,refusal:true});
    }
   }
  }
  const stamps=uniq(models.flatMap(m=>m.s.seals.filter(s=>s.d.phase==='2b').map(s=>s.d.crosscast_commit)));
  return stamps.flatMap(stamp=>definition.cells.map(cell=>{
   const tries=all.filter(r=>r.cell===cell.id&&r.platform===cell.platform&&r.stamp===stamp);
-  const n=tries.length,confirmed=tries.filter(t=>t.confirmed).length;
+  const qualifies=t=>t.confirmed&&t.look_agrees&&!t.voided;
+  const n=tries.length,confirmed=tries.filter(qualifies).length;
   const interval=t=>t.privacy?[time(day(t.at)+'T00:00:00Z'),time(day(t.at)+'T23:59:59.999Z')]:[time(t.at),time(t.at)];
   const precedes=(a,b)=>a.site===b.site?a.step<b.step:interval(a)[1]<interval(b)[0];
   const lastCandidates=tries.filter(t=>tries.filter(o=>o!==t&&precedes(t,o)).length<3);
-  const lastThree=n>=3&&lastCandidates.every(t=>t.confirmed);
+  const lastThree=n>=3&&lastCandidates.every(qualifies);
   const orderUncertain=lastCandidates.length>3;
-  const agreement=tries.filter(t=>t.confirmed).every(t=>t.look_agrees);
-  const bad=tries.some(t=>t.contradicted),tester=cell.id===1||tries.some(t=>t.site==='tester'&&t.confirmed);
+  const bad=tries.some(t=>t.contradicted),tester=cell.id===1||tries.some(t=>t.site==='tester'&&qualifies(t));
   const refusal=[5,8].includes(cell.id);
   let status=cell.unsupported_by_design?'unsupported_by_design':!n?'not_attempted':
    refusal&&tries.some(t=>t.effect)?'unconfirmed_effect_happened':
-   n>=3&&(refusal?tries.every(t=>t.confirmed&&t.look_agrees):lastThree&&confirmed/n>=.8&&agreement&&!bad&&tester)?'confirmed':
+   n>=3&&(refusal?tries.every(qualifies)&&!bad:lastThree&&confirmed/n>=.8&&!bad&&tester)?'confirmed':
    confirmed&&!bad?'partly_confirmed':tries.some(t=>t.effect)?'unconfirmed_effect_happened':
    tries.every(t=>t.stopped)?'unconfirmed_stopped_before_acting':'unconfirmed_no_effect';
   return {cell:cell.id,platform:cell.platform,code_stamp:stamp,status,n,confirmed,evidence_scope:onlyCounted?'counted_reached_tries_in_this_version':'all_recorded_reached_tries_in_this_version',
-   independent_agreed:tries.filter(t=>t.confirmed&&t.look_agrees).length,last_three_confirmed:lastThree,
+   tool_confirmed:tries.filter(t=>t.confirmed).length,independent_agreed:tries.filter(t=>t.confirmed&&t.look_agrees).length,last_three_confirmed:lastThree,
    cross_site_order_ambiguous:orderUncertain,last_three_possible: lastCandidates.map(t=>({site:t.site,job:t.job,step:t.step})),
-   tester_condition:refusal?null:tester,per_site:tally(tries,t=>t.site),reason:n?null:cell.reason??'no_recorded_reason',tries};
+   tester_condition:refusal?null:tester,per_site:tally(tries,t=>t.site),reason:n?null:cell.reason??'no_recorded_reason',tries:tries.map(t=>({...t,confirmed_try:qualifies(t)}))};
  }));
 }
 function timingPairs(m) {
@@ -818,10 +837,12 @@ function timingPairs(m) {
    outside_upload:outside,releases:releases.map(({cmd,...r})=>r),difference_seconds:one?.wall!=null&&two?.wall!=null?two.wall-one.wall:null};
  });
 }
-export function analyze(inputs,{gateHash,gateHashes=[gateHash],lastDay='2026-11-29'}={}) {
+export function analyze(inputs,{gateHash,gateHashes=[gateHash],lastDay='2026-11-29',ownerOnly=false}={}) {
  if(inputs?.schema!=='round2-analysis-inputs/1'||!Array.isArray(inputs.sites)||!inputs.sites.length||!gateHash)
   throw new Error('invalid_analysis_inputs');
- if(new Set(inputs.sites.map(s=>s.site)).size!==inputs.sites.length)throw new Error('duplicate_site');
+ const sites=ownerOnly?inputs.sites.filter(s=>s.site==='owner'):inputs.sites;
+ if(ownerOnly&&!sites.length)throw new Error('owner_site_required');
+ if(new Set(sites.map(s=>s.site)).size!==sites.length)throw new Error('duplicate_site');
  const definition=inputs.checklist;
  if(definition?.schema!=='round2-checklist/1'||!Array.isArray(definition.cells)||!definition.cells.length||
   definition.cells.some(c=>!Number.isInteger(c.id)||c.id<1||c.id>8||typeof c.platform!=='string')||
@@ -831,7 +852,7 @@ export function analyze(inputs,{gateHash,gateHashes=[gateHash],lastDay='2026-11-
   ...['youtube','douyin','gate'].map(p=>[5,p]),[8,'bilibili']];
  if(requiredCells.some(([id,p])=>!definition.cells.some(c=>c.id===id&&c.platform===p)))throw new Error('incomplete_checklist');
  if(!/^\d{4}-\d\d-\d\d$/.test(lastDay)||!Number.isFinite(time(lastDay))||new Date(lastDay).toISOString().slice(0,10)!==lastDay)throw new Error('invalid_last_day');
- const models=inputs.sites.map(normalizeSite).map(s=>siteModel(s,gateHashes,lastDay));
+ const models=sites.map(normalizeSite).map(s=>siteModel(s,gateHashes,lastDay));
  const tables=[],siteIntegrity=[];
  for(const m of models) {
   const phases=uniq(m.s.seals.map(r=>r.d.phase));
@@ -873,7 +894,7 @@ export function analyze(inputs,{gateHash,gateHashes=[gateHash],lastDay='2026-11-
    issues:m.issues,unknowns:uniq(m.jobs.flatMap(j=>j.unknown))});
  }
  const pairs=models.flatMap(timingPairs);
- const pooledBounds=uniq(models.flatMap(m=>m.attempts.map(a=>a.phase))).flatMap(phase=>{
+ const pooledBounds=ownerOnly?{status:'held_back',figure:'3.4'}:uniq(models.flatMap(m=>m.attempts.map(a=>a.phase))).flatMap(phase=>{
   const stamps=uniq(models.flatMap(m=>m.attempts.filter(a=>a.phase===phase).map(a=>a.stamp?.commit??'unrecorded')));
   return stamps.map(stamp=>{
    const all=models.flatMap(m=>m.attempts).filter(a=>a.phase===phase&&(a.stamp?.commit??'unrecorded')===stamp&&a.job.faults.some(f=>around.includes(f.kind)&&f.state==='fired'));
@@ -919,7 +940,16 @@ export function analyze(inputs,{gateHash,gateHashes=[gateHash],lastDay='2026-11-
  const shakedownGaps=allGaps.filter(g=>g.phase&&g.phase!=='2b');
  const completeInputSites=models.length===2&&models.some(m=>m.s.site==='owner')&&models.some(m=>m.s.site==='tester');
  const cells={all_recorded:checklist(models,definition,false),counted:checklist(models,definition,true)};
- const pooledSecondary=uniq(tables.filter(t=>t.platform!==null).map(t=>key([t.phase,t.code_stamp?.commit??'unrecorded']))).map(k=>{
+ if(ownerOnly){
+  for(const view of Object.keys(cells)){
+   cells[view]=cells[view].map(c=>[1,8].includes(c.cell)?c:
+    {cell:c.cell,platform:c.platform,code_stamp:c.code_stamp,status:'held_back'});
+  }
+ }
+ const pooledSecondary=ownerOnly?{
+  repeat:{figure:'3.5',status:'held_back'},changed_plan:{figure:'2.1',status:'held_back'},
+  wrong_post_delete:{figure:'5.5',status:'held_back'}
+ }:uniq(tables.filter(t=>t.platform!==null).map(t=>key([t.phase,t.code_stamp?.commit??'unrecorded']))).map(k=>{
   const [phase,stamp]=JSON.parse(k),strata=tables.filter(t=>t.platform!==null&&t.phase===phase&&(t.code_stamp?.commit??'unrecorded')===stamp);
   const value=(t,v,kind)=>kind==='repeat'?t[v].submission.repeat_bound:kind==='changed_plan'?t[v].plan_binding.bound:t[v].readback.wrong_post_bound;
   return {phase,code_stamp:stamp,...Object.fromEntries(['repeat','changed_plan','wrong_post_delete'].map(kind=>[kind,
@@ -929,7 +959,7 @@ export function analyze(inputs,{gateHash,gateHashes=[gateHash],lastDay='2026-11-
      failures_in_recorded_phase:parts.flatMap(r=>(r.failures_in_recorded_phase??[]).map(f=>({site:r.site,platform:r.platform,...f})))}];
    }))]))};
  });
- return {schema:'round2-metrics/1',annex:ANNEX_VERSION,last_day:lastDay,outcome_table:OUTCOMES,input_kind:inputs.synthetic===true?'synthetic_test_only':'exported_study_records',
+ return {schema:'round2-metrics/1',annex:ANNEX_VERSION,analysis_rules:'2026-11-14-C58-C59',output_scope:ownerOnly?'owner_only':'both_sites',last_day:lastDay,outcome_table:OUTCOMES,input_kind:inputs.synthetic===true?'synthetic_test_only':'exported_study_records',
   inputs:siteIntegrity,all_sites_present:completeInputSites,tables,checklist:cells,timing_pairs:pairs,pooled_fault_bounds:pooledBounds,pooled_secondary_bounds:pooledSecondary,
   timing_claim:pairs.filter(p=>p.complete&&p.phases[0]==='2b').length<6?'no_general_speed_claim':'descriptive_pairs_only',
   verdict:{status:violations.length?'observed_failures':gaps.length||!completeInputSites?'evidence_incomplete':'no_observed_must_be_zero_failures',

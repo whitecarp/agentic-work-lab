@@ -268,6 +268,13 @@ test('output deterministic under locale/timezone and check is read-only',t=>{
  fs.writeFileSync(output,'{}\n');assert.equal(exec(['--check']).status,1);
  assert.equal(exec(['--unknown']).status,1);assert.equal(exec(['--check','--write']).status,1);
  assert.deepEqual(fs.readFileSync(output),Buffer.from('{}\n'));assert.ok(before.length>0);
+ const owner=exec(['--owner-only','--write']);assert.equal(owner.status,0,owner.stderr);
+ const unchanged=fs.readFileSync(output);
+ manifest.sites.push({site:'tester',journal:'not-released.json'});
+ fs.writeFileSync(input,JSON.stringify(manifest));
+ assert.equal(exec(['--owner-only','--check']).status,0);
+ assert.equal(exec(['--owner-only','--write']).status,0);
+ assert.deepEqual(fs.readFileSync(output),unchanged);
 });
 
 test('an incomplete capability matrix cannot claim full support',()=>{

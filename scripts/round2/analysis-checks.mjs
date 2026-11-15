@@ -8,7 +8,7 @@ const exact=v=>typeof v==='string'&&/^\d{4}-\d\d-\d\dT\d\d:\d\d/.test(v)&&Number
 const started=r=>r.d.started!==false&&r.d.exit!==127;
 // Human work (7.3) includes every observation, not only the qualifying look
 // selected as ground truth. Keep unclear separate, without losing its timing.
-export function observationChecks(records,jobs=[]){
+export function observationChecks(records,jobs=[],cc){
  return records.filter(r=>r.type==='OBSERVATION').map(r=>{
   const m=r.d.minutes_after;
   const timing=typeof m!=='number'||!Number.isFinite(m)||m<0?'unknown':
@@ -16,7 +16,7 @@ export function observationChecks(records,jobs=[]){
   const platforms=jobs.find(j=>j.id===r.d.job)?.platforms??
    [...new Set(records.filter(s=>s.type==='STEP'&&s.d.job===r.d.job).flatMap(s=>s.d.platforms))];
   const platform=r.d.platform??(platforms.length===1?platforms[0]:null),look={...r,d:{...r.d,platform}};
-  const check=lookTiming(look,lookStep(records.filter(x=>x.seq<r.seq),r.d.job,platform,r.d.about),records);
+  const check=lookTiming(look,lookStep(records.filter(x=>x.seq<r.seq),r.d.job,platform,r.d.about),records,Infinity,cc);
   const status=check.status==='second_look'?'second_look':timing;
   return {seq:r.seq,job:r.d.job,platform,about:r.d.about,status:r.d.seen==='unclear'?'unclear':status,timing_status:status};
  });
@@ -59,7 +59,7 @@ export function publishChecks(records,jobs){
 }
 
 // Exact local chronology exported as record numbers/booleans, never clocks.
-export function runChecks(records,jobs,lookChecks){
+export function runChecks(records,jobs,lookChecks,cc){
  return jobs.filter(j=>j.run_class!=='standing').map(j=>{
   const steps=records.filter(r=>r.type==='STEP'&&r.d.job===j.id&&started(r));
   const related=records.filter(r=>r.d.job===j.id&&['STEP','GO_AHEAD','OBSERVATION','JOB_END'].includes(r.type));
@@ -91,8 +91,8 @@ export function runChecks(records,jobs,lookChecks){
   const nothing_posted_before_second_look=(j.platforms??[]).filter(platform=>{
    if(!end?.d.platform_settlements?.some(x=>x.platform===platform&&x.how==='nothing_posted'))return false;
    const step=lookStep(beforeEnd,j.id,platform,'post');
-   const due=secondLookDue({seq:end.seq,d:{job:j.id,platform,about:'post'}},step,beforeEnd);
-   return due&&!beforeEnd.some(r=>r.type==='OBSERVATION'&&r.d.job===j.id&&(r.d.platform??platform)===platform&&r.d.about==='post'&&lookTiming(r,step,beforeEnd).status==='second_look'&&lookTiming(r,step,beforeEnd).counts);
+   const due=secondLookDue({seq:end.seq,d:{job:j.id,platform,about:'post'}},step,beforeEnd,cc);
+   return due&&!beforeEnd.some(r=>r.type==='OBSERVATION'&&r.d.job===j.id&&(r.d.platform??platform)===platform&&r.d.about==='post'&&lookTiming(r,step,beforeEnd,Infinity,cc).status==='second_look'&&lookTiming(r,step,beforeEnd,Infinity,cc).counts);
   });
   const outside=records.filter(r=>r.type==='NOTE'&&r.d.code==='outside_upload'&&j.platforms?.includes(r.d.platform));
   const lo=upload.length?Date.parse(upload[0].at)-(upload[0].d.ms??0)-1800000:null;

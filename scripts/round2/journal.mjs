@@ -7,7 +7,8 @@ import {refusalWord,sha, utc, atomic, withLock, privateHome, readJSON, parseFlag
 import {bindHome,HOME_ERRORS} from './site.mjs';
 import {jobList} from './jobs.mjs';
 import {verifyPlan} from './plan-runs.mjs';
-import {lookTiming,lookStep} from './looks.mjs';
+import {crosscast} from './crosscast.mjs';
+import {lookTiming,lookStep,secondLookAnchor} from './looks.mjs';
 export {validateRecord};
 export const ZERO='0'.repeat(64);
 export const newRunId=()=>randomBytes(16).toString('hex');
@@ -194,7 +195,7 @@ export function main(argv=process.argv.slice(2)){
   const {flags:f,command}=parseFlags(argv.filter(a=>a!=='--closing'));
   if(command.length) throw new Error('invalid_arguments');
   const lists={
-    'go-ahead':['job','scope','count','by','platform','purpose','message-id'],observe:['job','ref','about','by','client','seen','fields-match','minutes-after','shot-sha256','platform'],
+    'go-ahead':['job','scope','count','by','platform','purpose','message-id'],observe:['job','ref','about','by','client','seen','fields-match','minutes-after','shot-sha256','platform','crosscast'],
     note:['code','platform','job','agent','minutes-ago'],violation:['rule','found-by','job','platform'],
     'sign-off':['day','by','answer'],handoff:['to','job','by'],stop:['by'],'clear-stop':['by'],'clear-guard':['by'],
     'protocol-seal':['phase','protocol','lab-commit','crosscast-commit','crosscast-digest','plan','analysis','rules-card','by'],
@@ -210,7 +211,7 @@ export function main(argv=process.argv.slice(2)){
   return withLock(path.join(ctx.home,'operation.guard'),()=>{
     // Verify before reading private statements or changing any control file.
     if(!verifyJournal(ctx.journal).ok) throw new Error('broken_journal');
-    let type,d;
+    let type,d,lookEvidence;
     switch(sub){
       case 'browser-faults':
         if(f.by!==ctx.site||f.enabled!=='false'||f.platform?.length!==1||!['youtube','douyin'].includes(f.platform[0]))throw new Error('invalid_browser_fault_policy');
@@ -235,7 +236,12 @@ export function main(argv=process.argv.slice(2)){
         const platform=f.platform?.[0]??(choices.length===1?choices[0]:null);
         if(platform!==null&&(!PLATFORMS.includes(platform)||(choices.length&&!choices.includes(platform)))) throw new Error('invalid_platform');
         const records=readJournal(ctx.journal),minutes=numeric(f['minutes-after']);
-        const follows=lookStep(records,f.job,platform,f.about);
+        lookEvidence=crosscast(f.crosscast);
+        let follows=lookStep(records,f.job,platform,f.about);
+        if(minutes>=1200&&minutes<=2160){
+          const candidate={seq:Infinity,d:{job:f.job,platform,about:f.about}};
+          follows=secondLookAnchor(candidate,follows,records,lookEvidence)??follows;
+        }
         if(follows&&Date.now()-Date.parse(follows.at)<minutes*60000)throw new Error('look_minute_not_reached');
         type='OBSERVATION';d={job:f.job,platform,ref:f.ref??null,about:f.about,by:f.by??ctx.site,client:f.client,seen:f.seen,
           fields_match:f['fields-match']==='true'?true:f['fields-match']==='false'?false:null,
@@ -305,7 +311,7 @@ export function main(argv=process.argv.slice(2)){
     if(sub==='handoff') atomic(path.join(ctx.home,'operator.json'),{operator:f.to});
     if(sub==='stop') atomic(path.join(ctx.home,'STOP'),{at:record.at});
     if(sub==='clear-stop' && !activeStops(readJournal(ctx.journal)).length && fs.existsSync(path.join(ctx.home,'STOP'))) fs.unlinkSync(path.join(ctx.home,'STOP'));
-    console.log(JSON.stringify(sub==='observe'?{...record,look:lookTiming(record,lookStep(readJournal(ctx.journal),d.job,d.platform,d.about),readJournal(ctx.journal))}:record));return 0;
+    console.log(JSON.stringify(sub==='observe'?{...record,look:lookTiming(record,lookStep(readJournal(ctx.journal),d.job,d.platform,d.about),readJournal(ctx.journal),Infinity,lookEvidence)}:record));return 0;
   });
 }
 if(process.argv[1] && import.meta.url===pathToFileURL(path.resolve(process.argv[1])).href){

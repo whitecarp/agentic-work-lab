@@ -1,4 +1,50 @@
 import {operation,uncertainState,confirmedAnswer} from './answers.mjs';
+import {commandSnapshots} from './press-evidence.mjs';
+
+// Evaluate only evidence available when the first look was recorded.
+function savedPostOwesLook(steps, first, platform, cc) {
+ const integrity=cc?.integrity;
+ const healthy=cc?.chain_ok===true && integrity?.salt_ok!==false &&
+  integrity?.loss_records_complete===true && integrity.loss_folder_unreadable===false &&
+  integrity.unreadable_loss_records===0 && integrity.unplaced_dropped_events===0;
+ let positive=false, damaged=false, unknown=false;
+ let openingRefs=[];
+ for(const step of steps){
+  const d=step.d, a=d.answers?.find(x=>x.platform===platform);
+  const refs=a?.refs??d.refs??[];
+  if(openingRefs.length&&refs.length&&!refs.some(r=>openingRefs.includes(r))) continue;
+  const matches=d.awl_run_id?cc?.runs?.filter(c=>c.awl_run_id===d.awl_run_id):[];
+  const cmd=matches?.length===1?matches[0]:null;
+  const events=cmd?(cc.events??[]).filter(e=>e.run===cmd.run&&Date.parse(e.at)<=Date.parse(first.at)):[];
+  const readable=healthy&&cmd&&cmd.chain_ok!==false&&cmd.sequence_gap===false&&cmd.dropped_events===0&&
+   events.some(e=>e.type==='command_start')&&!events.some(e=>e.dropped_before>0)&&
+   (cmd.ended ? events.some(e=>e.type==='command_end')&&cmd.exit_code===d.exit : d.answered===false);
+  const snapshots=readable?commandSnapshots(events,platform).filter(x=>!['edit','deletion'].includes(x.kind)):[];
+  const readBack=d.role==='verify'&&confirmedAnswer(a??{},'post') ||
+   events.some(e=>e.type==='stage'&&(!e.platform||e.platform===platform)&&
+    ['reading back','reading the page','waiting for platform confirmation'].includes(e.stage)&&
+    events.some(later=>later.seq>e.seq&&later.type==='transition'&&later.platform===platform&&
+     !['edit','deletion'].includes(later.kind)&&later.phase!=='submitting'&&
+     [later.state,later.receipt_state].includes('SUBMISSION_VERIFIED')));
+  if(readable&&readBack){positive=false;damaged=false;unknown=false;openingRefs=[];continue;}
+  if(d.role==='verify')continue;
+  if(a&&confirmedAnswer(a,'post')&&!positive&&!unknown&&!damaged)continue;
+  if(a?.state==='NOT_STARTED'||a?.state==='NEEDS_A_PERSON'||d.result==='busy')continue;
+  const marker=snapshots.some(x=>x.final_presses>0||x.final_submit_attempted===true||
+   uncertainState({state:x.receipt_state??x.state,previous_state:x.previous_state},'post'));
+  if(marker||a?.press_flag===true||a&&uncertainState(a,'post'))positive=true;
+  // A later zero for this attempt resolves an interrupted caller only when
+  // its opening export survived. A refusal cannot erase a positive marker.
+  const zero=platform!=='bilibili'&&events.some(e=>e.type!=='command_start'&&
+   commandSnapshots([e],platform).some(x=>x!==e.before&&!['edit','deletion'].includes(x.kind)&&
+    (x.final_presses===0||x.final_submit_attempted===false)));
+  if(!readable)damaged=true;
+  else if(zero)unknown=false;
+  else if(!a||a.answered===false||['in_doubt','unknown'].includes(d.result))unknown=true;
+  if(!openingRefs.length&&(positive||unknown||damaged))openingRefs=refs;
+ }
+ return positive||unknown||damaged;
+}
 export function lookStep(records,job,platform,about){
  return records.findLast(r=>r.d.job===job&&(about==='delete'&&job&&platform&&
   r.type==='NOTE'&&r.d.code==='manual_step'&&r.d.platform===platform ||
@@ -6,33 +52,34 @@ export function lookStep(records,job,platform,about){
   r.d.started!==false&&r.d.exit!==127&&r.d.class==='write'&&operation(r)===about&&
   ['publish','repeat_same','changed_plan','resume','edit','delete'].includes(r.d.role)));
 }
-export function secondLookDue(look,step,records){
- if(!step||look.d.about!=='post')return false;
- const earlier=records.filter(r=>r.type==='OBSERVATION'&&r.seq<look.seq&&r.seq>step.seq&&
-  r.d.job===look.d.job&&r.d.about==='post'&&(r.d.platform??look.d.platform)===look.d.platform);
- const first=earlier.find(r=>lookTiming(r,step,[]).counts);
- if(first?.d.seen!=='absent')return false;
+export function secondLookAnchor(look,step,records,cc){
+ if(!step||look.d.about!=='post')return null;
+ let first,anchor;
+ for(const r of records){
+  if(r.type!=='OBSERVATION'||r.seq>=look.seq||r.d.job!==look.d.job||r.d.about!=='post'||
+     (r.d.platform??look.d.platform)!==look.d.platform)continue;
+  const prior=records.filter(x=>x.seq<r.seq);
+  const follows=lookStep(prior,look.d.job,look.d.platform,'post')??(step.seq<r.seq?step:null);
+  if(follows&&lookTiming(r,follows,[]).counts){first=r;anchor=follows;break;}
+ }
+ if(first?.d.seen!=='absent')return null;
  // An unresolved case survives busy/refused/not-started helper answers.
  const steps=records.filter(r=>r.type==='STEP'&&r.d.job===look.d.job&&r.seq<=first.seq&&
   r.d.started!==false&&r.d.exit!==127&&r.d.platforms.includes(look.d.platform)&&
-  ['publish','repeat_same','resume','verify'].includes(r.d.role));
- let open=false;
- for(const s of steps){
-  const a=s.d.answers?.find(a=>a.platform===look.d.platform);
-  if(a&&confirmedAnswer(a,'post')){open=false;continue;}
-  if(a&&(uncertainState(a,'post')||a.press_flag===true||
-    a.state==='SKIPPED_EXISTING'&&['IN_PROGRESS','UNKNOWN'].includes(a.previous_state))||
-    ['in_doubt','unknown'].includes(s.d.result))open=true;
- }
- return open;
+  ['publish','repeat_same','changed_plan','resume','verify'].includes(r.d.role));
+ return savedPostOwesLook(steps,first,look.d.platform,cc)?anchor:null;
 }
-export function lookTiming(look,step,records=[],cutoff=Infinity){
+export function secondLookDue(look,step,records,cc){
+ return !!secondLookAnchor(look,step,records,cc);
+}
+export function lookTiming(look,step,records=[],cutoff=Infinity,cc){
  const n=look.d.minutes_after;
  const status=!Number.isFinite(n)||n<0?'unknown':n<10?'early':n<=60?'on_time':n<=1440?'late':'outside_window';
- const second=secondLookDue(look,step,records)&&n>=1200&&n<=2160;
- const premature=!!step&&Date.parse(look.at)-Date.parse(step.at)<n*60000;
+ const second=n>=1200&&n<=2160?secondLookAnchor(look,step,records,cc):null;
+ const anchor=second??step;
+ const premature=!!anchor&&Date.parse(look.at)-Date.parse(anchor.at)<n*60000;
  return {status:look.d.seen==='unclear'?'unclear':second?'second_look':status,
-  counts:!!step&&!premature&&look.d.seen!=='unclear'&&Date.parse(look.at)<=cutoff&&(second||n>=10&&n<=1440),
+  counts:!!step&&!premature&&look.d.seen!=='unclear'&&Date.parse(look.at)<=cutoff&&(!!second||n>=10&&n<=1440),
   recorded_before_claimed_minute:premature};
 }
-export function countsLook(look,step,cutoff=Infinity,records=[]){return lookTiming(look,step,records,cutoff).counts;}
+export function countsLook(look,step,cutoff=Infinity,records=[],cc){return lookTiming(look,step,records,cutoff,cc).counts;}

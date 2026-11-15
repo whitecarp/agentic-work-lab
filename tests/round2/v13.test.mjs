@@ -115,7 +115,10 @@ test('negative sign-off needs private words; daily prints grants and looks befor
  const sign=readJournal(f.journal).at(-1);assert.match(sign.d.words_sha256,/^[a-f0-9]{64}$/);
  assert.equal(fs.readFileSync(path.join(f.home,'captures',sign.d.words_sha256+'.words.txt'),'utf8'),'PRIVATE explanation');
  assert.ok(!fs.readFileSync(f.journal,'utf8').includes('PRIVATE'));
- const lines=daily(f.ctx).lines;assert.match(lines[6],/go_aheads_today:.*one_write.*1/);assert.match(lines[7],/looks_today:.*youtube.*delete.*absent.*late/);
+ // putObserved ages earlier records by 90 minutes, which can cross UTC midnight.
+ const grantDay=readJournal(f.journal).find(r=>r.type==='GO_AHEAD').at.slice(0,10);
+ assert.match(daily(f.ctx,{selectedDay:grantDay}).lines[6],/go_aheads_today:.*one_write.*1/);
+ const lines=daily(f.ctx,{selectedDay:day}).lines;assert.match(lines[7],/looks_today:.*youtube.*delete.*absent.*late/);
  assert.match(lines[8],/would prompt/);
 });
 test('matched, complete no-operation refusal permits read closure while strict count stays visible',t=>{

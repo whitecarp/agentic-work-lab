@@ -35,7 +35,7 @@ test('C52 B8 changed-plan stopped/error replies are not confirmed capability ref
 
 test('C52 B9 a private observation cannot establish real public release capability',()=>{
  const f=fixture({jobs:[job({run_class:'real_release',group:'A'})]});f.rows.find(r=>r.type==='GO_AHEAD').d.scope='one_write';f.step();f.look({seen:'present_private'});
- const z=run(f);assert.equal(cell(z,1).independent_agreed,0);assert.equal(cell(z,1).confirmed,0);
+ const z=run(f);assert.equal(cell(z,1).tool_confirmed,1);assert.equal(cell(z,1).independent_agreed,0);assert.equal(cell(z,1).confirmed,0);
  assert.equal(all(z).must_be_zero.contradicted_confirmations,0);assert.equal(all(z).readback.held_private.length,1);
 });
 

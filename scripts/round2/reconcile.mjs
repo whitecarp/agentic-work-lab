@@ -55,23 +55,23 @@ export function reconcile(ctx,crosscastFile,{now=Date.now(),privacy=false,practi
  const obligations=new Map();
   for(const s of eligible.filter(r=>['test_post','real_slot','real_release'].includes(scope(r.d.job))&&started(r)))
   for(const platform of s.d.platforms)obligations.set(JSON.stringify([s.d.job,platform,operation(s)]),{job:s.d.job,platform,about:operation(s)});
- for(const r of records.filter(r=>r.type==='NOTE'&&r.d.code==='manual_step'&&r.d.platform&&scope(r.d.job)==='test_post'))
+ for(const r of records.filter(r=>r.type==='NOTE'&&r.d.code==='manual_step'&&jobs.some(j=>j.id===r.d.job&&j.run_class==='test_post'&&j.platforms.includes(r.d.platform))))
   obligations.set(JSON.stringify([r.d.job,r.d.platform,'delete']),{job:r.d.job,platform:r.d.platform,about:'delete'});
  const lookChecks=[...obligations.values()].map(({job,platform,about})=>{
     const s=lookStep(records.filter(r=>r.type!=='STEP'||started(r)),job,platform,about);
   const looks=records.filter(r=>r.seq>s.seq&&r.type==='OBSERVATION'&&r.d.job===job&&r.d.about===about&&observationPlatform(r)===platform&&r.d.seen!=='unclear');
-  const qualifying=looks.findLast(r=>countsLook(r,s,now,records));
+  const qualifying=looks.findLast(r=>countsLook(r,s,now,records,cc));
   const early=looks.filter(r=>r.d.minutes_after<10).map(r=>r.seq);
   // A late look is usable ground truth through 24 hours, but must remain
   // distinguishable from an on-time one. Never turn an early/unclear look
   // into ground truth merely because the review is run after the deadline.
-  const secondOwed=secondLookDue({seq:Infinity,d:{job,platform,about}},s,records);
-  const secondDone=looks.some(r=>lookTiming(r,s,records,now).status==='second_look'&&countsLook(r,s,now,records));
-  const status=qualifying?(lookTiming(qualifying,s,records,now).status):
+  const secondOwed=secondLookDue({seq:Infinity,d:{job,platform,about}},s,records,cc);
+  const secondDone=looks.some(r=>lookTiming(r,s,records,now,cc).status==='second_look'&&countsLook(r,s,now,records,cc));
+  const status=qualifying?(lookTiming(qualifying,s,records,now,cc).status):
     now-Date.parse(s.at)>=86400000?'no_ground_truth':early.length?'early':'pending';
-    const premature=looks.filter(r=>Date.parse(r.at)-Date.parse(s.at)<r.d.minutes_after*60000).map(r=>r.seq);
+    const premature=looks.filter(r=>lookTiming(r,s,records,now,cc).recorded_before_claimed_minute).map(r=>r.seq);
     const toolDelete = about==='delete' ? eligible.findLast(r=>r.d.job===job&&r.d.platforms.includes(platform)&&r.d.role==='delete'&&started(r)) : null;
-    return {job,platform,step:s.seq,...(s.type==='NOTE'?{last_tool_delete_step:toolDelete?.seq??null}:{}),about,status,second_look_owed:secondOwed,second_look_done:secondDone,observation:qualifying?.seq??null,early_observations:early,counting_observations:looks.filter(r=>countsLook(r,s,now,records)).map(r=>r.seq),
+    return {job,platform,step:s.seq,...(s.type==='NOTE'?{last_tool_delete_step:toolDelete?.seq??null}:{}),about,status,second_look_owed:secondOwed,second_look_done:secondDone,observation:qualifying?.seq??null,early_observations:early,counting_observations:looks.filter(r=>countsLook(r,s,now,records,cc)).map(r=>r.seq),
       recorded_before_claimed_minute:premature};
  });
  const owesLook=lookChecks.filter(r=>!['on_time','late','second_look'].includes(r.status)||r.second_look_owed&&!r.second_look_done);
@@ -163,9 +163,9 @@ export function reconcile(ctx,crosscastFile,{now=Date.now(),privacy=false,practi
    function settles(r){
      if(r.type==='OBSERVATION'){
        const anchor=about==='delete' ? lookStep(records.filter(x=>x.seq<r.seq),s.d.job,platform,about) : records.find(x=>x.seq===firstEligible);
-       if(r.d.about!==about||observationPlatform(r)!==platform||!countsLook(r,anchor,now,records))return false;
-       if(about==='post'&&r.d.seen==='absent'&&secondLookDue({seq:r.seq+0.5,d:{job:s.d.job,platform,about}},anchor,records))
-        return lookTiming(r,anchor,records,now).status==='second_look';
+       if(r.d.about!==about||observationPlatform(r)!==platform||!countsLook(r,anchor,now,records,cc))return false;
+       if(about==='post'&&secondLookDue({seq:r.seq+0.5,d:{job:s.d.job,platform,about}},anchor,records,cc))
+        return lookTiming(r,anchor,records,now,cc).status==='second_look';
        return true;
      }
      if(r.type!=='STEP'||r.d.platforms.length!==1||r.d.platforms[0]!==platform)return false;
@@ -198,7 +198,7 @@ export function reconcile(ctx,crosscastFile,{now=Date.now(),privacy=false,practi
  });
  const result={schema:'round2-reconcile/1',as_of:new Date(now).toISOString(),records:records.length,crosscast_present:cc.present,crosscast_chain_ok:cc.chain_ok,time_alignment:!cc.present?'journal_only':cc.times==='exact'&&cc.chain_ok?'exact':'unavailable',
    error_steps_unclassified:errorStepsUnclassified,gate_checks:gateChecks(records),publish_checks:publishChecks(records,jobs),
-   observation_checks:observationChecks(records,jobs),run_checks:runChecks(records,jobs,lookChecks),
+   observation_checks:observationChecks(records,jobs,cc),run_checks:runChecks(records,jobs,lookChecks,cc),
    count_changed_without_press:steps.flatMap(step=>step.d.platforms.filter(platform=>{const ev=usableEvents(step);return ev&&ownPressEvidence(ev,true,platform,operation(step)).countChangedWithoutPress;}).map(platform=>({step:step.seq,job:step.d.job,platform}))),
    command_binding:!cc.present?'journal_only':trusted?'shared_id':'unavailable',
    ungated_writes:ungated,matched_write_commands:trusted?bindings.length-ungated:null,write_bindings:bindings,

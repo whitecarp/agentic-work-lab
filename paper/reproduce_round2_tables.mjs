@@ -12,12 +12,13 @@ import {hash} from './round2/inputs.mjs';
 export {analyze};
 const paper=path.dirname(fileURLToPath(import.meta.url));
 const read=file=>fs.readFileSync(file,'utf8').replace(/\r\n/g,'\n');
-export function loadInputs(file,overrideCutoff) {
+export function loadInputs(file,overrideCutoff,ownerOnly=false) {
  const directory=path.dirname(path.resolve(file)),manifest=JSON.parse(read(file));
  if(manifest.schema!=='round2-analysis-manifest/1'||!Array.isArray(manifest.sites))throw new Error('invalid_input_manifest');
  const get=name=>{if(typeof name!=='string'||!name)throw new Error('missing_export_path');return path.resolve(directory,name);};
  const json=name=>JSON.parse(read(get(name)));
- const sites=manifest.sites.map(row=>{
+ const selected=ownerOnly?manifest.sites.filter(row=>row.site==='owner'):manifest.sites;
+ const sites=selected.map(row=>{
   const journal=json(row.journal),planText=read(get(row.plan)),countsText=row.counts?read(get(row.counts)):null;
   return {site:row.site,journal,tool:journal.privacy?null:json(row.crosscast),reconcile:json(row.reconcile),
    plan:JSON.parse(planText),planText,seed:fs.readFileSync(get(row.seed)),counts:countsText?JSON.parse(countsText):null,countsText,
@@ -29,21 +30,23 @@ const manifestLastDay=file=>JSON.parse(read(file)).last_day??'2026-11-29';
 export function main(argv=process.argv.slice(2),{stdout=console.log,stderr=console.error}={}) {
  try{
   const flags={},switches=new Set();
+  let ownerOnly=false;
   for(let i=0;i<argv.length;i++){
    const a=argv[i];
+   if(a==='--owner-only'){if(ownerOnly)throw new Error('duplicate_option');ownerOnly=true;continue;}
    if(['--check','--write'].includes(a)){if(switches.has(a))throw new Error('duplicate_option');switches.add(a);continue;}
    if(!['--inputs','--as-of','--summary','--last-day'].includes(a)||Object.hasOwn(flags,a)||!argv[i+1]||argv[i+1].startsWith('--'))throw new Error('invalid_option');
    flags[a]=argv[++i];
   }
   if(switches.size>1)throw new Error('conflicting_modes');
   const inputFile=flags['--inputs']??path.join(paper,'round2-inputs.json');
-  const output=path.resolve(flags['--summary']??path.join(paper,'round2_metrics_summary.json'));
+  const output=path.resolve(flags['--summary']??path.join(paper,ownerOnly?'round2_owner_metrics_summary.json':'round2_metrics_summary.json'));
   if(output===path.resolve(inputFile))throw new Error('output_overwrites_input');
-  const inputs=loadInputs(inputFile,flags['--as-of']);
+  const inputs=loadInputs(inputFile,flags['--as-of'],ownerOnly);
   // The unchanged gate source is frozen with this script in the Lab commit.
   const gateText=read(new URL('../scripts/operations-gate.mjs',import.meta.url));
   const gateHash=hash(gateText),gateHashes=[gateHash,hash(gateText.replaceAll('\n','\r\n'))];
-  const result=analyze(inputs,{gateHash,gateHashes,lastDay:flags['--last-day']??manifestLastDay(inputFile)}),text=JSON.stringify(result,null,2)+'\n';
+  const result=analyze(inputs,{gateHash,gateHashes,ownerOnly,lastDay:flags['--last-day']??manifestLastDay(inputFile)}),text=JSON.stringify(result,null,2)+'\n';
   if(switches.has('--check')){
    if(read(output)!==text){stderr('round2_summary_differs');return 1;}
    stdout('round2_summary_matches');return 0;
@@ -57,7 +60,7 @@ export function main(argv=process.argv.slice(2),{stdout=console.log,stderr=conso
    if(fs.existsSync(output)){
     const target=fs.lstatSync(output);
     if(target.isSymbolicLink()||!target.isFile())throw new Error('unsafe_summary_destination');
-    if(sources.some(p=>{const input=fs.statSync(p);return input.dev===target.dev&&input.ino===target.ino;}))throw new Error('output_overwrites_input');
+    if(sources.some(p=>{const input=fs.statSync(p,{throwIfNoEntry:false});return input&&input.dev===target.dev&&input.ino===target.ino;}))throw new Error('output_overwrites_input');
    }
    fs.mkdirSync(path.dirname(output),{recursive:true});fs.writeFileSync(output,text,'utf8');
   }

@@ -7,6 +7,12 @@ reconciliation calculation, copied without its filesystem adapter into
 reconcile-export.mjs. Both paths share press-evidence and timing checks. A parity test compares
 its result with the offline calculation.
 
+The summary identifies the C58/C59 rules build separately from the sealed Annex version.
+For a second observation the journal accepts an optional --crosscast path to
+the exact-time export. Without that evidence it treats an unresolved opening
+as owing the second look. Reconciliation checks the export at the time of the
+first counting look, including for the comparison made before tester redaction.
+
 ## Invocation
 
 Paths inside the input manifest are relative to that manifest, not the shell.
@@ -18,8 +24,11 @@ ROUND2_HOME, VPUB_HOME, BILI_CLI_HOME or a sign-in folder.
     node paper/reproduce_round2_tables.mjs --inputs <export-manifest.json> --check
 
 Default input is paper/round2-inputs.json. No real input manifest or measured
-summary is created before the study closes. Default output, and the only default
-write, is paper/round2_metrics_summary.json. --summary selects a separate output
+summary is created before the study closes. The default output for both sites is paper/round2_metrics_summary.json.
+For the public close, add --owner-only to the same command. This selects the
+owner before opening any site's exports and defaults to paper/round2_owner_metrics_summary.json.
+It prints owner rows and checklist cells 1 and 8, and marks the other checklist
+cells and the four combined bounds as held back. --summary selects a separate output
 for synthetic tests. --as-of overrides every site's fixed cutoff. Normally put
 each site's closing sign-off time in its manifest row instead. The tester uses
 the UTC date of its closing sign-off, exactly as its on-site comparison does.
@@ -257,6 +266,6 @@ The C1 helper-confirmation figure awaits the first C43 record.
 
 Whole publish refusals (exit 2, an explicit answer for every platform, no state or NOT_STARTED, no previous state and no true press flag) do not start upload spacing or caps. The first attempt also requires intact no-contact evidence before discarding a whole refusal. busy/browser_busy keep their previous treatment. attempt_busy/lock_marker_unreadable require exit 2 and the intact command's no-call, no-stage, no-transition evidence; a post-press or incomplete record remains measured.
 
-A Douyin NOTE/manual_step tied to a job and platform supplies the time reference for that job's subsequent deletion look. Under protocol 9 H this records owner removal. It does not create a delete command, deletion success or a cell-7 try. The closure still needs its removed_by_hand settlement. Untied lock/draft cleanup notes do not supply this evidence.
+A removal NOTE/manual_step tied to a test job and its platform supplies the time reference for that job's subsequent deletion look. Under protocol 9 H this records owner removal. It does not create a delete command, deletion success or a cell-7 try. The closure still needs its removed_by_hand settlement. Untied lock/draft cleanup notes do not supply this evidence.
 
 C47 point 7 remains deferred until C43 supplies a real C1 record. The proposed source is the original command's own exported transitions after it ended. No helper-confirmation claim has been added from synthetic evidence alone.
