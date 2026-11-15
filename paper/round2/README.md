@@ -1,4 +1,4 @@
-# Round-two export analysis (Annex A 1.15)
+# Round-two export analysis (Annex A 1.16)
 
 This is an offline reader. It neither loads a live data folder nor invokes a
 platform command. The script has no network, process-start, account or clock

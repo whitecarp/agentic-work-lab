@@ -1,4 +1,4 @@
-// Annex A 1.15. Vocabulary and outcome priority are printed in every summary.
+// Annex A 1.16. Vocabulary and outcome priority are printed in every summary.
 // STEP.answers are per platform. STEP.result is used only for a missing answer.
 // Lab refs never join CrossCast refs: joins use command awl_run_id + platform.
 import {pressEvidence,commandSnapshots,finiteCount,priorPressCount} from '../../scripts/round2/press-evidence.mjs';
@@ -9,7 +9,7 @@ import {grantScope} from '../../scripts/round2/policy.mjs';
 import {secondLookDue,lookStep} from '../../scripts/round2/looks.mjs';
 import {normalizeSite,time,day} from './inputs.mjs';
 import {describe,upper95,tally,share} from './statistics.mjs';
-const ANNEX_VERSION='1.15';
+const ANNEX_VERSION='1.16';
 export const OUTCOMES={
  version:'Annex A '+ANNEX_VERSION,states:STATES,
  priority:['confirmed','nothing_sent','in_doubt_state','proven_no_press','possible_case'],
