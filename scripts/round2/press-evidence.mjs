@@ -60,9 +60,16 @@ export function postCutoffSaves(records, cc) {
   const events = cc.events.filter(e => e.run === commands[0].run);
   for (const [index,e] of events.entries()) {
    if (Date.parse(e.at) > boundary && e.type === 'transition' && e.phase !== 'submitting' &&
-       !['edit','deletion'].includes(e.kind) && [e.state,e.receipt_state].includes('SUBMISSION_VERIFIED'))
+       e.kind === 'browser' && [e.state,e.receipt_state].includes('SUBMISSION_VERIFIED'))
     saves.push({step:r.seq,index});
   }
  }
  return saves;
+}
+
+export function wholeCommandNoPress(events,cmd,step,platform,about,allEvents) {
+ if(!events||!cmd||cmd.ended!==true||cmd.exit_code!==step.d.exit||
+    events[0]?.type!=='command_start'||events.at(-1)?.type!=='command_end'||
+    events.some(e=>e.dropped_before>0))return false;
+ return pressEvidence(events,true,platform,about,priorPressCount(allEvents,events,platform)).noPress;
 }

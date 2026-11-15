@@ -6,9 +6,9 @@ import {protectDigests} from './export.mjs';
 import {refusalWord,sha,parseFlags,allowed,readJSON} from './io.mjs';
 import {crosscast,commandClass} from './crosscast.mjs';
 import {jobList} from './jobs.mjs';
-import {operation,pressRoles,uncertainState,nothingSent,settled,confirmedAnswer,confirmed} from './answers.mjs';
-import {countsLook,lookTiming,lookStep,secondLookDue} from './looks.mjs';
-import {pressEvidence as ownPressEvidence,priorPressCount,postCutoffSaves} from './press-evidence.mjs';
+import {operation,pressRoles,uncertainState,nothingSent,settled} from './answers.mjs';
+import {countsLook,lookTiming,lookStep,secondLookDue,settlingRead} from './looks.mjs';
+import {pressEvidence as ownPressEvidence,wholeCommandNoPress,postCutoffSaves} from './press-evidence.mjs';
 import {gateChecks,publishChecks,observationChecks,runChecks} from './analysis-checks.mjs';
 
 export function reconcile(ctx,crosscastFile,{now=Date.now(),privacy=false,practicePlan=null}={}){
@@ -106,10 +106,7 @@ export function reconcile(ctx,crosscastFile,{now=Date.now(),privacy=false,practi
    return cc.events.filter(e=>e.run===cmd.run);
  }
  function provenNoPress(s,platform){
-   const cmd=matched(s), events=eventsFor(s);
-   if(!events||cmd.exit_code!==s.d.exit||cmd.ended!==true)return false;
-   if(events[0]?.type!=='command_start'||events.at(-1)?.type!=='command_end')return false;
-   return ownPressEvidence(events,true,platform,operation(s),priorPressCount(cc.events,events,platform)).noPress;
+   return wholeCommandNoPress(eventsFor(s),matched(s),s,platform,operation(s),cc.events);
  }
  const cutoff=s=>s.d.result==='unknown'&&s.d.answered===false&&started(s)&&pressRoles.includes(s.d.role);
  function pressEvidence(s,platform){
@@ -168,20 +165,7 @@ export function reconcile(ctx,crosscastFile,{now=Date.now(),privacy=false,practi
         return lookTiming(r,anchor,records,now,cc).status==='second_look';
        return true;
      }
-     if(r.type!=='STEP'||r.d.platforms.length!==1||r.d.platforms[0]!==platform)return false;
-     const openingRefs=answerFor(s,platform)?.refs??s.d.refs??[],closingRefs=answerFor(r,platform)?.refs??r.d.refs??[];
-     if(openingRefs.length&&closingRefs.length&&!openingRefs.some(ref=>closingRefs.includes(ref)))return false;
-     if(r.d.role!==({post:'verify',edit:'edit',delete:'delete_verify'})[about])return false;
-     if(about==='edit'&&r.d.class!=='read')return false;
-     if(answerFor(r,platform))return confirmedAnswer(answerFor(r,platform),about);
-     if(r.d.result!=='ok')return false;
-     if(Object.hasOwn(r.d,'confirmed_state'))return r.d.confirmed_state===confirmed[about];
-     // Old journals lack this field. Require an affirmative state in the
-     // paired command or its final snapshot before treating a read as verified.
-     const cmd=cc.runs.find(x=>x.awl_run_id&&x.awl_run_id===r.d.awl_run_id);
-     if(!trusted||!intact||!cmd||cmd.ended!==true||cmd.exit_code!==0||cmd.dropped_events!==0||cmd.sequence_gap!==false)return false;
-     return cc.events.some(e=>e.run===cmd.run&&(!e.platform||e.platform===platform)&&
-       [e.state,e.after?.state].includes(confirmed[about]));
+     return settlingRead(r,s,platform,about,cc);
    }
    const writes=later.filter(r=>r.type==='STEP'&&r.d.class==='write'&&started(r)&&r.d.platforms.includes(platform));
    const relevant=writes.filter(r=>operation(r)===about&&['publish','repeat_same','changed_plan','resume','edit','delete'].includes(r.d.role));
