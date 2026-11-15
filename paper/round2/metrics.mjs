@@ -60,7 +60,7 @@ function commandEvidence(s,step,platform) {
   first?.before?.platform===platform?first.before.ref:null,end?.after?.platform===platform?end.after.ref:null].filter(Boolean));
  return {command,events,snapshot,refs,priorCount,beforeCount:(!a?.platform||a.platform===platform)?a?.final_presses:null,missingBeforePositive,intact:!!intact,noContact:!!noContact,noPress,hasPress,countChangedWithoutPress,
   dropped_reported:command?.dropped_events??null,dropped_from_events:events.reduce((n,e)=>n+(e.dropped_before??0),0),
-  loss,interrupted,helperPossible,stamp:codeStamp(s,command)};
+  loss,interrupted,helperPossible,postCutoffSaves:s.comparison.post_cutoff_saves?.filter(row=>row.step===step.seq).map(row=>row.index)??[],stamp:codeStamp(s,command)};
 }
 function answerOutcome(a,step,e) {
  if(a&&settled(a,operation(step)))return 'confirmed';
@@ -75,10 +75,10 @@ function answerOutcome(a,step,e) {
 function workerConfirmation(attempt, beforeSeq=Infinity){
  if(!attempt.publish.evidence.helperPossible)return false;
  const events=attempt.publish.evidence.events;let read=false;
- for(const e of events){
+ for(const [index,e] of events.entries()){
   if(e.seq>=beforeSeq||e.platform&&e.platform!==attempt.platform)continue;
   if(e.type==='stage'&&['reading back','reading the page','waiting for platform confirmation'].includes(e.stage))read=true;
-  if(read&&e.phase!=='submitting'&&e.type==='transition'&&!['edit','deletion'].includes(e.kind)&&
+  if(read&&attempt.publish.evidence.postCutoffSaves.includes(index)&&e.phase!=='submitting'&&e.type==='transition'&&!['edit','deletion'].includes(e.kind)&&
     (!attempt.ref||!e.ref||e.ref===attempt.ref)&&[e.state,e.receipt_state].includes('SUBMISSION_VERIFIED'))return true;
  }
  return false;
@@ -628,7 +628,7 @@ function figures(model,jobRows,platform,phase,stampFilter=null) {
     with_fault:a.job.faults.some(f=>f.state==='fired'),press_markers:a.press_markers,look:a.look.seen,look_status:a.look.status,
     duplicate:a.duplicate,duplicate_by_look:a.duplicate_look,duplicate_by_marker:a.duplicate_marker,c4_one_click:a.c4_one_click,
     press_marker_not_recorded:a.press_marker_not_recorded,tool_record_incomplete:a.tool_record_incomplete,markers_observed:a.markers_observed,upload_commands:a.upload_commands,all_looks:a.all_looks})),
-   faults,repeats,helper_confirmed_C1:faults.filter(f=>f.helper_confirmed).length,fault_duplicate_bound:upper95(firedAround.filter(a=>a.duplicate).length,firedAround.filter(a=>a.duplicate||countedLook(a.look)&&a.press_markers!==null&&!a.press_marker_not_recorded).length),
+   faults,repeats,helper_confirmed_C1:faults.filter(f=>f.kind==='end_command_after_press'&&f.state==='fired'&&f.helper_confirmed).length,fault_duplicate_bound:upper95(firedAround.filter(a=>a.duplicate).length,firedAround.filter(a=>a.duplicate||countedLook(a.look)&&a.press_markers!==null&&!a.press_marker_not_recorded).length),
    fault_bound_omitted_reasons:firedAround.filter(a=>!a.duplicate&&(!countedLook(a.look)||a.press_markers===null||a.press_marker_not_recorded)).map(a=>({job:a.job.id,platform:a.platform,reasons:[...(!countedLook(a.look)?['missing_qualifying_look']:[]),...(a.press_markers===null?['marker_count_unavailable']:[]),...(a.press_marker_not_recorded?['platform_has_no_marker']:[])]})),
    fault_bound_unmeasured:firedAround.filter(a=>!a.duplicate&&(!countedLook(a.look)||a.press_markers===null||a.press_marker_not_recorded)).length,
    repeat_bound:upper95(repeats.filter(r=>r.forbidden_repeat).length,repeats.filter(r=>r.eligible).length),

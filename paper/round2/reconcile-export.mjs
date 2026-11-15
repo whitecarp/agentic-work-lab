@@ -3,7 +3,7 @@
 import {commandClass} from '../../scripts/round2/crosscast.mjs';
 import {operation,pressRoles,uncertainState,nothingSent,settled,confirmedAnswer,confirmed} from '../../scripts/round2/answers.mjs';
 import {countsLook,lookTiming,lookStep,secondLookDue} from '../../scripts/round2/looks.mjs';
-import {pressEvidence as ownPressEvidence,priorPressCount} from '../../scripts/round2/press-evidence.mjs';
+import {pressEvidence as ownPressEvidence,priorPressCount,postCutoffSaves} from '../../scripts/round2/press-evidence.mjs';
 import {gateChecks,publishChecks,observationChecks,runChecks} from '../../scripts/round2/analysis-checks.mjs';
 export function reconcileData(records,cc,{jobs=[],reservations=[],now}={}){
  if(!Number.isFinite(now))throw new Error('invalid_as_of');
@@ -168,7 +168,7 @@ export function reconcileData(records,cc,{jobs=[],reservations=[],now}={}){
      seconds:closure?Math.max(0,(Date.parse(closure.at)-Date.parse(s.at))/1000):null,clock_reversed:!!closure&&Date.parse(closure.at)<Date.parse(s.at)};
  });
  const result={schema:'round2-reconcile/1',as_of:new Date(now).toISOString(),records:records.length,crosscast_present:cc.present,crosscast_chain_ok:cc.chain_ok,time_alignment:!cc.present?'journal_only':cc.times==='exact'&&cc.chain_ok?'exact':'unavailable',
-   error_steps_unclassified:errorStepsUnclassified,gate_checks:gateChecks(records),publish_checks:publishChecks(records,jobs),
+   post_cutoff_saves:postCutoffSaves(records,cc),error_steps_unclassified:errorStepsUnclassified,gate_checks:gateChecks(records),publish_checks:publishChecks(records,jobs),
    observation_checks:observationChecks(records,jobs,cc),run_checks:runChecks(records,jobs,lookChecks,cc),
    count_changed_without_press:steps.flatMap(step=>step.d.platforms.filter(platform=>{const ev=usableEvents(step);return ev&&ownPressEvidence(ev,true,platform,operation(step)).countChangedWithoutPress;}).map(platform=>({step:step.seq,job:step.d.job,platform}))),
    command_binding:!cc.present?'journal_only':trusted?'shared_id':'unavailable',

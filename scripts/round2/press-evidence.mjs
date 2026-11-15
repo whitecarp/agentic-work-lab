@@ -37,3 +37,32 @@ export function priorPressCount(all,events,platform){
   .filter(s=>refs.has(s.ref)&&!['edit','deletion'].includes(s.kind)&&finiteCount(s.final_presses)).map(s=>s.final_presses);
  return counts.length?Math.max(...counts):null;
 }
+
+// Compute this ordering before the tester's clocks are removed. An event's
+// position within its own command survives privacy export sequence renumbering.
+export function postCutoffSaves(records, cc) {
+ const saves = [];
+ if (cc.times !== 'exact') return saves;
+ const cutoffs = new Map();
+ for (const r of records) {
+  if (r.type === 'FAULT_RESULT' && (r.d.fired || r.d.failed) &&
+      ['end_command_after_press','end_tree_after_press','browser_lost_during_upload','end_browser_after_edit_save'].includes(r.d.kind)) {
+   cutoffs.set(JSON.stringify([r.run,r.d.job,r.d.role]), r);
+  }
+  if (r.type !== 'STEP') continue;
+  const key = JSON.stringify([r.run,r.d.job,r.d.role]);
+  const fault = cutoffs.get(key);
+  cutoffs.delete(key);
+  if (r.d.role !== 'publish' || (!fault && r.d.answered !== false)) continue;
+  const commands = cc.runs.filter(c => c.awl_run_id && c.awl_run_id === r.d.awl_run_id);
+  if (commands.length !== 1) continue;
+  const boundary = Date.parse(fault?.at ?? r.at);
+  const events = cc.events.filter(e => e.run === commands[0].run);
+  for (const [index,e] of events.entries()) {
+   if (Date.parse(e.at) > boundary && e.type === 'transition' && e.phase !== 'submitting' &&
+       !['edit','deletion'].includes(e.kind) && [e.state,e.receipt_state].includes('SUBMISSION_VERIFIED'))
+    saves.push({step:r.seq,index});
+  }
+ }
+ return saves;
+}

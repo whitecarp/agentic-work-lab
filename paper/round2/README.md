@@ -259,7 +259,12 @@ the evidence they cover. Timing pairs report the observed gap in minutes
 from the last upload-phase step of the first release to the second publish
 start. Completion requires 20 through 60 minutes, inclusive.
 
-The C1 helper-confirmation figure awaits the first C43 record.
+The first phase 2a C1 record (owner-practice-002) has two saved press markers.
+The first command ends without a saved confirmation. The second marker and
+the confirmation belong to the resume. Figure 4.6 credits a helper only for
+a matching saved transition in the first command after the recorded cutoff.
+For a tester export the site compares exact times before redaction and exports
+only the step and the position of the transition within that command.
 
 
 ## C47 and Annex A 1.13
