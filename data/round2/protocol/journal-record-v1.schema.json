@@ -2305,6 +2305,7 @@
                 "bilibili_delete_forbidden",
                 "test_platform_forbidden",
                 "douyin_manual_removal",
+                "douyin_test_edit_not_attempted",
                 "test_plan_invalid",
                 "test_post_daily_cap",
                 "publish_spacing",

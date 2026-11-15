@@ -68,6 +68,7 @@ export function limits(records,job,role,platforms,now,reservations=[],jobs=[]) {
   if(platforms.some(p=>!PLATFORMS.includes(p))||new Set(platforms).size!==platforms.length) return 'invalid_platforms';
   if(role==='delete' && (platforms.length===0||platforms.includes('bilibili'))) return 'bilibili_delete_forbidden';
   if(role==='delete'&&job.run_class==='test_post'&&platforms.includes('douyin')&&!job.wrong_delete_code_first)return 'douyin_manual_removal';
+  if(role==='edit'&&job.run_class==='test_post'&&platforms.includes('douyin'))return 'douyin_test_edit_not_attempted';
   if(job.run_class!=='test_post'||role!=='publish') return null;
   if(!platforms.length || platforms.some(p=>!['youtube','douyin'].includes(p))) return 'test_platform_forbidden';
   const when=Date.parse(now);

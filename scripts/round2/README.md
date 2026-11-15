@@ -652,7 +652,17 @@ For an unsealed practice list use generate/make with phase 2a (`--phase 2a` on m
 
 Each new test-post row and its operator job carry the same generated title, including site and clip number; long clips include long-. assignTestTitles refuses duplicates within the site's list. Use the listed title in the publish plan. Existing unused clip allocation and phase archive rules still apply.
 
-A publish fault can be armed again when its own platform explicitly answered NOT_STARTED with no previous state, at any exit code (including browser_busy at exit 4), or when the whole publish was refused with exit 2 and no state or NOT_STARTED on every platform. Edits and deletes retain rearming after busy/browser_busy. All paths require that platform's answer, no true press flag, and an explicit prior fault result of not triggered, not fired and not failed. The controller and selector use the same rule: busy_not_reached for those two lock answers, publish_refused_not_reached for other qualifying publish refusals. Missing results and ambiguous publish answers do not qualify. The upload-start helper's whole-command rule is unchanged. Rearming does not authorize a retry or grant another write: the existing wait, second-busy stop and owner go-ahead rules still apply.
+A publish fault can be armed again when its own platform explicitly answered NOT_STARTED with no previous state, at any exit code (including browser_busy at exit 4), or when the whole publish was refused with exit 2 and no state or NOT_STARTED on every platform. YouTube edits and deletes retain rearming after busy/browser_busy; Douyin test-post edit and delete faults are never armed. All paths require that platform's answer, no true press flag, and an explicit prior fault result of not triggered, not fired and not failed. The controller and selector use the same rule: busy_not_reached for those two lock answers, publish_refused_not_reached for other qualifying publish refusals. Missing results and ambiguous publish answers do not qualify. The upload-start helper's whole-command rule is unchanged. Rearming does not authorize a retry or grant another write: the existing wait, second-busy stop and owner go-ahead rules still apply.
+
+Amendment A9 (Annex A 1.17): a Douyin test-post `edit` command, including
+`edit --verify-only`, returns wrapper exit 5 and records
+`STEP_REFUSED: douyin_test_edit_not_attempted` before any child, write reservation
+or fault arming. Its listed edit stays unspent; close-job needs no edit step.
+The counts and practice lists are preserved. YouTube and real-release command
+paths are unchanged. A previously started edit still owes its independent look,
+even when refused with `edit_held_by_review`; that code is not busy and does not
+authorize rearming or a retry. Public Douyin changes the owner wants are made
+outside this study by the owner, under A9.
 
 For protocol 9 H's manual Douyin removal, record NOTE manual_step with the exact job and platform, then the deletion look with elapsed minutes from that note, then JOB_END with removed_by_hand. A generic account cleanup note must omit the job. The account owner performs removal; the tools only record it.
 

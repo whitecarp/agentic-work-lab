@@ -48,6 +48,7 @@ for(const reason of REFUSALS.filter(r=>!r.startsWith('fault_')))test(`wrapper re
   case 'bilibili_delete_forbidden':command=['bili','delete'];break;
   case 'test_platform_forbidden':job.platforms=['x'];args.role='publish';break;
   case 'douyin_manual_removal':args.role='delete';job.platforms=['douyin'];break;
+  case 'douyin_test_edit_not_attempted':args.role='edit';job.platforms=['douyin'];break;
   case 'test_plan_invalid':args.role='publish';command=['vpub','publish','PRIVATE_INVALID'];break;
   case 'test_post_daily_cap':args.role='publish';write(f,'reservations.json',Array.from({length:4},(_,i)=>({...reservation,job:'old-'+i,role:'publish',run_class:'test_post',at:new Date(Date.now()-3600000).toISOString()})));break;
   case 'publish_spacing':args.role='publish';write(f,'reservations.json',[{...reservation,job:'earlier',run_class:'test_post',role:'publish'}]);break;

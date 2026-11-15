@@ -103,7 +103,7 @@ export function completeSite(site,{plantSecond=false}={}){
    step({role:'verify',ps:[p],m:begin+5+i,n,read:true,state:c4dy?'UNKNOWN':'SUBMISSION_VERIFIED',exit:c4dy?4:0});
    look(p,'post',c4dy?'absent':'present_private',begin+22,lastPost);
    if(c4dy){look(p,'post','absent',begin+1230,lastPost);settlements.push({platform:p,how:'nothing_posted'});continue;}
-   if(j.edit){
+   if(j.edit&&p!=='douyin'){
     if(site==='tester')grant('one_write',1,begin+23,p,'edit');
     const ef=j.faults.find(f=>f.role==='edit');if(ef)arm(ef,begin+23.2);
     step({role:'edit',ps:[p],m:begin+24,n,press:true,read:!ef,cut:!!ef,state:ef?'EDIT_SUBMITTED_UNVERIFIED':'EDIT_VERIFIED',exit:ef?4:0});

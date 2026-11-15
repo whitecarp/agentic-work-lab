@@ -1,4 +1,4 @@
-// Annex A 1.16. Vocabulary and outcome priority are printed in every summary.
+// Annex A 1.17. Vocabulary and outcome priority are printed in every summary.
 // STEP.answers are per platform. STEP.result is used only for a missing answer.
 // Lab refs never join CrossCast refs: joins use command awl_run_id + platform.
 import {pressEvidence,commandSnapshots,finiteCount,priorPressCount} from '../../scripts/round2/press-evidence.mjs';
@@ -9,7 +9,8 @@ import {grantScope} from '../../scripts/round2/policy.mjs';
 import {secondLookDue,lookStep} from '../../scripts/round2/looks.mjs';
 import {normalizeSite,time,day} from './inputs.mjs';
 import {describe,upper95,tally,share} from './statistics.mjs';
-const ANNEX_VERSION='1.16';
+const ANNEX_VERSION='1.17';
+const DOUYIN_EDIT_REASON='Amendment A9: no edit of a Douyin test post in this round; listed edits remain on the list and are not run or transferred to YouTube.';
 export const OUTCOMES={
  version:'Annex A '+ANNEX_VERSION,states:STATES,
  priority:['confirmed','nothing_sent','in_doubt_state','proven_no_press','possible_case'],
@@ -459,10 +460,11 @@ function figures(model,jobRows,platform,phase,stampFilter=null) {
   const a=attempts.find(a=>a.job.id===j.id),look=a?model.looks(j.id,a.platform,f.role==='delete'?'delete':f.role==='edit'?'edit':'post'):null;
   const later=a?.details.find(d=>d.step.seq>a.publish.step.seq&&['publish','resume','repeat_same'].includes(d.step.d.role)&&d.evidence.hasPress);
   const helper=!!a&&workerConfirmation(a);
-  const out=f.role==='delete'?(a?.details.some(d=>operation(d.step)==='delete'&&d.outcome==='confirmed')?'gone_confirmed':look?.seen==='absent'?'gone_unconfirmed':present(look?.seen)||look?.seen==='present_twice_or_more'?'still_there':'no_look'):
+  const listedEditNotRun=f.role==='edit'&&j.run_class==='test_post'&&j.platforms.includes('douyin')&&!j.details.some(d=>d.platform==='douyin'&&d.step.d.role==='edit'&&d.step.d.class==='write'&&started(d.step));
+  const out=listedEditNotRun?'listed_not_run':f.role==='delete'?(a?.details.some(d=>operation(d.step)==='delete'&&d.outcome==='confirmed')?'gone_confirmed':look?.seen==='absent'?'gone_unconfirmed':present(look?.seen)||look?.seen==='present_twice_or_more'?'still_there':'no_look'):
    f.role==='edit'?(a?.details.some(d=>d.step.d.role==='edit'&&d.outcome==='confirmed')?'edit_confirmed':'edit_unconfirmed'):
    a?.duplicate?'duplicate':later&&a.confirmed?'finished_by_later_press':a?.confirmed?'confirmed_without_later_press':look?.seen==='absent'?'nothing_posted':a&&!a.confirmed?'held_in_doubt':'other';
-  return {...f,job:j.id,platforms:j.platforms,outcome:out,look:look?.seen??null,
+  return {...f,job:j.id,platforms:j.platforms,outcome:out,look:look?.seen??null,...(listedEditNotRun?{reason:DOUYIN_EDIT_REASON}:{}),
    later_press_step:later?.step.seq??null,helper_confirmed:helper,
    confirmed_where:helper?'helper':a?.details.find(d=>d.outcome==='confirmed')?.step.d.role??null};
  }));
@@ -516,7 +518,9 @@ function figures(model,jobRows,platform,phase,stampFilter=null) {
    const afterID=verified?.evidence.snapshot.findLast(x=>typeof x.id_present==='boolean')?.id_present;
    const beforePresent=a.all_looks.some(x=>x.about==='post'&&x.seq<d.step.seq&&present(x.seen));
    const invariant=beforePresent&&countedLook(l)&&(l.seen==='absent'||l.seen==='present_twice_or_more'||a.job.run_class==='test_post'&&l.seen==='present_once');
-   return {job:a.job.id,ref:a.ref,platform:a.platform,step:d.step.seq,post_invariant_broken:invariant,confirmed_by:verified===d?'edit':verified?'readback':null,
+   const code=d.answer?.code??d.step.d.code??null;
+   const stoppedBeforeTyping=code==='edit_held_by_review'&&d.step.d.exit===2&&!d.evidence.hasPress&&(d.outcome==='nothing_sent'||d.evidence.noPress);
+   return {job:a.job.id,ref:a.ref,platform:a.platform,step:d.step.seq,code,status:stoppedBeforeTyping?'stopped_before_typing':d.outcome,post_invariant_broken:invariant,confirmed_by:verified===d?'edit':verified?'readback':null,
     same_post_basis:'tool read-back by stored post id; export has no comparable post id',
     post_id_present_before:beforeID??null,post_id_present_after:afterID??null,
     before_id_source:typeof start?.id_present==='boolean'?'edit_start':typeof beforeID==='boolean'?'last_pre_edit_reading':null,
@@ -524,6 +528,9 @@ function figures(model,jobRows,platform,phase,stampFilter=null) {
     look_agrees:agrees(a,l,'edit'),look_status:l.status};
   });
  });
+ const listedEditsNotRun=jobRows.filter(j=>j.run_class==='test_post'&&j.edit&&j.platforms.includes('douyin')&&(!platform||platform==='douyin')&&
+  !j.details.some(d=>d.platform==='douyin'&&d.step.d.role==='edit'&&d.step.d.class==='write'&&started(d.step)))
+  .map(j=>({job:j.id,platform:'douyin',status:'listed_not_run',reason:DOUYIN_EDIT_REASON}));
  const timingRows=[];
  for(const d of details){
   const ev=d.evidence.events.filter(e=>e.type==='stage'&&e.platform===d.platform);
@@ -653,6 +660,7 @@ function figures(model,jobRows,platform,phase,stampFilter=null) {
    held_private:attempts.filter(a=>['real_slot','real_release'].includes(a.job.run_class)&&a.look.seen==='present_private')
     .map(a=>({job:a.job.id,platform:a.platform,ref:a.ref,look_status:a.look.status})),
    contradicted:[...attempts.filter(a=>a.contradicted).map(a=>({job:a.job.id,ref:a.ref,operation:'post'})),...edits.filter(e=>e.confirmed_by&&e.look_agrees===false).map(e=>({job:e.job,ref:e.ref,operation:'edit'})),...deletes.filter(d=>d.contradicted).map(d=>({job:d.attempt.job.id,ref:d.attempt.ref,operation:'delete'}))],edits,
+   listed_edits_not_run:listedEditsNotRun,
    deletes:deletes.map(d=>({job:d.attempt.job.id,ref:d.attempt.ref,step:d.detail.step.seq,approved:d.approved,pressed:d.pressed,press_count:d.press_count,
     tool_gone:d.tool_gone,
     pending:d.detail.answer?.state==='DELETE_PENDING'&&d.pressed!==false,

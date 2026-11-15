@@ -1,4 +1,4 @@
-# Round-two export analysis (Annex A 1.16)
+# Round-two export analysis (Annex A 1.17)
 
 This is an offline reader. It neither loads a live data folder nor invokes a
 platform command. The script has no network, process-start, account or clock
@@ -8,6 +8,14 @@ reconcile-export.mjs. Both paths share press-evidence and timing checks. A parit
 its result with the offline calculation.
 
 The summary identifies the C58/C59 rules build separately from the sealed Annex version.
+Amendment A9 is entered on 15 November. Figure 5.3 includes
+`readback.listed_edits_not_run`: planned Douyin test-post edits that were not
+started, with the A9 reason. They are neither missing steps nor failed edits;
+the counts file and seven planned YouTube edits are unchanged. Douyin cell 6
+is not attempted, with its reason in `checklist-v1.json`. Already-started edits
+remain in `readback.edits`, including `stopped_before_typing` with the tool code
+`edit_held_by_review` when supported by no-press evidence. Their independent
+look is still owed; this refusal is not a busy result and authorizes no retry.
 For a second observation the journal accepts an optional --crosscast path to
 the exact-time export. Without that evidence it treats an unresolved opening
 as owing the second look. Reconciliation checks the export at the time of the
