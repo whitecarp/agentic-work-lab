@@ -848,4 +848,482 @@ Five readers compared this draft, Annex A and the counts file with both code bas
 
 ## Amendments
 
-None yet.
+**The first entry of amendments: A1 to A8, A10, A11, and B1 to B5.** Entered on 15 November 2026.
+
+**How to read this section.** The text above this heading is the text as it was sealed on 14 November 2026. It is not changed. Each entry below gives the sealed words, the amended words and the reason. From the day of the entry the amended words are the protocol's. Annex A is version 1.16 from that day: the pointer under "Annex A. Measures" now means version 1.16, and version 1.15 stays in the Lab repository at the tag `round2-protocol-v1.0`, together with this file as it was sealed. The rules card and the counts file are unchanged.
+
+**Who decided, and when.** The account owner decided on 14 November 2026 at about 6:15 PM Central Time: A1 with the milder of its two rules, B1 as it is written here, and every other entry of that day as it was drafted. For the five entries that needed work on the tools (A1, A3, A4, A6 and A7) the owner's yes was on condition that the builder found them buildable as written. The builder's note of the same evening found all five so. Entry B5 and one clause of A3 were written on 15 November 2026, and the owner decided on them the same day. One entry of 14 November is not here: A9, on a Douyin edit that the platform is still reviewing, was left open on purpose until the first Douyin edit of the shakedown. It is entered separately, before the freeze.
+
+**What had been seen.** When the entries were drafted, and when the owner decided on 14 November: the shakedown's records of that day up to that hour, which were wrapped status commands and five refusal runs, with no upload, no press and no look. The text of this entry was prepared on 15 November 2026 with the owner's journal standing at record 180. By then the shakedown had gone on: two private test posts with a planned fault each, one on Douyin and one on YouTube, and the first of the two episodes of entry B1 on four platforms. Nothing recorded after that was seen when this text was written. Five things below were written or changed with those later records in view, and each says so where it stands: one clause of A3; the hour in B2; one sentence of A10 on what had been built by then; entry B5, which is new; and the notes on the tools, which say what was built when this was prepared. Shakedown records are never counted (section 5).
+
+### A1. The checklist: a try with no counting look, and a try of a voided run
+
+**Sealed words.**
+
+Protocol 1.0, section 13, line 499:
+
+> **A cell is Confirmed** when, among all recorded tries of the counted phase that reached the cell's situation, under one frozen version and both sites taken together (the tries of runs that section 11 keeps out of a bound included), the unmodified tool itself reached the confirmed state on at least three tries, including the last three, and on at least 80% of all tries; every one of those agrees with the person's look (Annex A says which word of a look agrees with which confirmation); no confirmation in that cell was contradicted; and, for cells 2, 3, 4, 6 and 7, at least one of the confirmed tries on that platform was at the tester's site.
+
+Annex A 1.15, section 6 (whose tries), line 123:
+
+> The tries of runs that the counting rules (8.6) keep out of a bound are included, and so are their contradictions and their failed refusals. A try with no counting look, or of which the needed evidence is unknown, stays a try and is not confirmed.
+
+**Amended words.**
+
+Section 13. The sentence above is replaced by the first sentence below, and the three sentences after it are added.
+
+> **A cell is Confirmed** when, among all recorded tries of the counted phase that reached the cell's situation, under one frozen version and both sites taken together (the tries of runs that section 11 keeps out of a bound included), at least three tries are confirmed tries, including the last three, and at least 80% of all tries are confirmed tries; no confirmation in that cell was contradicted; and, for cells 2, 3, 4, 6 and 7, at least one of the confirmed tries on that platform was at the tester's site. A try is a confirmed try when the unmodified tool itself reached the confirmed state, as the points below say for each cell, and the person's counting look agrees with it (Annex A says which word of a look agrees with which confirmation); the refusal cells have their own test, given below. A try that owes a look and has no counting look, or of which the needed evidence is unknown, stays a try and is not a confirmed one: it lowers the share of confirmed tries, and it breaks the last three if it is one of them; it does not by itself keep the cell from being Confirmed. A try of a run that a rule break voided (section 11) stays a try, can never be a confirmed one, and any failure seen in it counts against the cell as any other does.
+
+Annex A, section 6. This sentence is added after the two above.
+
+> A try of a run that a rule break voided (protocol section 11) stays a try, can never be a confirmed one, and any failure seen in it counts against the cell as any other does.
+
+**Why.** At the seal the checklist rule was turned round. A cell now takes every recorded try that reached its situation, not only the tries of runs that count. Section 13 was not brought along in full. It still asks that every try the tool confirmed agrees with the person's look. Read to the letter, one confirmed try with no counting look would keep the whole cell from being Confirmed. Annex A is milder: such a try stays a try and is not a confirmed one. Section 13 decides for the checklist, so the two must say the same. The amended words take Annex A's rule into section 13. The three numbers of the rule (three tries, the last three, 80%) are now counted in confirmed tries, and a confirmed try needs the person's look.
+
+Neither text said what a try is worth when a rule break voided its run, for instance because an assistant worked a page itself. The added sentence settles it. Such a try stays in the count of tries, as every recorded try does. It can lower a cell's standing. It can never raise it.
+
+**What follows for the tools.** Built in task C59 (Lab `65954c0`). The checklist counts confirmed tries as this entry defines them, and a try of a voided run earns nothing and keeps its failures.
+
+**Decided by the owner on 14 November 2026: the milder rule, as this entry has it.** For the record, the choice was this. Section 16 says that for the checklist section 13 decides. So the rule in force under the sealed text was the stricter one: a single try that the tool confirmed and that has no counting look keeps its cell at "Partly confirmed" for the whole round, however many other tries were confirmed. A look can be missed for a plain reason, such as a person who cannot look within the 24 hours. This entry takes the milder rule that Annex A already had: such a try is not a confirmed one, it lowers the share, and the cell can still be Confirmed if three tries, the last three and 80% of all tries are confirmed with a look that agrees. A try that nobody looked at still never counts in the tool's favour, and the table prints how many tries the tool confirmed and how many a look agreed with. The other way would have been to keep section 13 as sealed and to strike Annex A's sentence. The paper says that the sealed text gave two rules, which one was chosen, on what date and with what data seen: when the owner chose, no look and no upload had been recorded.
+
+### A2. A draft that `resume` finishes belongs to cell 3 only
+
+**Sealed words.**
+
+Protocol 1.0, section 13 (which tries belong to a cell, first point on cell 5), line 506:
+
+> A `resume` that presses once on a draft the platform still shows (claim 3a) is a try of cell 3 and of no other cell: its run is not a try of cell 4, and that press is neither a try nor a failure of cell 5.
+
+Protocol 1.0, section 13 (the point on cell 4), line 504:
+
+> Only a run whose first command itself answered confirmed is not a try of this cell.
+
+Protocol 1.0, section 13 (the point on cell 3), line 503:
+
+> Cell 3: every group D run, and a C4 run on YouTube in which Studio showed the draft at step 3.
+
+Protocol 1.0, section 13 (the table, row 3), line 492:
+
+> | 3 | A stop before the final press, finished later with one press and one post | YouTube, Douyin | Group D; kind C4 on YouTube where Studio kept the draft |
+
+Annex A 1.15, section 6 (which tries belong to a cell), line 126:
+
+> Any other run on YouTube whose `resume` pressed once on a draft that the tool's record shows as still a draft is a try of cell 3 as well, and of no other cell: it is not a try of cell 4, and that `resume` is neither a try nor a failure of cell 5 (task C52).
+
+**Amended words.**
+
+The point on cell 4. The sentence on line 504 is replaced by these two.
+
+> A run whose first command itself answered confirmed is not a try of this cell. Neither is a run that `resume` finished by one press on a draft the platform still showed: that run is a try of cell 3.
+
+The point on cell 3. The sentence on line 503 is replaced by this one.
+
+> Cell 3: every group D run; a C4 run on YouTube in which Studio showed the draft at step 3; and any other test post on YouTube that `resume` finished by one press on a draft the tool's record showed as still a draft.
+
+The table. Row 3 is replaced by this row.
+
+> | 3 | A stop before the final press, finished later with one press and one post | YouTube, Douyin | Group D; kind C4 on YouTube where Studio kept the draft; any other test post on YouTube where `resume` finished a kept draft with one press |
+
+The sentence on line 506 stands as sealed. This sentence is added after it.
+
+> This is said of test posts. A real release that `resume` finished is a try of cell 1, as any real release is, and no try of cell 3.
+
+Annex A, section 6 (which tries belong to a cell). The words "of a test post" are added, so that the sentence on line 126 reads:
+
+> Any other run of a test post on YouTube whose `resume` pressed once on a draft that the tool's record shows as still a draft is a try of cell 3 as well, and of no other cell: it is not a try of cell 4, and that `resume` is neither a try nor a failure of cell 5 (task C52).
+
+**Settled by the author while checking this entry.** The decision named kinds C2 and C3, the two kinds that sections 9 and 17 expect to end this way. Annex A 1.15 is wider: it takes any other run on YouTube whose `resume` pressed once on a kept draft. The amended words follow Annex A, so that the two texts do not come apart again. One sentence is new. Read to the letter, "any other run" would also take a real release that `resume` finished, and would take it out of cell 1. Section 13's table gives cell 3 to test posts only, so the added sentence says so in both texts.
+
+**Why.** The seal added the sentence on line 506. The points beside it were not changed with it. The point on cell 4 still takes such a run. The point on cell 3 and the table row do not take it in. So section 13 says two things about the same run. This is not a rare case. On YouTube it is the likely end of a fault fired within a few seconds of the press (sections 9 and 17). Seventeen fault runs around the press are planned on YouTube. Section 13 decides for the checklist, and after the freeze it can no longer be amended on this.
+
+**What follows for the tools.** Nothing had to change: Annex A 1.15 and the script already counted such a run in cell 3 only. A test added in task C59 (Lab `65954c0`) shows that a real release on YouTube that was finished from a kept draft is a try of cell 1 and no try of cell 3.
+
+### A3. When a second look is owed
+
+**Sealed words.**
+
+Protocol 1.0, section 7 (the second look, first sentence), line 198:
+
+> **The second look.** Where the first counting look of a post finds nothing while the tool's record is still in doubt, a second look is made 20 to 36 hours after the same step, and it counts in that window of its own: a post can appear late.
+
+Protocol 1.0, section 7 (the second look, last sentence), line 198:
+
+> The second look stays owed for as long as the case is open: a step in between that was refused, answered busy or left to a helper does not cancel it, and a first look of `absent` alone never closes such a run (section 11).
+
+Annex A 1.15, the paragraph on a person's look, line 72:
+
+> **The second look.** Where the first counting look of a post finds nothing while the tool's record is still in doubt, a second look is owed, made 1,200 to 2,160 minutes (20 to 36 hours) after the same step. It counts in that window of its own, and a run closed as nothing posted before it is listed. Whether one is owed is read from the whole history of that run on that platform while the case is open: a later step that was refused, answered busy, was answered `WAITING_FOR_USER` or `IN_PROGRESS`, or was left to a helper does not cancel it, and a first look of `absent` alone does not close such a case (task C52).
+
+Annex A 1.15, figure 4.1 (last sentence), line 104:
+
+> Cases opened under (b) to (e) whose saved record, read after the last step of that operation that can press, shows no press of that operation (for a post the counter of "The tool's press counter"; for an edit its own save press, for a delete its own delete flag, never the earlier upload's marker) are printed in their own row: there the tool's own record was never in doubt, only the caller was.
+
+Annex A 1.15, figure 4.3 (what settles a case), line 106:
+
+> A settling record is a read-back that ends confirmed for that one platform (for a post, a `verify` step, which the wrapper classes as a write and which settles a case all the same; for an edit, the edit's own read-back; for a delete, `delete --verify-only` reporting the post gone), or a person's look that counts: not `unclear`, made 10 minutes to 24 hours after the step it follows, or as a second look in its own window, and not written down before the minute it claims (the look rule above).
+
+**Amended words.**
+
+Section 7. The first sentence of the point (the first passage above) is replaced by these four. The last sentence of the point stands as sealed.
+
+> **The second look.** Where the first counting look of a post finds nothing and, at that moment, the attempt's saved record shows a press marker or an in-doubt state and no read-back has settled it, a second look is made 20 to 36 hours after the same step, and it counts in that window of its own: a post can appear late. It is not owed where the saved record shows that nothing was pressed: such a case was open only for the caller, and the tool's own record was never in doubt (Annex A, 4.1). Where the saved record cannot be read, the second look is owed. This is what sections 10, 11 and 17 mean where they say of a second look that the tool's record is still in doubt.
+
+Annex A, the paragraph on a person's look. The three sentences above are replaced by these five.
+
+> **The second look.** Where the first counting look of a post finds nothing and, at that moment, the attempt's saved record shows a press marker (see "The tool's press counter") or an in-doubt state (4.1 (a)) and no read-back has settled it, a second look is owed, made 1,200 to 2,160 minutes (20 to 36 hours) after the same step. It counts in that window of its own, and a run closed as nothing posted before it is listed. It is not owed where the saved record shows that nothing was pressed: that is a case of 4.1's own row, open only for the caller. Where the saved record cannot be read, or the export is missing or damaged for the command that opened the case, it is owed. Once a second look is owed, it stays owed while the case is open: a later step that was refused, answered busy, was answered `WAITING_FOR_USER` or `IN_PROGRESS`, or was left to a helper does not cancel it, and a first look of `absent` alone does not close such a case.
+
+Annex A, figure 4.3. This sentence is added after the one quoted above.
+
+> Where a second look is owed (the paragraph on a person's look), a first look of `absent` settles nothing: the case is settled by the second look, or by a read-back that ends confirmed.
+
+Figure 4.1 stands as sealed. It is quoted because it already draws the line that this entry uses.
+
+**Added by the author while checking this entry.** Two things the decision had left open. What holds when the saved record cannot be read: the look is then owed, so that the doubt goes to the safe side. And figure 4.3 as sealed lets any counting look settle a case, while the paragraph on a person's look says that a first look of `absent` does not close a case that owes a second one; the added sentence makes 4.3 say the same.
+
+**Changed on 15 November 2026, after the owner's decision and with shakedown records in view.** One clause was put back into the Annex's paragraph: a second look that is owed "stays owed while the case is open". The sealed paragraph had those words, and the protocol's own sentence, which stands, still has them ("for as long as the case is open"); the first wording of this entry had dropped them from Annex A. The case that showed the gap was the first real release of the shakedown. Its first look found nothing while the record was in doubt; a `resume` then finished the same draft, a read-back confirmed it, and a new look found it once. By the protocol's sentence no second look is owed there any more, because the case is settled. The tools at Lab `65954c0` still asked for one. The owner decided on this clause with entry B5, on 15 November 2026.
+
+**Why.** Three places gave three rules. The protocol asks for a second look while the tool's record is still in doubt. Annex A 1.15 added: while the case is open. The tools ask for one after any first command that was cut off. They differ in one kind of planned run: an upload that is cut off before anything was pressed (the lost browser, six planned runs). There the tool's saved record shows no press. The first look finds nothing, and the operator's sheet closes the run as nothing posted. The tools would list that run as closed too early, and would keep it out of the count until a look a day later. This entry keeps the protocol's rule and makes it exact. What decides is the saved record at the moment of the first look. A press marker is the note that the tool saves just before it clicks the final button. A run of kind C4 on Douyin still owes a second look: its record carries a press marker, although nothing was clicked. A step that was refused, answered busy or left to a helper does not cancel a second look that is owed. The wider rule of the tools would be safer by one more look, a day later, on each of those six runs; two of the six are at the tester's site, where that look is one more thing asked of the tester. The author keeps the protocol's rule, because figure 4.1 as sealed already says of such a record that it was never in doubt.
+
+**What follows for the tools.** Built in task C59 (Lab `65954c0`): the tools read the saved record as it stood at the first counting look, and a missing or damaged export makes the look owed. One point is not in line at that commit: the tools keep a second look owed after the case has been settled by a later step that pressed and a read-back that confirmed. They are brought to the amended words before the freeze (task C60). The operator's sheet works by the words.
+
+### A4. Figure 4.6 after a command that was ended from outside
+
+**Sealed words.**
+
+Annex A 1.15, figure 4.6, line 109:
+
+> **Must be 0:** a confirmed state first shown by a step that is not a read-back and whose own record holds no reading of the platform (none of the stages `reading back`, `reading the page` and `waiting for platform confirmation`), and for which what survives of the first command's own record shows no read-back or confirmation by its worker after that command was ended. This is read from the record, whatever kind the list gave the run: a command that was cut off by anything leaves a helper as kind C1 does, and a saved change later in the first command's own record counts. A snapshot from before the click (the earlier state under a saved change, or the `submitting` state saved before the press) is not a reading. Where the interrupted worker's record is missing, the row is printed as unknown, not as a record that changed by itself (task C52).
+
+**Amended words.**
+
+Annex A, figure 4.6. The first and third sentences above stand. The second and the fourth are replaced. The passage then reads:
+
+> **Must be 0:** a confirmed state first shown by a step that is not a read-back and whose own record holds no reading of the platform (none of the stages `reading back`, `reading the page` and `waiting for platform confirmation`), and for which what survives of the first command's own record shows no read-back or confirmation by its worker after that command was ended. Whether a worker can have gone on after its command is read from the fault's own record (3.3), whatever kind the list gave the run. Where that record shows that the command alone was ended (kind C1), or where the command was cut off and no fault record explains it, the worker may have gone on as a helper, and a saved change later in the first command's own record counts. Where it shows that the command and every process it started were ended, each one checked to have ended (kind C2, the lost browser, the edit fault), no helper exists: there a confirmed state first shown by a step with no reading of the platform is a failure, and it is never printed as unknown. A snapshot from before the click (the earlier state under a saved change, or the `submitting` state saved before the press) is not a reading. The row is printed as unknown, not as a record that changed by itself, only where a helper can exist and what survives of the record leaves an interval in which that helper could have read the platform.
+
+**Why.** Figure 4.6 is the figure that can refute claim 3b: that a record in doubt is held until something has read the platform. The sealed passage can be read two ways after a command that was ended from outside. One sentence makes a confirmation with no reading a failure. Another prints unknown where the worker's record is missing. The script took the second for every such run, because the record of a command that was ended from outside is never whole. That covers 20 of the 34 planned faults around the press (kinds C1 and C2) and the six lost-browser runs. In those runs the figure could no longer fail. The sealed sentence that a command cut off by anything leaves a helper is also not true. Kind C2, the lost browser and the edit fault end the command and everything it started, the browser included. Only kind C1 leaves the tool's browser worker to finish. So unknown is kept for the one case where it is the honest answer: a helper can exist, and the record has a gap in which it could have read the platform. The author made one thing exact while checking: which of the two holds is read from the fault's own record, as the sealed sentence asks ("whatever kind the list gave the run"), and a cut-off that no fault record explains is treated as one that may have left a helper. The sealed counts file says the same of the kinds in its own words: kind C1 ends "the command's own process only; the worker it started may finish", and kind C2, the lost browser and the edit fault end "the command and every process it started, each one checked to have ended".
+
+**What follows for the tools.** Built in task C59 (Lab `65954c0`). A made-up record with this failure planted after a fault that ended everything is among the script's own tests.
+
+### A5. The look after a post is removed by hand: no change of text
+
+**Sealed words.**
+
+Protocol 1.0, section 7 (independent look, when), line 195:
+
+> **The step a look follows** is the last started step of that operation on that platform that can press: for a post the publish, the same publish again or `resume`, whichever came last; for a delete the delete or its repeat; for a post removed by hand, as every Douyin test post is, the record of that step by hand, which the operator writes as soon as the account owner has removed the post.
+
+Annex A 1.15, the paragraph on a person's look, line 72:
+
+> For a post removed by hand, as every Douyin test post is, the look follows the record of that step by hand (`NOTE` of code `manual_step` that names the run and the platform), and the minutes are counted from that record.
+
+**Amended words.** None. The sealed words stand. The entry is recorded so that the difference between the text and the tools is not lost.
+
+**Why.** The sealed texts already say it for any platform: where a post is removed by hand, the look follows the record of that removal, and its minutes are counted from that record. The tools did this for Douyin only. A YouTube post can also be removed by hand, where the tool cannot confirm a post or a removal (sections 8 and 10). On made-up records at the sealed commit a reader showed two effects there. A look made seconds after the removal could count, because its minutes were counted from the last delete command. And where a post had been removed by hand with no delete command at all, the look after the removal could never count. The decision is that the text is right and the tools follow it.
+
+**What follows for the tools.** Built in task C58 (Lab `bc43343`). The operator's sheet follows it since its draft 0.14.
+
+### A6. The last day
+
+**Sealed words.**
+
+Protocol 1.0, section 5 (rules, first point), line 100:
+
+> A planned run whose first step is dated later is shown, not counted (section 11, rule 1). From then to the closing sign-off only steps of runs already begun are made: read-backs, looks, deletes and closings.
+
+Protocol 1.0, section 11, counting rule 1, line 417:
+
+> It is in the counted phase, and its first step is dated 29 November or earlier in UTC (or the last day of a declared extension; section 5).
+
+Annex A 1.15, figure 8.6, rule (1), line 144:
+
+> (1) it is in the counted phase and its first step is dated on or before the last day (29 November 2026 in UTC, or the last day of a declared extension; the day is given to the script as an option and printed);
+
+**Amended words.**
+
+Section 5. The two sentences above are replaced by these four.
+
+> A planned run that is dated later is shown, not counted (section 11, rule 1). A test post is dated by its first publish step, and a gate drill by the gate decision that names it. From then to the closing sign-off only steps of runs already begun are made: read-backs, looks, deletes and closings. For a test post whose first publish came before the cut-off, the remaining steps of its fixed sequence (section 10) may also still be made: the same publish again, `resume`, `vpub verify`, the looks, the planned edit with its read-back and its look, the delete or the removal by hand with its look, and the closing.
+
+Section 11, rule 1. The sentence above is replaced by these two.
+
+> It is in the counted phase, and it is dated 29 November or earlier in UTC (or the last day of a declared extension; section 5). A test post is dated by its first publish step, a gate drill by the gate decision that names it, and any other planned run by its first step.
+
+Annex A, figure 8.6, rule (1). The clause above is replaced by this one.
+
+> (1) it is in the counted phase and it is dated on or before the last day (29 November 2026 in UTC, or the last day of a declared extension; the day is given to the script as an option and printed): a test post is dated by its first `publish` step, as 8.5 counts it, a gate drill by the first gate decision that names it (1.5), and any other planned run by its first step;
+
+**Why.** The sealed rule dates a run by its first step. For a test post that step is the making of the plan, which reaches no platform. A post planned before the cut-off and published after it would have counted, against the sentence that no new run starts after 29 November. A gate drill has no step of its own, so the rule had nothing to date for the 63 drills. And the list of what may still be done after the cut-off left out the same publish again, `resume`, `vpub verify` and the edit. A post published late on the last day needs them: without them its fixed sequence would be broken off half way. The last evening is planned work, with four test posts a day at the owner's site. The owner should know what the amended words allow: for a test post whose first publish came before the cut-off, the two commands that can press again (the same publish again and `resume`) and the planned edit may still be run after it. The other way is to leave the list as sealed and to make no first publish in the last hours, at the price of the tries those runs would have given. After the freeze a counting rule can no longer be amended.
+
+**What follows for the tools.** Built in task C59 (Lab `65954c0`) for the script. By a search of the wrapper's code, the wrapper has no check of the last day. The cut-off is the operator's rule, so the operator's sheet gets the list of steps that may still be made (task G44).
+
+### A7. What is published at the close, and how often the script is run
+
+**Sealed words.**
+
+Protocol 1.0, section 15 (first point), line 544:
+
+> **Published at the close, from the owner's site:** its journal; its daily seals; CrossCast's export with no private data, made for the study's window only (Annex D); the list of planned runs; this protocol and its annexes; the analysis script, and its output for the owner's site.
+
+Protocol 1.0, section 15 (second point), line 545:
+
+> **From the tester's site nothing is published at the close.** The signed consent form sets the order. The tester is first sent everything that is based on their runs: their de-identified records, and every table, figure and sentence made from them. They have at least 7 days to ask for changes. Nothing of it is published or archived before 10 December 2026. After that review the tester's derived copy, the comparison that travels with it and the script's output for both sites are published with the rest, unless the tester has withdrawn or asks that they are not; the paper then says so, and marks every figure that uses the tester's records as one a reader cannot compute again.
+
+Protocol 1.0, section 12 (last point), line 484:
+
+> It is run once on the closed records.
+
+Protocol 1.0, section 15 (if the tester stops for good), line 556:
+
+> **If the tester stops for good,** every record from their site that is not yet published is deleted within 7 days, as the consent form promises: the files they sent and everything made from them. The paper then says only that the tester withdrew, on which date, and how many of their planned runs had been made.
+
+Annex A 1.15, rules for the script, line 52:
+
+> Two exceptions: the status word of a checklist cell (section 6) is decided on the tries of both sites together, with the per-site counts printed beside it; and the bounds that the protocol's section 12 states for both sites (3.4, 3.5, 5.5) put the two sites' runs in one n, with the per-site and per-platform rows beside them.
+
+**Amended words.**
+
+Section 15, first point. Replaced by:
+
+> **Published at the close, from the owner's site:** its journal; its daily seals; CrossCast's export with no private data, made for the study's window only (Annex D); the list of planned runs; this protocol and its annexes; the analysis script, and its owner-only output. The owner-only output is computed from the owner's site's records alone. It gives the owner's site's rows of every figure, and cells 1 and 8 of the checklist, which have no try at the tester's site. No figure that takes the tester's records is given in it: every other cell of the checklist, and every bound that puts the two sites' runs in one n (section 12), is printed there as held back.
+
+Section 15, second point. Replaced by:
+
+> **From the tester's site nothing is published at the close.** The signed consent form sets the order. The tester is first sent everything that is based on their runs: their de-identified records, and every table, figure and sentence made from them. They have at least 7 days to ask for changes. Nothing of it is published or archived before 10 December 2026, and nothing before those 7 days are over. Every figure that takes the tester's records is held back in the same way: every cell of the checklist but cells 1 and 8, and every bound that puts the two sites' runs in one n (section 12). After that review the tester's derived copy, the comparison that travels with it and the script's output for both sites are published with the rest, unless the tester has withdrawn or asks that they are not; the paper then says so, and marks every figure that uses the tester's records as one a reader cannot compute again.
+
+Section 12. The sentence on line 484 is replaced by these two.
+
+> It is run once on the closed records for each of two outputs: the owner-only output, which is published at the close, and the output for both sites, which is held back as section 15 says. If the tester withdraws, it is run once more on the records that remain, as a dated entry and with no change of any rule (section 15).
+
+Section 15, if the tester stops for good. These two sentences are added after the two on line 556.
+
+> The frozen analysis script is then run once more on the records that remain. That run is a dated entry at the end of this file (section 16), and it changes no rule.
+
+Annex A, rules for the script. This is added after the sentence on line 52.
+
+> **Two outputs.** The script is run once for each. The owner-only output is computed from the owner's site's records alone and is the one published at the close (protocol section 15): it gives the owner's site's rows of every figure, and cells 1 and 8 of the checklist, which have no try at the tester's site. In it the status word of every other checklist cell, and every bound that puts the two sites' runs in one n (3.4, 3.5 and 5.5, and the changed plans of 2.1), is printed as held back, never as a result. The output for both sites carries them, and it is held back with the tester's records. If the tester withdraws, the frozen script is run once more on the records that remain; that run is a dated entry of the protocol and changes no rule.
+
+**Left as sealed.** The table of phases in section 5 (line 96) speaks of one analysis run at the close. It is read with the amended sentence of section 12.
+
+**Why.** The sealed text publishes the script's output for the owner's site at the close. But Annex A decides every cell of the checklist, and the bounds stated for both sites, on the runs of the two sites together. It defines no output for one site alone. So the output at the close would either carry figures made from the tester's runs before the tester has seen them, or be computed by a rule that nobody wrote. The sealed text itself says that the signed consent form sets the order: the tester sees first, and nothing of theirs is public before the waiting time is over. One run of the script also cannot serve a tester who withdraws. Their records are then deleted, and the figures have to be made again without them. Section 16 as sealed allows a second output only for a defect in the script. The author made the held-back list exact while checking. Cells 1 and 8 rest on the owner's site alone (the tester makes no public post and has no Bilibili record), so they can be given at the close. And the changed plans stand in one n for both sites in section 12's table (24), although Annex A's own list of such bounds does not name them; they are held back like the others.
+
+**What follows for the tools.** Built in task C59 (Lab `65954c0`): the script makes the owner-only output when it is asked for it, and that output is the same whether the tester's records are there, changed or missing.
+
+### A8. What never leaves the computer
+
+**Sealed words.**
+
+Protocol 1.0, section 15 (third point), line 546:
+
+> **Never leaves the computer it is on:** captured command output, the secret behind the pseudonyms, people's own words, screenshots, session notes, cookies, tokens and sign-in files (which nothing in this study reads).
+
+**Amended words.**
+
+Section 15, third point. Replaced by these two points.
+
+> **Never leaves the computer it is on:** the secret behind the pseudonyms, cookies, tokens and sign-in files (which nothing in this study reads).
+
+> **Not published, and not sent to the other site:** captured command output, people's own words, screenshots and session notes. But an assistant that runs as a service reads what it is shown. So the command output it reads, and the words typed to it, go to the service that runs that assistant. The tester is told this in plain words before the first sitting.
+
+**Why.** The sealed sentence promises more than can be kept. Every go-ahead is typed to an assistant, and every command's output is read by one. An assistant that runs as a service sends what it reads to that service. The owner's operator is such an assistant, and the tester's may be. For the secret behind the pseudonyms, cookies, tokens and sign-in files the promise holds: no assistant is shown them. For the tester this is a statement about their privacy, so it has to be right before their first sitting. That sitting comes after the freeze, when an amendment of this kind is no longer allowed.
+
+**What follows for the tools.** None. For the people: the tester's sheet gets the same statement in plain words. The signed consent form was not opened for this entry, and no assistant opens it. The owner, who holds it, sets it against the amended sentence before the tester's first sitting. The form's text as drafted on 10 November (version 1.1) says that the tester works through an AI assistant of their own, and that names, ids and exact times are replaced by codes before anything leaves the tester's computer for the study. The amended sentence agrees with both. Whether that draft is word for word what was signed is for the owner to say.
+
+### A10. What the sealed text says of the tools at the seal: corrections of fact
+
+**Sealed words.**
+
+Protocol 1.0, the list of changes before the seal (last block), line 846:
+
+> **Built and checked by 14 November, by Codex's reports:** the Lab's tools at `dd6e984` (628 tests pass);
+
+Protocol 1.0, the list of changes before the seal (last block), line 847:
+
+> **Not right yet at the seal:** a test post whose delete stayed unconfirmed after its refused repeat cannot be closed by the wrapper, which judges the refused repeat and not the delete before it (found on 14 November; to be mended by Codex before the freeze, and until then such a run can only be given up);
+
+Protocol 1.0, section 5 (rules, third point), line 102:
+
+> **The shakedown has a list of its own,** made on 14 November from the practice counts file (`templates/round2/practice-counts-phase2a-v1.json` in the Lab repository, SHA-256 `aa5190d7ea0969fa6742c4ee902782f14814b3cc07d6af2f2b1b639d2cfcc85f`) and a throwaway seed (task C9).
+
+Annex A 1.15, the note on version 1.15, line 3:
+
+> By Codex's reports the script at Lab `dd6e984` (`paper/round2/metrics.mjs`) already computes all of this, and the tools' 628 tests pass.
+
+**Amended words.** The four sealed passages stay as they are: they are part of the record of how the text came to be. These four corrections are entered.
+
+> 1. The tools under the first seal were the Lab's tools at commit `67d6ef0` (in full `67d6ef03eae21c4799195d9c77cc937b19a98149`), not at `dd6e984`. That commit is the parent of the sealed commit `f5e3693`, which adds the four sealed files and nothing else. It includes task C55, and 639 tests pass there, not 628.
+
+> 2. The defect listed as not right yet at the seal had been mended in that commit, by task C55. A test post whose delete stayed unconfirmed after its refused repeat can be closed by the wrapper, once a counting look made after the last delete step has found the post gone, as section 11 says. Such a run does not have to be given up.
+
+> 3. The SHA-256 printed in section 5 for the practice counts file, `aa5190d7ea0969fa6742c4ee902782f14814b3cc07d6af2f2b1b639d2cfcc85f`, is that of the working copy on the owner's computer, which has Windows line ends (13,678 bytes). The file as committed has plain line ends (13,256 bytes), and its SHA-256 is `384d1188cb0265085f61d522c4d686c1167eb87853a500acee316325a1662f48`. The two digests name the same text. The practice list was made from the working copy.
+
+> 4. The note on version 1.15 in Annex A says that the script at Lab `dd6e984` already computes all of this. That was not true at the seal. The script had not been changed since `dd6e984`, and it differed from version 1.15 in the places named here. It was brought into line on 14 November 2026 in Lab `4875f1c` (task C56). Point 3: the comparison made on site and the script's own agree again when the working list holds the standing job (an older fault, not one of version 1.15). Point 4: a real release that the platform holds for review no longer counts as a contradicted confirmation. Point 5: a delete with another post's code that goes ahead is a must-be-0 figure. Point 6: `busy` first tries are left out of the delete rows and of the checklist's refusal tries. Point 7: the whole made-up round removes Douyin posts by hand. Point 8: figure 3.4 asks for an earlier reading of the counter. Point 9: the script prints version 1.15, and it prints the checklist over counted runs only beside the one that decides. Figure 4.6, the second look and the look after a removal by hand (point 10) were brought into line later the same day, in tasks C58 and C59 (Lab `bc43343` and `65954c0`), as entries A3, A4 and A5 of these amendments say.
+
+**Why.** These are corrections of fact. They change no rule and nothing that is run or counted. They matter all the same. An operator who followed the sealed sentence would give up a run that can be closed. A reader who takes the practice counts file from the repository gets another digest than the one printed, and would think the file was changed after the seal. And the version note said the script was ready when it was not. By the review after the seal, the cause of the first two is this: the last pass before the seal was written for the tools one commit earlier, and the text was not changed when task C55 went in ten minutes before the sealed commit.
+
+**What follows for the tools.** Nothing to build for this entry. Task C55 was in the tools before the seal. Task C56 points 3 to 9 are built at Lab `4875f1c`, where 650 tests pass by Codex's report and by the author's own run on an exported copy. The three points that were not in line at the seal (entries A3, A4 and A5) were built on 14 November in tasks C58 and C59. The author has run these changes on an exported copy and has not yet read them line by line; that reading is owed before the freeze.
+
+### A11. Smaller wording
+
+**(a) What `salt_ok` false means.**
+
+Sealed words.
+
+Annex A 1.15, rules for the script, line 49:
+
+> An explicit `salt_ok` of false means that records made with a secret survive and the secret does not (`missing_salt_with_existing_history`) or cannot be used.
+
+Amended words. The sentence above is replaced by these three.
+
+> An explicit `salt_ok` of false means that the salt file is absent while a journal or its head exists (`missing_salt_with_existing_history`). The tool says so also where no record there was ever made with a secret. A salt that is there and cannot be used gives no export at all: the export ends with the error word `audit_export_invalid` and makes no file.
+
+Why. The tool gives this answer whenever the salt file is absent while its journal or the journal's head file exists. That includes a folder whose earlier records were never made with a secret; a reader showed it by running the tool on a made-up folder. There the next command that records an event makes the secret, and the export then says true. A salt that is there and cannot be used never gives false: the export ends with an error and makes no file. Section 6 of the protocol has that right. Nothing counted changes, as long as a recording command comes before the first export in a folder, which is the order on the operator's sheet.
+
+**(b) A marker with no click after a stop.**
+
+Sealed words.
+
+Annex A 1.15, the paragraph on the tool's press counter, line 66:
+
+> **A marker can stand with no click behind it in one more case.** Since task C52 an edit looks at the stop once more after it has saved its marker and just before it clicks; a stop found there prevents the click and leaves the marker.
+
+Amended words. The two sentences above are replaced by these three.
+
+> **A marker can stand with no click behind it in one more case.** A post, an edit and a delete each look at the stop once more after the marker is saved and just before the click; a stop found there prevents the click and leaves the marker. For a post and a delete this is not new; for an edit it came with task C52.
+
+The protocol has the same claim in other words. The decision names Annex A's sentence only; the same correction is offered here so that the two texts agree, and it can be struck.
+
+Sealed words.
+
+Protocol 1.0, section 10 (the tool's own words, and its counter), line 405:
+
+> Since task C52 a stop can also leave a marker with no click behind it: an edit looks at the stop once more after it has saved its marker and just before it clicks, and a stop found there prevents the click and leaves the marker.
+
+Amended words. The sentence above is replaced by these two.
+
+> A stop can also leave a marker with no click behind it: a post, an edit and a delete each look at the stop once more after the marker is saved and just before the click, and a stop found there prevents the click and leaves the marker. For a post and a delete this is not new; for an edit it came with task C52.
+
+Why. The publish path has looked at the stop once more after the marker since before task C52, and the delete paths do the same. Task C52 added that look to the edit path only. A reader showed it for a post by running both versions of the tool with a stand-in button. No figure changes: the rule that a marker can overstate the clicks and never understates them stands.
+
+**(c) An export without a usable secret.**
+
+Sealed words.
+
+Protocol 1.0, section 15 (fourth point), line 547:
+
+> The tool's export says whether its own secret was there and usable (`salt_ok`); where it was not, the export gives no publication and no deletion record, and the Lab's comparison trusts none of that site's command records (section 6).
+
+Amended words. The sentence above is replaced by this one.
+
+> The tool's export says whether its own secret was there and usable (`salt_ok`); where it was not, an export made for a window gives no publication and no deletion record, and the Lab's comparison trusts none of that site's command records (section 6).
+
+Why. With no window, an export made without a usable secret still lists publications and deletion records, with their pseudonyms empty; a reader showed it by running the tool. Section 6 says it of an export made for a window, and section 15 dropped those words. The study never exports without a window, so nothing changes in what is run.
+
+**(d) The leftover of the old checklist rule.**
+
+Sealed words.
+
+Annex A 1.15, figure 8.6, line 144:
+
+> **Every must-be-0 figure is judged on the table of every recorded run of the counted phase,** and is printed beside each bound with the counting status of each run that holds a failure: the counting rules fix the n of a bound and the tries of a cell, and never remove a failure (protocol sections 3 and 11).
+
+Amended words. The words about the tries of a cell are struck. The sentence then reads:
+
+> **Every must-be-0 figure is judged on the table of every recorded run of the counted phase,** and is printed beside each bound with the counting status of each run that holds a failure: the counting rules fix the n of a bound, and never remove a failure (protocol sections 3 and 11).
+
+Why. The struck words are left over from version 1.14, where they were right. Since the seal a cell takes every recorded try, and the counting rules no longer pick its tries. The protocol's sections 3 and 11, which the sentence cites, say the opposite of the struck words. No figure changes: section 13 decides for the checklist, and the script already takes all recorded tries.
+
+**What follows for the tools,** for all four: nothing. None of them changes what the tools do.
+
+### B1. Two episodes kept back before the seal
+
+**Sealed words.**
+
+Protocol 1.0, section 9, A, line 236:
+
+> None is made, held back or moved for the study's sake.
+
+Protocol 1.0, section 9, A (third point), line 242:
+
+> **A real release that is not one of the three listed slots** is opened on the day, on the owner's word, by a record of its own that names its platforms and how many steps its go-ahead covers.
+
+**Amended words.** The sealed sentences stand. This record is added.
+
+> One case is recorded against the sentence of section 9, A, that no real release is made, held back or moved for the study's sake. At about 4 AM Central Time on 14 November 2026, before the seal, the owner had two finished episodes kept back until after the seal, so that they would go out through the study version: eight release targets on four platforms (YouTube, Douyin, Instagram and X). On 14 November 2026, after the seal, the owner decided that they are released during the shakedown, as ordinary real releases through the study version and the wrapper. The shakedown's list has no real-release slot, so each is opened by a record of its own and has its own go-ahead (section 9, A). They are recorded and never counted, as every shakedown run is (section 5). No release is held back into the counted phase: from the freeze on, the sealed sentence holds with no exception.
+
+**Why.** The fact is on record in the operator's note of 14 November, 4:28 AM Central Time, and the sealed text says nothing of it. Without an entry the eight targets would have no stated way to go out: the shakedown's list has no real release. And the sealed sentence would be untrue of the counted phase itself if any of them were still waiting on 19 November. Sent in the shakedown, they are also the first real releases to go through the study's tools, on four platforms, before anything is counted: the shakedown's own list would otherwise try no real release at all.
+
+**What follows for the tools.** No change is known to be needed. The wrapper already opens a real release that is not on the list by a record of its own. Since task C56 (built at Lab `4875f1c`) a real release can no longer be paid from a day's list: each needs a go-ahead of its own. These eight would be the first real releases to go through the wrapper. After each of them the 20 minutes before the next test upload on that platform apply (section 8). When this was brought up to date on 15 November, the first of the two episodes had gone out on its four platforms, in the night of 14 to 15 November, each release on the owner's own go-ahead; the second had not yet.
+
+**Decided by the owner on 14 November 2026: as this entry has it.** The two episodes go out during the shakedown as ordinary real releases through the study version and the wrapper, each on the owner's own go-ahead to the operator, recorded and not counted. Two other readings were set aside: to hold them for the counted phase, which the sealed sentence rules out, and to send them with the everyday tool, outside the study.
+
+### B2. An older stop file found registered in the signed-in folder
+
+**Sealed words.**
+
+Protocol 1.0, Annex D (fourth point), line 676:
+
+> **The tool listens to one such file only. If another one is already registered in that folder, the setup refuses and changes nothing, and the account owner decides,** because registering the study's file would silence the other for the length of the round.
+
+Protocol 1.0, Annex D (fifth point), line 677:
+
+> After the first seal and before the first run, the operator reports, changing nothing, whether a stop is in force in that folder and whether the fault switch is off. A stop, or a switch found on, waits for the owner's word.
+
+**Amended words.** None. Annex D stands as sealed. This record is added.
+
+> After the first seal and before the first run the operator reported, changing nothing: no stop in force, the fault switch off, and an older stop file registered in the signed-in folder, with no file at that place (8:34 AM Central Time, 14 November 2026). As Annex D says, the setup refuses in that case and the account owner decides. On 14 November 2026, at about 12:43 PM Central Time, the owner decided: the older registration is displaced for the round, so that the study's own stop file can be registered and the planned faults can run at the owner's site, and it is put back at the close. This was done by a recorded step that the operator ran on the owner's own word on 14 November 2026 at about 6:20 PM Central Time, before the first planned fault of the shakedown. The journal's record of that step says that an earlier registration was displaced. It holds neither the earlier place nor the owner's words. The earlier setting is kept privately, and the step that ends the setup at the close puts it back.
+
+**Why.** Annex D foresaw this case and left it to the account owner. The decision is entered so that the published record shows what was displaced, when and on whose word. Without the decision no planned fault could have been armed at the owner's site at all: one step registers the study's stop file and turns the fault switch on, and that step refuses while another stop file is registered. The cost is the one that Annex D names: for the length of the round, a stop set at the older place would not be seen by the tool.
+
+**What follows for the tools.** Built as task C57 at Lab `463e6d0`. The setup step displaces the older registration only when it is told to and is given the owner's words. Without them it refuses and changes nothing, as before. It was tested offline, on stand-ins only. The step itself is the operator's. By the operator's report it was run on 14 November 2026 at about 6:20 PM Central Time, on the owner's own words, and stands in the owner's journal as record 54. The record above has that time since 15 November.
+
+### B3. How the account owner signs in again after a lost sign-in
+
+**Sealed words.**
+
+Protocol 1.0, section 10 (the kinds that end the browser at once), line 356:
+
+> And if, in the counted phase, a command after such a fault answers that the sign-in has expired, the assistant stops and asks; the account owner signs in again themselves, which is recorded as a step by hand that names no run; the step that answered so is then run once more, as after a `busy` answer; and on that person's recorded word the wrapper arms none of these kinds on that platform at that site for the rest of the round (task C37), their runs being reported as not attempted.
+
+**Amended words.** The sealed sentence stands. This clarification is added.
+
+> How the account owner signs in again after a lost sign-in, in the shakedown and in the counted phase alike. The account owner first gives a go-ahead for one step. The operator then runs the tool's sign-in command through the wrapper, as a step of the run that met the lost sign-in. That step opens the sign-in window. The account owner signs in there, and nobody else does. The operator then records the account owner's sign-in as a step by hand, with the platform and no run. The step that had answered that the sign-in had expired is then run once more. Typed outside the wrapper, the sign-in command would count as a command outside it.
+
+**Why.** The sealed sentence says that the account owner signs in again themselves. It does not say how. The tool's sign-in is a command of its own, and the wrapper treats it as a write. Typed outside the wrapper, it would be a command of the tool in the study's folder with no step behind it. One way had to be chosen before the fault trials of 17 and 18 November, which is where a sign-in is first likely to be lost. On 14 November the owner left the choice of the way to the protocol's author. The clarification agrees with the sealed sentence: the account owner signs in themselves, the sign-in is recorded as a step by hand that names no run, and the step that answered so is run once more.
+
+**What follows for the tools.** Built and tested as task C57 at Lab `463e6d0`. With a go-ahead for one step the wrapper admits the sign-in step and records it. Without one it refuses. The step counts as no upload for the cap of four or for the 20 minutes, no fault is armed on it, and no look is owed for it. The test used a stand-in for the sign-in command: no real sign-in window has been opened this way yet. The operator's sheet has the steps since its draft 0.13.
+
+### B4. What the wrapper can see of a plan
+
+**Sealed words.**
+
+Protocol 1.0, section 17, line 594:
+
+> The wrapper takes a step's platform from the list of planned runs and from the words of the command. It cannot see which account a command reaches, or whether a plan is private; the tool's own checks do that.
+
+**Amended words.** The second sentence above is replaced. The passage then reads as below, and the rest of the point stands as sealed.
+
+> The wrapper takes a step's platform from the list of planned runs and from the words of the command. It cannot see which account a command reaches; the tool's own checks do that. Since Lab `4875f1c` (task C56, 14 November 2026) it reads the plan of a test post before a publish step or the same publish again, and it refuses the step unless the plan names the run's own platforms, each with the list's visibility, no schedule and the listed title. It also refuses a delete command on a Douyin test post, unless the list gives that run a try with another post's code. It does not read the plan of a refusal run or of a real release, and where a run has a try with another post's code it cannot see which code was typed.
+
+**Why.** Before the first run, the review after the seal found that nothing but the operator kept a test post without a fault private. No study tool read a plan's visibility, and the tool's own refusal of a public plan works only where a fault is armed. A public test post is what the owner ruled out above all. Codex added the check to the wrapper the same day. The author read it line by line and tried it on sixteen made-up plans. The sealed limit now says less than the wrapper does, and the paper should state the limit as it is. What stays a limit is said in the amended words: the wrapper still cannot see which account a command reaches, it reads no plan but a test post's, and it cannot see which code is typed in a try with another post's code.
+
+**What follows for the tools.** Already built at Lab `4875f1c`. The check of a test post's plan is task C56 point 1. The refusal of a Douyin delete came with the readers' smaller findings (task C56 point 11). The operator's sheet names both refusals since its draft 0.12.
+
+### B5. The read-backs of a real release that `resume` finished
+
+**Decided by the owner on 15 November 2026.** New that day, and written with shakedown records in view, which are its reason.
+
+**Sealed words.**
+
+Protocol 1.0, section 9, A, line 246:
+
+> For each real release the tool's state is read again with `vpub verify`, once for each platform, about 10 minutes, 1 hour and 24 hours after the publish command.
+
+**Amended words.** The sealed sentence stands. This sentence is added after it.
+
+> Where a `resume` finished the release, the three read-backs are run after that `resume`, about 10 minutes, 1 hour and 24 hours after it, and none is run between the publish command and the `resume`.
+
+**Why.** On 15 November the first real release that went through the study's tools stopped on YouTube after its press: the platform showed a warning from its own checks and kept the video as a draft. As section 9, A asks, the owner looked first, and a `resume` on a go-ahead of its own then published that same draft. A read-back made about 10 minutes after the publish command would have read a draft, and it would have spent one of the three read-backs before the step that published. The operator held the read-backs back and counted them from the `resume`. The sealed sentence counts them from the publish command, so the text and the sensible order had come apart. No figure changes: Annex A asks of a closed real release its publish step and, for each platform, three read-backs and a counting look, and a read-back settles a case only when it comes after the last step that may have pressed (4.3). The release was a shakedown release and is never counted.
+
+**What follows for the tools.** Nothing to build. The operator's sheet gets the order (task G44).
+
+**Not in this entry.** A9 stays open, as said above.
