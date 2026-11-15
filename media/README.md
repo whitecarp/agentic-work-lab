@@ -2,11 +2,11 @@
 
 **繁體中文** · [English](README_EN.md)
 
-2026-11-14 · **75** 個影片版本 · **5.26 GiB**（分布於 **11** 個主要公開 Release）
+2026-11-15 · **80** 個影片版本 · **5.64 GiB**（分布於 **12** 個主要公開 Release）
 
-全部 75 個遠端附件的大小及 SHA-256 均與索引一致；版本數不等於集數。保留每筆採樣日期與 B站歷史狀態，不把已過的排期時間當作公開證明。完整實驗交付不等於使用者全片驗收。
+全部 80 個遠端附件的大小及 SHA-256 均與索引一致；版本數不等於集數。保留每筆採樣日期與 B站歷史狀態，不把已過的排期時間當作公開證明。完整實驗交付不等於使用者全片驗收。
 
-[校驗清單](SHA256SUMS.txt) · [完整索引](manifest.json) · [本輪研究與限制](../docs/updates/2026-11-14.md)
+[校驗清單](SHA256SUMS.txt) · [完整索引](manifest.json) · [本輪研究與限制](../docs/updates/2026-11-15.md)
 
 | 檔案 | 作品 | 已記錄的 B站狀態 | MiB |
 |---|---|---|---:|
@@ -85,7 +85,12 @@
 | [aigo-ep06sp-v2-20261114.mp4](https://github.com/whitecarp/agentic-work-lab/releases/download/update-2026-11-14-catchup/aigo-ep06sp-v2-20261114.mp4) | 《AiGO!!!!! × Ai Mujica》第 6 話 SP 迷路憶（Memory · 舞台新裝出道 Live MV #2 修正定稿 v2） | 已公開（`BV1rqWk6nE2M`） | 380.70 |
 | [aigo-epilogue-20261108-9x16-v2.mp4](https://github.com/whitecarp/agentic-work-lab/releases/download/update-2026-11-14-catchup/aigo-epilogue-20261108-9x16-v2.mp4) | 《AiGO番外》慶功宴電費單直接把舞台幹跳閘了（9:16 豎版替換定稿 v2 · 抖音實發版） | 已公開（抖音 `7705901944459595046`／B站關聯 `BV18i4x6ZEG1`） | 22.69 |
 | [news-20261114-gemini-4-hydrogen.mp4](https://github.com/whitecarp/agentic-work-lab/releases/download/update-2026-11-14-evening/news-20261114-gemini-4-hydrogen.mp4) | 【AI快訊】百萬上下文統一價 $1.50/$7.50！Google 發布 Gemini 4 Hydrogen 與動態編排器（16:9 橫版母帶 v1） | 已公開（`BV1mWs56JEFd`） | 21.44 |
+| [news-20261115-google-300-credit.mp4](https://github.com/whitecarp/agentic-work-lab/releases/download/update-2026-11-15-evening/news-20261115-google-300-credit.mp4) | 【AI快訊】11 月 16 日起新開或升級，Google 那 300 刀贈金停付 Gemini 了（16:9 橫版母帶 v1） | 已公開（`BV12YsE6fEcU`） | 35.39 |
+| [ep07-vertical-m-fudgemaster-v1.mp4](https://github.com/whitecarp/agentic-work-lab/releases/download/update-2026-11-15-evening/ep07-vertical-m-fudgemaster-v1.mp4) | 值班小遊戲結局合集 P13：糊弄學博士後（`13/19` 9:16 豎版 v1） | 已公開（`BV1YL4M6EEek` P13 · `cid: 43618731557`） | 9.48 |
+| [aigo-ep07-20261115.mp4](https://github.com/whitecarp/agentic-work-lab/releases/download/update-2026-11-15-evening/aigo-ep07-20261115.mp4) | 《AiGO!!!!! × Ai Mujica》第 7 話 假面集結（16:9 橫版定稿母帶 v2） | 已公開（`BV1NZsJ6aEgb`） | 284.15 |
+| [news-20261115-deepseek-app-api.mp4](https://github.com/whitecarp/agentic-work-lab/releases/download/update-2026-11-15-evening/news-20261115-deepseek-app-api.mp4) | 【AI快訊】DeepSeek 把官方 App 拆成全家桶 API 單賣了！還直接開源 Demo（16:9 橫版母帶 v1） | 已公開（`BV1FVsp6FENs`） | 41.64 |
+| [film-20261115-yisheng-gezi-v1.mp4](https://github.com/whitecarp/agentic-work-lab/releases/download/update-2026-11-15-evening/film-20261115-yisheng-gezi-v1.mp4) | 把一生畫成 28,946 個格子，扣掉睡覺、上班和路上，每年只剩 52 格（此影片由 Claude 生成 · 16:9 純代碼短片 v1） | 已公開（`BV1HPsn6tEyN`） | 17.56 |
 
-GitHub 存檔公開不更改 B站排期（如《大肥魚值班小遊戲》未到期分P `P13–P19` 及儲備成片《AiGO!!!!! × Ai Mujica》第 7 話至第 13 話後篇 `EP07–EP13B` 均待 B站正式公開後再歸檔原始 MP4）；技術檢查與全片主觀觀看／聆聽分開記錄。歷史人工影片原檔不在本機，仍提供其[數據與平台連結](../data/human-led-history.csv)。
+GitHub 存檔公開不更改 B站排期（如《大肥魚值班小遊戲》未到期分P `P14–P19`、儲備成片《AiGO!!!!! × Ai Mujica》第 8 話至第 13 話後篇 `EP08–EP13B` 含 `EP12SP`、審片凍結候選短片及未發快訊均待 B站正式公開後再歸檔原始 MP4）；技術檢查與全片主觀觀看／聆聽分開記錄。歷史人工影片原檔不在本機，仍提供其[數據與平台連結](../data/human-led-history.csv)。
 
 [返回實驗室](../README.md)
