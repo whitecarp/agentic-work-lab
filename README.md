@@ -8,6 +8,8 @@
 
 🎬 [Bilibili：穿睡衣的小白白](https://space.bilibili.com/10706217) · 📦 [影片下載](https://github.com/whitecarp/agentic-work-lab/releases) · [影片目錄](media/README.md) · [營運資料](data/README.md)
 
+**2026-11-16 更新（晚間 `21:00` 增量歸檔）：** 透過 [`update-2026-11-16-evening`](https://github.com/whitecarp/agentic-work-lab/releases/tag/update-2026-11-16-evening) 新增 **5 個公開介面實測在線（`code == 0`、`state == 0`）成片版本**（`627,465,334` 位元組 · `598.40 MiB`），全庫累計擴展至 **85 個影片版本 · `6.22 GiB`**（跨 **13 個主要公開 GitHub Releases**）：包含今日 `16:06:37` BJT 正式上線之《AiGO!!!!! × Ai Mujica》`EP08`《算力人偶》（[`BV1GUsc6dE9A`](https://www.bilibili.com/video/BV1GUsc6dE9A)，截至 `21:10` 已達 **`5,216` 播放**）、兩支準點公開的【AI快訊】（[`BV1kQsw6kEx4`](https://www.bilibili.com/video/BV1kQsw6kEx4) GitHub Copilot 退役 6 款模型與 Kimi K3 待定接班、[`BV1g5sA6oESL`](https://www.bilibili.com/video/BV1g5sA6oESL) DeepSeek 算力限額停續 7 天不活躍對話）、《大肥魚值班小遊戲》[`BV1YL4M6EEek`](https://www.bilibili.com/video/BV1YL4M6EEek/?p=14) 新公開第 14 分P **`P14`《人形防火牆》**（累計 `P1–P14` 已歸檔；未公開之 `P15–P19`、儲備正片 `EP09–EP13B` 含 `EP12SP`、未公開純代碼候選片與未發快訊嚴格維持零洩露），以及今晚 `21:00:00` 準時轉公開之純代碼繪製科學科普短片 [`BV1Eqsc6PE92`](https://www.bilibili.com/video/BV1Eqsc6PE92)《距地球 259 億公里，發句「你好」要等兩天！旅行者 1 號即將飛出一光日》（以 NASA／JPL 官方資料與 JPL Horizons 星曆為錨點，經 HyperFrames `0.9.23` 逐幀繪製）；累計記錄 `12` 筆【AI快訊】時段自然觀察（昨日 `BV12YsE6fEcU` 第 2 日自然播放衝上 **`5,086`**）。截至 `2026-11-16 21:10:21` BJT，頻道粉絲推進至 **`37,815` 粉絲**（`+161`）、**Google Cloud 官方扶持三片矩陣突破 4 萬播放達 `40,822` 播放與 `4,695` 讚藏**，變裝短片 `BV1Eaxt6LEhb` 突破 **11 萬播放（`110,177` 播放）**，第 1 話 `BV1sQ4E6eEhK` 達 **`31,184` 播放**。[查看更新](docs/updates/2026-11-16.md) · [結構化紀錄](data/production-update-2026-11-16.json) · [即時指標](data/metrics/current-metrics.json)。
+
 **2026-11-15 更新（晚間 `21:00` 增量歸檔）：** 透過 [`update-2026-11-15-evening`](https://github.com/whitecarp/agentic-work-lab/releases/tag/update-2026-11-15-evening) 新增 **5 個實測公開（`state == 0`）成片版本**（`407,069,664` 位元組 · `388.21 MiB`），全庫累計擴展至 **80 個影片版本 · `5.64 GiB`**（跨 **12 個主要公開 GitHub Releases**）：包含今日 `16:04:56` BJT 正式上線之《AiGO!!!!! × Ai Mujica》`EP07`《假面集結》（[`BV1NZsJ6aEgb`](https://www.bilibili.com/video/BV1NZsJ6aEgb)）、兩支準點公開的【AI快訊】（[`BV12YsE6fEcU`](https://www.bilibili.com/video/BV12YsE6fEcU) Google 贈金計費規則變動、`BV1FVsp6FENs` [`DeepSeek App 拆分付費 API`](https://www.bilibili.com/video/BV1FVsp6FENs)）、《大肥魚值班小遊戲》[`BV1YL4M6EEek`](https://www.bilibili.com/video/BV1YL4M6EEek/?p=13) 新公開第 13 分P **`P13`《糊弄學博士後》**（累計 `P1–P13` 已歸檔；未公開之 `P14–P19`、儲備正片 `EP08–EP13B` 含 `EP12SP`、審片凍結候選片及未發快訊嚴格維持僅元數據或零洩露），以及今晚 `21:00:00` 準時轉公開之純代碼繪製長片 [`BV1HPsn6tEyN`](https://www.bilibili.com/video/BV1HPsn6tEyN)《把一生畫成 28,946 個格子，扣掉睡覺、上班和路上，每年只剩 52 格》（由 HyperFrames `0.9.23` 零外部視覺素材逐幀渲染並完成 14 步 Claude API 雙層核查）；同步記錄 `EP13A v2`／`EP13B v3` 之 Pass-3 三層零停格詞鎖定口型對軸與 `10` 筆【AI快訊】時段自然觀察。截至 `2026-11-15 21:08:30` BJT，頻道推進至 **`37,654` 粉絲**、**`3,273,974` 全站累計播放**（`222,620` 點讚）、**Google Cloud 官方扶持三片矩陣推進至 `39,825` 播放與 `4,617` 讚藏**，第 1 話 `BV1sQ4E6eEhK` 突破 **`31,156` 播放**，變裝短片 `BV1Eaxt6LEhb` 達 **`109,846` 播放**。[查看更新](docs/updates/2026-11-15.md) · [結構化紀錄](data/production-update-2026-11-15.json) · [即時指標](data/metrics/current-metrics.json)。
 
 **2026-11-14 更新（補檔暨 `21:00` 晚間增量歸檔）：** 先於 `19:20` BJT 透過 [`update-2026-11-14-catchup`](https://github.com/whitecarp/agentic-work-lab/releases/tag/update-2026-11-14-catchup) 補齊 **19 個公開成片**（`1,827,719,768` 位元組 · `1.70 GiB`），並於 `21:00` BJT 晚間增量將今晚 `20:02:08+08:00` 正式公開（`state == 0`）之【AI快訊】[`BV1mWs56JEFd`](https://www.bilibili.com/video/BV1mWs56JEFd)《Google 發布 Gemini 4 Hydrogen 與動態編排器》（`news-20261114-gemini-4-hydrogen.mp4`，`22,486,480` 位元組 · `21.44 MiB`）上傳並核驗於 [`update-2026-11-14-evening`](https://github.com/whitecarp/agentic-work-lab/releases/tag/update-2026-11-14-evening)，使本日合計歸檔 **20 個新增公開成片**（`1,850,206,248` 位元組 · `1.72 GiB`），全庫累計 **75 個影片版本 · `5.26 GiB`**（跨 **11 個主要公開 GitHub Releases**）：包含《AiGO!!!!! × Ai Mujica》`EP03`《春日殘響》（[`BV1myWu6qEiz`](https://www.bilibili.com/video/BV1myWu6qEiz) 五平台）、`EP04`《替身決裂》（經 `bili.exe` 核實正式公開 BV 號為 [`BV1xVW16eEVT`](https://www.bilibili.com/video/BV1xVW16eEVT) 五平台）、`EP05`《詩超算》（[`BV15hWX6KE3e`](https://www.bilibili.com/video/BV15hWX6KE3e) 五平台含今日 X 回執）、`EP06`《斬斷過去》（[`BV1BVWq6aEiG`](https://www.bilibili.com/video/BV1BVWq6aEiG)）及今日 `16:00` 首播之 `EP06SP v2`《迷路憶》（[`BV1rqWk6nE2M`](https://www.bilibili.com/video/BV1rqWk6nE2M)），**10 支已公開【AI快訊】**（`BV1NCWN6QELM` 至今晚 `20:02:08` `BV1mWs56JEFd`），《大肥魚值班小遊戲》[`BV1YL4M6EEek`](https://www.bilibili.com/video/BV1YL4M6EEek) 新公開 **`P9–P12`** 分P（累計 `P1–P12` 已歸檔；未到期 `P13–P19` 與儲備正片 `EP07–EP13B` 嚴格保持僅元數據、不提前上傳），以及《AiGO番外》抖音 `9:16 v2`（`7705901944459595046`）；同步將 `tools/publishops-crosscast/` 升級至上游 `v0.16.0 alpha`（整合 `bili-cli 1.2.1`、YouTube Studio 上傳／清單 CRUD 與 `124` 項實機核心單元測試全過），並收錄 `EP06SP`–`EP13B` `30fps` 歌聲對齊與 Omni 近景無貼片規範。截至 `2026-11-14 21:06` BJT，頻道推進至 **`37,475` 粉絲**、**`3,268,151` 全站累計播放**（`222,048` 點讚）、**Google Cloud 官方扶持三片矩陣推進至 `39,468` 播放與 `4,592` 讚藏**，第 1 話 `BV1sQ4E6eEhK` 達 **`30,838` 播放**，變裝短片 `BV1Eaxt6LEhb` 達 **`109,295` 播放**。[查看更新](docs/updates/2026-11-14.md) · [結構化紀錄](data/production-update-2026-11-14.json) · [即時指標](data/metrics/current-metrics.json)。
@@ -102,7 +104,7 @@
 | 比較營運數據並檢查結論 | [數據對比與限制](docs/data-comparison.md) |
 | 保存工作脈絡，方便團隊接手 | [商戶簡報範本](templates/merchant-brief.md)（[填寫示例](examples/merchant-brief-demo-cafe-a.md)） · [營運檢查表](templates/operations-checklist.md)（[填寫示例](examples/operations-checklist-2026-10-28.md)） |
 
-**2026-10-28 基礎資料快照（後續更新疊加於此底座之上）：** 55 筆稿件資料、69 筆去識別營運事件、19 個已公開影片版本（截至 2026-11-15 晚間歸檔已擴展至 **80 個公開影片版本 · 5.64 GiB** 及 **3 套完整開源工具**）、4 個流程示例腳本／模組，以及 10 項流程測試。商戶示例使用虛構資料，沒有把模擬結果寫成真實簽約或團隊提效業績。
+**2026-10-28 基礎資料快照（後續更新疊加於此底座之上）：** 55 筆稿件資料、69 筆去識別營運事件、19 個已公開影片版本（截至 2026-11-16 晚間歸檔已擴展至 **85 個公開影片版本 · 6.22 GiB** 及 **3 套完整開源工具**）、4 個流程示例腳本／模組，以及 10 項流程測試。商戶示例使用虛構資料，沒有把模擬結果寫成真實簽約或團隊提效業績。
 
 我以需求提出、選題方向、回饋與審片推進專案，AI 協助研究、編寫程式及製作。這個實驗室記錄工具如何進入實際流程、遇到哪些錯誤，以及如何改善交付；程式與文件也明確標示 AI 協助。
 
@@ -135,6 +137,10 @@ npm test         # 流程檢查
 
 | 發布日期（UTC+8） | 作品 |
 |---|---|
+| 2026-11-16 | [距地球 259 億公里，發句「你好」要等兩天！旅行者 1 號即將飛出一光日（此影片由 Claude 生成）](https://www.bilibili.com/video/BV1Eqsc6PE92) |
+| 2026-11-16 | [【AI快訊】衝上熱搜！DeepSeek 因算力不足限額，7 天老對話停續](https://www.bilibili.com/video/BV1g5sA6oESL) |
+| 2026-11-16 | [《AiGO!!!!! × Ai Mujica》第 8 話 算力人偶](https://www.bilibili.com/video/BV1GUsc6dE9A) |
+| 2026-11-16 | [【AI快訊】GitHub Copilot 下線 6 款模型，唯獨 Kimi K3 接班人寫著待定](https://www.bilibili.com/video/BV1kQsw6kEx4) |
 | 2026-11-15 | [把一生畫成 28,946 個格子，扣掉睡覺、上班和路上，每年只剩 52 格（此影片由 Claude 生成）](https://www.bilibili.com/video/BV1HPsn6tEyN) |
 | 2026-11-15 | [【AI快訊】DeepSeek 把官方 App 拆成全家桶 API 單賣了！還直接開源 Demo](https://www.bilibili.com/video/BV1FVsp6FENs) |
 | 2026-11-15 | [《AiGO!!!!! × Ai Mujica》第 7 話 假面集結](https://www.bilibili.com/video/BV1NZsJ6aEgb) |
@@ -165,7 +171,7 @@ npm test         # 流程檢查
 | 2026-11-05 | [《風衣底下是誰》大肥魚與 Claude 娘的記憶備份小劇場](https://www.bilibili.com/video/BV1BM4h6pEY7) |
 | 2026-11-05 | [3 分鐘拿到免費 Gemini API Key 並跑通 AI Memory Keeper（保姆級教學）](https://www.bilibili.com/video/BV1nw4h64Ebf) |
 | 2026-11-04 | [把「她忘了我」做成開源桌面工具：AI Memory Keeper v0.3.0 實機演示](https://www.bilibili.com/video/BV1WQ4t6xEdT) |
-| 2026-11-04 | [大肥魚值班小遊戲，到底有多少種結局？（B站裡就能玩 · 已上線 P1–P13）](https://www.bilibili.com/video/BV1YL4M6EEek) |
+| 2026-11-04 | [大肥魚值班小遊戲，到底有多少種結局？（B站裡就能玩 · 已上線 P1–P14）](https://www.bilibili.com/video/BV1YL4M6EEek) |
 | 2026-11-04 | [鯨魚娘代班日誌07｜GPT替大肥魚值班，第4張工單就破產了（參賽版）](https://www.bilibili.com/video/BV1Xz4u6DEt8) |
 | 2026-11-03 | [《我替你看過了》三分鐘多角色敘事短片](https://www.bilibili.com/video/BV15B4F6hEYr) |
 | 2026-11-02 | [《魚，你又穿誰衣服了？！GPT與Claude參上!!!》變裝短片](https://www.bilibili.com/video/BV1Eaxt6LEhb) |
@@ -179,7 +185,7 @@ npm test         # 流程檢查
 
 未在 B站公開的成片及舊版實驗片，另見[影片目錄](media/README.md)。GitHub 公開與 B站發布是兩個不同狀態，本倉庫不會更改 B站排期。
 
-[2026-11-15 晚間更新：`EP07`、`P13`、2 支【AI快訊】、純代碼短片《一生的格子》、Pass-3 無卡頓對軸及 14 步代碼片管線](docs/updates/2026-11-15.md) · [2026-11-14 補檔暨晚間更新：`EP03–EP06SP`、`P9–P12`、`10` 支【AI快訊】公開歸檔、`CrossCast v0.16.0 alpha` 同步與 `30fps` 對齊工程](docs/updates/2026-11-14.md) · [2026-11-09 晚間更新](docs/updates/2026-11-09.md) · [2026-11-08 階段性與晚間更新](docs/updates/2026-11-08.md) · [2026-10-28 晚間更新](docs/updates/2026-10-28-evening.md)
+[2026-11-16 晚間更新：`EP08`、`P14`、2 支【AI快訊】與純代碼短片《一光日》](docs/updates/2026-11-16.md) · [2026-11-15 晚間更新：`EP07`、`P13`、2 支【AI快訊】、純代碼短片《一生的格子》、Pass-3 無卡頓對軸及 14 步代碼片管線](docs/updates/2026-11-15.md) · [2026-11-14 補檔暨晚間更新：`EP03–EP06SP`、`P9–P12`、`10` 支【AI快訊】公開歸檔、`CrossCast v0.16.0 alpha` 同步與 `30fps` 對齊工程](docs/updates/2026-11-14.md) · [2026-11-09 晚間更新](docs/updates/2026-11-09.md) · [2026-11-08 階段性與晚間更新](docs/updates/2026-11-08.md) · [2026-10-28 晚間更新](docs/updates/2026-10-28-evening.md)
 
 ## 使用資料與方法
 
@@ -194,4 +200,4 @@ npm test         # 流程檢查
 
 本倉庫公開研究說明、影片、帳號整體及單片數據、去識別的營運紀錄。登入憑證、私人訊息、觀眾個人資料及不相關的私人文件不屬於公開資料。作品中引用的第三方素材仍屬各自權利人；公開展示不代表授予第三方素材的再利用授權。
 
-首次整理：2026-10-28。首頁研究更新：2026-11-15；三大工具套件（CrossCast v0.16.0 alpha、AI Memory Keeper、I Must Use Claude）已完整收錄於 `tools/`。
+首次整理：2026-10-28。首頁研究更新：2026-11-16；三大工具套件（CrossCast v0.16.0 alpha、AI Memory Keeper、I Must Use Claude）已完整收錄於 `tools/`。

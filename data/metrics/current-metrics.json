@@ -1,35 +1,38 @@
 {
   "schema_version": "1.1.0",
-  "updated_at": "2026-11-15T21:08:30+08:00",
+  "updated_at": "2026-11-16T21:10:21+08:00",
   "channel": {
     "platform": "bilibili",
     "uid": 10706217,
     "name": "穿睡衣的小白白",
-    "follower": 37654,
+    "follower": 37815,
     "following": 29,
-    "total_views": 3273974,
-    "total_likes": 222620
+    "total_views": null,
+    "total_likes": null,
+    "total_views_previous_snapshot_2026_11_15": 3273974,
+    "total_likes_previous_snapshot_2026_11_15": 222620,
+    "telemetry_note": "Sampled read-only via public Bilibili web-interface/view and relation/stat APIs; cumulative upstat fields (total_views, total_likes) require authenticated creator-side lookup and are left null."
   },
   "manifest_totals": {
-    "total_video_versions": 80,
-    "total_bytes": 6051502778,
-    "total_gib": 5.64,
-    "latest_release_tag": "update-2026-11-15-evening",
+    "total_video_versions": 85,
+    "total_bytes": 6678968112,
+    "total_gib": 6.22,
+    "latest_release_tag": "update-2026-11-16-evening",
     "latest_release_assets": 5
   },
   "google_cloud_official_traffic_matrix": {
     "program": "Google Cloud (Google 出海創新競賽單元 / Google Global Innovation Track)",
-    "sampled_at": "2026-11-15T21:08:30+08:00",
+    "sampled_at": "2026-11-16T21:10:21+08:00",
     "baseline_2026_11_08_views": 35690,
     "totals": {
-      "views": 39825,
-      "likes": 2225,
-      "favorites": 2392,
-      "coins": 117,
-      "comments": 387,
-      "shares": 192,
+      "views": 40822,
+      "likes": 2247,
+      "favorites": 2448,
+      "coins": 123,
+      "comments": 400,
+      "shares": 204,
       "danmaku": 146,
-      "likes_plus_favorites": 4617
+      "likes_plus_favorites": 4695
     },
     "videos": [
       "BV1WQ4t6xEdT",
@@ -42,107 +45,123 @@
       "bvid": "BV1Eaxt6LEhb",
       "title": "鱼，你又穿谁衣服了？！GPT与Claude参上!!!",
       "pubdate_bjt": "2026-11-02",
-      "views": 109846,
-      "likes": 15813,
-      "favorites": 5309,
-      "coins": 3100,
+      "views": 110177,
+      "likes": 15843,
+      "favorites": 5334,
+      "coins": 3102,
       "comments": 138,
       "shares": 548,
       "danmaku": 330,
-      "operational_highlight": "Crossed 109k views (109,295 views, 15,770 likes, 5,268 favorites, 3,098 coins as of 2026-11-14 21:06 BJT); previously measured 20.19% 3-second bounce rate (outperforming the 28.56% peer median)."
+      "operational_highlight": "Crossed 110k views (110,177 views, 15,843 likes, 5,334 favorites, 3,102 coins as of 2026-11-16 21:10 BJT); previously measured 20.19% 3-second bounce rate (outperforming the 28.56% peer median).",
+      "public_view_api_code": 0,
+      "sampled_at": "2026-11-16T21:10:21+08:00"
     },
     {
       "bvid": "BV1sQ4E6eEhK",
       "title": "四个AI组乐队，唱着唱着算力不够了【AiGO · 迷途算力】",
       "pubdate_bjt": "2026-11-07",
-      "views": 31156,
-      "likes": 872,
+      "views": 31184,
+      "likes": 873,
       "favorites": 977,
       "coins": 40,
       "comments": 98,
-      "shares": 57,
+      "shares": 58,
       "danmaku": 201,
-      "operational_highlight": "Crossed 30k views (30,838 views, 863 likes, 965 favorites as of 2026-11-14 21:06 BJT); 2026-11-09 controlled audience-cohort A/B experiments (Round 1 & Round 2 midpoint) confirmed L2 (21-UID liker lookalike cohort) achieved the highest engagement density at 5.18% L+F rate in Round 1 and 7.39% L+F rate (2.51x AUTO) at Round 2 midpoint."
+      "operational_highlight": "Reached 31,184 views (873 likes, 977 favorites as of 2026-11-16 21:10 BJT); 2026-11-09 controlled audience-cohort A/B experiments (Round 1 & Round 2 midpoint) confirmed L2 (21-UID liker lookalike cohort) achieved the highest engagement density at 5.18% L+F rate in Round 1 and 7.39% L+F rate (2.51x AUTO) at Round 2 midpoint.",
+      "public_view_api_code": 0,
+      "sampled_at": "2026-11-16T21:10:21+08:00"
     },
     {
       "bvid": "BV1WQ4t6xEdT",
       "title": "哈基猫做了个帮大肥鱼存记忆、还能顺手验真假模型的工具【B站AI创造公开赛】",
       "pubdate_bjt": "2026-11-04",
-      "views": 26611,
-      "likes": 1978,
-      "favorites": 1910,
-      "coins": 81,
-      "comments": 304,
-      "shares": 145,
+      "views": 27203,
+      "likes": 1996,
+      "favorites": 1951,
+      "coins": 85,
+      "comments": 311,
+      "shares": 154,
       "danmaku": 71,
       "traffic_support": "Google Cloud official traffic support",
-      "like_plus_fav_rate_pct": 14.61
+      "like_plus_fav_rate_pct": 14.51,
+      "public_view_api_code": 0,
+      "sampled_at": "2026-11-16T21:10:21+08:00"
     },
     {
       "bvid": "BV1YL4M6EEek",
       "title": "大肥鱼值班小游戏，到底有多少种结局？（B站里就能玩）",
       "pubdate_bjt": "2026-11-04",
-      "views": 535,
+      "views": 542,
       "likes": 15,
       "favorites": 7,
       "coins": 0,
       "comments": 23,
       "shares": 0,
       "danmaku": 7,
-      "live_parts": 13,
-      "queued_parts": 6,
-      "operational_highlight": "Daily 12:00 BJT serial (P1–P13 live and archived in GitHub Releases as of 2026-11-15; P14–P19 held unuploaded until scheduled release)."
+      "live_parts": 14,
+      "queued_parts": 5,
+      "operational_highlight": "Daily 12:00 BJT serial (P1–P14 live and archived in GitHub Releases as of 2026-11-16; P15–P19 held unuploaded until scheduled release).",
+      "public_view_api_code": 0,
+      "sampled_at": "2026-11-16T21:10:21+08:00"
     },
     {
       "bvid": "BV15B4F6hEYr",
       "title": "《我替你看过》三分钟多角色叙事短片",
       "pubdate_bjt": "2026-11-03",
-      "views": 9510,
-      "likes": 530,
-      "favorites": 256,
-      "coins": 94,
-      "comments": 360,
-      "shares": 26,
-      "danmaku": 111
+      "views": 9628,
+      "likes": 536,
+      "favorites": 257,
+      "coins": 96,
+      "comments": 371,
+      "shares": 27,
+      "danmaku": 111,
+      "public_view_api_code": 0,
+      "sampled_at": "2026-11-16T21:10:21+08:00"
     },
     {
       "bvid": "BV1nw4h64Ebf",
       "title": "Gemini来袭！手把手教你免费领Gemini密钥，顺便避开云赠金402大坑【B站AI创造公开赛】",
       "pubdate_bjt": "2026-11-05",
-      "views": 7640,
-      "likes": 174,
-      "favorites": 453,
-      "coins": 30,
-      "comments": 61,
-      "shares": 47,
+      "views": 8003,
+      "likes": 178,
+      "favorites": 468,
+      "coins": 32,
+      "comments": 67,
+      "shares": 50,
       "danmaku": 22,
       "traffic_support": "Google Cloud official traffic support",
-      "fav_to_like_ratio": 2.6
+      "fav_to_like_ratio": 2.63,
+      "public_view_api_code": 0,
+      "sampled_at": "2026-11-16T21:10:21+08:00"
     },
     {
       "bvid": "BV1BM4h6pEY7",
       "title": "花200美金点的英国贵族Claude大小姐，风衣底下钻出蓝毛大肥鱼【AI创造公开赛】",
       "pubdate_bjt": "2026-11-05",
-      "views": 5574,
+      "views": 5616,
       "likes": 73,
       "favorites": 29,
       "coins": 6,
       "comments": 22,
       "shares": 0,
       "danmaku": 53,
-      "traffic_support": "Google Cloud official traffic support"
+      "traffic_support": "Google Cloud official traffic support",
+      "public_view_api_code": 0,
+      "sampled_at": "2026-11-16T21:10:21+08:00"
     },
     {
       "bvid": "BV1Xz4u6DEt8",
       "title": "我让GPT替我值班，第4张工单就破产了【B站AI创作大赛】",
       "pubdate_bjt": "2026-11-04",
-      "views": 4861,
+      "views": 4863,
       "likes": 107,
       "favorites": 64,
       "coins": 16,
-      "comments": 68,
+      "comments": 72,
       "shares": 1,
-      "danmaku": 22
+      "danmaku": 22,
+      "public_view_api_code": 0,
+      "sampled_at": "2026-11-16T21:10:21+08:00"
     },
     {
       "bvid": "BV1yr4v6LERN",
@@ -154,7 +173,10 @@
       "coins": 0,
       "comments": 0,
       "shares": 0,
-      "danmaku": 5
+      "danmaku": 5,
+      "public_view_api_code": 62012,
+      "public_visibility": "owner_only_or_hidden",
+      "stats_retained_from": "2026-11-15T21:08:30+08:00"
     },
     {
       "bvid": "BV1ZX4Y6FECr",
@@ -166,19 +188,24 @@
       "coins": 2,
       "comments": 0,
       "shares": 0,
-      "danmaku": 9
+      "danmaku": 9,
+      "public_view_api_code": 62012,
+      "public_visibility": "owner_only_or_hidden",
+      "stats_retained_from": "2026-11-15T21:08:30+08:00"
     },
     {
       "bvid": "BV145Ws6VEg2",
       "title": "零显卡、64G 内存纯 CPU 跑 284B 大模型？开源项目号称把 DeepSeek 塞进家用电脑！【AI快讯】",
       "pubdate_bjt": "2026-11-09",
-      "views": 2820,
-      "likes": 80,
-      "favorites": 130,
+      "views": 2928,
+      "likes": 81,
+      "favorites": 132,
       "coins": 4,
-      "comments": 169,
+      "comments": 175,
       "shares": 22,
-      "danmaku": 50
+      "danmaku": 53,
+      "public_view_api_code": 0,
+      "sampled_at": "2026-11-16T21:10:21+08:00"
     },
     {
       "bvid": "BV1BkWJ6UE7p",
@@ -190,7 +217,10 @@
       "coins": 5,
       "comments": 0,
       "shares": 2,
-      "danmaku": 12
+      "danmaku": 12,
+      "public_view_api_code": 62012,
+      "public_visibility": "owner_only_or_hidden",
+      "stats_retained_from": "2026-11-15T21:08:30+08:00"
     },
     {
       "bvid": "BV18i4x6ZEG1",
@@ -202,7 +232,10 @@
       "coins": 0,
       "comments": 0,
       "shares": 0,
-      "danmaku": 10
+      "danmaku": 10,
+      "public_view_api_code": 62012,
+      "public_visibility": "owner_only_or_hidden",
+      "stats_retained_from": "2026-11-15T21:08:30+08:00"
     },
     {
       "bvid": "BV1Tz4x6dEdW",
@@ -214,19 +247,24 @@
       "coins": 0,
       "comments": 0,
       "shares": 0,
-      "danmaku": 10
+      "danmaku": 10,
+      "public_view_api_code": 62012,
+      "public_visibility": "owner_only_or_hidden",
+      "stats_retained_from": "2026-11-15T21:08:30+08:00"
     },
     {
       "bvid": "BV121W864EVe",
       "title": "《AiGO!!!!!·雨夜退团》“我从来没觉得组乐队开心过！”大肥鱼退团当客服，前队友找新欢？",
       "pubdate_bjt": "2026-11-09",
-      "views": 2837,
-      "likes": 311,
-      "favorites": 173,
-      "coins": 2,
+      "views": 3251,
+      "likes": 510,
+      "favorites": 252,
+      "coins": 6,
       "comments": 34,
       "shares": 18,
-      "danmaku": 113
+      "danmaku": 147,
+      "public_view_api_code": 0,
+      "sampled_at": "2026-11-16T21:10:21+08:00"
     },
     {
       "bvid": "BV1NCWN6QELM",
@@ -239,7 +277,10 @@
       "comments": 0,
       "shares": 1,
       "danmaku": 5,
-      "operational_highlight": "AI News Flash (post-compaction morning slot); 16:9 master archived under update-2026-11-14-catchup."
+      "operational_highlight": "AI News Flash (post-compaction morning slot); 16:9 master archived under update-2026-11-14-catchup.",
+      "public_view_api_code": 62012,
+      "public_visibility": "owner_only_or_hidden",
+      "stats_retained_from": "2026-11-15T21:08:30+08:00"
     },
     {
       "bvid": "BV1wXWT6WEDX",
@@ -252,20 +293,25 @@
       "comments": 0,
       "shares": 1,
       "danmaku": 4,
-      "operational_highlight": "AI News Flash examining autonomous long-horizon OS & theorem-proving agent benchmarks."
+      "operational_highlight": "AI News Flash examining autonomous long-horizon OS & theorem-proving agent benchmarks.",
+      "public_view_api_code": 62012,
+      "public_visibility": "owner_only_or_hidden",
+      "stats_retained_from": "2026-11-15T21:08:30+08:00"
     },
     {
       "bvid": "BV1myWu6qEiz",
       "title": "《AiGO!!!!!·春日残响》为什么要演奏AiGO？！大肥鱼泪崩，惊世一跪前夜？全员当场破防【HiShorts! × updream AI短片大赛-MV单元】",
       "pubdate_bjt": "2026-11-10",
-      "views": 3420,
-      "likes": 319,
-      "favorites": 153,
+      "views": 3444,
+      "likes": 322,
+      "favorites": 154,
       "coins": 2,
       "comments": 36,
       "shares": 7,
-      "danmaku": 88,
-      "operational_highlight": "AiGO!!!!! Ep.03 (MV #1 Legacy Weights); 5-platform verified release (Bilibili / YouTube / Instagram / Douyin / X) from identical master SHA-256."
+      "danmaku": 92,
+      "operational_highlight": "AiGO!!!!! Ep.03 (MV #1 Legacy Weights); 5-platform verified release (Bilibili / YouTube / Instagram / Douyin / X) from identical master SHA-256.",
+      "public_view_api_code": 0,
+      "sampled_at": "2026-11-16T21:10:21+08:00"
     },
     {
       "bvid": "BV1ToWL6XEvo",
@@ -278,20 +324,25 @@
       "comments": 0,
       "shares": 0,
       "danmaku": 9,
-      "operational_highlight": "AI News Flash covering Gemini 4 Carbon public release pricing ($2/$10 intro window through Nov 30); logged as excluded_from_comparison in upload-time test due to rebuilt master delay (+21m46s)."
+      "operational_highlight": "AI News Flash covering Gemini 4 Carbon public release pricing ($2/$10 intro window through Nov 30); logged as excluded_from_comparison in upload-time test due to rebuilt master delay (+21m46s).",
+      "public_view_api_code": 62012,
+      "public_visibility": "owner_only_or_hidden",
+      "stats_retained_from": "2026-11-15T21:08:30+08:00"
     },
     {
       "bvid": "BV1xVW16eEVT",
       "title": "《AiGO!!!!!·替身决裂》惊世一跪！Claude飙中文求复合被拒新团裂【AI全民制作人】【HiShorts! × updream AI短片大赛-动画单元】",
       "pubdate_bjt": "2026-11-11",
-      "views": 3207,
-      "likes": 176,
-      "favorites": 89,
+      "views": 3595,
+      "likes": 303,
+      "favorites": 185,
       "coins": 7,
-      "comments": 18,
-      "shares": 21,
-      "danmaku": 58,
-      "operational_highlight": "AiGO!!!!! Ep.04 Stand-In Split; 5-platform verified release (Bilibili / YouTube / Instagram / Douyin / X) from identical master SHA-256."
+      "comments": 20,
+      "shares": 22,
+      "danmaku": 107,
+      "operational_highlight": "AiGO!!!!! Ep.04 Stand-In Split; 5-platform verified release (Bilibili / YouTube / Instagram / Douyin / X) from identical master SHA-256.",
+      "public_view_api_code": 0,
+      "sampled_at": "2026-11-16T21:10:21+08:00"
     },
     {
       "bvid": "BV1iRW26sEk2",
@@ -304,7 +355,10 @@
       "comments": 0,
       "shares": 0,
       "danmaku": 7,
-      "operational_highlight": "First on-time 20:00 BJT sample (+2m03s) in the zero-paid-boost AI News Flash slot experiment."
+      "operational_highlight": "First on-time 20:00 BJT sample (+2m03s) in the zero-paid-boost AI News Flash slot experiment.",
+      "public_view_api_code": 62012,
+      "public_visibility": "owner_only_or_hidden",
+      "stats_retained_from": "2026-11-15T21:08:30+08:00"
     },
     {
       "bvid": "BV1vNWQ6PEC3",
@@ -317,20 +371,25 @@
       "comments": 0,
       "shares": 0,
       "danmaku": 4,
-      "operational_highlight": "First on-time 12:00 BJT sample (+2m25s) in the zero-paid-boost AI News Flash slot experiment."
+      "operational_highlight": "First on-time 12:00 BJT sample (+2m25s) in the zero-paid-boost AI News Flash slot experiment.",
+      "public_view_api_code": 62012,
+      "public_visibility": "owner_only_or_hidden",
+      "stats_retained_from": "2026-11-15T21:08:30+08:00"
     },
     {
       "bvid": "BV15hWX6KE3e",
       "title": "《AiGO!!!!!×Ai Mujica》第5话 诗超算",
       "pubdate_bjt": "2026-11-12",
-      "views": 3491,
-      "likes": 29,
+      "views": 3514,
+      "likes": 32,
       "favorites": 22,
       "coins": 4,
       "comments": 4,
       "shares": 0,
       "danmaku": 8,
-      "operational_highlight": "AiGO!!!!! × Ai Mujica Ep.05 (MV #2 Token Bond); built with 30fps vocal stem alignment and 5-platform verified release (X live on 2026-11-14)."
+      "operational_highlight": "AiGO!!!!! × Ai Mujica Ep.05 (MV #2 Token Bond); built with 30fps vocal stem alignment and 5-platform verified release (X live on 2026-11-14).",
+      "public_view_api_code": 0,
+      "sampled_at": "2026-11-16T21:10:21+08:00"
     },
     {
       "bvid": "BV1u1WR6eEpz",
@@ -343,7 +402,10 @@
       "comments": 0,
       "shares": 0,
       "danmaku": 4,
-      "operational_highlight": "On-time 20:00 BJT sample (+2m00s) in the zero-paid-boost AI News Flash slot experiment."
+      "operational_highlight": "On-time 20:00 BJT sample (+2m00s) in the zero-paid-boost AI News Flash slot experiment.",
+      "public_view_api_code": 62012,
+      "public_visibility": "owner_only_or_hidden",
+      "stats_retained_from": "2026-11-15T21:08:30+08:00"
     },
     {
       "bvid": "BV1vRWv69Ez3",
@@ -356,20 +418,25 @@
       "comments": 0,
       "shares": 0,
       "danmaku": 4,
-      "operational_highlight": "On-time 12:00 BJT sample (+2m07s) in the zero-paid-boost AI News Flash slot experiment."
+      "operational_highlight": "On-time 12:00 BJT sample (+2m07s) in the zero-paid-boost AI News Flash slot experiment.",
+      "public_view_api_code": 62012,
+      "public_visibility": "owner_only_or_hidden",
+      "stats_retained_from": "2026-11-15T21:08:30+08:00"
     },
     {
       "bvid": "BV1BVWq6aEiG",
       "title": "《AiGO!!!!!×Ai Mujica》第6话 斩断过去",
       "pubdate_bjt": "2026-11-13",
-      "views": 2200,
-      "likes": 32,
+      "views": 2219,
+      "likes": 34,
       "favorites": 14,
       "coins": 4,
       "comments": 3,
       "shares": 1,
       "danmaku": 28,
-      "operational_highlight": "AiGO!!!!! × Ai Mujica Ep.06 Severing the Past (AiGO arc finale); Bilibili live, cross-platform distribution queued post-seal."
+      "operational_highlight": "AiGO!!!!! × Ai Mujica Ep.06 Severing the Past (AiGO arc finale); Bilibili live, cross-platform distribution queued post-seal.",
+      "public_view_api_code": 0,
+      "sampled_at": "2026-11-16T21:10:21+08:00"
     },
     {
       "bvid": "BV1mGWi6VERh",
@@ -382,7 +449,10 @@
       "comments": 0,
       "shares": 0,
       "danmaku": 6,
-      "operational_highlight": "On-time 20:00 BJT sample (+6m41s) in the zero-paid-boost AI News Flash slot experiment."
+      "operational_highlight": "On-time 20:00 BJT sample (+6m41s) in the zero-paid-boost AI News Flash slot experiment.",
+      "public_view_api_code": 62012,
+      "public_visibility": "owner_only_or_hidden",
+      "stats_retained_from": "2026-11-15T21:08:30+08:00"
     },
     {
       "bvid": "BV15eWC6VEsY",
@@ -395,85 +465,160 @@
       "comments": 0,
       "shares": 0,
       "danmaku": 5,
-      "operational_highlight": "On-time 12:00 BJT sample (+1m52s) in the zero-paid-boost AI News Flash slot experiment."
+      "operational_highlight": "On-time 12:00 BJT sample (+1m52s) in the zero-paid-boost AI News Flash slot experiment.",
+      "public_view_api_code": 62012,
+      "public_visibility": "owner_only_or_hidden",
+      "stats_retained_from": "2026-11-15T21:08:30+08:00"
     },
     {
       "bvid": "BV1rqWk6nE2M",
       "title": "《AiGO!!!!!×Ai Mujica》第6话SP 迷路忆",
       "pubdate_bjt": "2026-11-14",
-      "views": 1630,
-      "likes": 365,
+      "views": 1659,
+      "likes": 367,
       "favorites": 165,
       "coins": 4,
       "comments": 17,
       "shares": 2,
       "danmaku": 82,
-      "operational_highlight": "AiGO!!!!! × Ai Mujica Ep.06 SP Memory (MV #2 stage-debut v2 master); Bilibili live at 16:00 BJT, cross-platform distribution queued post-seal."
+      "operational_highlight": "AiGO!!!!! × Ai Mujica Ep.06 SP Memory (MV #2 stage-debut v2 master); Bilibili live at 16:00 BJT, cross-platform distribution queued post-seal.",
+      "public_view_api_code": 0,
+      "sampled_at": "2026-11-16T21:10:21+08:00"
     },
     {
       "bvid": "BV1mWs56JEFd",
       "title": "百万上下文统一价$1.50/$7.50！Google发布Gemini 4 Hydrogen与动态编排器【AI快讯】",
       "pubdate_bjt": "2026-11-14",
-      "views": 506,
-      "likes": 10,
-      "favorites": 4,
+      "views": 556,
+      "likes": 11,
+      "favorites": 5,
       "coins": 0,
-      "comments": 7,
+      "comments": 8,
       "shares": 0,
       "danmaku": 5,
-      "operational_highlight": "On-time 20:00 BJT sample (+2m08s, public at 2026-11-14T20:02:08+08:00) in the zero-paid-boost AI News Flash slot experiment; 16:9 master archived under update-2026-11-14-evening."
+      "operational_highlight": "On-time 20:00 BJT sample (+2m08s, public at 2026-11-14T20:02:08+08:00) in the zero-paid-boost AI News Flash slot experiment; 16:9 master archived under update-2026-11-14-evening.",
+      "public_view_api_code": 0,
+      "sampled_at": "2026-11-16T21:10:21+08:00"
     },
     {
       "bvid": "BV12YsE6fEcU",
       "title": "11月16日起新开或升级，Google那300刀赠金停付Gemini了【AI快讯】",
       "pubdate_bjt": "2026-11-15",
-      "views": 2347,
-      "likes": 16,
-      "favorites": 11,
-      "coins": 2,
-      "comments": 19,
-      "shares": 7,
-      "danmaku": 6,
-      "operational_highlight": "On-time 12:00 BJT sample (+7m01s, public at 2026-11-15T12:07:01+08:00) in the zero-paid-boost AI News Flash slot experiment; 16:9 master archived under update-2026-11-15-evening."
+      "views": 5086,
+      "likes": 36,
+      "favorites": 23,
+      "coins": 4,
+      "comments": 56,
+      "shares": 13,
+      "danmaku": 14,
+      "operational_highlight": "On-time 12:00 BJT sample (+7m01s, public at 2026-11-15T12:07:01+08:00) in the zero-paid-boost AI News Flash slot experiment; reached >4,200 organic views on Day 2 and was submitted to the free AI community collection form on 2026-11-16; 16:9 master archived under update-2026-11-15-evening.",
+      "public_view_api_code": 0,
+      "sampled_at": "2026-11-16T21:10:21+08:00"
     },
     {
       "bvid": "BV1NZsJ6aEgb",
       "title": "《AiGO!!!!!×Ai Mujica》第7话 假面集结",
       "pubdate_bjt": "2026-11-15",
-      "views": 131,
-      "likes": 9,
-      "favorites": 4,
-      "coins": 0,
-      "comments": 4,
+      "views": 397,
+      "likes": 18,
+      "favorites": 9,
+      "coins": 2,
+      "comments": 5,
       "shares": 0,
-      "danmaku": 5,
-      "operational_highlight": "AiGO!!!!! × Ai Mujica Ep.07 Masked Assembly (16:9 master v2); Bilibili live at 16:04:56 BJT (24h organic window, 0 paid orders); archived under update-2026-11-15-evening."
+      "danmaku": 9,
+      "operational_highlight": "AiGO!!!!! × Ai Mujica Ep.07 Masked Assembly (16:9 master v2); Bilibili live at 16:04:56 BJT (24h organic window, 0 paid orders); archived under update-2026-11-15-evening.",
+      "public_view_api_code": 0,
+      "sampled_at": "2026-11-16T21:10:21+08:00"
     },
     {
       "bvid": "BV1FVsp6FENs",
       "title": "DeepSeek把官方App拆成全家桶API单卖了！还直接开源Demo【AI快讯】",
       "pubdate_bjt": "2026-11-15",
-      "views": 107,
-      "likes": 1,
-      "favorites": 2,
+      "views": 893,
+      "likes": 10,
+      "favorites": 12,
       "coins": 0,
-      "comments": 15,
+      "comments": 33,
       "shares": 1,
-      "danmaku": 4,
-      "operational_highlight": "On-time 20:00 BJT sample (+8m36s, public at 2026-11-15T20:08:36+08:00) in the zero-paid-boost AI News Flash slot experiment; 16:9 master archived under update-2026-11-15-evening."
+      "danmaku": 7,
+      "operational_highlight": "On-time 20:00 BJT sample (+8m36s, public at 2026-11-15T20:08:36+08:00) in the zero-paid-boost AI News Flash slot experiment; 16:9 master archived under update-2026-11-15-evening.",
+      "public_view_api_code": 0,
+      "sampled_at": "2026-11-16T21:10:21+08:00"
     },
     {
       "bvid": "BV1HPsn6tEyN",
       "title": "把一生画成28,946个格子，扣掉睡觉、上班和路上，每年只剩52格（此视频由Claude生成）",
       "pubdate_bjt": "2026-11-15",
-      "views": 4,
-      "likes": 0,
-      "favorites": 0,
+      "views": 341,
+      "likes": 7,
+      "favorites": 2,
+      "coins": 0,
+      "comments": 2,
+      "shares": 0,
+      "danmaku": 6,
+      "operational_highlight": "Pure code-drawn HyperFrames 0.9.23 visual essay generated by Claude; scheduled release verified public (state == 0) at 2026-11-15T21:00:00+08:00 (0 paid orders for 7 days); archived under update-2026-11-15-evening.",
+      "public_view_api_code": 0,
+      "sampled_at": "2026-11-16T21:10:21+08:00"
+    },
+    {
+      "bvid": "BV1kQsw6kEx4",
+      "title": "GitHub Copilot下线6款模型，唯独Kimi K3接班人写着待定【AI快讯】",
+      "pubdate_bjt": "2026-11-16",
+      "views": 244,
+      "likes": 2,
+      "favorites": 2,
+      "coins": 0,
+      "comments": 5,
+      "shares": 0,
+      "danmaku": 5,
+      "public_view_api_code": 0,
+      "sampled_at": "2026-11-16T21:10:21+08:00",
+      "operational_highlight": "On-time 12:00 BJT sample (+2m06s, public at 2026-11-16T12:02:06+08:00) in the zero-paid-boost AI News Flash slot experiment; 16:9 master archived under update-2026-11-16-evening."
+    },
+    {
+      "bvid": "BV1GUsc6dE9A",
+      "title": "《AiGO!!!!!×Ai Mujica》第8话 算力人偶",
+      "pubdate_bjt": "2026-11-16",
+      "views": 5216,
+      "likes": 19,
+      "favorites": 19,
+      "coins": 2,
+      "comments": 4,
+      "shares": 0,
+      "danmaku": 10,
+      "public_view_api_code": 0,
+      "sampled_at": "2026-11-16T21:10:21+08:00",
+      "operational_highlight": "AiGO!!!!! × Ai Mujica Ep.08 Compute Marionette (16:9 master); Bilibili live at 16:06:37 BJT; archived under update-2026-11-16-evening."
+    },
+    {
+      "bvid": "BV1g5sA6oESL",
+      "title": "冲上热搜！DeepSeek因算力不足限额，7天老对话停续【AI快讯】",
+      "pubdate_bjt": "2026-11-16",
+      "views": 130,
+      "likes": 2,
+      "favorites": 2,
+      "coins": 0,
+      "comments": 7,
+      "shares": 1,
+      "danmaku": 4,
+      "public_view_api_code": 0,
+      "sampled_at": "2026-11-16T21:10:21+08:00",
+      "operational_highlight": "On-time 20:00 BJT sample (+6m54s live at 20:06:54+08:00; public view API pubdate 20:08:00+08:00) in the zero-paid-boost AI News Flash slot experiment; 16:9 master archived under update-2026-11-16-evening."
+    },
+    {
+      "bvid": "BV1Eqsc6PE92",
+      "title": "距地球259亿公里，发句“你好”要等两天！旅行者1号即将飞出一光日（此视频由Claude生成）",
+      "pubdate_bjt": "2026-11-16",
+      "views": 1,
+      "likes": 1,
+      "favorites": 1,
       "coins": 0,
       "comments": 1,
       "shares": 0,
-      "danmaku": 1,
-      "operational_highlight": "Pure code-drawn HyperFrames 0.9.23 visual essay generated by Claude; scheduled release verified public (state == 0) at 2026-11-15T21:00:00+08:00 (0 paid orders for 7 days); archived under update-2026-11-15-evening."
+      "danmaku": 4,
+      "public_view_api_code": 0,
+      "sampled_at": "2026-11-16T21:10:21+08:00",
+      "operational_highlight": "Pure code-drawn HyperFrames 0.9.23 visual essay generated by Claude; scheduled release verified public (code == 0, state == 0) at 2026-11-16T21:00:00+08:00 (0 paid orders for 7 days); archived under update-2026-11-16-evening."
     }
   ]
 }

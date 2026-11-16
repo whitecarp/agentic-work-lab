@@ -2,7 +2,7 @@
 
 **繁體中文** · [English](README_EN.md)
 
-**2026-11-15：** 新增 [2026-11-15 晚間增量結構化紀錄](production-update-2026-11-15.json) 與更新後的 [公開即時指標快照](metrics/current-metrics.json)（詳見 [2026-11-15 增量更新報告](../docs/updates/2026-11-15.md)）。先前 2026-11-14、2026-11-09、2026-11-08 與 2026-11-03 紀錄分別保留於 [production-update-2026-11-14.json](production-update-2026-11-14.json)、[production-update-2026-11-09.json](production-update-2026-11-09.json)、[production-update-2026-11-08.json](production-update-2026-11-08.json) 與 [production-update-2026-11-03.json](production-update-2026-11-03.json)。下方 2026-10-28 歷史快照保持原口徑與日期。
+**2026-11-16：** 新增 [2026-11-16 晚間增量結構化紀錄](production-update-2026-11-16.json) 與更新後的 [公開即時指標快照](metrics/current-metrics.json)（詳見 [2026-11-16 增量更新報告](../docs/updates/2026-11-16.md)）。先前 2026-11-15、2026-11-14、2026-11-09、2026-11-08 與 2026-11-03 紀錄分別保留於 [production-update-2026-11-15.json](production-update-2026-11-15.json)、[production-update-2026-11-14.json](production-update-2026-11-14.json)、[production-update-2026-11-09.json](production-update-2026-11-09.json)、[production-update-2026-11-08.json](production-update-2026-11-08.json) 與 [production-update-2026-11-03.json](production-update-2026-11-03.json)。下方 2026-10-28 歷史快照保持原口徑與日期。
 
 帳號：[穿睡衣的小白白 · UID 10706217](https://space.bilibili.com/10706217)
 
@@ -70,5 +70,9 @@
 ## 2026-11-15 晚間增量歸檔與公開指標更新
 
 [本輪結構化紀錄](production-update-2026-11-15.json)與[最新即時指標快照](metrics/current-metrics.json)收錄截至 `2026-11-15 21:11`（UTC+8）經 B站線上逐條核驗公開（`state == 0`）的 **5 個新歸檔成片版本**（[`BV12YsE6fEcU`](https://www.bilibili.com/video/BV12YsE6fEcU)、[`BV1YL4M6EEek/?p=13`](https://www.bilibili.com/video/BV1YL4M6EEek/?p=13)、[`BV1NZsJ6aEgb`](https://www.bilibili.com/video/BV1NZsJ6aEgb)《第 7 話 假面集結》、[`BV1FVsp6FENs`](https://www.bilibili.com/video/BV1FVsp6FENs) 與今晚 `21:00:00` BJT 準點公開的純代碼長片 [`BV1HPsn6tEyN`](https://www.bilibili.com/video/BV1HPsn6tEyN)《把一生畫成 28,946 個格子》，累計 **80 個影片版本 · 5.64 GiB**，分布於 **12 個主要公開 Release**）、**34 支獨立公開 BV 稿件**的刷新數據（頻道累計 **37,654** 粉絲、**3,273,974** 累計播放、**222,620** 累計點讚；Google Cloud 扶持三片矩陣合計 **39,825** 播放、`4,617` 點讚＋收藏）、《大肥魚值班小遊戲》排期推進至 **`P1–P13` 已歸檔**（`P14–P19` 與 `EP08–EP13B` 含 `EP12SP`、審片凍結候選短片、未發快訊均嚴格維持僅元數據或零提前上傳）、`EP13A v2`／`EP13B v3` Pass-3 三層零停格詞鎖定對軸與 14 步純代碼工作流記錄，以及累計 `10` 條樣本的【AI快訊】時段觀察（`1` 條排除基準＋`9` 條準點樣本）。不含任何登入憑證、私訊、觀眾名單或內部錢包／訂單細節。
+
+## 2026-11-16 晚間增量歸檔與公開指標更新
+
+[本輪結構化紀錄](production-update-2026-11-16.json)與[最新即時指標快照](metrics/current-metrics.json)收錄截至 `2026-11-16 21:11`（UTC+8）經 B站公開唯讀介面逐條核驗公開（`code == 0`、`state == 0`）的 **5 個新歸檔成片版本**（[`BV1kQsw6kEx4`](https://www.bilibili.com/video/BV1kQsw6kEx4)、[`BV1YL4M6EEek/?p=14`](https://www.bilibili.com/video/BV1YL4M6EEek/?p=14)、[`BV1GUsc6dE9A`](https://www.bilibili.com/video/BV1GUsc6dE9A)《第 8 話 算力人偶》、[`BV1g5sA6oESL`](https://www.bilibili.com/video/BV1g5sA6oESL) 與今晚 `21:00:00` BJT 準點公開的純代碼科學科普短片 [`BV1Eqsc6PE92`](https://www.bilibili.com/video/BV1Eqsc6PE92)《一光日》，累計 **85 個影片版本 · 6.22 GiB**，分布於 **13 個主要公開 Release**）、**38 支追蹤稿件**（含 `24` 支在線公開 BV 即時快照：`37,815` 粉絲，Google Cloud 扶持三片矩陣達 **`40,822` 播放**與 `4,695` 點讚＋收藏；`14` 支僅創作者可見稿件保留前期快照，全站總播放／點讚欄位留空 `null` 不作推估）、《大肥魚值班小遊戲》排期推進至 **`P1–P14` 已歸檔**（`P15–P19` 與 `EP09–EP13B` 含 `EP12SP`、未公開代碼短片與未發快訊均嚴格維持僅元數據或零提前上傳），以及累計 `12` 條樣本的【AI快訊】時段觀察（`1` 條排除基準＋`11` 條準點樣本）。不含任何登入憑證、私訊、觀眾名單或內部錢包／訂單細節。
 
 [返回實驗室首頁](../README.md)
