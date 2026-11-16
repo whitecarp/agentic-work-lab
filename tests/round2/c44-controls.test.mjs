@@ -44,6 +44,22 @@ test('C44 recovery never ends an active child or edits any process',t=>{
  assert.throws(()=>endFailedSession({...f.ctx,slot:'codex',run},'owner','words'),/step_already_running/);
  assert.deepEqual(fs.readFileSync(f.journal),bytes);
 });
+test('observe records the supplied screenshot digest and rejects an undeclared numbered flag', t => {
+ const f = fixture(t);
+ setup(f.ctx);
+ step(f);
+ ageJournal(f.ctx, 10);
+ const digest = 'ab'.repeat(32);
+ const args = ['observe', ...flags(f), '--job', 'job-1', '--about', 'post',
+   '--client', 'phone_app', '--seen', 'absent', '--minutes-after', '10'];
+ const observed = cli(f, 'journal', [...args, '--shot-sha256', digest], 'private observation');
+ assert.equal(observed.status, 0, observed.stderr);
+ assert.equal(last(f.ctx, 'OBSERVATION').d.shot_sha256, digest);
+ const unknown = cli(f, 'journal', [...args, '--shot-sha257', digest], 'private observation');
+ assert.equal(unknown.status, 70);
+ assert.match(unknown.stderr, /unknown_flag/);
+ assert.equal(readJournal(f.journal).filter(r => r.type === 'OBSERVATION').length, 1);
+});
 test('C44 observe refuses a rounded-up minute before recording it',t=>{
  const f=fixture(t);setup(f.ctx);step(f);const args=['observe',...flags(f),'--job','job-1','--about','post','--client','phone_app','--seen','absent','--minutes-after','10'];
  assert.match(cli(f,'journal',args,'look').stderr,/look_minute_not_reached/);

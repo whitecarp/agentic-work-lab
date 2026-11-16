@@ -67,7 +67,7 @@ export function parseFlags(argv) {
   const flags={}, command=[];
   for(let i=0;i<argv.length;i++){
     if(argv[i]==='--'){command.push(...argv.slice(i+1));break;}
-    if(!/^--[a-z][a-z-]*$/.test(argv[i]) || i+1>=argv.length || argv[i+1].startsWith('--')) throw new Error('invalid_arguments');
+    if(!/^--[a-z][a-z0-9-]*$/.test(argv[i]) || i+1>=argv.length || argv[i+1].startsWith('--')) throw new Error('invalid_arguments');
     const key=argv[i].slice(2), value=argv[++i];
     if(key==='platform') (flags.platform??=[]).push(value);
     else {if(Object.hasOwn(flags,key)) throw new Error('duplicate_flag');flags[key]=value;}
