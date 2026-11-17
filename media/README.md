@@ -2,11 +2,11 @@
 
 **繁體中文** · [English](README_EN.md)
 
-2026-11-16 · **85** 個影片版本 · **6.22 GiB**（分布於 **13** 個主要公開 Release）
+2026-11-17 · **88** 個影片版本 · **6.76 GiB**（分布於 **14** 個主要公開 Release）
 
-全部 85 個遠端附件的大小及 SHA-256 均與索引一致；版本數不等於集數。保留每筆採樣日期與 B站歷史狀態，不把已過的排期時間當作公開證明。完整實驗交付不等於使用者全片驗收。
+全部 88 個遠端附件的大小及 SHA-256 均與索引一致；版本數不等於集數。保留每筆採樣日期與 B站歷史狀態，不把已過的排期時間當作公開證明。完整實驗交付不等於使用者全片驗收。
 
-[校驗清單](SHA256SUMS.txt) · [完整索引](manifest.json) · [本輪研究與限制](../docs/updates/2026-11-16.md)
+[校驗清單](SHA256SUMS.txt) · [完整索引](manifest.json) · [本輪研究與限制](../docs/updates/2026-11-17.md)
 
 | 檔案 | 作品 | 已記錄的 B站狀態 | MiB |
 |---|---|---|---:|
@@ -95,7 +95,10 @@
 | [aigo-ep08-20261116.mp4](https://github.com/whitecarp/agentic-work-lab/releases/download/update-2026-11-16-evening/aigo-ep08-20261116.mp4) | 《AiGO!!!!! × Ai Mujica》第 8 話 算力人偶（16:9 橫版母帶） | 已公開（`BV1GUsc6dE9A`） | 498.95 |
 | [news-20261116-deepseek-limit.mp4](https://github.com/whitecarp/agentic-work-lab/releases/download/update-2026-11-16-evening/news-20261116-deepseek-limit.mp4) | 【AI快訊】衝上熱搜！DeepSeek 因算力不足限額，7 天老對話停續（16:9 橫版母帶 v1） | 已公開（`BV1g5sA6oESL`） | 42.94 |
 | [film-20261116-yiguangri-v1.mp4](https://github.com/whitecarp/agentic-work-lab/releases/download/update-2026-11-16-evening/film-20261116-yiguangri-v1.mp4) | 距地球 259 億公里，發句「你好」要等兩天！旅行者 1 號即將飛出一光日（此影片由 Claude 生成 · 16:9 純代碼短片 v1） | 已公開（`BV1Eqsc6PE92`） | 14.72 |
+| [ep07-vertical-o-lasttoken-v1.mp4](https://github.com/whitecarp/agentic-work-lab/releases/download/update-2026-11-17-evening/ep07-vertical-o-lasttoken-v1.mp4) | 值班小遊戲結局合集 P15：極限代班（`15/19` 9:16 豎版 v1） | 已公開（`BV1YL4M6EEek` P15 · `cid: 43674046347`） | 10.40 |
+| [aigo-ep09-20261117.mp4](https://github.com/whitecarp/agentic-work-lab/releases/download/update-2026-11-17-evening/aigo-ep09-20261117.mp4) | 《AiGO!!!!! × Ai Mujica》第 9 話 摘下面具（16:9 橫版母帶） | 已公開（`BV1aJsz6FEBv`） | 298.60 |
+| [film-20261117-zihua-v1.mp4](https://github.com/whitecarp/agentic-work-lab/releases/download/update-2026-11-17-evening/film-20261117-zihua-v1.mp4) | 讓 Fable 5.2 自由發揮會做出什麼視頻（《字畫》· 此影片由 Claude 生成 · 16:9 純代碼短片 v1） | 已公開（`BV1gHsz6ZE1c`） | 241.42 |
 
-GitHub 存檔公開不更改 B站排期（如《大肥魚值班小遊戲》未到期分P `P15–P19`、儲備成片《AiGO!!!!! × Ai Mujica》第 9 話至第 13 話後篇 `EP09–EP13B` 含 `EP12SP`、未公開純代碼候選短片及未發快訊均待 B站正式公開後再歸檔原始 MP4）；技術檢查與全片主觀觀看／聆聽分開記錄。歷史人工影片原檔不在本機，仍提供其[數據與平台連結](../data/human-led-history.csv)。
+GitHub 存檔公開不更改 B站排期（如《大肥魚值班小遊戲》未到期分P `P16–P19`、儲備成片《AiGO!!!!! × Ai Mujica》第 10 話至第 13 話後篇 `EP10–EP13B` 含 `EP12SP`、未公開純代碼候選短片及未發快訊均待 B站正式公開後再歸檔原始 MP4）；技術檢查與全片主觀觀看／聆聽分開記錄。歷史人工影片原檔不在本機，仍提供其[數據與平台連結](../data/human-led-history.csv)。
 
 [返回實驗室](../README.md)
