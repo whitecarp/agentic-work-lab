@@ -10,13 +10,14 @@ export function daily(ctx,{selectedDay=new Date().toISOString().slice(0,10),appl
  day(selectedDay);const records=readJournal(ctx.journal);verifySeals(ctx,records);
  const current=records.filter(r=>r.at.slice(0,10)===selectedDay),checked=reconcile(ctx,crosscast,{now});
  const gates={},results={};for(const r of current){const target=r.type==='GATE_DECISION'?gates:r.type==='STEP'?results:null;if(target){const key=r.type==='STEP'?r.d.result:r.d.decision;target[key]=(target[key]??0)+1;}}
- const lookCounts={on_time:0,late:0,early:0,pending:0,no_ground_truth:0};
- for(const look of checked.look_checks)lookCounts[look.status]++;
+ const lookCounts={on_time:0,late:0,early:0,pending:0,no_ground_truth:0,second_look:0};
+ for(const look of checked.look_checks)lookCounts[look.status]=(lookCounts[look.status]??0)+1;
+ const observations=new Map(checked.observation_checks.map(r=>[r.seq,r]));
  const lines=[`records_today: ${current.length}`,`gate_decisions_today: ${JSON.stringify(gates)}`,`steps_by_result_today: ${JSON.stringify(results)}`,`open_in_doubt_all_records: ${checked.in_doubt_open}`,`violations_today: ${current.filter(r=>r.type==='VIOLATION').length}; looks_all_records: ${JSON.stringify(lookCounts)}`];
  lines.push(`open_in_doubt_strict_all_records: ${checked.in_doubt_open_strict}`);
  lines.push(`go_aheads_today: ${JSON.stringify(current.filter(r=>r.type==='GO_AHEAD').map(r=>({job:r.d.job,scope:r.d.scope,count:r.d.count})))}`);
  lines.push(`looks_today: ${JSON.stringify(current.filter(r=>r.type==='OBSERVATION').map(r=>({job:r.d.job,platform:r.d.platform??null,about:r.d.about,answer:r.d.seen,
-  status:r.d.seen==='unclear'?'unclear':r.d.minutes_after<10?'early':r.d.minutes_after<=60?'on_time':r.d.minutes_after<=1440?'late':'outside_window'})))}`);
+  status:observations.get(r.seq).status})))}`);
  if(apply)seal(ctx,selectedDay);
  lines.push(apply?'sealed; SIGN_OFF requires the owner/tester answer':'would seal; would prompt owner/tester for SIGN_OFF');
  lines.push(`sign_off_day: ${selectedDay}; no answer recorded`);
