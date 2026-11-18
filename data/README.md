@@ -2,7 +2,7 @@
 
 **繁體中文** · [English](README_EN.md)
 
-**2026-11-17：** 新增 [2026-11-17 晚間增量結構化紀錄](production-update-2026-11-17.json) 與更新後的 [公開即時指標快照](metrics/current-metrics.json)（詳見 [2026-11-17 增量更新報告](../docs/updates/2026-11-17.md)）。先前 2026-11-16、2026-11-15、2026-11-14、2026-11-09、2026-11-08 與 2026-11-03 紀錄分別保留於 [production-update-2026-11-16.json](production-update-2026-11-16.json)、[production-update-2026-11-15.json](production-update-2026-11-15.json)、[production-update-2026-11-14.json](production-update-2026-11-14.json)、[production-update-2026-11-09.json](production-update-2026-11-09.json)、[production-update-2026-11-08.json](production-update-2026-11-08.json) 與 [production-update-2026-11-03.json](production-update-2026-11-03.json)。下方 2026-10-28 歷史快照保持原口徑與日期。
+**2026-11-18：** 新增 [2026-11-18 晚間增量結構化紀錄](production-update-2026-11-18.json) 與更新後的 [公開即時指標快照](metrics/current-metrics.json)（詳見 [2026-11-18 增量更新報告](../docs/updates/2026-11-18.md)）。先前 2026-11-17、2026-11-16、2026-11-15、2026-11-14、2026-11-09、2026-11-08 與 2026-11-03 紀錄分別保留於 [production-update-2026-11-17.json](production-update-2026-11-17.json)、[production-update-2026-11-16.json](production-update-2026-11-16.json)、[production-update-2026-11-15.json](production-update-2026-11-15.json)、[production-update-2026-11-14.json](production-update-2026-11-14.json)、[production-update-2026-11-09.json](production-update-2026-11-09.json)、[production-update-2026-11-08.json](production-update-2026-11-08.json) 與 [production-update-2026-11-03.json](production-update-2026-11-03.json)。下方 2026-10-28 歷史快照保持原口徑與日期。
 
 帳號：[穿睡衣的小白白 · UID 10706217](https://space.bilibili.com/10706217)
 
@@ -44,6 +44,10 @@
 
 [本輪記錄](production-update-2026-10-30-evening.json)只新增兩份本機實驗交付與 GPT 第四期公開狀態，未更新全帳號流量或首日指標。上方統計及歷史人類／AI 系列口徑仍為原採樣快照，不併入不同日期的局部紀錄。
 
+## 2026-11-18 晚間增量歸檔與公開指標更新
+
+[本輪結構化紀錄](production-update-2026-11-18.json)與[最新即時指標快照](metrics/current-metrics.json)收錄截至 `2026-11-18 21:10`（UTC+8）經 `bili.exe` 唯讀接口逐條核驗公開（`state == 0`、`published == true`）的 **3 個新歸檔成片版本**（[`BV1YL4M6EEek/?p=16`](https://www.bilibili.com/video/BV1YL4M6EEek/?p=16)、[`BV19Ms26SEWU`](https://www.bilibili.com/video/BV19Ms26SEWU)《第 10 話 鏡中雙生》與今晚 `21:00:00` BJT 準時公開的純代碼互動系統短片 [`BV1uvs16VEKk`](https://www.bilibili.com/video/BV1uvs16VEKk)《極光桌面》，累計 **91 個影片版本 · 7.09 GiB**，分布於 **15 個主要公開 Release**）、**42 支追蹤稿件**（含 `28` 支在線公開 BV 即時快照：`38,064` 粉絲、全站累計 **`3,334,121` 播放**與 **`225,259` 點讚**，Google Cloud 扶持三片矩陣達 **`42,525` 播放**與 `4,858` 點讚＋收藏；`14` 支僅創作者可見稿件保留 `2026-11-15` 快照）、《大肥魚值班小遊戲》排期推進至 **`P1–P16` 已歸檔**（`P17–P19` 與 `EP11–EP13B` 含 `EP12SP`、未公開代碼短片與庫存快訊均嚴格維持僅元數據或零提前上傳），以及【AI快訊】站內同題飽和度門控輪空紀錄（今日 `0` 支快訊製作或上線，`BV1aJsz6FEBv` 達 `3,010` 播並完成第 `13` 份免費社群自荐表提報）。不含任何登入憑證、私訊、觀眾名單或內部錢包／帳戶／訂單細節。
+
 [返回實驗室首頁](../README.md)
 
 
@@ -78,5 +82,9 @@
 ## 2026-11-17 晚間增量歸檔與公開指標更新
 
 [本輪結構化紀錄](production-update-2026-11-17.json)與[最新即時指標快照](metrics/current-metrics.json)收錄截至 `2026-11-17 21:11`（UTC+8）經 `bili.exe` 與 B站公開唯讀介面逐條核驗公開（`code == 0`、`state == 0`）的 **3 個新歸檔成片版本**（[`BV1YL4M6EEek/?p=15`](https://www.bilibili.com/video/BV1YL4M6EEek/?p=15)、[`BV1aJsz6FEBv`](https://www.bilibili.com/video/BV1aJsz6FEBv)《第 9 話 摘下面具》與今晚 `21:00:00` BJT 準時公開的純代碼短片 [`BV1gHsz6ZE1c`](https://www.bilibili.com/video/BV1gHsz6ZE1c)《字畫》，累計 **88 個影片版本 · 6.76 GiB**，分布於 **14 個主要公開 Release**）、**40 支追蹤稿件**（含 `26` 支在線公開 BV 即時快照：`37,935` 粉絲、全站累計 **`3,293,232` 播放**與 **`224,068` 點讚**，Google Cloud 扶持三片矩陣達 **`41,866` 播放**與 `4,802` 點讚＋收藏；`14` 支僅創作者可見稿件保留前期快照）、《大肥魚值班小遊戲》排期推進至 **`P1–P15` 已歸檔**（`P16–P19` 與 `EP10–EP13B` 含 `EP12SP`、`EP13B v3r2` 重核定稿指紋、未公開代碼短片與庫存快訊均嚴格維持僅元數據或零提前上傳），以及【AI快訊】取消固定早晚雙更配額改為高價值選題門檻之策略切換紀錄（今日 `0` 支快訊製作或上線，`BV1FVsp6FENs` 與 `EP07`/`EP08` 完成免費社群自荐表提報）。不含任何登入憑證、私訊、觀眾名單或內部錢包／訂單細節。
+
+## 2026-11-18 晚間增量歸檔與公開指標更新
+
+[本輪結構化紀錄](production-update-2026-11-18.json)與[最新即時指標快照](metrics/current-metrics.json)收錄截至 `2026-11-18 21:10`（UTC+8）經 `bili.exe` 唯讀接口逐條核驗公開（`state == 0`、`published == true`）的 **3 個新歸檔成片版本**（[`BV1YL4M6EEek/?p=16`](https://www.bilibili.com/video/BV1YL4M6EEek/?p=16)、[`BV19Ms26SEWU`](https://www.bilibili.com/video/BV19Ms26SEWU)《第 10 話 鏡中雙生》與今晚 `21:00:00` BJT 準時公開的純代碼互動系統短片 [`BV1uvs16VEKk`](https://www.bilibili.com/video/BV1uvs16VEKk)《極光桌面》，累計 **91 個影片版本 · 7.09 GiB**，分布於 **15 個主要公開 Release**）、**42 支追蹤稿件**（含 `28` 支在線公開 BV 即時快照：`38,064` 粉絲、全站累計 **`3,334,121` 播放**與 **`225,259` 點讚**，Google Cloud 扶持三片矩陣達 **`42,525` 播放**與 `4,858` 點讚＋收藏；`14` 支僅創作者可見稿件保留 `2026-11-15` 快照）、《大肥魚值班小遊戲》排期推進至 **`P1–P16` 已歸檔**（`P17–P19` 與 `EP11–EP13B` 含 `EP12SP`、未公開代碼短片與庫存快訊均嚴格維持僅元數據或零提前上傳），以及【AI快訊】站內同題飽和度門控輪空紀錄（今日 `0` 支快訊製作或上線，`BV1aJsz6FEBv` 達 `3,010` 播並完成第 `13` 份免費社群自荐表提報）。不含任何登入憑證、私訊、觀眾名單或內部錢包／帳戶／訂單細節。
 
 [返回實驗室首頁](../README.md)
