@@ -8,6 +8,8 @@
 
 🎬 [Bilibili：穿睡衣的小白白](https://space.bilibili.com/10706217) · 📦 [影片下載](https://github.com/whitecarp/agentic-work-lab/releases) · [影片目錄](media/README.md) · [營運資料](data/README.md)
 
+**2026-11-19 更新（晚間 `21:00` 增量歸檔）：** 透過 [`update-2026-11-19-evening`](https://github.com/whitecarp/agentic-work-lab/releases/tag/update-2026-11-19-evening) 新增 **6 個實測在線公開（`state == 0`）成片版本**（`777,487,924` 位元組 · `741.47 MiB`），全庫累計擴展至 **97 個影片版本 · `7.82 GiB`**（跨 **16 個主要公開 GitHub Releases**）：包含今日凌晨依升級後 `26` 源官方 Diff 哨兵搶發上線之兩支【AI快訊】（[`BV1E6sx6MEfJ`](https://www.bilibili.com/video/BV1E6sx6MEfJ)《Google Genie 4 正式開放體驗》、[`BV1aVsx6dEWv`](https://www.bilibili.com/video/BV1aVsx6dEWv)《Google 發布 Gemini 4 Neon》，後者早於官方部落格 RSS `7` 分鐘上線且首日零投流自然突破 **`3,181` 播放**）、《大肥魚值班小遊戲》[`BV1YL4M6EEek`](https://www.bilibili.com/video/BV1YL4M6EEek/?p=17) 新公開第 17 分P **`P17`《人形幫個小忙》**（累計 `P1–P17` 已歸檔；未公開之 `P18–P19`、儲備正片 `EP12–EP13B` 含 `EP12SP`、未審核本地實驗片、未公開純代碼候選片與庫存快訊嚴格維持零洩露）、`16:47:30` BJT 正式公開之《AiGO!!!!! × Ai Mujica》`EP11`《囚愛超算》（[`BV1Jyst6VE55`](https://www.bilibili.com/video/BV1Jyst6VE55)，MV #4）、`18:35:03` BJT 公開並於 `20:22:20` 完成 `v6` 無水印淨版換源核驗之實拍轉繪短片《當 AI 娘化身花滑三套娃！》（[`BV1Njsh6FEBq`](https://www.bilibili.com/video/BV1Njsh6FEBq)，`cid: 43742006567`），以及今晚 `21:02:25` 正式公開之純代碼 WebGL2 3D 遊戲短片《紙飛機》（[`BV1t8s86aEhY`](https://www.bilibili.com/video/BV1t8s86aEhY)《Claude 自己搓了一個飛行遊戲》，將 `906` 行零引擎單檔 `plane.html` 與可玩 B站 Toy [`Claude-plane`](https://www.bilibili.com/toy/Claude-plane/index.html) 以 `1080p60` 實機自動駕駛錄製並收錄於「Claude的赛博工坊」）；另於今日完成 `BV1gHsz6ZE1c`（《字畫》）、`BV19Ms26SEWU`（`EP10`）與 `BV1uvs16VEKk`（《極光桌面》）之免費社群流量扶持表提報（累計 `16` 份）。截至 `2026-11-19 21:12:25` BJT，頻道推進至 **`38,499` 粉絲**（`+435`）、**全站累計 `3,351,162` 播放**（`226,446` 點讚）、**Google Cloud 官方扶持三片矩陣推進至 `42,745` 播放與 `4,875` 讚藏**，變裝短片 `BV1Eaxt6LEhb` 達 **`113,576` 播放**，第 1 話 `BV1sQ4E6eEhK` 達 **`68,513` 播放**，`EP10` `BV19Ms26SEWU` 突破 **4,000 播放（`4,002`）**。[查看更新](docs/updates/2026-11-19.md) · [結構化紀錄](data/production-update-2026-11-19.json) · [即時指標](data/metrics/current-metrics.json)。
+
 **2026-11-18 更新（晚間 `21:00` 增量歸檔）：** 透過 [`update-2026-11-18-evening`](https://github.com/whitecarp/agentic-work-lab/releases/tag/update-2026-11-18-evening) 新增 **3 個實測在線公開（`state == 0`）成片版本**（`359,827,518` 位元組 · `343.16 MiB`），全庫累計擴展至 **91 個影片版本 · `7.09 GiB`**（跨 **15 個主要公開 GitHub Releases**）：包含今日 `16:00:00` BJT 準點上線之《AiGO!!!!! × Ai Mujica》`EP10`《鏡中雙生》（[`BV19Ms26SEWU`](https://www.bilibili.com/video/BV19Ms26SEWU)，首日即突破千播達 **`1,291` 播放**）、《大肥魚值班小遊戲》[`BV1YL4M6EEek`](https://www.bilibili.com/video/BV1YL4M6EEek/?p=16) 新公開第 16 分P **`P16`《轉正臨時工》**（累計 `P1–P16` 已歸檔；未公開之 `P17–P19`、儲備正片 `EP11–EP13B` 含 `EP12SP`、未公開純代碼候選片與庫存快訊嚴格維持零洩露），以及今晚 `21:00:00` 準時轉公開之純代碼互動系統短片《極光桌面》（[`BV1uvs16VEKk`](https://www.bilibili.com/video/BV1uvs16VEKk)《Fable 5.2 僅用 30 分鐘就做出了一整套桌面系統》，將 `1,528` 行零框架單檔 `aurora.html` 與 `7` 款內建應用以 Playwright 確定性逐幀錄製 `1080p60` 並搭配全程式合成音效，開源於 [`whitecarp/aurora-desktop`](https://github.com/whitecarp/aurora-desktop) 並收錄於「Claude的赛博工坊」）；同步記錄【AI快訊】依站內同題飽和度門控輪空 `4` 項舊題（今日 `0` 支快訊上線，`BV1aJsz6FEBv` 達 `3,010` 播並完成免費社群自荐表提報）。截至 `2026-11-18 21:05:39` BJT，頻道推進至 **`38,064` 粉絲**（`+129`）、**全站累計 `3,334,121` 播放**（`225,259` 點讚）、**Google Cloud 官方扶持三片矩陣推進至 `42,525` 播放與 `4,858` 讚藏**，變裝短片 `BV1Eaxt6LEhb` 達 **`111,246` 播放**，第 1 話 `BV1sQ4E6eEhK` 衝上 **`68,170` 播放**。[查看更新](docs/updates/2026-11-18.md) · [結構化紀錄](data/production-update-2026-11-18.json) · [即時指標](data/metrics/current-metrics.json)。
 
 **2026-11-17 更新（晚間 `21:00` 增量歸檔）：** 透過 [`update-2026-11-17-evening`](https://github.com/whitecarp/agentic-work-lab/releases/tag/update-2026-11-17-evening) 新增 **3 個實測在線公開（`code == 0`、`state == 0`）成片版本**（`577,152,212` 位元組 · `550.42 MiB`），全庫累計擴展至 **88 個影片版本 · `6.76 GiB`**（跨 **14 個主要公開 GitHub Releases**）：包含今日 `16:52:33` BJT 正式上線之《AiGO!!!!! × Ai Mujica》`EP09`《摘下面具》（[`BV1aJsz6FEBv`](https://www.bilibili.com/video/BV1aJsz6FEBv)，上線數小時即破千播達 **`1,622` 播放**）、《大肥魚值班小遊戲》[`BV1YL4M6EEek`](https://www.bilibili.com/video/BV1YL4M6EEek/?p=15) 新公開第 15 分P **`P15`《極限代班》**（累計 `P1–P15` 已歸檔；未公開之 `P16–P19`、儲備正片 `EP10–EP13B` 含 `EP12SP`、未公開純代碼候選片與庫存快訊嚴格維持零洩露），以及今晚 `21:00:00` 準時轉公開之純代碼短片《字畫》（[`BV1gHsz6ZE1c`](https://www.bilibili.com/video/BV1gHsz6ZE1c)《讓 Fable 5.2 自由發揮會做出什麼視頻》，以 Python 與 Canvas 程式碼從零逐幀演算 `13,503` 個漢字風景與全程式合成音效，收錄於「Claude的赛博工坊」）；同步記錄【AI快訊】取消每日早晚固定雙更配額改為高價值選題門檻（`BV1FVsp6FENs` 自然破千播並與 `EP07`/`EP08` 同步提報免費社群自荐表）。截至 `2026-11-17 21:06:25` BJT，頻道推進至 **`37,935` 粉絲**（`+120`）、**全站累計 `3,293,232` 播放**（`224,068` 點讚）、**Google Cloud 官方扶持三片矩陣推進至 `41,866` 播放與 `4,802` 讚藏**，變裝短片 `BV1Eaxt6LEhb` 達 **`110,625` 播放**，第 1 話 `BV1sQ4E6eEhK` 突破 **4.5 萬播放（`45,277` 播放）**。[查看更新](docs/updates/2026-11-17.md) · [結構化紀錄](data/production-update-2026-11-17.json) · [即時指標](data/metrics/current-metrics.json)。
@@ -108,7 +110,7 @@
 | 比較營運數據並檢查結論 | [數據對比與限制](docs/data-comparison.md) |
 | 保存工作脈絡，方便團隊接手 | [商戶簡報範本](templates/merchant-brief.md)（[填寫示例](examples/merchant-brief-demo-cafe-a.md)） · [營運檢查表](templates/operations-checklist.md)（[填寫示例](examples/operations-checklist-2026-10-28.md)） |
 
-**2026-10-28 基礎資料快照（後續更新疊加於此底座之上）：** 55 筆稿件資料、69 筆去識別營運事件、19 個已公開影片版本（截至 2026-11-18 晚間歸檔已擴展至 **91 個公開影片版本 · 7.09 GiB** 及 **3 套完整開源工具**）、4 個流程示例腳本／模組，以及 10 項流程測試。商戶示例使用虛構資料，沒有把模擬結果寫成真實簽約或團隊提效業績。
+**2026-10-28 基礎資料快照（後續更新疊加於此底座之上）：** 55 筆稿件資料、69 筆去識別營運事件、19 個已公開影片版本（截至 2026-11-19 晚間歸檔已擴展至 **97 個公開影片版本 · 7.82 GiB** 及 **3 套完整開源工具**）、4 個流程示例腳本／模組，以及 10 項流程測試。商戶示例使用虛構資料，沒有把模擬結果寫成真實簽約或團隊提效業績。
 
 我以需求提出、選題方向、回饋與審片推進專案，AI 協助研究、編寫程式及製作。這個實驗室記錄工具如何進入實際流程、遇到哪些錯誤，以及如何改善交付；程式與文件也明確標示 AI 協助。
 
@@ -141,6 +143,11 @@ npm test         # 流程檢查
 
 | 發布日期（UTC+8） | 作品 |
 |---|---|
+| 2026-11-19 | [Claude 自己搓了一個飛行遊戲（《紙飛機》· 此影片由 Claude 生成）](https://www.bilibili.com/video/BV1t8s86aEhY) |
+| 2026-11-19 | [當 AI 娘化身花滑三套娃！GPT 白龍蟹步 × 大肥魚 × Claude 娘真人轉繪](https://www.bilibili.com/video/BV1Njsh6FEBq) |
+| 2026-11-19 | [《AiGO!!!!! × Ai Mujica》第 11 話 囚愛超算（MV #4）](https://www.bilibili.com/video/BV1Jyst6VE55) |
+| 2026-11-19 | [【AI快訊】11 月底前竟比大哥 Carbon 貴 1.5 倍？Google 發布 Gemini 4 Neon](https://www.bilibili.com/video/BV1aVsx6dEWv) |
+| 2026-11-19 | [【AI快訊】能邊逛邊打字改世界還帶原生音效！Google Genie 4 正式開放體驗](https://www.bilibili.com/video/BV1E6sx6MEfJ) |
 | 2026-11-18 | [Fable 5.2 僅用 30 分鐘就做出了一整套桌面系統（《極光桌面》· 此影片由 Claude 生成）](https://www.bilibili.com/video/BV1uvs16VEKk) |
 | 2026-11-18 | [《AiGO!!!!! × Ai Mujica》第 10 話 鏡中雙生](https://www.bilibili.com/video/BV19Ms26SEWU) |
 | 2026-11-17 | [讓 Fable 5.2 自由發揮會做出什麼視頻（《字畫》· 此影片由 Claude 生成）](https://www.bilibili.com/video/BV1gHsz6ZE1c) |
@@ -179,7 +186,7 @@ npm test         # 流程檢查
 | 2026-11-05 | [《風衣底下是誰》大肥魚與 Claude 娘的記憶備份小劇場](https://www.bilibili.com/video/BV1BM4h6pEY7) |
 | 2026-11-05 | [3 分鐘拿到免費 Gemini API Key 並跑通 AI Memory Keeper（保姆級教學）](https://www.bilibili.com/video/BV1nw4h64Ebf) |
 | 2026-11-04 | [把「她忘了我」做成開源桌面工具：AI Memory Keeper v0.3.0 實機演示](https://www.bilibili.com/video/BV1WQ4t6xEdT) |
-| 2026-11-04 | [大肥魚值班小遊戲，到底有多少種結局？（B站裡就能玩 · 已上線 P1–P16）](https://www.bilibili.com/video/BV1YL4M6EEek) |
+| 2026-11-04 | [大肥魚值班小遊戲，到底有多少種結局？（B站裡就能玩 · 已上線 P1–P17）](https://www.bilibili.com/video/BV1YL4M6EEek) |
 | 2026-11-04 | [鯨魚娘代班日誌07｜GPT替大肥魚值班，第4張工單就破產了（參賽版）](https://www.bilibili.com/video/BV1Xz4u6DEt8) |
 | 2026-11-03 | [《我替你看過了》三分鐘多角色敘事短片](https://www.bilibili.com/video/BV15B4F6hEYr) |
 | 2026-11-02 | [《魚，你又穿誰衣服了？！GPT與Claude參上!!!》變裝短片](https://www.bilibili.com/video/BV1Eaxt6LEhb) |
@@ -193,7 +200,7 @@ npm test         # 流程檢查
 
 未在 B站公開的成片及舊版實驗片，另見[影片目錄](media/README.md)。GitHub 公開與 B站發布是兩個不同狀態，本倉庫不會更改 B站排期。
 
-[2026-11-18 晚間更新：`EP10`、`P16` 與純代碼短片《極光桌面》](docs/updates/2026-11-18.md) · [2026-11-17 晚間更新：`EP09`、`P15` 與純代碼短片《字畫》](docs/updates/2026-11-17.md) · [2026-11-16 晚間更新：`EP08`、`P14`、2 支【AI快訊】與純代碼短片《一光日》](docs/updates/2026-11-16.md) · [2026-11-15 晚間更新：`EP07`、`P13`、2 支【AI快訊】、純代碼短片《一生的格子》、Pass-3 無卡頓對軸及 14 步代碼片管線](docs/updates/2026-11-15.md) · [2026-11-14 補檔暨晚間更新：`EP03–EP06SP`、`P9–P12`、`10` 支【AI快訊】公開歸檔、`CrossCast v0.16.0 alpha` 同步與 `30fps` 對齊工程](docs/updates/2026-11-14.md) · [2026-11-09 晚間更新](docs/updates/2026-11-09.md) · [2026-11-08 階段性與晚間更新](docs/updates/2026-11-08.md) · [2026-10-28 晚間更新](docs/updates/2026-10-28-evening.md)
+[2026-11-19 晚間更新：`EP11`、`P17`、花滑三套娃 `v6`、2 支【AI快訊】與純代碼短片《紙飛機》](docs/updates/2026-11-19.md) · [2026-11-18 晚間更新：`EP10`、`P16` 與純代碼短片《極光桌面》](docs/updates/2026-11-18.md) · [2026-11-17 晚間更新：`EP09`、`P15` 與純代碼短片《字畫》](docs/updates/2026-11-17.md) · [2026-11-16 晚間更新：`EP08`、`P14`、2 支【AI快訊】與純代碼短片《一光日》](docs/updates/2026-11-16.md) · [2026-11-15 晚間更新：`EP07`、`P13`、2 支【AI快訊】、純代碼短片《一生的格子》、Pass-3 無卡頓對軸及 14 步代碼片管線](docs/updates/2026-11-15.md) · [2026-11-14 補檔暨晚間更新：`EP03–EP06SP`、`P9–P12`、`10` 支【AI快訊】公開歸檔、`CrossCast v0.16.0 alpha` 同步與 `30fps` 對齊工程](docs/updates/2026-11-14.md) · [2026-11-09 晚間更新](docs/updates/2026-11-09.md) · [2026-11-08 階段性與晚間更新](docs/updates/2026-11-08.md) · [2026-10-28 晚間更新](docs/updates/2026-10-28-evening.md)
 
 ## 使用資料與方法
 
@@ -208,4 +215,4 @@ npm test         # 流程檢查
 
 本倉庫公開研究說明、影片、帳號整體及單片數據、去識別的營運紀錄。登入憑證、私人訊息、觀眾個人資料及不相關的私人文件不屬於公開資料。作品中引用的第三方素材仍屬各自權利人；公開展示不代表授予第三方素材的再利用授權。
 
-首次整理：2026-10-28。首頁研究更新：2026-11-18；三大工具套件（CrossCast v0.16.0 alpha、AI Memory Keeper、I Must Use Claude）已完整收錄於 `tools/`。
+首次整理：2026-10-28。首頁研究更新：2026-11-19；三大工具套件（CrossCast v0.16.0 alpha、AI Memory Keeper、I Must Use Claude）已完整收錄於 `tools/`。
