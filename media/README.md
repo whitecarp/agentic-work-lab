@@ -2,11 +2,11 @@
 
 **繁體中文** · [English](README_EN.md)
 
-2026-11-19 · **97** 個影片版本 · **7.82 GiB**（分布於 **16** 個主要公開 Release）
+2026-11-20 · **103** 個影片版本 · **8.54 GiB**（分布於 **17** 個主要公開 Release）
 
-全部 97 個遠端附件的大小及 SHA-256 均與索引一致；版本數不等於集數。保留每筆採樣日期與 B站歷史狀態，不把已過的排期時間當作公開證明。完整實驗交付不等於使用者全片驗收。
+全部 103 個遠端附件的大小及 SHA-256 均與索引一致；版本數不等於集數。保留每筆採樣日期與 B站歷史狀態，不把已過的排期時間當作公開證明。完整實驗交付不等於使用者全片驗收。
 
-[校驗清單](SHA256SUMS.txt) · [完整索引](manifest.json) · [本輪研究與限制](../docs/updates/2026-11-19.md)
+[校驗清單](SHA256SUMS.txt) · [完整索引](manifest.json) · [本輪研究與限制](../docs/updates/2026-11-20.md)
 
 | 檔案 | 作品 | 已記錄的 B站狀態 | MiB |
 |---|---|---|---:|
@@ -107,7 +107,13 @@
 | [aigo-ep11-20261119.mp4](https://github.com/whitecarp/agentic-work-lab/releases/download/update-2026-11-19-evening/aigo-ep11-20261119.mp4) | 《AiGO!!!!! × Ai Mujica》第 11 話 囚愛超算（MV #4 · 16:9 橫版母帶） | 已公開（`BV1Jyst6VE55`） | 515.88 |
 | [skating-troika-ai-girls-v6-20261119.mp4](https://github.com/whitecarp/agentic-work-lab/releases/download/update-2026-11-19-evening/skating-troika-ai-girls-v6-20261119.mp4) | 當 AI 娘化身花滑三套娃！GPT 白龍蟹步 × 大肥魚 × Claude 娘真人轉繪（v6 無水印淨版） | 已公開（`BV1Njsh6FEBq` · `cid: 43742006567`） | 70.54 |
 | [film-20261119-paper-plane-v1.mp4](https://github.com/whitecarp/agentic-work-lab/releases/download/update-2026-11-19-evening/film-20261119-paper-plane-v1.mp4) | Claude 自己搓了一個飛行遊戲（《紙飛機》· 此影片由 Claude 生成 · 16:9 純代碼短片 v1） | 已公開（`BV1t8s86aEhY`） | 70.24 |
+| [skating-troika-ai-girls-v7-20261120.mp4](https://github.com/whitecarp/agentic-work-lab/releases/download/update-2026-11-20-evening/skating-troika-ai-girls-v7-20261120.mp4) | 當 AI 娘化身花滑三套娃！GPT 白龍蟹步 × 大肥魚 × Claude 娘真人轉繪（v7 Clean 置換版） | 已公開（`BV1Njsh6FEBq` · `cid: 43749673611`） | 68.83 |
+| [palace-token-trial-v2-20261120.mp4](https://github.com/whitecarp/agentic-work-lab/releases/download/update-2026-11-20-evening/palace-token-trial-v2-20261120.mp4) | 臣妾要告發大肥魚私通（大模型宮廷審訊 v2 · 含 9.8 秒 NG 彩蛋） | 已公開（`BV1kDse6YEPH` · 熱門收錄） | 178.40 |
+| [news-20261120-tencent-hy4-opensource.mp4](https://github.com/whitecarp/agentic-work-lab/releases/download/update-2026-11-20-evening/news-20261120-tencent-hy4-opensource.mp4) | 【AI快訊】騰訊 770B 旗艦 Hy4 全量開源！多項 Agent 與金融跑分超 DeepSeek，卻暗藏協議門檻（16:9 橫版母帶 v1） | 已公開（`BV1ScsB6pE4D`） | 42.30 |
+| [ep07-vertical-r-ontime-v1.mp4](https://github.com/whitecarp/agentic-work-lab/releases/download/update-2026-11-20-evening/ep07-vertical-r-ontime-v1.mp4) | 值班小遊戲結局合集 P18：合格臨時工（9:16 豎版 v1） | 已公開（`BV1YL4M6EEek/?p=18`） | 9.14 |
+| [aigo-ep12-20261120.mp4](https://github.com/whitecarp/agentic-work-lab/releases/download/update-2026-11-20-evening/aigo-ep12-20261120.mp4) | 《AiGO!!!!! × Ai Mujica》第 12 話 強制開源（16:9 橫版母帶） | 已公開（`BV1eMsq6fESY`） | 394.19 |
+| [news-20261120-grimes-deepseek.mp4](https://github.com/whitecarp/agentic-work-lab/releases/download/update-2026-11-20-evening/news-20261120-grimes-deepseek.mp4) | 【AI快訊】衝上熱搜！馬斯克前女友給 DeepSeek 寫同名主打歌，B 站全球首發 MV（16:9 橫版母帶 v1） | 已公開（`BV1GpyWzDEo6`） | 42.39 |
 
-GitHub 存檔公開不更改 B站排期（如《大肥魚值班小遊戲》未到期分P `P18–P19`、儲備成片《AiGO!!!!! × Ai Mujica》第 12 話至第 13 話後篇 `EP12–EP13B` 含 `EP12SP`、未審核未公開本地實驗片與未公開純代碼候選短片／庫存快訊均待 B站正式公開後再歸檔原始 MP4）；技術檢查與全片主觀觀看／聆聽分開記錄。歷史人工影片原檔不在本機，仍提供其[數據與平台連結](../data/human-led-history.csv)。
+GitHub 存檔公開不更改 B站排期（如《大肥魚值班小遊戲》最後排期分P `P19`、儲備成片《AiGO!!!!! × Ai Mujica》第 12 話 SP 至第 13 話後篇 `EP12SP`、`EP13A`、`EP13B`、未審核未公開本地實驗片、未發快訊工作稿與已嵌入成片之附屬子切片均待 B站正式公開或獨立審核後再行處理）；技術檢查與全片主觀觀看／聆聽分開記錄。歷史人工影片原檔不在本機，仍提供其[數據與平台連結](../data/human-led-history.csv)。
 
 [返回實驗室](../README.md)

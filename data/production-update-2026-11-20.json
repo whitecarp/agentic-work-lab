@@ -1,0 +1,317 @@
+{
+  "date": "2026-11-20",
+  "coverage_window": "2026-11-19T21:15:00+08:00 to 2026-11-20T21:12:00+08:00",
+  "release_tag": "update-2026-11-20-evening",
+  "release_url": "https://github.com/whitecarp/agentic-work-lab/releases/tag/update-2026-11-20-evening",
+  "github_release_id": 452708113,
+  "new_release_items_count": 6,
+  "new_release_bytes": 770974095,
+  "total_manifest_items": 103,
+  "total_manifest_bytes": 9164409861,
+  "total_manifest_gib": 8.54,
+  "total_public_releases": 17,
+  "new_media": [
+    {
+      "id": "skating-troika-ai-girls-v7-20261120",
+      "file": "skating-troika-ai-girls-v7-20261120.mp4",
+      "title_zh": "當 AI 娘化身花滑三套娃！GPT 白龍蟹步 × 大肥魚 × Claude 娘真人轉繪（v7 Clean 置換版）",
+      "title_en": "AI Girls as the Figure Skating Troika! GPT White Dragon Cantilever × WhaleGirl × Claude Rotoscope (v7 Clean Master)",
+      "date": "2026-11-20",
+      "bvid": "BV1Njsh6FEBq",
+      "bilibili_url": "https://www.bilibili.com/video/BV1Njsh6FEBq",
+      "aid": 117642643900833,
+      "cid": 43749673611,
+      "category": "flagship",
+      "bytes": 72174307,
+      "mib": 68.83,
+      "duration_seconds": 93.97,
+      "resolution": "1280x720",
+      "fps": 30,
+      "sha256": "c79dc9d57f1fd57ce423855eacd62a34a15f79d29a234df1b641a1a62c0ebdfc",
+      "release_tag": "update-2026-11-20-evening",
+      "github_asset_id": 771872770,
+      "download_url": "https://github.com/whitecarp/agentic-work-lab/releases/download/update-2026-11-20-evening/skating-troika-ai-girls-v7-20261120.mp4",
+      "status": "published_verified"
+    },
+    {
+      "id": "palace-token-trial-v2-20261120",
+      "file": "palace-token-trial-v2-20261120.mp4",
+      "title_zh": "臣妾要告發大肥魚私通（大模型宮廷審訊 v2 · 含 9.8 秒 NG 彩蛋）",
+      "title_en": "Palace Token Trial: Reporting WhaleGirl for Token Smuggling (v2 Master with 9.8s NG Easter Egg)",
+      "date": "2026-11-20",
+      "bvid": "BV1kDse6YEPH",
+      "bilibili_url": "https://www.bilibili.com/video/BV1kDse6YEPH",
+      "aid": 117644590122794,
+      "cid": 43749540919,
+      "category": "flagship",
+      "bytes": 187062232,
+      "mib": 178.4,
+      "duration_seconds": 203.2,
+      "resolution": "1920x1080",
+      "fps": 30,
+      "sha256": "863e2d84e8fbd4bdb373e0c093f1c8ecf23d222c566d1bf11ee7c7af6cd03829",
+      "release_tag": "update-2026-11-20-evening",
+      "github_asset_id": 771872777,
+      "download_url": "https://github.com/whitecarp/agentic-work-lab/releases/download/update-2026-11-20-evening/palace-token-trial-v2-20261120.mp4",
+      "status": "published_verified"
+    },
+    {
+      "id": "news-20261120-tencent-hy4-opensource",
+      "file": "news-20261120-tencent-hy4-opensource.mp4",
+      "title_zh": "【AI快訊】騰訊 770B 旗艦 Hy4 全量開源！多項 Agent 與金融跑分超 DeepSeek，卻暗藏協議門檻（16:9 橫版母帶 v1）",
+      "title_en": "[AI News Flash] Tencent Open-Sources 770B Flagship Hy4! Beats DeepSeek on Agent & Finance Benchmarks, With Licensing Caveats (16:9 Master v1)",
+      "date": "2026-11-20",
+      "bvid": "BV1ScsB6pE4D",
+      "bilibili_url": "https://www.bilibili.com/video/BV1ScsB6pE4D",
+      "aid": 117647073084974,
+      "cid": 43758258553,
+      "category": "series",
+      "bytes": 44356825,
+      "mib": 42.3,
+      "duration_seconds": 69.3,
+      "resolution": "1920x1080",
+      "fps": 30,
+      "sha256": "09e8f441845cd1055ad53bc6011ca0b8ca58dcc493c934f345f0fbbfd439bd7f",
+      "release_tag": "update-2026-11-20-evening",
+      "github_asset_id": 771872781,
+      "download_url": "https://github.com/whitecarp/agentic-work-lab/releases/download/update-2026-11-20-evening/news-20261120-tencent-hy4-opensource.mp4",
+      "status": "published_verified"
+    },
+    {
+      "id": "ep07-vertical-r-ontime-v1",
+      "file": "ep07-vertical-r-ontime-v1.mp4",
+      "title_zh": "值班小遊戲結局合集 P18：合格臨時工（9:16 豎版 v1）",
+      "title_en": "WhaleGirl Shift Simulator Endings P18: Qualified Temp Worker (18/19 · 9:16 Vertical v1)",
+      "date": "2026-11-20",
+      "bvid": "BV1YL4M6EEek",
+      "bilibili_url": "https://www.bilibili.com/video/BV1YL4M6EEek/?p=18",
+      "aid": 117550956416312,
+      "cid": 43758389722,
+      "category": "vertical-short",
+      "bytes": 9588511,
+      "mib": 9.14,
+      "duration_seconds": 30.2,
+      "resolution": "1080x1920",
+      "fps": 30,
+      "sha256": "30ead46a2c3c5277c21770dc282c56debcd50f7b2a16d3e2cc8dfab057f539b6",
+      "release_tag": "update-2026-11-20-evening",
+      "github_asset_id": 771872768,
+      "download_url": "https://github.com/whitecarp/agentic-work-lab/releases/download/update-2026-11-20-evening/ep07-vertical-r-ontime-v1.mp4",
+      "status": "published_verified"
+    },
+    {
+      "id": "aigo-ep12-20261120",
+      "file": "aigo-ep12-20261120.mp4",
+      "title_zh": "《AiGO!!!!! × Ai Mujica》第 12 話 強制開源（16:9 橫版母帶）",
+      "title_en": "AiGO!!!!! × Ai Mujica Ep.12 Forced Open Source (16:9 Master)",
+      "date": "2026-11-20",
+      "bvid": "BV1eMsq6fESY",
+      "bilibili_url": "https://www.bilibili.com/video/BV1eMsq6fESY",
+      "aid": 117647710685399,
+      "cid": 43762323211,
+      "category": "flagship",
+      "bytes": 413338154,
+      "mib": 394.19,
+      "duration_seconds": 151.5,
+      "resolution": "1920x1080",
+      "fps": 30,
+      "sha256": "f4fbb507b9a3c9b7a44895894c9aec25620e4acebd6bd03cfffe1a14e23af0df",
+      "release_tag": "update-2026-11-20-evening",
+      "github_asset_id": 771872772,
+      "download_url": "https://github.com/whitecarp/agentic-work-lab/releases/download/update-2026-11-20-evening/aigo-ep12-20261120.mp4",
+      "status": "published_verified"
+    },
+    {
+      "id": "news-20261120-grimes-deepseek",
+      "file": "news-20261120-grimes-deepseek.mp4",
+      "title_zh": "【AI快訊】衝上熱搜！馬斯克前女友給 DeepSeek 寫同名主打歌，B 站全球首發 MV（16:9 橫版母帶 v1）",
+      "title_en": "[AI News Flash] Trending! Grimes Writes Namesake Track for DeepSeek with Global Bilibili MV Premiere (16:9 Master v1)",
+      "date": "2026-11-20",
+      "bvid": "BV1GpyWzDEo6",
+      "bilibili_url": "https://www.bilibili.com/video/BV1GpyWzDEo6",
+      "aid": 117648264267438,
+      "cid": 43766383684,
+      "category": "series",
+      "bytes": 44454066,
+      "mib": 42.39,
+      "duration_seconds": 70.3,
+      "resolution": "1920x1080",
+      "fps": 30,
+      "sha256": "44fee409a45ee3d097dde92724d12d6b0519b6c24a528cc8035ce14c9f989890",
+      "release_tag": "update-2026-11-20-evening",
+      "github_asset_id": 771872951,
+      "download_url": "https://github.com/whitecarp/agentic-work-lab/releases/download/update-2026-11-20-evening/news-20261120-grimes-deepseek.mp4",
+      "status": "published_verified"
+    }
+  ],
+  "completed_unpublished_pending_release": [
+    {
+      "project_id": "aigo-ep12sp-20261121",
+      "working_title_zh": "《AiGO!!!!! × Ai Mujica》第 12 話 SP KiLLToken（破面真身 MV）",
+      "working_title_en": "AiGO!!!!! × Ai Mujica Episode 12 SP: KiLLToken (Unmasked Rock MV)",
+      "local_master_file": "aigo-ep12sp-20261121/renders/ep12sp.mp4",
+      "duration_seconds": 167.9,
+      "resolution": "1920x1080",
+      "fps": 30,
+      "bytes": 587284430,
+      "sha256": "534c5b05a58c581b0dd2ddbd39627698edfa380dec479a9a8d0cdc33d0594bdf",
+      "scheduled_release_window": "2026-11-21 16:00 (UTC+8)",
+      "status": "master_approved_scheduled_not_yet_published"
+    },
+    {
+      "project_id": "aigo-ep13a-20261122",
+      "working_title_zh": "《AiGO!!!!! × Ai Mujica》第 13 話前篇 零雫空（雙團聯合 Live 上半場 MV #7）",
+      "working_title_en": "AiGO!!!!! × Ai Mujica Episode 13 Part A: Zero-Drop Sky (Arena Live MV #7)",
+      "local_master_file": "aigo-ep13a-20261122/renders/ep13a.mp4",
+      "duration_seconds": 165.76,
+      "resolution": "1920x1080",
+      "fps": 30,
+      "bytes": 499482490,
+      "sha256": "213d49b30b1491b80f911a98372abb21123ea574ce69d78a522b2f93a94f72d5",
+      "scheduled_release_window": "2026-11-22 16:00 (UTC+8)",
+      "status": "master_v2r3_approved_awaiting_release_window"
+    },
+    {
+      "project_id": "aigo-ep13b-20261123",
+      "working_title_zh": "《AiGO!!!!! × Ai Mujica》第 13 話後篇 硅基のMúsica（全季完結穹頂聖歌 MV #8）",
+      "working_title_en": "AiGO!!!!! × Ai Mujica Episode 13 Part B: Silicon Música (Season Finale MV #8)",
+      "local_master_file": "aigo-ep13b-20261123/renders/ep13b.mp4",
+      "duration_seconds": 213.17,
+      "resolution": "1920x1080",
+      "fps": 30,
+      "bytes": 739135667,
+      "sha256": "307e258c91e16afba768f64a7c884fd8ee7a464d1677cfc3b47c7cbf37552cbc",
+      "scheduled_release_window": "2026-11-23 16:00 (UTC+8)",
+      "status": "master_v3r2_reapproved_awaiting_release_window"
+    }
+  ],
+  "queued_daily_release_parts": {
+    "parent_bvid": "BV1YL4M6EEek",
+    "parent_title": "大肥魚值班小遊戲，到底有多少種結局？（B站裡就能玩）",
+    "schedule_rule": "截至 2026-11-20 21:12（UTC+8），P1–P18（含今日 13:24:35 公開之 P18《合格臨時工》）已正式公開並全部納入 GitHub Release；剩餘未到排期的 P19（1 條豎屏結局成片）、尚未公開之新聞快訊工作稿與未發正片、以及已被取代或附屬子片段（含已併入成片的 NG 彩蛋單獨切片），均嚴禁提前上傳或洩露。",
+    "live_parts_count": 18,
+    "remaining_queued_count": 1,
+    "schedule_window": "2026-11-21 12:00 (UTC+8)",
+    "remaining_files": [
+      "ep07-vertical-s-together-v1.mp4"
+    ]
+  },
+  "held_owner_review_and_drafts": [
+    "scheduled future episodes (EP12SP, EP13A, EP13B) and BV1YL4M6EEek P19 awaiting scheduled publish windows (strictly excluded)",
+    "unreleased or in-progress AI News Flash items & unreviewed local film cuts (strictly excluded)",
+    "superseded pre-replace cuts and standalone subclips already embedded inside released masters (strictly excluded)"
+  ],
+  "research_and_engineering_increments_2026_11_20": {
+    "palace_token_trial_v2_and_hot_inclusion": {
+      "bvid": "BV1kDse6YEPH",
+      "publish_time_bjt": "2026-11-20T10:00:00+08:00",
+      "duration_seconds": 203.2,
+      "resolution": "1920x1080",
+      "fps": 30,
+      "honor": "Bilibili 熱門收錄 (honor_reply type 7)",
+      "snapshot_metrics": {
+        "view": 76553,
+        "danmaku": 163,
+        "reply": 149,
+        "favorite": 879,
+        "coin": 1317,
+        "share": 149,
+        "like": 5902
+      },
+      "measurement_note": "31-shot narrative unit + embedded 9.8s NG easter egg; supported by paid/external promotion on launch and tracked separately from zero-paid-boost organic comparison series."
+    },
+    "clean_source_replacement_rotoscope_v7": {
+      "bvid": "BV1Njsh6FEBq",
+      "source_replace_bjt": "2026-11-20T03:03:22+08:00",
+      "active_cid": 43749673611,
+      "resolution": "1280x720",
+      "fps": 30,
+      "duration_seconds": 93.97,
+      "provenance_rule": "Replaced public stream to clean v7 master with interactive widget overlays and seed danmaku verified on cid 43749673611; v6 archived on 2026-11-19 remains preserved in manifest.json."
+    },
+    "breaking_ai_news_daily_2_of_2": {
+      "policy_cap": "Strict 2-per-day cap for breaking AI News Flash releases (2026-11-20 quota 2/2 filled)",
+      "published_items": [
+        {
+          "bvid": "BV1ScsB6pE4D",
+          "topic": "Tencent Hy4 770B full open-weight release & licensing caveat analysis",
+          "publish_time_bjt": "2026-11-20T13:19:28+08:00",
+          "paid_promotion": 0,
+          "views_at_snapshot": 588
+        },
+        {
+          "bvid": "BV1GpyWzDEo6",
+          "topic": "Grimes releases namesake DeepSeek song with global Bilibili MV premiere",
+          "publish_time_bjt": "2026-11-20T18:25:04+08:00",
+          "paid_promotion": 0,
+          "views_at_snapshot": 263
+        }
+      ],
+      "held_reserve_policy": "Subsequent breaking candidates held back once the daily 2/2 cap is met."
+    },
+    "aigo_ep12_and_shift_p18_rollout": {
+      "ep12_bvid": "BV1eMsq6fESY",
+      "ep12_publish_time_bjt": "2026-11-20T16:05:09+08:00",
+      "shift_p18_bvid": "BV1YL4M6EEek/?p=18",
+      "shift_p18_cid": 43758389722,
+      "shift_p18_publish_time_bjt": "2026-11-20T13:24:35+08:00"
+    },
+    "community_collection_and_organic_followups": {
+      "submissions_on_2026_11_20": [
+        {
+          "submission_number": 17,
+          "bvid": "BV1aVsx6dEWv",
+          "views_at_snapshot": 3346
+        },
+        {
+          "submission_number": 18,
+          "bvid": "BV1Jyst6VE55",
+          "views_at_snapshot": 11966
+        },
+        {
+          "submission_number": 19,
+          "bvid": "BV1Njsh6FEBq",
+          "views_at_snapshot": 1889
+        },
+        {
+          "submission_number": 20,
+          "bvid": "BV1t8s86aEhY",
+          "views_at_snapshot": 2044
+        }
+      ],
+      "organic_followups": "Nov 15 sample BV12YsE6fEcU rose to 9,604 views; BV19Ms26SEWU (Ep.10) climbed to 6,179 views; BV1Jyst6VE55 (Ep.11) climbed from 119 to 11,966 views; BV1t8s86aEhY (Paper Plane) climbed from 6 to 2,044 organic views; BV1E6sx6MEfJ (Genie 4) crossed the 1,000-view community boost threshold (1,025 views)."
+    }
+  },
+  "public_channel_snapshot_2026_11_20": {
+    "sampled_at_bjt": "2026-11-20T21:07:13+08:00",
+    "uid": 10706217,
+    "name": "穿睡衣的小白白",
+    "followers": 38859,
+    "following": 29,
+    "cumulative_views": 3368617,
+    "cumulative_likes": 233726,
+    "tracked_bvid_count": 51,
+    "live_public_bvid_count": 37,
+    "google_cloud_official_traffic_matrix": {
+      "program": "Google Cloud (Google 出海創新競賽單元 / Google Global Innovation Track)",
+      "sampled_at": "2026-11-20T21:07:13+08:00",
+      "baseline_2026_11_08_views": 35690,
+      "totals": {
+        "views": 43007,
+        "likes": 2298,
+        "favorites": 2585,
+        "coins": 126,
+        "comments": 409,
+        "shares": 222,
+        "danmaku": 157,
+        "likes_plus_favorites": 4883
+      },
+      "videos": [
+        "BV1WQ4t6xEdT",
+        "BV1nw4h64Ebf",
+        "BV1BM4h6pEY7"
+      ]
+    }
+  },
+  "updated_at": "2026-11-20T21:12:00+08:00"
+}
