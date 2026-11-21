@@ -2,11 +2,11 @@
 
 **繁體中文** · [English](README_EN.md)
 
-2026-11-20 · **103** 個影片版本 · **8.54 GiB**（分布於 **17** 個主要公開 Release）
+2026-11-21 · **106** 個影片版本 · **9.13 GiB**（分布於 **18** 個主要公開 Release）
 
-全部 103 個遠端附件的大小及 SHA-256 均與索引一致；版本數不等於集數。保留每筆採樣日期與 B站歷史狀態，不把已過的排期時間當作公開證明。完整實驗交付不等於使用者全片驗收。
+全部 106 個遠端附件的大小及 SHA-256 均與索引一致；版本數不等於集數。保留每筆採樣日期與 B站歷史狀態，不把已過的排期時間當作公開證明。完整實驗交付不等於使用者全片驗收。
 
-[校驗清單](SHA256SUMS.txt) · [完整索引](manifest.json) · [本輪研究與限制](../docs/updates/2026-11-20.md)
+[校驗清單](SHA256SUMS.txt) · [完整索引](manifest.json) · [本輪研究與限制](../docs/updates/2026-11-21.md)
 
 | 檔案 | 作品 | 已記錄的 B站狀態 | MiB |
 |---|---|---|---:|
@@ -113,7 +113,10 @@
 | [ep07-vertical-r-ontime-v1.mp4](https://github.com/whitecarp/agentic-work-lab/releases/download/update-2026-11-20-evening/ep07-vertical-r-ontime-v1.mp4) | 值班小遊戲結局合集 P18：合格臨時工（9:16 豎版 v1） | 已公開（`BV1YL4M6EEek/?p=18`） | 9.14 |
 | [aigo-ep12-20261120.mp4](https://github.com/whitecarp/agentic-work-lab/releases/download/update-2026-11-20-evening/aigo-ep12-20261120.mp4) | 《AiGO!!!!! × Ai Mujica》第 12 話 強制開源（16:9 橫版母帶） | 已公開（`BV1eMsq6fESY`） | 394.19 |
 | [news-20261120-grimes-deepseek.mp4](https://github.com/whitecarp/agentic-work-lab/releases/download/update-2026-11-20-evening/news-20261120-grimes-deepseek.mp4) | 【AI快訊】衝上熱搜！馬斯克前女友給 DeepSeek 寫同名主打歌，B 站全球首發 MV（16:9 橫版母帶 v1） | 已公開（`BV1GpyWzDEo6`） | 42.39 |
+| [news-20261121-inkling-2-mini.mp4](https://github.com/whitecarp/agentic-work-lab/releases/download/update-2026-11-21-evening/news-20261121-inkling-2-mini.mp4) | 【AI快訊】20GB 筆記本斷網跑！前 OpenAI CTO 團隊開源循環架構 Inkling 2 Mini，多項編程榜超 Qwen3.8（16:9 橫版母帶 v1） | 已公開（`BV14zyxzmEio`） | 42.52 |
+| [ep07-vertical-s-together-v1.mp4](https://github.com/whitecarp/agentic-work-lab/releases/download/update-2026-11-21-evening/ep07-vertical-s-together-v1.mp4) | 值班小遊戲結局合集 P19：下班搭子（19/19 完結回 · 9:16 豎版 v1） | 已公開（`BV1YL4M6EEek/?p=19`） | 9.10 |
+| [aigo-ep12sp-20261121.mp4](https://github.com/whitecarp/agentic-work-lab/releases/download/update-2026-11-21-evening/aigo-ep12sp-20261121.mp4) | 《AiGO!!!!! × Ai Mujica》第 12 話 SP KiLLToken（破面真身 MV · 16:9 橫版母帶） | 已公開（`BV1pZyazfEQE`） | 560.08 |
 
-GitHub 存檔公開不更改 B站排期（如《大肥魚值班小遊戲》最後排期分P `P19`、儲備成片《AiGO!!!!! × Ai Mujica》第 12 話 SP 至第 13 話後篇 `EP12SP`、`EP13A`、`EP13B`、未審核未公開本地實驗片、未發快訊工作稿與已嵌入成片之附屬子切片均待 B站正式公開或獨立審核後再行處理）；技術檢查與全片主觀觀看／聆聽分開記錄。歷史人工影片原檔不在本機，仍提供其[數據與平台連結](../data/human-led-history.csv)。
+GitHub 存檔公開不更改 B站排期（如儲備成片《AiGO!!!!! × Ai Mujica》第 13 話前篇 `EP13A` 與後篇 `EP13B`、未公開或僅自己可見之快訊如 `BV138yxz9E42`、`state == -50`、未審核未公開本地實驗片與已嵌入成片之附屬子切片均待 B站正式公開後再行處理；《大肥魚值班小遊戲》`P1–P19` 19 全結局已於今日全數公開歸檔）；技術檢查與全片主觀觀看／聆聽分開記錄。歷史人工影片原檔不在本機，仍提供其[數據與平台連結](../data/human-led-history.csv)。
 
 [返回實驗室](../README.md)

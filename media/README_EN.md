@@ -2,11 +2,11 @@
 
 [繁體中文](README.md) · **English**
 
-2026-11-20 · **103** video versions · **8.54 GiB** (across **17** primary public Releases)
+2026-11-21 · **106** video versions · **9.13 GiB** (across **18** primary public Releases)
 
-All 103 remote sizes and SHA-256 digests match the manifest. Versions are not episode counts. Original sample dates and historical Bilibili states remain in the index; old scheduled times are not treated as proof of publication. Complete experimental exports are not claims of full user acceptance.
+All 106 remote sizes and SHA-256 digests match the manifest. Versions are not episode counts. Original sample dates and historical Bilibili states remain in the index; old scheduled times are not treated as proof of publication. Complete experimental exports are not claims of full user acceptance.
 
-[Checksums](SHA256SUMS.txt) · [Manifest](manifest.json) · [New research and limits](../docs/updates/2026-11-20_EN.md)
+[Checksums](SHA256SUMS.txt) · [Manifest](manifest.json) · [New research and limits](../docs/updates/2026-11-21_EN.md)
 
 | File | Work | Recorded Bilibili state | MiB |
 |---|---|---|---:|
@@ -113,7 +113,10 @@ All 103 remote sizes and SHA-256 digests match the manifest. Versions are not ep
 | [ep07-vertical-r-ontime-v1.mp4](https://github.com/whitecarp/agentic-work-lab/releases/download/update-2026-11-20-evening/ep07-vertical-r-ontime-v1.mp4) | WhaleGirl Shift Simulator Endings P18: Qualified Temp Worker (18/19 · 9:16 Vertical v1) | published (`BV1YL4M6EEek/?p=18`) | 9.14 |
 | [aigo-ep12-20261120.mp4](https://github.com/whitecarp/agentic-work-lab/releases/download/update-2026-11-20-evening/aigo-ep12-20261120.mp4) | AiGO!!!!! × Ai Mujica Ep.12 Forced Open Source (16:9 Master) | published (`BV1eMsq6fESY`) | 394.19 |
 | [news-20261120-grimes-deepseek.mp4](https://github.com/whitecarp/agentic-work-lab/releases/download/update-2026-11-20-evening/news-20261120-grimes-deepseek.mp4) | [AI News Flash] Trending! Grimes Writes Namesake Track for DeepSeek with Global Bilibili MV Premiere (16:9 Master v1) | published (`BV1GpyWzDEo6`) | 42.39 |
+| [news-20261121-inkling-2-mini.mp4](https://github.com/whitecarp/agentic-work-lab/releases/download/update-2026-11-21-evening/news-20261121-inkling-2-mini.mp4) | [AI News Flash] Offline on a 20GB Laptop! Ex-OpenAI CTO Team Open-Sources Looped MoE Inkling 2 Mini, Leading Qwen3.8 on Coding Benchmarks (16:9 Master v1) | published (`BV14zyxzmEio`) | 42.52 |
+| [ep07-vertical-s-together-v1.mp4](https://github.com/whitecarp/agentic-work-lab/releases/download/update-2026-11-21-evening/ep07-vertical-s-together-v1.mp4) | WhaleGirl Shift Simulator Endings P19: Off-Shift Buddy (19/19 Finale · 9:16 Vertical v1) | published (`BV1YL4M6EEek/?p=19`) | 9.10 |
+| [aigo-ep12sp-20261121.mp4](https://github.com/whitecarp/agentic-work-lab/releases/download/update-2026-11-21-evening/aigo-ep12sp-20261121.mp4) | AiGO!!!!! × Ai Mujica Ep.12 SP: KiLLToken (Unmasked Rock MV · 16:9 Master) | published (`BV1pZyazfEQE`) | 560.08 |
 
-GitHub archival publication does not change Bilibili schedules (remaining queued part `P19` of *WhaleGirl Shift Simulator*, banked/held masters for *AiGO!!!!! × Ai Mujica* `EP12SP`, `EP13A`, `EP13B`, unreviewed local experiments, unreleased/WIP news drafts, and embedded component subclips remain strictly excluded until public release). Technical checks are distinct from full subjective viewing/listening. Historical human-led originals are not available locally; their [data and platform links](../data/human-led-history.csv) remain available.
+GitHub archival publication does not change Bilibili schedules (banked/held finale masters for *AiGO!!!!! × Ai Mujica* `EP13A` and `EP13B`, non-public `state == -50` news items such as `BV138yxz9E42`, unreviewed local experiments, and embedded component subclips remain strictly excluded until verified `state == 0` on Bilibili; all `P1–P19` parts of *WhaleGirl Shift Simulator* are now complete and archived). Technical checks are distinct from full subjective viewing/listening. Historical human-led originals are not available locally; their [data and platform links](../data/human-led-history.csv) remain available.
 
 [Back to the lab](../README_EN.md)

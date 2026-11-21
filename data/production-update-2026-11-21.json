@@ -1,0 +1,208 @@
+{
+  "date": "2026-11-21",
+  "coverage_window": "2026-11-20T21:12:00+08:00 to 2026-11-21T21:13:31+08:00",
+  "release_tag": "update-2026-11-21-evening",
+  "release_url": "https://github.com/whitecarp/agentic-work-lab/releases/tag/update-2026-11-21-evening",
+  "github_release_id": 453700624,
+  "new_release_items_count": 3,
+  "new_release_bytes": 641410170,
+  "total_manifest_items": 106,
+  "total_manifest_bytes": 9805820031,
+  "total_manifest_gib": 9.13,
+  "total_public_releases": 18,
+  "new_media": [
+    {
+      "id": "news-20261121-inkling-2-mini",
+      "file": "news-20261121-inkling-2-mini.mp4",
+      "title_zh": "【AI快訊】20GB 筆記本斷網跑！前 OpenAI CTO 團隊開源循環架構 Inkling 2 Mini，多項編程榜超 Qwen3.8（16:9 橫版母帶 v1）",
+      "title_en": "[AI News Flash] Offline on a 20GB Laptop! Ex-OpenAI CTO Team Open-Sources Looped MoE Inkling 2 Mini, Leading Qwen3.8 on Coding Benchmarks (16:9 Master v1)",
+      "date": "2026-11-21",
+      "bvid": "BV14zyxzmEio",
+      "bilibili_url": "https://www.bilibili.com/video/BV14zyxzmEio",
+      "aid": 117650797692774,
+      "cid": 43779163138,
+      "category": "series",
+      "bytes": 44587106,
+      "mib": 42.52,
+      "duration_seconds": 69.23,
+      "resolution": "1920x1080",
+      "fps": 30,
+      "sha256": "919f3d89f0278060546513fe713c8aecc4416e8f0fe8088382a60185de1eb93d",
+      "release_tag": "update-2026-11-21-evening",
+      "github_asset_id": 775630242,
+      "download_url": "https://github.com/whitecarp/agentic-work-lab/releases/download/update-2026-11-21-evening/news-20261121-inkling-2-mini.mp4",
+      "status": "published_verified"
+    },
+    {
+      "id": "ep07-vertical-s-together-v1",
+      "file": "ep07-vertical-s-together-v1.mp4",
+      "title_zh": "值班小遊戲結局合集 P19：下班搭子（19/19 完結回 · 9:16 豎版 v1）",
+      "title_en": "WhaleGirl Shift Simulator Endings P19: Off-Shift Buddy (19/19 Series Finale · 9:16 Vertical v1)",
+      "date": "2026-11-21",
+      "bvid": "BV1YL4M6EEek",
+      "bilibili_url": "https://www.bilibili.com/video/BV1YL4M6EEek/?p=19",
+      "aid": 117550956416312,
+      "cid": 43779491871,
+      "category": "vertical-short",
+      "bytes": 9538634,
+      "mib": 9.1,
+      "duration_seconds": 30.2,
+      "resolution": "1080x1920",
+      "fps": 30,
+      "sha256": "36edb3e86810d63b703fe27d5613a2537212d15b429f510dbc4db36f72f38d37",
+      "release_tag": "update-2026-11-21-evening",
+      "github_asset_id": 775630244,
+      "download_url": "https://github.com/whitecarp/agentic-work-lab/releases/download/update-2026-11-21-evening/ep07-vertical-s-together-v1.mp4",
+      "status": "published_verified"
+    },
+    {
+      "id": "aigo-ep12sp-20261121",
+      "file": "aigo-ep12sp-20261121.mp4",
+      "title_zh": "《AiGO!!!!! × Ai Mujica》第 12 話 SP KiLLToken（破面真身 MV · 16:9 橫版母帶）",
+      "title_en": "AiGO!!!!! × Ai Mujica Ep.12 SP: KiLLToken (Unmasked Rock MV · 16:9 Master)",
+      "date": "2026-11-21",
+      "bvid": "BV1pZyazfEQE",
+      "bilibili_url": "https://www.bilibili.com/video/BV1pZyazfEQE",
+      "aid": 117653364607965,
+      "cid": 43791417902,
+      "category": "flagship",
+      "bytes": 587284430,
+      "mib": 560.08,
+      "duration_seconds": 167.89,
+      "resolution": "1920x1080",
+      "fps": 30,
+      "sha256": "534c5b05a58c581b0dd2ddbd39627698edfa380dec479a9a8d0cdc33d0594bdf",
+      "release_tag": "update-2026-11-21-evening",
+      "github_asset_id": 775630243,
+      "download_url": "https://github.com/whitecarp/agentic-work-lab/releases/download/update-2026-11-21-evening/aigo-ep12sp-20261121.mp4",
+      "status": "published_verified"
+    }
+  ],
+  "completed_unpublished_pending_release": [
+    {
+      "project_id": "aigo-ep13a-20261122",
+      "working_title_zh": "《AiGO!!!!! × Ai Mujica》第 13 話前篇 零雫空（雙團聯合 Live 上半場 MV #7）",
+      "working_title_en": "AiGO!!!!! × Ai Mujica Episode 13 Part A: Zero-Drop Sky (Arena Live MV #7)",
+      "local_master_file": "aigo-ep13a-20261122/renders/ep13a.mp4",
+      "duration_seconds": 165.76,
+      "resolution": "1920x1080",
+      "fps": 30,
+      "bytes": 499482490,
+      "sha256": "213d49b30b1491b80f911a98372abb21123ea574ce69d78a522b2f93a94f72d5",
+      "scheduled_release_window": "2026-11-22 16:00 (UTC+8)",
+      "status": "master_v2r3_approved_awaiting_release_window"
+    },
+    {
+      "project_id": "aigo-ep13b-20261123",
+      "working_title_zh": "《AiGO!!!!! × Ai Mujica》第 13 話後篇 硅基のMúsica（全季完結穹頂聖歌 MV #8）",
+      "working_title_en": "AiGO!!!!! × Ai Mujica Episode 13 Part B: Silicon Música (Season Finale MV #8)",
+      "local_master_file": "aigo-ep13b-20261123/renders/ep13b.mp4",
+      "duration_seconds": 213.17,
+      "resolution": "1920x1080",
+      "fps": 30,
+      "bytes": 739135667,
+      "sha256": "307e258c91e16afba768f64a7c884fd8ee7a464d1677cfc3b47c7cbf37552cbc",
+      "scheduled_release_window": "2026-11-23 16:00 (UTC+8)",
+      "status": "master_v3r2_reapproved_awaiting_release_window"
+    }
+  ],
+  "queued_daily_release_parts": {
+    "parent_bvid": "BV1YL4M6EEek",
+    "parent_title": "大肥魚值班小遊戲，到底有多少種結局？（B站裡就能玩）",
+    "schedule_rule": "截至 2026-11-21 06:05（UTC+8），全 19 個豎屏結局分P（P1–P19，含今日 05:50:52 上傳並於 06:05 完成狀態與 4 大互動組件核驗之收官回 P19《下班搭子》）已全部公開（state == 0）並完整納入 GitHub Release，待排期剩餘為 0。",
+    "live_parts_count": 19,
+    "remaining_queued_count": 0,
+    "schedule_window": "2026-11-03 至 2026-11-21（19 全結局連載已圓滿完結）",
+    "remaining_files": []
+  },
+  "held_owner_review_and_drafts": [
+    "scheduled future episodes (EP13A for 2026-11-22 16:00 BJT, EP13B for 2026-11-23 16:00 BJT) awaiting scheduled publish windows (strictly excluded)",
+    "news-20261120-anthropic-ipo-close (BV138yxz9E42, verified state == -50 owner-only/private via bili.exe upload status & public API code == 62012 on 2026-11-21; strictly excluded under state == 0 gate)",
+    "unreleased code-drawn films (film-song-20261120, film-planet-20261121) & in-progress dressup-opacity-20261121 still-review project (strictly excluded)",
+    "superseded cuts, preview encodes (e.g. ep12sp-preview-720p.mp4, ep12sp-raw.mp4), and standalone subclips (strictly excluded)"
+  ],
+  "research_and_engineering_increments_2026_11_21": {
+    "aigo_ep12sp_killtoken_crosscast_release": {
+      "bvid": "BV1pZyazfEQE",
+      "publish_time_bjt": "2026-11-21T16:04:07+08:00",
+      "cid": 43791417902,
+      "duration_seconds": 167.89,
+      "resolution": "1920x1080",
+      "fps": 30,
+      "delivery_channel": "PublishOps CrossCast live Bilibili release slot",
+      "snapshot_views": 124
+    },
+    "shift_simulator_19_ending_finale": {
+      "bvid": "BV1YL4M6EEek/?p=19",
+      "cid": 43779491871,
+      "upload_time_bjt": "2026-11-21T05:50:52+08:00",
+      "widgets_verified_bjt": "2026-11-21T06:05:00+08:00",
+      "total_live_parts": 19,
+      "duration_seconds": 30.2,
+      "resolution": "1080x1920",
+      "fps": 30,
+      "note": "Completed 19/19 ending anthology with all 4 interactive overlays mounted and verified."
+    },
+    "breaking_ai_news_inkling_2_mini_and_pause": {
+      "bvid": "BV14zyxzmEio",
+      "topic": "Thinking Machines Lab open-sources Apache 2.0 looped MoE Inkling 2 Mini (26.4B total / 3.4B active, 19.53 GB NVFP4/MXFP8)",
+      "publish_time_bjt": "2026-11-21T05:07:18+08:00",
+      "paid_promotion": 0,
+      "day1_organic_views": 1054,
+      "likes": 20,
+      "favorites": 23,
+      "comments": 21,
+      "operational_note": "Crossed 1,000 Day-1 organic views for Day-2 community boost eligibility; later at 18:18 BJT the owner paused automated AI News Flash scanning and generation for the current phase."
+    },
+    "community_collection_and_organic_followups": {
+      "submissions_on_2026_11_21": [
+        {
+          "submission_number": 23,
+          "bvid": "BV1kDse6YEPH",
+          "submitted_at_bjt": "2026-11-21T00:04:00+08:00",
+          "views_at_snapshot": 78298
+        },
+        {
+          "submission_number": 24,
+          "bvid": "BV1eMsq6fESY",
+          "submitted_at_bjt": "2026-11-21T00:05:00+08:00",
+          "views_at_snapshot": 1783
+        }
+      ],
+      "organic_followups": "BV12YsE6fEcU crossed 10k organic views (10109); BV1FVsp6FENs reached 2945; BV19Ms26SEWU (Ep.10) reached 8215; BV1Jyst6VE55 (Ep.11) reached 12035; BV1aVsx6dEWv reached 4026; BV1Njsh6FEBq reached 2387; BV1t8s86aEhY reached 2174."
+    }
+  },
+  "public_channel_snapshot_2026_11_21": {
+    "sampled_at_bjt": "2026-11-21T21:02:07+08:00",
+    "per_video_sampled_at_bjt": "2026-11-21T21:04:23+08:00",
+    "uid": 10706217,
+    "name": "穿睡衣的小白白",
+    "followers": 39270,
+    "following": 29,
+    "cumulative_views": 3469063,
+    "cumulative_likes": 234663,
+    "tracked_bvid_count": 53,
+    "live_public_bvid_count": 31,
+    "google_cloud_official_traffic_matrix": {
+      "program": "Google Cloud (Google 出海創新競賽單元 / Google Global Innovation Track)",
+      "sampled_at": "2026-11-21T21:04:23+08:00",
+      "baseline_2026_11_08_views": 35690,
+      "totals": {
+        "views": 43245,
+        "likes": 2302,
+        "favorites": 2594,
+        "coins": 128,
+        "comments": 409,
+        "shares": 223,
+        "danmaku": 159,
+        "likes_plus_favorites": 4896
+      },
+      "videos": [
+        "BV1WQ4t6xEdT",
+        "BV1nw4h64Ebf",
+        "BV1BM4h6pEY7"
+      ]
+    }
+  },
+  "updated_at": "2026-11-21T21:13:31+08:00"
+}

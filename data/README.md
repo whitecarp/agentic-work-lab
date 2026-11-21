@@ -2,7 +2,7 @@
 
 **繁體中文** · [English](README_EN.md)
 
-**2026-11-20：** 新增 [2026-11-20 晚間增量結構化紀錄](production-update-2026-11-20.json) 與更新後的 [公開即時指標快照](metrics/current-metrics.json)（詳見 [2026-11-20 增量更新報告](../docs/updates/2026-11-20.md)）。先前 2026-11-19、2026-11-18、2026-11-17、2026-11-16、2026-11-15、2026-11-14、2026-11-09、2026-11-08 與 2026-11-03 紀錄分別保留於 [production-update-2026-11-19.json](production-update-2026-11-19.json)、[production-update-2026-11-18.json](production-update-2026-11-18.json)、[production-update-2026-11-17.json](production-update-2026-11-17.json)、[production-update-2026-11-16.json](production-update-2026-11-16.json)、[production-update-2026-11-15.json](production-update-2026-11-15.json)、[production-update-2026-11-14.json](production-update-2026-11-14.json)、[production-update-2026-11-09.json](production-update-2026-11-09.json)、[production-update-2026-11-08.json](production-update-2026-11-08.json) 與 [production-update-2026-11-03.json](production-update-2026-11-03.json)。下方 2026-10-28 歷史快照保持原口徑與日期。
+**2026-11-21：** 新增 [2026-11-21 晚間增量結構化紀錄](production-update-2026-11-21.json) 與更新後的 [公開即時指標快照](metrics/current-metrics.json)（詳見 [2026-11-21 增量更新報告](../docs/updates/2026-11-21.md)）。先前 2026-11-20、2026-11-19、2026-11-18、2026-11-17、2026-11-16、2026-11-15、2026-11-14、2026-11-09、2026-11-08 與 2026-11-03 紀錄分別保留於 [production-update-2026-11-20.json](production-update-2026-11-20.json)、[production-update-2026-11-19.json](production-update-2026-11-19.json)、[production-update-2026-11-18.json](production-update-2026-11-18.json)、[production-update-2026-11-17.json](production-update-2026-11-17.json)、[production-update-2026-11-16.json](production-update-2026-11-16.json)、[production-update-2026-11-15.json](production-update-2026-11-15.json)、[production-update-2026-11-14.json](production-update-2026-11-14.json)、[production-update-2026-11-09.json](production-update-2026-11-09.json)、[production-update-2026-11-08.json](production-update-2026-11-08.json) 與 [production-update-2026-11-03.json](production-update-2026-11-03.json)。下方 2026-10-28 歷史快照保持原口徑與日期。
 
 帳號：[穿睡衣的小白白 · UID 10706217](https://space.bilibili.com/10706217)
 
@@ -43,6 +43,10 @@
 ## 2026-10-30 狀態更新
 
 [本輪記錄](production-update-2026-10-30-evening.json)只新增兩份本機實驗交付與 GPT 第四期公開狀態，未更新全帳號流量或首日指標。上方統計及歷史人類／AI 系列口徑仍為原採樣快照，不併入不同日期的局部紀錄。
+
+## 2026-11-21 晚間增量歸檔與公開指標更新
+
+[本輪結構化紀錄](production-update-2026-11-21.json)與[最新即時指標快照](metrics/current-metrics.json)收錄截至 `2026-11-21 21:04:23`（UTC+8）經 `bili.exe` 唯讀接口（避讓 Round Two `run.lock`）與 B 站公開接口核驗公開（`state == 0`）的 **3 個新歸檔成片版本**（[`BV14zyxzmEio`](https://www.bilibili.com/video/BV14zyxzmEio)《Thinking Machines Lab 開源循環架構 Inkling 2 Mini》（零投流當日達 `1,054` 播）、[`BV1YL4M6EEek/?p=19`](https://www.bilibili.com/video/BV1YL4M6EEek/?p=19)《P19 下班搭子》（`19/19` 完結回，全系列收官無剩餘排期）與 [`BV1pZyazfEQE`](https://www.bilibili.com/video/BV1pZyazfEQE)《第 12 話 SP KiLLToken》（`16:04` CrossCast 上線），累計 **106 個影片版本 · 9.13 GiB**，分布於 **18** 個主要公開 Release）、**53 支追蹤稿件**（含 `31` 支在線公開 BV 即時快照：`39,270` 粉絲、空間累計 **`3,469,063` 播放**與 **`234,663` 點讚**，Google Cloud 三片矩陣達 **`43,245` 播放**與 `4,896` 點讚＋收藏；`22` 支公開接口返回 `code == 62012` 之 `state == -50` 稿件保留 `2026-11-15` 或 `2026-11-20` 快照）、嚴格維持 `BV138yxz9E42`（`state == -50` 僅自己可見）及 `EP13A`/`EP13B`／未發短片／中間檔排除，並記錄今日 `00:04–00:05 BJT` 完成 `BV1kDse6YEPH` 與 `BV1eMsq6fESY` 免費社群流量扶持表提報（累計 **#23–#24**）與 `18:18 BJT` 【AI快訊】階段性暫停。不含任何登入憑證、私訊、觀眾名單或內部錢包／帳戶／訂單細節。
 
 ## 2026-11-20 晚間增量歸檔與公開指標更新
 
