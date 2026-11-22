@@ -1,0 +1,245 @@
+{
+  "date": "2026-11-22",
+  "coverage_window": "2026-11-21T21:13:31+08:00 to 2026-11-22T21:08:39+08:00",
+  "release_tag": "update-2026-11-22-evening",
+  "release_url": "https://github.com/whitecarp/agentic-work-lab/releases/tag/update-2026-11-22-evening",
+  "github_release_id": 454454692,
+  "new_release_items_count": 4,
+  "new_release_bytes": 731379450,
+  "total_manifest_items": 110,
+  "total_manifest_bytes": 10537199481,
+  "total_manifest_gib": 9.81,
+  "total_public_releases": 19,
+  "new_media": [
+    {
+      "id": "dressup-opacity-20261121-v2-resubmit",
+      "file": "dressup-opacity-20261121-v2-resubmit.mp4",
+      "title_zh": "【大肥魚】不透明度 50% / 30%？滑鼠別再往左拉了！（v2_resubmit 換源現行版 · 9:16 豎版）",
+      "title_en": "WhaleGirl Layer Opacity 50% / 30%? Stop Dragging Left! (v2_resubmit Clean Master · 9:16 Vertical)",
+      "date": "2026-11-22",
+      "bvid": "BV1svygzNEmJ",
+      "bilibili_url": "https://www.bilibili.com/video/BV1svygzNEmJ",
+      "aid": 117656334108188,
+      "cid": 43818879727,
+      "category": "vertical-short",
+      "bytes": 51960446,
+      "mib": 49.55,
+      "duration_seconds": 25.18,
+      "resolution": "1080x1920",
+      "fps": 60,
+      "sha256": "76a566d1921d20106b120dfd5c78d62750f41ff7cfa3ee768230bc4215e5995f",
+      "release_tag": "update-2026-11-22-evening",
+      "github_asset_id": 779104991,
+      "download_url": "https://github.com/whitecarp/agentic-work-lab/releases/download/update-2026-11-22-evening/dressup-opacity-20261121-v2-resubmit.mp4",
+      "status": "published_verified"
+    },
+    {
+      "id": "skating-troika-ai-girls-v8-safebadge-20261122",
+      "file": "skating-troika-ai-girls-v8-safebadge-20261122.mp4",
+      "title_zh": "當 AI 娘化身花滑三套娃！GPT 白龍蟹步 × 大肥魚 × Claude 娘真人轉繪（v8 SafeBadge 換源現行版）",
+      "title_en": "AI Girls as the Figure Skating Troika! GPT White Dragon Cantilever × WhaleGirl × Claude Rotoscope (v8 SafeBadge Master)",
+      "date": "2026-11-22",
+      "bvid": "BV1Njsh6FEBq",
+      "bilibili_url": "https://www.bilibili.com/video/BV1Njsh6FEBq",
+      "aid": 117642643900833,
+      "cid": 43818683649,
+      "category": "flagship",
+      "bytes": 66928402,
+      "mib": 63.83,
+      "duration_seconds": 93.93,
+      "resolution": "1280x720",
+      "fps": 30,
+      "sha256": "4ea3ed886970b549ea7c3bcf099b23cdcac01bb0d2ce46d0dd0aa53bebcd1594",
+      "release_tag": "update-2026-11-22-evening",
+      "github_asset_id": 779104995,
+      "download_url": "https://github.com/whitecarp/agentic-work-lab/releases/download/update-2026-11-22-evening/skating-troika-ai-girls-v8-safebadge-20261122.mp4",
+      "status": "published_verified"
+    },
+    {
+      "id": "aigo-ep13a-20261122",
+      "file": "aigo-ep13a-20261122.mp4",
+      "title_zh": "《AiGO!!!!! × Ai Mujica》第 13 話前篇 零雫空（雙團聯合 Live 上半場 MV #7 · 16:9 橫版母帶）",
+      "title_en": "AiGO!!!!! × Ai Mujica Ep.13 Part A: Zero-Drop Sky (Arena Live MV #7 · 16:9 Master)",
+      "date": "2026-11-22",
+      "bvid": "BV1GNyVzpEja",
+      "bilibili_url": "https://www.bilibili.com/video/BV1GNyVzpEja",
+      "aid": 117659052017108,
+      "cid": 43822481874,
+      "category": "flagship",
+      "bytes": 499482490,
+      "mib": 476.34,
+      "duration_seconds": 165.76,
+      "resolution": "1920x1080",
+      "fps": 30,
+      "sha256": "213d49b30b1491b80f911a98372abb21123ea574ce69d78a522b2f93a94f72d5",
+      "release_tag": "update-2026-11-22-evening",
+      "github_asset_id": 779104993,
+      "download_url": "https://github.com/whitecarp/agentic-work-lab/releases/download/update-2026-11-22-evening/aigo-ep13a-20261122.mp4",
+      "status": "published_verified"
+    },
+    {
+      "id": "claude-yelan-cos-20261122",
+      "file": "claude-yelan-cos-20261122.mp4",
+      "title_zh": "《蘭生幽谷 × Claude 娘》雨夜微醺變裝短片（9:16 豎版母帶）",
+      "title_en": "Valley Orchid × Claude Cosplay Dress-Up Short (9:16 Master)",
+      "date": "2026-11-22",
+      "bvid": "BV1ALyuzFErJ",
+      "bilibili_url": "https://www.bilibili.com/video/BV1ALyuzFErJ",
+      "aid": 117657206523908,
+      "cid": 43811014470,
+      "category": "vertical-short",
+      "bytes": 113008112,
+      "mib": 107.77,
+      "duration_seconds": 31.77,
+      "resolution": "1080x1920",
+      "fps": 60,
+      "sha256": "c25316f3d260ba82332d133fd95abf972f1e3b24437abc0d29113c88b81ee498",
+      "release_tag": "update-2026-11-22-evening",
+      "github_asset_id": 779104985,
+      "download_url": "https://github.com/whitecarp/agentic-work-lab/releases/download/update-2026-11-22-evening/claude-yelan-cos-20261122.mp4",
+      "status": "published_verified"
+    }
+  ],
+  "completed_unpublished_pending_release": [
+    {
+      "project_id": "aigo-ep13b-20261123",
+      "working_title_zh": "《AiGO!!!!! × Ai Mujica》第 13 話後篇 硅基のMúsica（全季完結穹頂聖歌 MV #8）",
+      "working_title_en": "AiGO!!!!! × Ai Mujica Episode 13 Part B: Silicon Música (Season Finale MV #8)",
+      "local_master_file": "aigo-ep13b-20261123/renders/ep13b.mp4",
+      "duration_seconds": 213.17,
+      "resolution": "1920x1080",
+      "fps": 30,
+      "bytes": 739135667,
+      "sha256": "307e258c91e16afba768f64a7c884fd8ee7a464d1677cfc3b47c7cbf37552cbc",
+      "scheduled_release_window": "2026-11-23 16:00 (UTC+8)",
+      "status": "master_v3r2_reapproved_awaiting_release_window"
+    }
+  ],
+  "queued_daily_release_parts": {
+    "parent_bvid": "BV1YL4M6EEek",
+    "parent_title": "大肥魚值班小遊戲，到底有多少種結局？（B站裡就能玩）",
+    "schedule_rule": "截至 2026-11-21 06:05（UTC+8），全 19 個豎屏結局分P（P1–P19，含今日 05:50:52 上傳並於 06:05 完成狀態與 4 大互動組件核驗之收官回 P19《下班搭子》）已全部公開（state == 0）並完整納入 GitHub Release，待排期剩餘為 0。",
+    "live_parts_count": 19,
+    "remaining_queued_count": 0,
+    "schedule_window": "2026-11-03 至 2026-11-21（19 全結局連載已圓滿完結）",
+    "remaining_files": []
+  },
+  "held_owner_review_and_drafts": [
+    "scheduled finale episode EP13B (2026-11-23 16:00 BJT) and scheduled future cosplay/dress-up uploads (state == -40) awaiting scheduled publish windows (strictly excluded)",
+    "non-public state == -50 owner-only uploads such as news-20261120-anthropic-ipo-close (BV138yxz9E42, re-verified state == -50 via bili.exe upload status on 2026-11-22; strictly excluded under state == 0 gate)",
+    "unreleased code-drawn films (film-song-20261120, film-planet-20261121) and unreleased/WIP local production projects (strictly excluded)",
+    "superseded pre-replace cuts (including dressup-opacity-20261121 pre-resubmit cid 43808984075 and prior skating cuts), preview encodes, and embedded component clips (strictly excluded)"
+  ],
+  "research_and_engineering_increments_2026_11_22": {
+    "strategic_content_pivot_cosplay_shorts": {
+      "effective_bjt": "2026-11-22T07:05:00+08:00",
+      "change": "Retired automated [AI News Flash] production and shifted daily short-form pipeline toward Bilibili-activity-aligned character cosplay and outfit-transition shorts (consolidated under collection season_id 9523631)."
+    },
+    "dressup_opacity_ps_ui_and_source_replace": {
+      "bvid": "BV1svygzNEmJ",
+      "publish_time_bjt": "2026-11-22T10:00:00+08:00",
+      "source_replace_bjt": "2026-11-22T14:02:04+08:00",
+      "active_cid": 43818879727,
+      "duration_seconds": 25.18,
+      "resolution": "1080x1920",
+      "fps": 60,
+      "snapshot_stats": {
+        "view": 1179,
+        "danmaku": 15,
+        "reply": 6,
+        "favorite": 15,
+        "coin": 0,
+        "share": 1,
+        "like": 43
+      },
+      "note": "Combined Codex character keyframes, Gemini Omni 1.2 Flash motion clips, 60fps HyperFrames PS opacity UI overlay, and Breeze Blue commercial TTS voice stems; superseded pre-replace upload excluded."
+    },
+    "skating_troika_v8_safebadge_replacement": {
+      "bvid": "BV1Njsh6FEBq",
+      "source_replace_bjt": "2026-11-22T13:56:13+08:00",
+      "active_cid": 43818683649,
+      "duration_seconds": 93.93,
+      "resolution": "1280x720",
+      "fps": 30,
+      "snapshot_stats": {
+        "view": 3235,
+        "danmaku": 8,
+        "reply": 32,
+        "favorite": 44,
+        "coin": 7,
+        "share": 3,
+        "like": 70
+      },
+      "note": "Added permanent top-left safety disclaimer badge without trimming footage; 4/4 widgets and 4/4 seed danmaku re-verified on cid 43818683649 while preserving prior v6 and v7 cuts in manifest.json."
+    },
+    "aigo_ep13a_live_release": {
+      "bvid": "BV1GNyVzpEja",
+      "publish_time_bjt": "2026-11-22T16:09:26+08:00",
+      "cid": 43822481874,
+      "duration_seconds": 165.76,
+      "resolution": "1920x1080",
+      "fps": 30,
+      "snapshot_stats": {
+        "view": 2864,
+        "danmaku": 5,
+        "reply": 3,
+        "favorite": 7,
+        "coin": 0,
+        "share": 0,
+        "like": 16
+      },
+      "note": "Arena Live MV #7 graduated from completed_unpublished_pending_release with 4/4 interactive widgets and 5/5 seed danmaku verified; supported by launch-day paid/external promotion (tracked separately from zero-paid-boost series)."
+    },
+    "claude_yelan_cos_live_release": {
+      "bvid": "BV1ALyuzFErJ",
+      "publish_time_bjt": "2026-11-22T18:30:00+08:00",
+      "cid": 43811014470,
+      "duration_seconds": 31.77,
+      "resolution": "1080x1920",
+      "fps": 60,
+      "snapshot_stats": {
+        "view": 119,
+        "danmaku": 4,
+        "reply": 1,
+        "favorite": 0,
+        "coin": 0,
+        "share": 1,
+        "like": 5
+      },
+      "note": "First activity-aligned cosplay short under the Nov 22 pivot, with collection 9523631, 3/3 interactive widgets, and 4/4 seed danmaku verified."
+    },
+    "organic_followups": "BV1Eaxt6LEhb climbed to 118,714 views; BV1kDse6YEPH reached 78,944 views; BV1sQ4E6eEhK reached 69,303 views; BV12YsE6fEcU reached 10,710 views; BV1FVsp6FENs jumped to 7,089 views; BV19Ms26SEWU (Ep.10) reached 8,502 views; BV14zyxzmEio reached 1,720 organic views; BV1pZyazfEQE (Ep.12 SP) reached 2,325 views."
+  },
+  "public_channel_snapshot_2026_11_22": {
+    "sampled_at_bjt": "2026-11-22T21:03:25+08:00",
+    "uid": 10706217,
+    "name": "穿睡衣的小白白",
+    "followers": 39537,
+    "following": 29,
+    "cumulative_views": 3484095,
+    "cumulative_likes": 235354,
+    "tracked_bvid_count": 56,
+    "live_public_bvid_count": 34,
+    "google_cloud_official_traffic_matrix": {
+      "program": "Google Cloud (Google 出海創新競賽單元 / Google Global Innovation Track)",
+      "sampled_at": "2026-11-22T21:03:25+08:00",
+      "baseline_2026_11_08_views": 35690,
+      "totals": {
+        "views": 43526,
+        "likes": 2309,
+        "favorites": 2596,
+        "coins": 129,
+        "comments": 410,
+        "shares": 224,
+        "danmaku": 161,
+        "likes_plus_favorites": 4905
+      },
+      "videos": [
+        "BV1WQ4t6xEdT",
+        "BV1nw4h64Ebf",
+        "BV1BM4h6pEY7"
+      ]
+    }
+  },
+  "updated_at": "2026-11-22T21:08:39+08:00"
+}

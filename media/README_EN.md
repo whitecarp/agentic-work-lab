@@ -2,11 +2,11 @@
 
 [繁體中文](README.md) · **English**
 
-2026-11-21 · **106** video versions · **9.13 GiB** (across **18** primary public Releases)
+2026-11-22 · **110** video versions · **9.81 GiB** (across **19** primary public Releases)
 
-All 106 remote sizes and SHA-256 digests match the manifest. Versions are not episode counts. Original sample dates and historical Bilibili states remain in the index; old scheduled times are not treated as proof of publication. Complete experimental exports are not claims of full user acceptance.
+All 110 remote sizes and SHA-256 digests match the manifest. Versions are not episode counts. Original sample dates and historical Bilibili states remain in the index; old scheduled times are not treated as proof of publication. Complete experimental exports are not claims of full user acceptance.
 
-[Checksums](SHA256SUMS.txt) · [Manifest](manifest.json) · [New research and limits](../docs/updates/2026-11-21_EN.md)
+[Checksums](SHA256SUMS.txt) · [Manifest](manifest.json) · [New research and limits](../docs/updates/2026-11-22_EN.md)
 
 | File | Work | Recorded Bilibili state | MiB |
 |---|---|---|---:|
@@ -116,7 +116,11 @@ All 106 remote sizes and SHA-256 digests match the manifest. Versions are not ep
 | [news-20261121-inkling-2-mini.mp4](https://github.com/whitecarp/agentic-work-lab/releases/download/update-2026-11-21-evening/news-20261121-inkling-2-mini.mp4) | [AI News Flash] Offline on a 20GB Laptop! Ex-OpenAI CTO Team Open-Sources Looped MoE Inkling 2 Mini, Leading Qwen3.8 on Coding Benchmarks (16:9 Master v1) | published (`BV14zyxzmEio`) | 42.52 |
 | [ep07-vertical-s-together-v1.mp4](https://github.com/whitecarp/agentic-work-lab/releases/download/update-2026-11-21-evening/ep07-vertical-s-together-v1.mp4) | WhaleGirl Shift Simulator Endings P19: Off-Shift Buddy (19/19 Finale · 9:16 Vertical v1) | published (`BV1YL4M6EEek/?p=19`) | 9.10 |
 | [aigo-ep12sp-20261121.mp4](https://github.com/whitecarp/agentic-work-lab/releases/download/update-2026-11-21-evening/aigo-ep12sp-20261121.mp4) | AiGO!!!!! × Ai Mujica Ep.12 SP: KiLLToken (Unmasked Rock MV · 16:9 Master) | published (`BV1pZyazfEQE`) | 560.08 |
+| [dressup-opacity-20261121-v2-resubmit.mp4](https://github.com/whitecarp/agentic-work-lab/releases/download/update-2026-11-22-evening/dressup-opacity-20261121-v2-resubmit.mp4) | WhaleGirl Layer Opacity 50% / 30%? Stop Dragging Left! (`v2_resubmit` Clean Master · 9:16 Vertical) | published (`BV1svygzNEmJ` · `cid: 43818879727`) | 49.55 |
+| [skating-troika-ai-girls-v8-safebadge-20261122.mp4](https://github.com/whitecarp/agentic-work-lab/releases/download/update-2026-11-22-evening/skating-troika-ai-girls-v8-safebadge-20261122.mp4) | AI Girls as the Figure Skating Troika! GPT White Dragon Cantilever × WhaleGirl × Claude Rotoscope (`v8 SafeBadge` Master) | published (`BV1Njsh6FEBq` · `cid: 43818683649`) | 63.83 |
+| [aigo-ep13a-20261122.mp4](https://github.com/whitecarp/agentic-work-lab/releases/download/update-2026-11-22-evening/aigo-ep13a-20261122.mp4) | AiGO!!!!! × Ai Mujica Ep.13 Part A: Zero-Drop Sky (Arena Live MV #7 · 16:9 Master) | published (`BV1GNyVzpEja`) | 476.34 |
+| [claude-yelan-cos-20261122.mp4](https://github.com/whitecarp/agentic-work-lab/releases/download/update-2026-11-22-evening/claude-yelan-cos-20261122.mp4) | Valley Orchid × Claude Cosplay Dress-Up Short (9:16 Master) | published (`BV1ALyuzFErJ`) | 107.77 |
 
-GitHub archival publication does not change Bilibili schedules (banked/held finale masters for *AiGO!!!!! × Ai Mujica* `EP13A` and `EP13B`, non-public `state == -50` news items such as `BV138yxz9E42`, unreviewed local experiments, and embedded component subclips remain strictly excluded until verified `state == 0` on Bilibili; all `P1–P19` parts of *WhaleGirl Shift Simulator* are now complete and archived). Technical checks are distinct from full subjective viewing/listening. Historical human-led originals are not available locally; their [data and platform links](../data/human-led-history.csv) remain available.
+GitHub archival publication does not change Bilibili schedules (held finale master `EP13B`, scheduled upcoming cosplay uploads with `state == -40`, non-public `state == -50` items such as `BV138yxz9E42`, unreviewed/unreleased local projects, superseded pre-replace cuts, and embedded component subclips remain strictly excluded until verified `state == 0` on Bilibili). Technical checks are distinct from full subjective viewing/listening. Historical human-led originals are not available locally; their [data and platform links](../data/human-led-history.csv) remain available.
 
 [Back to the lab](../README_EN.md)
