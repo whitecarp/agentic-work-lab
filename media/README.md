@@ -2,11 +2,11 @@
 
 **繁體中文** · [English](README_EN.md)
 
-2026-11-22 · **110** 個影片版本 · **9.81 GiB**（分布於 **19** 個主要公開 Release）
+2026-11-23 · **115** 個影片版本 · **10.75 GiB**（分布於 **20** 個主要公開 Release）
 
-全部 110 個遠端附件的大小及 SHA-256 均與索引一致；版本數不等於集數。保留每筆採樣日期與 B站歷史狀態，不把已過的排期時間當作公開證明。完整實驗交付不等於使用者全片驗收。
+全部 115 個遠端附件的大小及 SHA-256 均與索引一致；版本數不等於集數。保留每筆採樣日期與 B站歷史狀態，不把已過的排期時間當作公開證明。完整實驗交付不等於使用者全片驗收。
 
-[校驗清單](SHA256SUMS.txt) · [完整索引](manifest.json) · [本輪研究與限制](../docs/updates/2026-11-22.md)
+[校驗清單](SHA256SUMS.txt) · [完整索引](manifest.json) · [本輪研究與限制](../docs/updates/2026-11-23.md)
 
 | 檔案 | 作品 | 已記錄的 B站狀態 | MiB |
 |---|---|---|---:|
@@ -120,7 +120,12 @@
 | [skating-troika-ai-girls-v8-safebadge-20261122.mp4](https://github.com/whitecarp/agentic-work-lab/releases/download/update-2026-11-22-evening/skating-troika-ai-girls-v8-safebadge-20261122.mp4) | 當 AI 娘化身花滑三套娃！GPT 白龍蟹步 × 大肥魚 × Claude 娘真人轉繪（`v8 SafeBadge` 換源現行版） | 已公開（`BV1Njsh6FEBq` · `cid: 43818683649`） | 63.83 |
 | [aigo-ep13a-20261122.mp4](https://github.com/whitecarp/agentic-work-lab/releases/download/update-2026-11-22-evening/aigo-ep13a-20261122.mp4) | 《AiGO!!!!! × Ai Mujica》第 13 話前篇 零雫空（雙團聯合 Live 上半場 MV #7 · 16:9 橫版母帶） | 已公開（`BV1GNyVzpEja`） | 476.34 |
 | [claude-yelan-cos-20261122.mp4](https://github.com/whitecarp/agentic-work-lab/releases/download/update-2026-11-22-evening/claude-yelan-cos-20261122.mp4) | 《蘭生幽谷 × Claude 娘》雨夜微醺變裝短片（9:16 豎版母帶） | 已公開（`BV1ALyuzFErJ`） | 107.77 |
+| [gpt-40k-giveaway-20261123.mp4](https://github.com/whitecarp/agentic-work-lab/releases/download/update-2026-11-23-evening/gpt-40k-giveaway-20261123.mp4) | 【粉絲抽獎】40000 粉抽 Codex Pro 100！快來領取你的專屬 Ai 娘！（16:9 橫版母帶） | 已公開（`BV1aDyLz8E2s`） | 28.98 |
+| [skating-troika-ai-girls-v9-resubmit-20261123.mp4](https://github.com/whitecarp/agentic-work-lab/releases/download/update-2026-11-23-evening/skating-troika-ai-girls-v9-resubmit-20261123.mp4) | 當 AI 娘化身花滑三套娃！GPT 白龍蟹步 × 大肥魚 × Claude 娘真人轉繪（`v9_Resubmit` 純洗指紋換源現行版） | 已公開（`BV1Njsh6FEBq` · `cid: 43846863238`） | 61.58 |
+| [dressup-opacity-20261121-v3-resubmit.mp4](https://github.com/whitecarp/agentic-work-lab/releases/download/update-2026-11-23-evening/dressup-opacity-20261121-v3-resubmit.mp4) | 【大肥魚】不透明度 50% / 30%？滑鼠別再往左拉了！（`v3_resubmit` 純洗指紋換源現行版 · 9:16 豎版） | 已公開（`BV1svygzNEmJ` · `cid: 43847060244`） | 49.49 |
+| [aigo-ep13b-20261123.mp4](https://github.com/whitecarp/agentic-work-lab/releases/download/update-2026-11-23-evening/aigo-ep13b-20261123.mp4) | 《AiGO!!!!! × Ai Mujica》第 13 話後篇 硅基のMúsica（全季完結穹頂聖歌 MV #8 · 16:9 橫版母帶） | 已公開（`BV1b2ynzqELL`） | 704.90 |
+| [grok-junko-cos-20261123.mp4](https://github.com/whitecarp/agentic-work-lab/releases/download/update-2026-11-23-evening/grok-junko-cos-20261123.mp4) | 《Grok 娘破漫 Cos 江之島盾子！》四重人格高能變裝 × 黑白撞色比基尼（9:16 60fps 豎版母帶） | 已公開（`BV1xBy5zUEUM`） | 119.00 |
 
-GitHub 存檔公開不更改 B站排期（如儲備成片《AiGO!!!!! × Ai Mujica》第 13 話後篇 `EP13B`、預排等待定時公開之未來活動短片 `state == -40`、未公開或僅自己可見之快訊如 `BV138yxz9E42` `state == -50`、未審核未公開本地實驗片、已被取代之換源前初版與已嵌入成片之附屬子切片均待 B站正式公開後再行處理）；技術檢查與全片主觀觀看／聆聽分開記錄。歷史人工影片原檔不在本機，仍提供其[數據與平台連結](../data/human-led-history.csv)。
+GitHub 存檔公開不更改 B站排期（如預排等待定時公開之未來活動變裝短片 `state == -40`、未公開或僅自己可見之稿件如 `BV138yxz9E42` `state == -50` 與 11-23 轉為僅自己可見之 `BV14zyxzmEio` `state == -50`、未審核未公開本地實驗片、已被同日取代之換源前舊指紋版本與已嵌入成片之附屬子切片均待 B站正式公開後再行處理；過去已公開歸檔維持 append-only）；技術檢查與全片主觀觀看／聆聽分開記錄。歷史人工影片原檔不在本機，仍提供其[數據與平台連結](../data/human-led-history.csv)。
 
 [返回實驗室](../README.md)

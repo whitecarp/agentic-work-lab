@@ -2,11 +2,11 @@
 
 [繁體中文](README.md) · **English**
 
-2026-11-22 · **110** video versions · **9.81 GiB** (across **19** primary public Releases)
+2026-11-23 · **115** video versions · **10.75 GiB** (across **20** primary public Releases)
 
-All 110 remote sizes and SHA-256 digests match the manifest. Versions are not episode counts. Original sample dates and historical Bilibili states remain in the index; old scheduled times are not treated as proof of publication. Complete experimental exports are not claims of full user acceptance.
+All 115 remote sizes and SHA-256 digests match the manifest. Versions are not episode counts. Original sample dates and historical Bilibili states remain in the index; old scheduled times are not treated as proof of publication. Complete experimental exports are not claims of full user acceptance.
 
-[Checksums](SHA256SUMS.txt) · [Manifest](manifest.json) · [New research and limits](../docs/updates/2026-11-22_EN.md)
+[Checksums](SHA256SUMS.txt) · [Manifest](manifest.json) · [New research and limits](../docs/updates/2026-11-23_EN.md)
 
 | File | Work | Recorded Bilibili state | MiB |
 |---|---|---|---:|
@@ -120,7 +120,12 @@ All 110 remote sizes and SHA-256 digests match the manifest. Versions are not ep
 | [skating-troika-ai-girls-v8-safebadge-20261122.mp4](https://github.com/whitecarp/agentic-work-lab/releases/download/update-2026-11-22-evening/skating-troika-ai-girls-v8-safebadge-20261122.mp4) | AI Girls as the Figure Skating Troika! GPT White Dragon Cantilever × WhaleGirl × Claude Rotoscope (`v8 SafeBadge` Master) | published (`BV1Njsh6FEBq` · `cid: 43818683649`) | 63.83 |
 | [aigo-ep13a-20261122.mp4](https://github.com/whitecarp/agentic-work-lab/releases/download/update-2026-11-22-evening/aigo-ep13a-20261122.mp4) | AiGO!!!!! × Ai Mujica Ep.13 Part A: Zero-Drop Sky (Arena Live MV #7 · 16:9 Master) | published (`BV1GNyVzpEja`) | 476.34 |
 | [claude-yelan-cos-20261122.mp4](https://github.com/whitecarp/agentic-work-lab/releases/download/update-2026-11-22-evening/claude-yelan-cos-20261122.mp4) | Valley Orchid × Claude Cosplay Dress-Up Short (9:16 Master) | published (`BV1ALyuzFErJ`) | 107.77 |
+| [gpt-40k-giveaway-20261123.mp4](https://github.com/whitecarp/agentic-work-lab/releases/download/update-2026-11-23-evening/gpt-40k-giveaway-20261123.mp4) | 40K Follower Giveaway: Win Codex Pro 100! Claim Your Custom AI Girl (16:9 Master) | published (`BV1aDyLz8E2s`) | 28.98 |
+| [skating-troika-ai-girls-v9-resubmit-20261123.mp4](https://github.com/whitecarp/agentic-work-lab/releases/download/update-2026-11-23-evening/skating-troika-ai-girls-v9-resubmit-20261123.mp4) | AI Girls as the Figure Skating Troika! GPT White Dragon Cantilever × WhaleGirl × Claude Rotoscope (`v9_Resubmit` Clean Replacement Master) | published (`BV1Njsh6FEBq` · `cid: 43846863238`) | 61.58 |
+| [dressup-opacity-20261121-v3-resubmit.mp4](https://github.com/whitecarp/agentic-work-lab/releases/download/update-2026-11-23-evening/dressup-opacity-20261121-v3-resubmit.mp4) | WhaleGirl Layer Opacity 50% / 30%? Stop Dragging Left! (`v3_resubmit` Clean Master · 9:16 Vertical) | published (`BV1svygzNEmJ` · `cid: 43847060244`) | 49.49 |
+| [aigo-ep13b-20261123.mp4](https://github.com/whitecarp/agentic-work-lab/releases/download/update-2026-11-23-evening/aigo-ep13b-20261123.mp4) | AiGO!!!!! × Ai Mujica Ep.13 Part B: Silicon Música (Season 1 Finale MV #8 · 16:9 Master) | published (`BV1b2ynzqELL`) | 704.90 |
+| [grok-junko-cos-20261123.mp4](https://github.com/whitecarp/agentic-work-lab/releases/download/update-2026-11-23-evening/grok-junko-cos-20261123.mp4) | Grok-chan Cosplays Junko Enoshima! Quad-Persona Transition Short (9:16 60fps Master) | published (`BV1xBy5zUEUM`) | 119.00 |
 
-GitHub archival publication does not change Bilibili schedules (held finale master `EP13B`, scheduled upcoming cosplay uploads with `state == -40`, non-public `state == -50` items such as `BV138yxz9E42`, unreviewed/unreleased local projects, superseded pre-replace cuts, and embedded component subclips remain strictly excluded until verified `state == 0` on Bilibili). Technical checks are distinct from full subjective viewing/listening. Historical human-led originals are not available locally; their [data and platform links](../data/human-led-history.csv) remain available.
+GitHub archival publication does not change Bilibili schedules (scheduled upcoming cosplay uploads with `state == -40`, non-public `state == -50` items such as `BV138yxz9E42` and Nov 23 owner-hidden `BV14zyxzmEio`, unreviewed/unreleased local projects, superseded pre-replace cuts, and embedded component subclips remain strictly excluded until verified `state == 0` on Bilibili; previously published Release assets remain append-only). Technical checks are distinct from full subjective viewing/listening. Historical human-led originals are not available locally; their [data and platform links](../data/human-led-history.csv) remain available.
 
 [Back to the lab](../README_EN.md)

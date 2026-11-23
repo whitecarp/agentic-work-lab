@@ -1,0 +1,290 @@
+{
+  "date": "2026-11-23",
+  "coverage_window": "2026-11-22T21:08:39+08:00 to 2026-11-23T21:11:00+08:00",
+  "release_tag": "update-2026-11-23-evening",
+  "release_url": "https://github.com/whitecarp/agentic-work-lab/releases/tag/update-2026-11-23-evening",
+  "github_release_id": 455439678,
+  "new_release_items_count": 5,
+  "new_release_bytes": 1010785591,
+  "total_manifest_items": 115,
+  "total_manifest_bytes": 11547985072,
+  "total_manifest_gib": 10.75,
+  "total_public_releases": 20,
+  "new_media": [
+    {
+      "id": "gpt-40k-giveaway-20261123",
+      "file": "gpt-40k-giveaway-20261123.mp4",
+      "title_zh": "【粉絲抽獎】40000 粉抽 Codex Pro 100！快來領取你的專屬 Ai 娘！（16:9 橫版母帶）",
+      "title_en": "40K Follower Giveaway: Win Codex Pro 100! Claim Your Custom AI Girl (16:9 Master)",
+      "date": "2026-11-23",
+      "bvid": "BV1aDyLz8E2s",
+      "bilibili_url": "https://www.bilibili.com/video/BV1aDyLz8E2s",
+      "aid": 117661535176325,
+      "cid": 43839127726,
+      "category": "flagship",
+      "bytes": 30392808,
+      "mib": 28.98,
+      "duration_seconds": 41.9,
+      "resolution": "1920x1080",
+      "fps": 30,
+      "sha256": "9cb234b9da36dc115f6cabee53a8f2771fe76c9dccecb521abdc71cd41f36292",
+      "release_tag": "update-2026-11-23-evening",
+      "github_asset_id": 782983560,
+      "download_url": "https://github.com/whitecarp/agentic-work-lab/releases/download/update-2026-11-23-evening/gpt-40k-giveaway-20261123.mp4",
+      "status": "published_verified"
+    },
+    {
+      "id": "skating-troika-ai-girls-v9-resubmit-20261123",
+      "file": "skating-troika-ai-girls-v9-resubmit-20261123.mp4",
+      "title_zh": "當 AI 娘化身花滑三套娃！GPT 白龍蟹步 × 大肥魚 × Claude 娘真人轉繪（v9_Resubmit 純洗指紋換源現行版）",
+      "title_en": "AI Girls as the Figure Skating Troika! GPT White Dragon Cantilever × WhaleGirl × Claude Rotoscope (v9_Resubmit Master)",
+      "date": "2026-11-23",
+      "bvid": "BV1Njsh6FEBq",
+      "bilibili_url": "https://www.bilibili.com/video/BV1Njsh6FEBq",
+      "aid": 117642643900833,
+      "cid": 43846863238,
+      "category": "flagship",
+      "bytes": 64574034,
+      "mib": 61.58,
+      "duration_seconds": 93.9,
+      "resolution": "1280x720",
+      "fps": 30,
+      "sha256": "a4fe657f7d473c4b21ea851bd73aee57272598bed016f41c61c8979e4528b7f7",
+      "release_tag": "update-2026-11-23-evening",
+      "github_asset_id": 782983562,
+      "download_url": "https://github.com/whitecarp/agentic-work-lab/releases/download/update-2026-11-23-evening/skating-troika-ai-girls-v9-resubmit-20261123.mp4",
+      "status": "published_verified"
+    },
+    {
+      "id": "dressup-opacity-20261121-v3-resubmit",
+      "file": "dressup-opacity-20261121-v3-resubmit.mp4",
+      "title_zh": "【大肥魚】不透明度 50% / 30%？滑鼠別再往左拉了！（v3_resubmit 純洗指紋換源現行版 · 9:16 豎版）",
+      "title_en": "WhaleGirl Layer Opacity 50% / 30%? Stop Dragging Left! (v3_resubmit Clean Master · 9:16 Vertical)",
+      "date": "2026-11-23",
+      "bvid": "BV1svygzNEmJ",
+      "bilibili_url": "https://www.bilibili.com/video/BV1svygzNEmJ",
+      "aid": 117656334108188,
+      "cid": 43847060244,
+      "category": "vertical-short",
+      "bytes": 51897908,
+      "mib": 49.49,
+      "duration_seconds": 25.15,
+      "resolution": "1080x1920",
+      "fps": 60,
+      "sha256": "b4389e30650ca9728e8bf6826de744403261fe43b4b4afbfd3708ee9a49f99fd",
+      "release_tag": "update-2026-11-23-evening",
+      "github_asset_id": 782983561,
+      "download_url": "https://github.com/whitecarp/agentic-work-lab/releases/download/update-2026-11-23-evening/dressup-opacity-20261121-v3-resubmit.mp4",
+      "status": "published_verified"
+    },
+    {
+      "id": "aigo-ep13b-20261123",
+      "file": "aigo-ep13b-20261123.mp4",
+      "title_zh": "《AiGO!!!!! × Ai Mujica》第 13 話後篇 硅基のMúsica（全季完結穹頂聖歌 MV #8 · 16:9 橫版母帶）",
+      "title_en": "AiGO!!!!! × Ai Mujica Ep.13 Part B: Silicon Música (Season 1 Finale MV #8 · 16:9 Master)",
+      "date": "2026-11-23",
+      "bvid": "BV1b2ynzqELL",
+      "bilibili_url": "https://www.bilibili.com/video/BV1b2ynzqELL",
+      "aid": 117664672384974,
+      "cid": 43853614248,
+      "category": "flagship",
+      "bytes": 739135667,
+      "mib": 704.89,
+      "duration_seconds": 213.17,
+      "resolution": "1920x1080",
+      "fps": 30,
+      "sha256": "307e258c91e16afba768f64a7c884fd8ee7a464d1677cfc3b47c7cbf37552cbc",
+      "release_tag": "update-2026-11-23-evening",
+      "github_asset_id": 782983563,
+      "download_url": "https://github.com/whitecarp/agentic-work-lab/releases/download/update-2026-11-23-evening/aigo-ep13b-20261123.mp4",
+      "status": "published_verified"
+    },
+    {
+      "id": "grok-junko-cos-20261123",
+      "file": "grok-junko-cos-20261123.mp4",
+      "title_zh": "《Grok 娘破漫 Cos 江之島盾子！》四重人格高能變裝 × 黑白撞色比基尼（9:16 60fps 豎版母帶）",
+      "title_en": "Grok-chan Cosplays Junko Enoshima! Quad-Persona Transition Short (9:16 60fps Master)",
+      "date": "2026-11-23",
+      "bvid": "BV1xBy5zUEUM",
+      "bilibili_url": "https://www.bilibili.com/video/BV1xBy5zUEUM",
+      "aid": 117660108983425,
+      "cid": 43830348771,
+      "category": "vertical-short",
+      "bytes": 124785174,
+      "mib": 119,
+      "duration_seconds": 35.53,
+      "resolution": "1080x1920",
+      "fps": 60,
+      "sha256": "a299252f172179cdf43f5a207134d3994baf5d41fafd5982a25ba6dc4cf5b6e8",
+      "release_tag": "update-2026-11-23-evening",
+      "github_asset_id": 782983571,
+      "download_url": "https://github.com/whitecarp/agentic-work-lab/releases/download/update-2026-11-23-evening/grok-junko-cos-20261123.mp4",
+      "status": "published_verified"
+    }
+  ],
+  "completed_unpublished_pending_release": [],
+  "queued_daily_release_parts": {
+    "parent_bvid": "BV1YL4M6EEek",
+    "parent_title": "大肥魚值班小遊戲，到底有多少種結局？（B站裡就能玩）",
+    "schedule_rule": "截至 2026-11-21 06:05（UTC+8），全 19 個豎屏結局分P（P1–P19）已全部公開（state == 0）並完整納入 GitHub Release，待排期剩餘為 0。",
+    "live_parts_count": 19,
+    "remaining_queued_count": 0,
+    "schedule_window": "2026-11-03 至 2026-11-21（19 全結局連載已圓滿完結）",
+    "remaining_files": []
+  },
+  "held_owner_review_and_drafts": [
+    "scheduled upcoming cosplay uploads (2 entries at state == -40) awaiting their scheduled Bilibili publish windows (strictly excluded without binary uploads or spoilers)",
+    "non-public state == -50 owner-only uploads: news-20261120-anthropic-ipo-close (BV138yxz9E42, re-verified state == -50 via bili.exe upload status on 2026-11-23) and news-20261121-inkling-2-mini (BV14zyxzmEio, hidden/set private by owner on 2026-11-23 16:08 BJT and re-verified state == -50; its Nov 21 Release entry remains preserved append-only)",
+    "unreleased/WIP local production projects and code-drawn drafts (strictly excluded)",
+    "superseded pre-replace cuts (including BV1Njsh6FEBq v8_SafeBadge cid 43818683649 -> v9_Resubmit cid 43846863238 and BV1svygzNEmJ v2_resubmit cid 43818879727 -> v3_resubmit cid 43847060244, while prior v6/v7/v8 and v2_resubmit entries remain preserved in manifest.json), preview encodes, and embedded component clips (strictly excluded)"
+  ],
+  "research_and_engineering_increments_2026_11_23": {
+    "follower_40k_giveaway_and_open_source_lottery": {
+      "bvid": "BV1aDyLz8E2s",
+      "publish_time_bjt": "2026-11-23T02:38:54+08:00",
+      "cid": 43839127726,
+      "duration_seconds": 41.9,
+      "resolution": "1920x1080",
+      "fps": 30,
+      "snapshot_stats": {
+        "view": 2080,
+        "danmaku": 4,
+        "reply": 65,
+        "favorite": 26,
+        "coin": 30,
+        "share": 0,
+        "like": 67
+      },
+      "companion_artifacts": [
+        "https://www.bilibili.com/toy/ticket/index.html",
+        "https://github.com/whitecarp/ai-girl-lottery"
+      ],
+      "note": "40k-follower Codex Pro 100 giveaway launch paired with the interactive Bilibili milestone-ticket Toy and open-source whitecarp/ai-girl-lottery comment-tree verification app (all 4 native widgets and 3 seed danmaku verified live; automated [AI News Flash] remains paused per owner order)."
+    },
+    "fingerprint_reset_source_replacements": {
+      "skating_troika_v9_resubmit": {
+        "bvid": "BV1Njsh6FEBq",
+        "old_cid": 43818683649,
+        "new_cid": 43846863238,
+        "finished_bjt": "2026-11-23T11:28:26+08:00",
+        "snapshot_stats": {
+          "view": 4125,
+          "danmaku": 8,
+          "reply": 34,
+          "favorite": 60,
+          "coin": 7,
+          "share": 5,
+          "like": 91
+        }
+      },
+      "dressup_opacity_v3_resubmit": {
+        "bvid": "BV1svygzNEmJ",
+        "old_cid": 43818879727,
+        "new_cid": 43847060244,
+        "finished_bjt": "2026-11-23T11:36:47+08:00",
+        "snapshot_stats": {
+          "view": 1779,
+          "danmaku": 9,
+          "reply": 9,
+          "favorite": 58,
+          "coin": 6,
+          "share": 2,
+          "like": 124
+        }
+      },
+      "note": "Both live BVs received clean re-encoded fingerprint-reset source replacements on 2026-11-23 while keeping their pinned comments, season 9523631 memberships, 4/4 interactive widgets, and 4/4 seed danmaku verified on the replacement CIDs."
+    },
+    "community_boost_submission_27": {
+      "submission_number": 27,
+      "submitted_bjt": "2026-11-23T12:29:00+08:00",
+      "bvid": "BV1GNyVzpEja",
+      "views_at_submission": 3622,
+      "snapshot_stats_evening": {
+        "view": 3856,
+        "danmaku": 10,
+        "reply": 5,
+        "favorite": 8,
+        "coin": 0,
+        "share": 0,
+        "like": 18
+      },
+      "note": "Ep.13 Part A qualified on Day+1 (>60s, >=1,000 views) and was submitted cleanly as Community Boost Form entry #27."
+    },
+    "aigo_season1_finale_ep13b": {
+      "bvid": "BV1b2ynzqELL",
+      "publish_time_bjt": "2026-11-23T15:59:10+08:00",
+      "cid": 43853614248,
+      "duration_seconds": 213.17,
+      "resolution": "1920x1080",
+      "fps": 30,
+      "snapshot_stats": {
+        "view": 704,
+        "danmaku": 7,
+        "reply": 6,
+        "favorite": 3,
+        "coin": 2,
+        "share": 1,
+        "like": 12
+      },
+      "note": "Season 1 finale Cathedral Anthem MV #8 graduated from completed_unpublished_pending_release with 4/4 interactive widgets, 5/5 seed danmaku, and collection binding verified."
+    },
+    "grok_junko_cos_live_release": {
+      "bvid": "BV1xBy5zUEUM",
+      "publish_time_bjt": "2026-11-23T18:28:00+08:00",
+      "cid": 43830348771,
+      "duration_seconds": 35.53,
+      "resolution": "1080x1920",
+      "fps": 60,
+      "snapshot_stats": {
+        "view": 122,
+        "danmaku": 3,
+        "reply": 3,
+        "favorite": 3,
+        "coin": 0,
+        "share": 0,
+        "like": 5
+      },
+      "note": "Activity-aligned cosplay transition short published under collection 9523631 with event mission topic binding, 3/3 interactive widgets, and 4/4 seed danmaku verified."
+    },
+    "owner_visibility_change_BV14zyxzmEio": {
+      "bvid": "BV14zyxzmEio",
+      "transitioned_at_bjt": "2026-11-23T16:08:00+08:00",
+      "new_state": -50,
+      "public_view_api_code": 62012,
+      "note": "Owner set the Nov 21 Inkling 2 Mini AI News Flash to owner-only/hidden (state == -50); its already-archived Nov 21 Release asset remains append-only while excluded from active public tracking."
+    },
+    "organic_followups": "BV1Eaxt6LEhb climbed to 119,421 views; BV1kDse6YEPH reached 79,352 views; BV1sQ4E6eEhK reached 69,404 views; BV12YsE6fEcU reached 11,269 views; BV1FVsp6FENs reached 11,286 views; BV19Ms26SEWU (Ep.10) reached 8,745 views; BV1pZyazfEQE (Ep.12 SP) reached 2,351 views."
+  },
+  "public_channel_snapshot_2026_11_23": {
+    "sampled_at_bjt": "2026-11-23T21:08:27+08:00",
+    "uid": 10706217,
+    "name": "穿睡衣的小白白",
+    "followers": 39710,
+    "following": 29,
+    "cumulative_views": 3502015,
+    "cumulative_likes": 235897,
+    "tracked_bvid_count": 59,
+    "live_public_bvid_count": 36,
+    "google_cloud_official_traffic_matrix": {
+      "program": "Google Cloud (Google 出海創新競賽單元 / Google Global Innovation Track)",
+      "sampled_at": "2026-11-23T21:08:27+08:00",
+      "baseline_2026_11_08_views": 35690,
+      "totals": {
+        "views": 43814,
+        "likes": 2313,
+        "favorites": 2604,
+        "coins": 129,
+        "comments": 410,
+        "shares": 229,
+        "danmaku": 162,
+        "likes_plus_favorites": 4917
+      },
+      "videos": [
+        "BV1WQ4t6xEdT",
+        "BV1nw4h64Ebf",
+        "BV1BM4h6pEY7"
+      ]
+    }
+  },
+  "updated_at": "2026-11-23T21:11:00+08:00"
+}

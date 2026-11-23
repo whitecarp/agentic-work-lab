@@ -2,7 +2,7 @@
 
 **繁體中文** · [English](README_EN.md)
 
-**2026-11-22：** 新增 [2026-11-22 晚間增量結構化紀錄](production-update-2026-11-22.json) 與更新後的 [公開即時指標快照](metrics/current-metrics.json)（詳見 [2026-11-22 增量更新報告](../docs/updates/2026-11-22.md)）。先前 2026-11-21、2026-11-20、2026-11-19、2026-11-18、2026-11-17、2026-11-16、2026-11-15、2026-11-14、2026-11-09、2026-11-08 與 2026-11-03 紀錄分別保留於 [production-update-2026-11-21.json](production-update-2026-11-21.json)、[production-update-2026-11-20.json](production-update-2026-11-20.json)、[production-update-2026-11-19.json](production-update-2026-11-19.json)、[production-update-2026-11-18.json](production-update-2026-11-18.json)、[production-update-2026-11-17.json](production-update-2026-11-17.json)、[production-update-2026-11-16.json](production-update-2026-11-16.json)、[production-update-2026-11-15.json](production-update-2026-11-15.json)、[production-update-2026-11-14.json](production-update-2026-11-14.json)、[production-update-2026-11-09.json](production-update-2026-11-09.json)、[production-update-2026-11-08.json](production-update-2026-11-08.json) 與 [production-update-2026-11-03.json](production-update-2026-11-03.json)。下方 2026-10-28 歷史快照保持原口徑與日期。
+**2026-11-23：** 新增 [2026-11-23 晚間增量結構化紀錄](production-update-2026-11-23.json) 與更新後的 [公開即時指標快照](metrics/current-metrics.json)（詳見 [2026-11-23 增量更新報告](../docs/updates/2026-11-23.md)）。先前 2026-11-22、2026-11-21、2026-11-20、2026-11-19、2026-11-18、2026-11-17、2026-11-16、2026-11-15、2026-11-14、2026-11-09、2026-11-08 與 2026-11-03 紀錄分別保留於 [production-update-2026-11-22.json](production-update-2026-11-22.json)、[production-update-2026-11-21.json](production-update-2026-11-21.json)、[production-update-2026-11-20.json](production-update-2026-11-20.json)、[production-update-2026-11-19.json](production-update-2026-11-19.json)、[production-update-2026-11-18.json](production-update-2026-11-18.json)、[production-update-2026-11-17.json](production-update-2026-11-17.json)、[production-update-2026-11-16.json](production-update-2026-11-16.json)、[production-update-2026-11-15.json](production-update-2026-11-15.json)、[production-update-2026-11-14.json](production-update-2026-11-14.json)、[production-update-2026-11-09.json](production-update-2026-11-09.json)、[production-update-2026-11-08.json](production-update-2026-11-08.json) 與 [production-update-2026-11-03.json](production-update-2026-11-03.json)。下方 2026-10-28 歷史快照保持原口徑與日期。
 
 帳號：[穿睡衣的小白白 · UID 10706217](https://space.bilibili.com/10706217)
 
@@ -43,6 +43,10 @@
 ## 2026-10-30 狀態更新
 
 [本輪記錄](production-update-2026-10-30-evening.json)只新增兩份本機實驗交付與 GPT 第四期公開狀態，未更新全帳號流量或首日指標。上方統計及歷史人類／AI 系列口徑仍為原採樣快照，不併入不同日期的局部紀錄。
+
+## 2026-11-23 晚間增量歸檔與公開指標更新
+
+[本輪結構化紀錄](production-update-2026-11-23.json)與[最新即時指標快照](metrics/current-metrics.json)收錄截至 `2026-11-23 21:08:31`（UTC+8）在確認無 `run.lock` 後經 `bili.exe` 唯讀介面逐條核驗公開（`state == 0`）的 **5 個新歸檔成片／換源現行母帶**（[`BV1aDyLz8E2s`](https://www.bilibili.com/video/BV1aDyLz8E2s)《40000 粉抽 Codex Pro 100！》搭配公開互動組件與 [`whitecarp/ai-girl-lottery`](https://github.com/whitecarp/ai-girl-lottery) 達 `2,080` 播、[`BV1Njsh6FEBq`](https://www.bilibili.com/video/BV1Njsh6FEBq)《花滑三套娃 v9_Resubmit 純洗指紋換源現行版》（保留 `v6`/`v7`/`v8` 歷史版本，達 `4,125` 播）、[`BV1svygzNEmJ`](https://www.bilibili.com/video/BV1svygzNEmJ)《不透明度 50% / 30%？v3_resubmit 純洗指紋換源現行版》（保留 `v2_resubmit` 歷史版本，達 `1,779` 播）、[`BV1b2ynzqELL`](https://www.bilibili.com/video/BV1b2ynzqELL)《第 13 話後篇 硅基のMúsica》（全季完結篇自待發隊列畢業，達 `704` 播）與 [`BV1xBy5zUEUM`](https://www.bilibili.com/video/BV1xBy5zUEUM)《Grok 娘破漫 Cos 江之島盾子！》（達 `122` 播），累計 **115 個影片版本 · 10.75 GiB**，分布於 **20** 個主要公開 Release）、**59 支追蹤稿件**（含 `36` 支在線公開 BV 即時快照：`39,710` 粉絲、空間累計 **`3,502,015` 播放**與 **`235,897` 點讚**，Google Cloud 三片矩陣達 **`43,814` 播放**與 `4,917` 點讚＋收藏；`23` 支 `state == -50` 稿件含今日 `16:08` 轉私密之 `BV14zyxzmEio` 分別保留 `2026-11-15`、`2026-11-20` 或 `2026-11-22` 快照），並記錄 `BV1GNyVzpEja` 完成社群自荐表 **#27** 提報（達 `3,856` 播）、嚴格排除預排未來變裝短片（`state == -40`）、`BV138yxz9E42`（`state == -50`）與未發本地專案。不含任何登入憑證、私訊、觀眾名單或內部錢包／帳戶／訂單細節。
 
 ## 2026-11-22 晚間增量歸檔與公開指標更新
 
